@@ -27,7 +27,8 @@ init()
 		//level.allies = ::menuallieszombies;
 		level.lowertexty = 0;
 		setDvar( "sv_cheats", 1 );
-		setDvar( "aim_automelee_enabled", 0 );
+		//setDvar( "aim_automelee_enabled", 0 );
+		//setDvar( "aim_automelee_move_limit", 10000 );
 		setDvar( "g_friendlyfireDist", 0 );
 		//level.czm_gamerule_weapon_restriction_list = ::grief_parse_wall_weapon_restrictions;
 		level.grief_round_win_next_round_countdown = ::countdown_timer_hud;
@@ -41,11 +42,37 @@ init()
 			level.spawnclient = ::spawnclient;
 			level thread test_bots();
 		}
+		level thread instructions();
 		level thread monitor_players_expected_and_connected();
-		wait 10;
+		wait 15;
 		//level thread shuffle_teams();
 		level thread kick_players_not_playing();
     }
+}
+
+instructions_on_all_players()
+{
+	level endon( "end_game" );
+	players = getPlayers();
+	foreach ( player in players )
+	{
+		player thread instructions();
+	}
+}
+
+instructions()
+{
+	level endon( "end_game" );
+	self endon( "disconnect" );
+	rounds = level.grief_gamerules[ "scorelimit" ];
+	self iPrintLn( "Welcome to Grief!" );
+	wait 3;
+	self iPrintLn( "Your goal is to win " + rounds + " rounds" );
+	wait 3;
+	self iPrintLn( "Win a round by downing the entire other team" );
+	wait 3;
+	self iPrintLn( "Good luck!" );
+	wait 3;
 }
 
 monitor_players_expected_and_connected()
@@ -103,7 +130,6 @@ on_player_connect()
 			player.last_griefed_by.meansofdeath = undefined;
 			player.last_griefed_by.weapon = undefined;
 		}
-		player thread kick_ghost_client();
 		player thread on_player_spawn();
 		player thread give_points_on_restart_and_round_change();
        	player set_team();
@@ -128,7 +154,6 @@ on_player_spawn()
 	while ( true )
 	{
 		self waittill( "spawned_player" );
-
 	}
 }
 
@@ -140,9 +165,9 @@ set_team()
 	{
 	 	allies_team_members = getDvar( "grief_allies_team_player_names" );
 		team_keys = strTok( allies_team_members, ";" ); 
-		foreach ( key in team_keys )
+		if ( teamplayersallies < 4 )
 		{
-			if ( teamplayersallies < 4 )
+			foreach ( key in team_keys )
 			{
 				if ( self.name == key )
 				{
@@ -150,18 +175,13 @@ set_team()
 					self.sessionteam = "allies";
 					self.pers[ "team" ] = "allies";
 					self._encounters_team = "B";
-					team_is_defined = true;
 					logline1 = "trying to set player based on name: " + self.name + " to preset team: " + self.team + "\n";
 					logprint( logline1 );
 					break;
 				}
 			}
-			else 
-			{
-				break;
-			}
 		}
-		if ( !is_true( team_is_defined ) && ( teamplayersaxis < 4 ) )
+		else if ( teamplayersaxis < 4 )
 		{
 			self.team = "axis";
 			self.sessionteam = "axis";
@@ -170,13 +190,13 @@ set_team()
 			logline1 = "player didn't have name match: " + self.name + " to preset team: " + self.team + "\n";
 			logprint( logline1 );
 		}
-		else if ( teamplayersallies < 4 )
+		else 
 		{
 			self.team = "allies";
 			self.sessionteam = "allies";
 			self.pers[ "team" ] = "allies";
 			self._encounters_team = "B";
-			logline1 = "player axis team was full and player name didn't match:" + self.name + "to preset team: " + self.team + "\n";
+			logline1 = "player team failsafe: " + self.name + " to preset team: " + self.team + "\n";
 			logprint( logline1 );
 		}
 	}
@@ -391,10 +411,10 @@ zombiesleft_hud()
     level.remaining_zombies_hud.hidewheninmenu = true;
     level.remaining_zombies_hud.label = &"Zombies Left: "; 
 
-	while ( 1 )
+	while ( true )
 	{
-		remainingZombies = get_current_zombie_count() + level.zombie_total;
-		level.remaining_zombies_hud SetValue( remainingZombies );
+		remaining_zombies = get_current_zombie_count() + level.zombie_total;
+		level.remaining_zombies_hud setValue( remaining_zombies );
 		wait 0.05;
 	}		
 }
@@ -606,7 +626,7 @@ player_steal_points( attacker, event )
 				points_to_steal = 1000;
 				break;
 			case "knife":
-				points_to_steal = 50;
+				points_to_steal = 100;
 				break;
 			case "gun":
 				points_to_steal = 20;
@@ -621,7 +641,7 @@ player_steal_points( attacker, event )
 				points_to_steal = 200;
 				break;
 			case "deny_revive":
-				points_to_steal = 100;
+				points_to_steal = 200;
 				break;
 			case "deny_box_weapon_pickup":
 				points_to_steal = 100;
@@ -728,15 +748,7 @@ add_bots()
 
 zbot_spawn()
 {
-	bot = AddTestClient();
-	if ( !IsDefined( bot ) )
-	{
-		logline1 = "bot is not defined! " + "\n";
-		logprint( logline1 );
-		return;
-	}
-			
-	//bot.pers[ "isBot" ] = true;
+	bot = AddTestClient();			
 	bot.equipment_enabled = false;
 	bot [[ level.spawnplayer ]]();
 	return bot;
@@ -961,29 +973,24 @@ destroy_hud_on_game_end()
 	{
 		level.gdm_countdown_text destroy();
 	}
-}
-
-destroy_hud_on_game_end()
-{
-	level waittill( "end_game" );
 	if ( isDefined( level.grief_score_hud[ "A" ] ) )
 	{
-		//level.grief_score_hud[ "A" ] destroy();
+		level.grief_score_hud[ "A" ] destroy();
 		//level.grief_score_hud[ "B" ].alpha = 0;
 	}
 	if ( isDefined( level.grief_score_hud[ "B" ] ) )
 	{
-		//level.grief_score_hud[ "B" ] destroy();
+		level.grief_score_hud[ "B" ] destroy();
 		//level.grief_score_hud[ "B" ].alpha = 0;
 	}
 	if ( isDefined( level.team_shader1 ) ) 
 	{
-		//level.team_shader1 destroy();
+		level.team_shader1 destroy();
 		//level.team_shader1.alpha = 0;
 	}
 	if ( isDefined( level.team_shader2 ) ) 
 	{
-		//level.team_shader2 destroy();
+		level.team_shader2 destroy();
 		//level.team_shader2.alpha = 0;
 	}
 	if ( isDefined( level.remaining_zombies_hud ) )
@@ -991,13 +998,6 @@ destroy_hud_on_game_end()
 		level.remaining_zombies_hud destroy();
 		level.remaining_zombies_hud.alpha = 0;
 	}
-}
-
-kick_ghost_client()
-{
-	entity_num = self getEntityNumber();
-	self waittill( "disconnect" );
-	kick( entity_num );
 }
 
 spawnclient( timealreadypassed ) //checked matches cerberus output
