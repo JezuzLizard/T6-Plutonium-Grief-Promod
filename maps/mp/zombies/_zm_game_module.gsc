@@ -4,7 +4,6 @@
 #include maps/mp/zombies/_zm_utility;
 #include maps/mp/_utility;
 #include common_scripts/utility;
-#include maps/mp/zombies/_zm_laststand;
 
 register_game_module( index, module_name, pre_init_func, post_init_func, pre_init_zombie_spawn_func, post_init_zombie_spawn_func, hub_start_func ) //checked partially changed to match cerberus output //did not change while loop to for loop to prevent the infinite loop bu caused by continues
 {
@@ -20,6 +19,14 @@ register_game_module( index, module_name, pre_init_func, post_init_func, pre_ini
 		{
 			i++;
 			continue;
+		}
+		if ( isDefined( level._game_modules[ i ].index ) && level._game_modules[ i ].index == index )
+		{
+		/*
+/#
+			assert( level._game_modules[ i ].index != index, "A Game module is already registered for index (" + index + ")" );
+#/
+		*/
 		}
 		i++;
 	}
@@ -45,6 +52,11 @@ set_current_game_module( game_module_index ) //checked matches cerberus output
 	game_module = get_game_module( game_module_index );
 	if ( !isDefined( game_module ) )
 	{
+	/*
+/#
+		assert( isDefined( game_module ), "unknown game module (" + game_module_index + ")" );
+#/
+	*/
 		return;
 	}
 	level.current_game_module = game_module_index;
@@ -202,14 +214,8 @@ wait_for_team_death_and_round_end() //checked partially changed to match cerberu
 {
 	level endon( "game_module_ended" );
 	level endon( "end_game" );
-	level.checking_for_round_end = 0;
+	checking_for_round_end = 0;
 	level.isresetting_grief = 0;
-	level.grief_teams = [];
-	level.grief_teams[ "B" ] = spawnStruct();
-	level.grief_teams[ "B" ].score = 0;
-	level.grief_teams[ "A" ] = spawnStruct();
-	level.grief_teams[ "A" ].score = 0;
-	level thread grief_save_loadouts2();
 	while ( 1 )
 	{
 		cdc_alive = 0;
@@ -249,49 +255,30 @@ wait_for_team_death_and_round_end() //checked partially changed to match cerberu
 			level notify( "end_round_think" );
 			level.zombie_vars[ "spectators_respawn" ] = 1;
 			level notify( "keep_griefing" );
-			level.checking_for_round_end = 0;
+			checking_for_round_end = 0;
 			zombie_goto_round( level.round_number );
 			level thread reset_grief();
 			level thread maps/mp/zombies/_zm::round_think( 1 );
 		}
-		else if ( !level.checking_for_round_end )
+		else if ( !checking_for_round_end )
 		{
 			if ( cia_alive == 0 )
 			{
 				level thread check_for_round_end( "B" );
-				level.checking_for_round_end = 1;
+				checking_for_round_end = 1;
 			}
 			else if ( cdc_alive == 0 )
 			{
 				level thread check_for_round_end( "A" );
-				level.checking_for_round_end = 1;
+				checking_for_round_end = 1;
 			}
 		}
 		if ( cia_alive > 0 && cdc_alive > 0 )
 		{
-			//level notify( "stop_round_end_check" );
-			level.checking_for_round_end = 0;
+			level notify( "stop_round_end_check" );
+			checking_for_round_end = 0;
 		}
 		wait 0.05;
-	}
-}
-
-grief_save_loadouts2()
-{
-	while ( true )
-	{
-		if ( isDefined( level.grief_loadout_save ) )
-		{
-			players = getPlayers();
-			foreach ( player in players )
-			{
-				if ( is_player_valid( player ) )
-				{
-					player [[ level.grief_loadout_save ]]();
-				}
-			}
-		}
-		wait 1;
 	}
 }
 
@@ -303,104 +290,29 @@ reset_grief() //checked matches cerberus output
 
 check_for_round_end( winner ) //checked partially changed to match cerberus output //did not change while loop to for loop to prevent the infinite loop continue bug
 {
-	//level endon( "keep_griefing" );
+	level endon( "keep_griefing" );
 	level endon( "stop_round_end_check" );
-	//level waittill( "end_of_round" );
-	level.grief_teams[ winner ].score++;
-	level notify( "grief_point", winner );
-	if ( level.grief_teams[ winner ].score == level.grief_gamerules[ "scorelimit" ] )
+	level waittill( "end_of_round" );
+	level.gamemodulewinningteam = winner;
+	level.zombie_vars[ "spectators_respawn" ] = 0;
+	players = get_players();
+	i = 0;
+	while ( i < players.size )
 	{
-		level.gamemodulewinningteam = winner;
-		level.zombie_vars[ "spectators_respawn" ] = 0;
-		players = get_players();
-		i = 0;
-		while ( i < players.size )
+		players[ i ] freezecontrols( 1 );
+		if ( players[ i ]._encounters_team == winner )
 		{
-			players[ i ] freezecontrols( 1 );
-			if ( players[ i ]._encounters_team == winner )
-			{
-				players[ i ] thread maps/mp/zombies/_zm_audio_announcer::leaderdialogonplayer( "grief_won" );
-				players[ i ].pers[ "wins" ]++;
-				i++;
-				continue;
-			}
-			players[ i ] thread maps/mp/zombies/_zm_audio_announcer::leaderdialogonplayer( "grief_lost" );
-			players[ i ].pers[ "losses" ]++;
+			players[ i ] thread maps/mp/zombies/_zm_audio_announcer::leaderdialogonplayer( "grief_won" );
 			i++;
+			continue;
 		}
-		level notify( "game_module_ended", winner );
-		level._game_module_game_end_check = undefined;
-		maps/mp/gametypes_zm/_zm_gametype::track_encounters_win_stats( level.gamemodulewinningteam );
-		level notify( "end_game" );
-		return;
+		players[ i ] thread maps/mp/zombies/_zm_audio_announcer::leaderdialogonplayer( "grief_lost" );
+		i++;
 	}
-	flag_clear( "spawn_zombies" );
-	level thread kill_all_zombies();
-	if ( isDefined( level.grief_round_win_next_round_countdown ) && !in_grief_intermission() )
-	{
-		level thread freeze_players( 1 );
-		level thread [[ level.grief_round_win_next_round_countdown ]]();
-		level thread all_surviving_players_invulnerable();
-		wait level.grief_gamerules[ "next_round_time" ];
-	}
-	else if ( isDefined( level.grief_round_intermission_countdown ) && level.grief_gamerules[ "intermission_time" ] > 0 )
-	{
-		level.isresetting_grief = true;
-		level.grief_intermission_done = false;
-		players = getPlayers();
-		foreach ( player in players )
-		{
-			if ( player player_is_in_laststand() )
-			{
-				player auto_revive( player );
-			}
-		}
-		level thread all_surviving_players_invulnerable();
-		level.isresetting_grief = false;
-		level thread [[ level.grief_round_intermission_countdown ]]();
-		wait level.grief_gamerules[ "intermission_time" ];
-	}
-	level thread reset_players_last_griefed_by();
-	flag_set( "spawn_zombies" );
-	all_surviving_players_vulnerable();
-	level.isresetting_grief = 1;
-	level notify( "end_round_think" );
-	level.zombie_vars[ "spectators_respawn" ] = 1;
-	level.checking_for_round_end = 0;
-	zombie_goto_round( level.round_number );
-	level thread reset_grief();
-	level thread maps/mp/zombies/_zm::round_think( 1 );
-	level.checking_for_round_end = 0;
-}
-
-reset_players_last_griefed_by()
-{
-	players = getPlayers();
-	foreach ( player in players )
-	{
-		player.last_griefed_by.attacker = undefined;
-		player.last_griefed_by.meansofdeath = undefined;
-		player.last_griefed_by.weapon = undefined;
-	}
-}
-
-in_grief_intermission()
-{
-	if ( is_true( level.grief_intermission_done ) || !isDefined( level.grief_intermission_done ) )
-	{
-		return false;
-	}
-	team_scores = [];
-	team_scores[ "A" ] = level.grief_teams[ "A" ].score;
-	team_scores[ "B" ] = level.grief_teams[ "B" ].score;
-	score_limit = level.grief_gamerules[ "scorelimit" ];
-	intermission_score = score_limit / 2;
-	if ( team_scores[ "A" ] == int( intermission_score ) || team_scores[ "B" ] == int( intermission_score ) )
-	{
-		level.grief_intermission_done = true;
-		return true;
-	}
-	return false;
+	level notify( "game_module_ended", winner );
+	level._game_module_game_end_check = undefined;
+	maps/mp/gametypes_zm/_zm_gametype::track_encounters_win_stats( level.gamemodulewinningteam );
+	level notify( "end_game" );
 }
 
 wait_for_team_death() //checked partially changed to match cerberus output //did not change while loop to foreach with continue to prevent infinite loop bug
@@ -492,28 +404,43 @@ game_module_custom_intermission( intermission_struct ) //checked matches cerberu
 
 create_fireworks( launch_spots, min_wait, max_wait, randomize ) //checked changed to match cerberus output
 {
-}
-
-all_surviving_players_invulnerable()
-{
-	players = getPlayers();
-	foreach ( player in players )
+	level endon( "stop_fireworks" );
+	while ( 1 )
 	{
-		if ( is_player_valid( player ) )
+		if ( is_true( randomize ) )
 		{
-			player enableInvulnerability();
+			launch_spots = array_randomize( launch_spots );
 		}
+		foreach ( spot in launch_spots )
+		{
+			level thread fireworks_launch( spot );
+			wait randomfloatrange( min_wait, max_wait );
+		}
+		wait randomfloatrange( min_wait, max_wait );
 	}
 }
 
-all_surviving_players_vulnerable()
+fireworks_launch( launch_spot ) //checked matches cerberus output
 {
-	players = getPlayers();
-	foreach ( player in players )
+	firework = spawn( "script_model", launch_spot.origin + ( randomintrange( -60, 60 ), randomintrange( -60, 60 ), 0 ) );
+	firework setmodel( "tag_origin" );
+	wait_network_frame();
+	playfxontag( level._effect[ "fw_trail_cheap" ], firework, "tag_origin" );
+	firework playloopsound( "zmb_souls_loop", 0.75 );
+	dest = launch_spot;
+	while ( isDefined( dest ) && isDefined( dest.target ) )
 	{
-		if ( is_player_valid( player ) )
-		{
-			player disableInvulnerability();
-		}
+		random_offset = ( randomintrange( -60, 60 ), randomintrange( -60, 60 ), 0 );
+		new_dests = getstructarray( dest.target, "targetname" );
+		new_dest = random( new_dests );
+		dest = new_dest;
+		dist = distance( new_dest.origin + random_offset, firework.origin );
+		time = dist / 700;
+		firework moveto( new_dest.origin + random_offset, time );
+		firework waittill( "movedone" );
 	}
+	firework playsound( "zmb_souls_end" );
+	playfx( level._effect[ "fw_pre_burst" ], firework.origin );
+	firework delete();
 }
+
