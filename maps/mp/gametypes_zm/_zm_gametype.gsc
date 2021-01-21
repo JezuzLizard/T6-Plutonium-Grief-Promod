@@ -25,6 +25,17 @@
 
 main() //checked matches cerberus output
 {
+	location = getDvar( "ui_zm_mapstartlocation" );
+	map = getDvar( "mapname" );
+	if ( map == "zm_transit" )
+	{
+		if ( location == "diner" ||  location == "cornfield" || location == "power" || location == "tunnel" )
+		{
+			set_location_ents();
+		}
+	}
+	level.custom_spawnplayer = ::spectator_respawn;
+
 	maps/mp/gametypes_zm/_globallogic::init();
 	maps/mp/gametypes_zm/_callbacksetup::setupcallbacks();
 	globallogic_setupdefault_zombiecallbacks();
@@ -101,12 +112,17 @@ main() //checked matches cerberus output
 	set_gamemode_var( "post_init_zombie_spawn_func", undefined );
 	set_gamemode_var( "match_end_notify", undefined );
 	set_gamemode_var( "match_end_func", undefined );
-	setscoreboardcolumns( "stabs", "score", "wins", "losses", "killsconfirmed" );
+	setscoreboardcolumns( "score", "stabs", "killsconfirmed", "revives", "assists" );
 	onplayerconnect_callback( ::onplayerconnect_check_for_hotjoin );
 }
 
 game_objects_allowed( mode, location ) //checked partially changed to match cerberus output changed at own discretion
 {
+	if ( location == "transit" )
+	{
+		location = "station";
+	}
+	allowed = [];
 	allowed[ 0 ] = mode;
 	entities = getentarray();
 	i = 0;
@@ -459,7 +475,7 @@ rungametypemain( gamemode, mode_main_func, use_round_logic ) //checked matches c
 	{
 		return;
 	}
-	level thread game_objects_allowed( get_gamemode_var( "mode" ), get_gamemode_var( "location" ) );
+	level thread game_objects_allowed( getDvar( "g_gametype" ), getDvar( "ui_zm_mapstartlocation" ) );
 	if ( isDefined( level.gamemode_map_main ) )
 	{
 		if ( isDefined( level.gamemode_map_main[ gamemode ] ) )
@@ -1437,7 +1453,8 @@ onspawnplayer( predictedspawn ) //fixed checked changed partially to match cerbe
 			{
 				spawnpoints = getstructarray( "initial_spawn_points", "targetname" );
 			}	
-			spawnpoint = maps/mp/zombies/_zm::getfreespawnpoint( spawnpoints, self );
+			level.initial_spawnpoints = spawnpoints;
+			spawnpoint = getfreespawnpoint( spawnpoints, self );
 
 		}
 		if ( predictedspawn )
@@ -1929,6 +1946,14 @@ wait_for_players() //checked matches cerberus output
 
 onplayerconnect_check_for_hotjoin() //checked matches cerberus output
 {
+/*
+/#
+	if ( getDvarInt( #"EA6D219A" ) > 0 )
+	{
+		return;
+#/
+	}
+*/
 	map_logic_exists = level flag_exists( "start_zombie_round_logic" );
 	map_logic_started = flag( "start_zombie_round_logic" );
 	if ( map_logic_exists && map_logic_started )
@@ -1966,12 +1991,194 @@ blank()
 	//empty function
 }
 
+set_location_ents()
+{
+	ents = getEntArray();
+	door_ents = getEntArray( "zombie_door", "targetname" );
+	switch ( getdvar( "ui_zm_mapstartlocation" ) )
+	{  
+		case "power":
+			foreach ( door in door_ents )
+			{
+				if ( door.script_noteworthy == "electric_door" )
+				{
+					door.script_noteworthy = "electric_buyable_door";
+					door.marked_for_deletion = 0;
+				}
+			}
+			break;
+		case "diner":
+			diner_hatch = getent( "diner_hatch", "targetname" );
+			diner_hatch.script_gameobjectname = "zclassic zstandard zgrief";
+			diner_hatch_mantle = getent( "diner_hatch_mantle", "targetname" );
+			diner_hatch_mantle.script_gameobjectname = "zclassic zstandard zgrief";
+			gameObjects = getEntArray( "script_model", "classname" );
+			foreach ( object in gameObjects )
+			{
+				if ( object.script_gameobjectname == "zcleansed zturned" )
+				{
+					object.script_gameobjectname = "zstandard zgrief zcleansed zturned";
+				}
+			} 
+			break;
+		case "tunnel":
+			break;
+		case "cornfield":
+			break;
+	}
+	/*
+	ents = getEntArray();
+	foreach ( ent in ents )
+	{
+		if ( is_true( ent.marked_for_deletion ) )
+		{
+			ent delete();
+		}
+	}
+	*/
+}
 
+location_common_ent_deletion()
+{
 
+}
 
+getfreespawnpoint( spawnpoints, player ) //checked changed to match cerberus output
+{
+	if ( !isDefined( spawnpoints ) )
+	{
+		return undefined;
+	}
+	if ( !isdefined( player.playernum ) )
+	{
+		player.playernum = get_free_playernum_for_spawnpoints( spawnpoints, player );
+	}
+	logline1 = "checking if there is a free playernum for spawnpoint" + "\n";
+	logprint( logline1 );
+	for ( j = 0; j < spawnpoints.size; j++ )
+	{
+		if ( !isDefined( spawnpoints[ j ].en_num ) )
+		{
+			spawnpoints[ j ].en_num = j;
+		}
+		if ( spawnpoints[ j ].en_num == player.playernum )
+		{
+			logline1 = "playernum matches spawnpointnum" + "\n";
+			logprint( logline1 );
+			return spawnpoints[ j ];
+		}
+	}
+	return spawnpoints[ 0 ];
+}
 
+get_free_playernum_for_spawnpoints( spawnpoints, player )
+{
+	remove_disconnected_players_spawnpoint_property( spawnpoints );
+	for ( i = 0; i < spawnpoints.size; i++ )
+	{
+		if ( !isDefined( spawnpoints[ i ].player_property ) )
+		{
+			spawnpoints[ i ].player_property = player.name;
+			return i;
+		}
+	}
+	return 0;
+}
 
+remove_disconnected_players_spawnpoint_property( spawnpoints )
+{
+	for ( i = 0; i < spawnpoints.size; i++ )
+	{
+		spawnpoints[ i ].do_not_discard_player_property = false;
+	}
+	players = getPlayers();
+	for ( i = 0; i < spawnpoints.size; i++ )
+	{
+		if ( isDefined( spawnpoints[ i ].player_property ) )
+		{
+			for ( j = 0; j < players.size; j++ )
+			{
+				if ( spawnpoints[ i ].player_property == players[ j ].name )
+				{
+					spawnpoints[ i ].do_not_discard_player_property = true;
+					break;
+				}
+			}
+		}
+	}
+	for ( i = 0; i < spawnpoints.size; i++ )
+	{
+		if ( !spawnpoints[ i ].do_not_discard_player_property )
+		{
+			spawnpoints[ i ].player_property = undefined;
+		}
+	}
+}
 
+spectator_respawn() //checked changed to match cerberus output
+{
+	origin = self.spectator_respawn.origin;
+	angles = self.spectator_respawn.angles;
+	self setspectatepermissions( 0 );
+	new_origin = undefined;
+	if ( isDefined( level.check_valid_spawn_override ) )
+	{
+		new_origin = [[ level.check_valid_spawn_override ]]( self );
+	}
+	if ( !isDefined( new_origin ) )
+	{
+		if ( getDvar( "g_gametype" != "zgrief" ) )
+		{
+			new_origin = check_for_valid_spawn_near_team( self, 1 );
+		}
+	}
+	if ( isDefined( new_origin ) )
+	{
+		if ( !isDefined( new_origin.angles ) )
+		{
+			angles = ( 0, 0, 0 );
+		}
+		else
+		{
+			angles = new_origin.angles;
+		}
+		self spawn( new_origin.origin, angles );
+	}
+	else
+	{
+		self spawn( origin, angles );
+	}
+	if ( isDefined( self get_player_placeable_mine() ) )
+	{
+		self takeweapon( self get_player_placeable_mine() );
+		self set_player_placeable_mine( undefined );
+	}
+	self maps/mp/zombies/_zm_equipment::equipment_take();
+	self.is_burning = undefined;
+	self.abilities = [];
+	self.is_zombie = 0;
+	self.ignoreme = 0;
+	setclientsysstate( "lsm", "0", self );
+	self reviveplayer();
+	self notify( "spawned_player" );
+	if ( isDefined( level._zombiemode_post_respawn_callback ) )
+	{
+		self thread [[ level._zombiemode_post_respawn_callback ]]();
+	}
+	self maps/mp/zombies/_zm_score::player_reduce_points( "died" );
+	self maps/mp/zombies/_zm_melee_weapon::spectator_respawn_all();
+	claymore_triggers = getentarray( "claymore_purchase", "targetname" );
+	i = 0;
+	while ( i < claymore_triggers.size )
+	{
+		claymore_triggers[ i ] setvisibletoplayer( self );
+		claymore_triggers[ i ].claymores_triggered = 0;
+		i++;
+	}
+	self thread player_zombie_breadcrumb();
+	self thread return_retained_perks();
+	return 1;
+}
 
 
 
