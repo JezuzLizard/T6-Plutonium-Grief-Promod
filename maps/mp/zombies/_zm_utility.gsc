@@ -13,16 +13,9 @@
 #include maps/mp/_utility;
 #include maps/mp/zombies/_zm;
 
-init_utility() //checked matches cerberus output
+init_utility()
 {
-	//begin debug code
-	level.custom_zm_utility_loaded = 1;
-	maps/mp/zombies/_zm_bot::init();
-	if ( !isDefined( level.debugLogging_zm_utility ) )
-	{
-		level.debugLogging_zm_utility = 0;
-	}
-	//end debug code
+	
 }
 
 is_classic() //checked matches cerberus output
@@ -199,11 +192,6 @@ set_zombie_run_cycle( new_move_speed ) //checked matches cerberus output
 
 set_run_speed() //checked matches cerberus output
 {
-	if ( level.grief_gamerules[ "disable_zombie_special_runspeeds" ] )
-	{
-		self.zombie_move_speed = "sprint";
-		return;
-	}
 	if ( !isDefined( level.bus_sprinters ) )
 	{
 		level.bus_sprinters = 0;
@@ -240,41 +228,40 @@ set_run_speed() //checked matches cerberus output
 	{
 		self.zombie_move_speed = "sprint";
 	}
-	else if ( rand <= 234 )
+	else if ( !level.grief_gamerules[ "disable_zombie_special_runspeeds" ] )
 	{
-		if ( !isDefined( level.grief_super_sprinter_zombies_start ) )
+		if ( rand <= 234 )
 		{
-			level.grief_super_sprinter_zombies_start = true;
-		}
-		self thread make_super_sprinter( "super_sprint" );
-	}
-	else if ( rand > 234 )
-	{
-		speed = random( level.zombie_movespeed_type_array );
-		if ( speed == "chase_bus" && ( level.bus_sprinters < level.bus_sprinter_max ) )
-		{
-			self.is_bus_sprinter = true;
-			level.bus_sprinters++;
-			logline1 = "bus sprinter spawned" + "\n";
-			logprint( logline1 );
-		}
-		else 
-		{
-			speed = "super_sprint";
-		}
-		if ( speed == "super_sprint" || speed == "chase_bus" )
-		{
-			self thread make_super_sprinter( speed );
-			self thread zombie_watch_for_bus_sprinter();
+			if ( !isDefined( level.grief_super_sprinter_zombies_start ) )
+			{
+				level.grief_super_sprinter_zombies_start = true;
+			}
+			self thread make_super_sprinter( "super_sprint" );
 		}
 		else
 		{
-			self.zombie_move_speed = speed;
+			speed = random( level.zombie_movespeed_type_array );
+			if ( speed == "chase_bus" && ( level.bus_sprinters < level.bus_sprinter_max ) )
+			{
+				self.is_bus_sprinter = true;
+				level.bus_sprinters++;
+				logline1 = "bus sprinter spawned" + "\n";
+				logprint( logline1 );
+			}
+			else 
+			{
+				speed = "super_sprint";
+			}
+			if ( speed == "super_sprint" || speed == "chase_bus" )
+			{
+				self thread make_super_sprinter( speed );
+				self thread zombie_watch_for_bus_sprinter();
+			}
+			else
+			{
+				self.zombie_move_speed = speed;
+			}
 		}
-	}
-	else 
-	{
-		self thread make_super_sprinter( "super_sprint" );
 	}
 }
 
@@ -2659,7 +2646,10 @@ set_zombie_var( var, value, is_float, column, is_team_based ) //checked changed 
 			level.zombie_vars[ team ][ var ] = value;
 		}
 	}
-	else level.zombie_vars[ var ] = value;
+	else
+	{ 
+		level.zombie_vars[ var ] = value;
+	}
 	return value;
 }
 
@@ -4324,33 +4314,49 @@ track_players_intersection_tracker() //checked partially changed to match cerber
 						continue;
 					}
 				}
-				playeri_origin = players[ i ].origin;
-				playerj_origin = players[ j ].origin;
-				if ( abs( playeri_origin[ 2 ] - playerj_origin[ 2 ] ) > 60 )
+				if ( !is_true( players[ i ].has_grief_spawn_protection ) && !is_true( players[ j ].has_grief_spawn_protection ) )
 				{
+					playeri_origin = players[ i ].origin;
+					playerj_origin = players[ j ].origin;
+					if ( abs( playeri_origin[ 2 ] - playerj_origin[ 2 ] ) > 60 )
+					{
+						j++;
+						continue;
+					}
+					distance_apart = distance2d( playeri_origin, playerj_origin );
+					if ( abs( distance_apart ) > 18 )
+					{
+						j++;
+						continue;
+					}
+					if ( players[ i ] getStance() == "prone" )
+					{
+						players[ i ].is_grief_jumped_on = true;
+					}
+					else if ( players[ j ] getStance() == "prone" )
+					{
+						players[ i ].is_grief_jumped_on = true;
+					}
+					players[ i ] dodamage( 1000, ( 0, 0, 1 ) );
+					players[ j ] dodamage( 1000, ( 0, 0, 1 ) );
+					if ( !killed_players )
+					{
+						players[ i ] playlocalsound( level.zmb_laugh_alias );
+					}
+					if ( is_true( players[ i ].is_grief_jumped_on ) )
+					{
+						obituary( players[ j ], players[ i ], "none", "MOD_IMPACT" );
+						players[ i ].is_grief_jumped_on = undefined;
+					}
+					else if ( is_true( players[ j ].is_grief_jumped_on ) )
+					{
+						obituary( players[ i ], players[ j ], "none", "MOD_IMPACT" );
+						players[ j ].is_grief_jumped_on = undefined;
+					}
+					
+					killed_players = 1;
 					j++;
-					continue;
 				}
-				distance_apart = distance2d( playeri_origin, playerj_origin );
-				if ( abs( distance_apart ) > 18 )
-				{
-					j++;
-					continue;
-				}
-				players[ i ] dodamage( 1000, ( 0, 0, 1 ) );
-				players[ j ] dodamage( 1000, ( 0, 0, 1 ) );
-				if ( !killed_players )
-				{
-					players[ i ] playlocalsound( level.zmb_laugh_alias );
-				}
-				players[ i ] maps/mp/zombies/_zm_stats::increment_map_cheat_stat( "cheat_too_friendly" );
-				players[ i ] maps/mp/zombies/_zm_stats::increment_client_stat( "cheat_too_friendly", 0 );
-				players[ i ] maps/mp/zombies/_zm_stats::increment_client_stat( "cheat_total", 0 );
-				players[ j ] maps/mp/zombies/_zm_stats::increment_map_cheat_stat( "cheat_too_friendly" );
-				players[ j ] maps/mp/zombies/_zm_stats::increment_client_stat( "cheat_too_friendly", 0 );
-				players[ j ] maps/mp/zombies/_zm_stats::increment_client_stat( "cheat_total", 0 );
-				killed_players = 1;
-				j++;
 			}
 			i++;
 		}
