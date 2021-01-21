@@ -27,7 +27,7 @@ init() //checked matches cerberus output
 	{
 		maps/mp/zombies/_zm_magicbox_lock::init();
 	}
-	if ( is_classic() )
+	if ( maps/mp/zombies/_zm_utility::is_classic() )
 	{
 		level.chests = getstructarray( "treasure_chest_use", "targetname" );
 		treasure_chest_init( "start_chest" );
@@ -227,19 +227,19 @@ boxstub_update_prompt( player ) //checked matches cerberus output
 	}
 	else if ( is_true( level.using_locked_magicbox ) && is_true( self.stub.trigger_target.is_locked ) )
 	{
-		self.hint_string = get_hint_string( self, "locked_magic_box_cost" );
+		self.hint_string = maps/mp/zombies/_zm_utility::get_hint_string( self, "locked_magic_box_cost" );
 	}
 	else
 	{
 		self.hint_parm1 = self.stub.trigger_target.zombie_cost;
-		self.hint_string = get_hint_string( self, "default_treasure_chest" );
+		self.hint_string = maps/mp/zombies/_zm_utility::get_hint_string( self, "default_treasure_chest" );
 	}
 	return 1;
 }
 
 default_magic_box_check_equipment( weapon ) //checked matches cerberus output
 {
-	return is_offhand_weapon( weapon );
+	return maps/mp/zombies/_zm_utility::is_offhand_weapon( weapon );
 }
 
 trigger_visible_to_player( player ) //checked changed to match cerberus output
@@ -248,7 +248,7 @@ trigger_visible_to_player( player ) //checked changed to match cerberus output
 	visible = 1;
 	if ( isDefined( self.stub.trigger_target.chest_user ) && !isDefined( self.stub.trigger_target.box_rerespun ) )
 	{
-		if ( player != self.stub.trigger_target.chest_user || is_placeable_mine( self.stub.trigger_target.chest_user getcurrentweapon() ) || self.stub.trigger_target.chest_user hacker_active() )
+		if ( player != self.stub.trigger_target.chest_user || maps/mp/zombies/_zm_utility::is_placeable_mine( self.stub.trigger_target.chest_user getcurrentweapon() ) || self.stub.trigger_target.chest_user maps/mp/zombies/_zm_utility::hacker_active() )
 		{
 			visible = 0;
 		}
@@ -412,7 +412,7 @@ treasure_chest_think() //checked changed to match cerberus output
 		{
 			user = self.forced_user;
 		}
-		if ( user in_revive_trigger() )
+		if ( user maps/mp/zombies/_zm_utility::in_revive_trigger() )
 		{
 			wait 0.1;
 			continue;
@@ -433,7 +433,7 @@ treasure_chest_think() //checked changed to match cerberus output
 			continue;
 		}
 		reduced_cost = undefined;
-		if ( is_player_valid( user ) && user maps/mp/zombies/_zm_pers_upgrades_functions::is_pers_double_points_active() )
+		if ( maps/mp/zombies/_zm_utility::is_player_valid( user ) && user maps/mp/zombies/_zm_pers_upgrades_functions::is_pers_double_points_active() )
 		{
 			reduced_cost = int( self.zombie_cost / 2 );
 		}
@@ -452,7 +452,7 @@ treasure_chest_think() //checked changed to match cerberus output
 			wait 0.1 ;
 			continue;
 		}
-		else if ( isdefined( self.auto_open ) && is_player_valid( user ) )
+		else if ( isdefined( self.auto_open ) && maps/mp/zombies/_zm_utility::is_player_valid( user ) )
 		{
 			if ( !isdefined( self.no_charge ) )
 			{
@@ -466,7 +466,7 @@ treasure_chest_think() //checked changed to match cerberus output
 			self.chest_user = user;
 			break;
 		}
-		else if ( is_player_valid( user ) && user.score >= self.zombie_cost )
+		else if ( maps/mp/zombies/_zm_utility::is_player_valid( user ) && user.score >= self.zombie_cost )
 		{
 			user maps/mp/zombies/_zm_score::minus_to_player_score( self.zombie_cost );
 			user_cost = self.zombie_cost;
@@ -482,7 +482,7 @@ treasure_chest_think() //checked changed to match cerberus output
 		}
 		else if ( user.score < self.zombie_cost )
 		{
-			play_sound_at_pos( "no_purchase", self.origin );
+			maps/mp/zombies/_zm_utility::play_sound_at_pos( "no_purchase", self.origin );
 			user maps/mp/zombies/_zm_audio::create_and_play_dialog( "general", "no_money_box" );
 			wait 0.1;
 			continue;
@@ -514,8 +514,8 @@ treasure_chest_think() //checked changed to match cerberus output
 	}
 	if ( isDefined( self.zbarrier ) )
 	{
-		play_sound_at_pos( "open_chest", self.origin );
-		play_sound_at_pos( "music_chest", self.origin );
+		maps/mp/zombies/_zm_utility::play_sound_at_pos( "open_chest", self.origin );
+		maps/mp/zombies/_zm_utility::play_sound_at_pos( "music_chest", self.origin );
 		self.zbarrier set_magic_box_zbarrier_state( "open" );
 	}
 	self.timedout = 0;
@@ -575,11 +575,11 @@ treasure_chest_think() //checked changed to match cerberus output
 			{
 				self.box_rerespun = undefined;
 				current_weapon = "none";
-				if ( is_player_valid( user ) )
+				if ( maps/mp/zombies/_zm_utility::is_player_valid( user ) )
 				{
 					current_weapon = user getcurrentweapon();
 				}
-				if ( grabber == user && is_player_valid( user ) && !user.is_drinking && !is_placeable_mine( current_weapon ) && !is_equipment( current_weapon ) && level.revive_tool != current_weapon )
+				if ( grabber == user && maps/mp/zombies/_zm_utility::is_player_valid( user ) && !user.is_drinking && !maps/mp/zombies/_zm_utility::is_placeable_mine( current_weapon ) && !maps/mp/zombies/_zm_utility::is_equipment( current_weapon ) && level.revive_tool != current_weapon )
 				{
 					bbprint( "zombie_uses", "playername %s playerscore %d round %d cost %d name %s x %f y %f z %f type %s", user.name, user.score, level.round_number, self.zombie_cost, self.zbarrier.weapon_string, self.origin, "magic_accept" );
 					self notify( "user_grabbed_weapon" );
@@ -594,7 +594,7 @@ treasure_chest_think() //checked changed to match cerberus output
 				{
 					unacquire_weapon_toggle( self.zbarrier.weapon_string );
 					self.timedout = 1;
-					if ( is_player_valid( user ) )
+					if ( maps/mp/zombies/_zm_utility::is_player_valid( user ) )
 					{
 						bbprint( "zombie_uses", "playername %s playerscore %d round %d cost %d name %s x %f y %f z %f type %S", user.name, user.score, level.round_number, self.zombie_cost, self.zbarrier.weapon_string, self.origin, "magic_reject" );
 					}
@@ -625,7 +625,7 @@ treasure_chest_think() //checked changed to match cerberus output
 		if ( isDefined( self.zbarrier ) )
 		{
 			self.zbarrier set_magic_box_zbarrier_state( "close" );
-			play_sound_at_pos( "close_chest", self.origin );
+			maps/mp/zombies/_zm_utility::play_sound_at_pos( "close_chest", self.origin );
 			self.zbarrier waittill( "closed" );
 			wait 1;
 		}
@@ -649,7 +649,7 @@ watch_for_emp_close() //checked changed to match cerberus output
 {
 	self endon( "chest_accessed" );
 	self.closed_by_emp = 0;
-	if ( !should_watch_for_emp() )
+	if ( !maps/mp/zombies/_zm_utility::should_watch_for_emp() )
 	{
 		return;
 	}
@@ -693,16 +693,16 @@ can_buy_weapon() //checked matches cerberus output
 	{
 		return 0;
 	}
-	if ( self hacker_active() )
+	if ( self maps/mp/zombies/_zm_utility::hacker_active() )
 	{
 		return 0;
 	}
 	current_weapon = self getcurrentweapon();
-	if ( is_placeable_mine( current_weapon ) || is_equipment_that_blocks_purchase( current_weapon ) )
+	if ( maps/mp/zombies/_zm_utility::is_placeable_mine( current_weapon ) || maps/mp/zombies/_zm_utility::is_equipment_that_blocks_purchase( current_weapon ) )
 	{
 		return 0;
 	}
-	if ( self in_revive_trigger() )
+	if ( self maps/mp/zombies/_zm_utility::in_revive_trigger() )
 	{
 		return 0;
 	}
@@ -763,7 +763,7 @@ treasure_chest_move( player_vox ) //checked changed to match cerberus output
 	if ( level.zombie_vars[ "zombie_powerup_fire_sale_on" ] == 1 && self [[ level._zombiemode_check_firesale_loc_valid_func ]]() )
 	{
 		current_sale_time = level.zombie_vars[ "zombie_powerup_fire_sale_time" ];
-		wait_network_frame();
+		maps/mp/zombies/_zm_utility::wait_network_frame();
 		self thread fire_sale_fix();
 		level.zombie_vars[ "zombie_powerup_fire_sale_time" ] = current_sale_time;
 		while ( level.zombie_vars[ "zombie_powerup_fire_sale_time" ] > 0 )
@@ -806,8 +806,8 @@ fire_sale_fix() //checked matches cerberus output
 		self.old_cost = 950;
 		self thread show_chest();
 		self.zombie_cost = 10;
-		self.unitrigger_stub unitrigger_set_hint_string( self, "default_treasure_chest", self.zombie_cost );
-		wait_network_frame();
+		self.unitrigger_stub maps/mp/zombies/_zm_utility::unitrigger_set_hint_string( self, "default_treasure_chest", self.zombie_cost );
+		maps/mp/zombies/_zm_utility::wait_network_frame();
 		level waittill( "fire_sale_off" );
 		while ( is_true( self._box_open ) )
 		{
@@ -885,8 +885,8 @@ treasure_chest_lid_open() //checked matches cerberus output
 	openroll = 105;
 	opentime = 0.5;
 	self rotateroll( 105, opentime, opentime * 0.5 );
-	play_sound_at_pos( "open_chest", self.origin );
-	play_sound_at_pos( "music_chest", self.origin );
+	maps/mp/zombies/_zm_utility::play_sound_at_pos( "open_chest", self.origin );
+	maps/mp/zombies/_zm_utility::play_sound_at_pos( "music_chest", self.origin );
 }
 
 treasure_chest_lid_close( timedout ) //checked matches cerberus output
@@ -894,7 +894,7 @@ treasure_chest_lid_close( timedout ) //checked matches cerberus output
 	closeroll = -105;
 	closetime = 0.5;
 	self rotateroll( closeroll, closetime, closetime * 0.5 );
-	play_sound_at_pos( "close_chest", self.origin );
+	maps/mp/zombies/_zm_utility::play_sound_at_pos( "close_chest", self.origin );
 	self notify( "lid_closed" );
 }
 
@@ -1008,7 +1008,7 @@ decide_hide_show_hint( endon_notify, second_endon_notify, onlyplayer ) //checked
 		last_update = getTime();
 		if ( isDefined( self.chest_user ) && !isDefined( self.box_rerespun ) )
 		{
-			if ( is_placeable_mine( self.chest_user getcurrentweapon() ) || self.chest_user hacker_active() )
+			if ( maps/mp/zombies/_zm_utility::is_placeable_mine( self.chest_user getcurrentweapon() ) || self.chest_user maps/mp/zombies/_zm_utility::hacker_active() )
 			{
 				self setinvisibletoplayer( self.chest_user );
 			}
@@ -1157,10 +1157,10 @@ treasure_chest_weapon_spawn( chest, player, respin ) //checked changed to match 
 		v_float = anglesToUp( self.angles ) * 40;
 	}
 	self.model_dw = undefined;
-	self.weapon_model = spawn_weapon_model( rand, undefined, self.origin + v_float, self.angles + vectorScale( ( 0, 1, 0 ), 180 ) );
+	self.weapon_model = maps/mp/zombies/_zm_utility::spawn_weapon_model( rand, undefined, self.origin + v_float, self.angles + vectorScale( ( 0, 1, 0 ), 180 ) );
 	if ( weapon_is_dual_wield( rand ) )
 	{
-		self.weapon_model_dw = spawn_weapon_model( rand, get_left_hand_weapon_model_name( rand ), self.weapon_model.origin - vectorScale( ( 0, 1, 0 ), 3 ), self.weapon_model.angles );
+		self.weapon_model_dw = maps/mp/zombies/_zm_utility::spawn_weapon_model( rand, get_left_hand_weapon_model_name( rand ), self.weapon_model.origin - vectorScale( ( 0, 1, 0 ), 3 ), self.weapon_model.angles );
 	}
 	if ( getDvar( "magic_chest_movable" ) == "1" && !is_true( chest._box_opened_by_fire_sale ) && !is_true( level.zombie_vars[ "zombie_powerup_fire_sale_on" ] ) && self [[ level._zombiemode_check_firesale_loc_valid_func ]]() )
 	{
@@ -1475,7 +1475,7 @@ magic_box_do_weapon_rise() //checked matches cerberus output
 	self endon( "box_hacked_respin" );
 	self setzbarrierpiecestate( 3, "closed" );
 	self setzbarrierpiecestate( 4, "closed" );
-	wait_network_frame();
+	maps/mp/zombies/_zm_utility::wait_network_frame();
 	self zbarrierpieceuseboxriselogic( 3 );
 	self zbarrierpieceuseboxriselogic( 4 );
 	self showzbarrierpiece( 3 );
@@ -1590,7 +1590,7 @@ magicbox_host_migration() //checked changed to match cerberus output
 					playfxontag( level._effect[ "lght_marker" ], chest.pandora_light, "tag_origin" );
 				}
 			}
-			wait_network_frame();
+			maps/mp/zombies/_zm_utility::wait_network_frame();
 		}
 	}
 }
