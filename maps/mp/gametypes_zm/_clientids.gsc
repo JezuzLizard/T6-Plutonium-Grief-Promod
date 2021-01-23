@@ -16,47 +16,88 @@
 
 init()
 {
+	level thread monitor_players_connecting_status();
+	//level thread monitor_players_connection_status();
+	//level thread monitor_players_expected_and_connected();
     if ( getDvar( "g_gametype" ) == "zgrief" )
     {
-		init_gamemodes();
 		init_gamerules();
 		level.round_spawn_func = ::round_spawning;
 		level._game_module_player_damage_callback = ::game_module_player_damage_callback;
 		level._game_module_player_damage_grief_callback = ::game_module_player_damage_grief_callback;
 		level.meat_bounce_override = ::meat_bounce_override;
-		//level.allies = ::menuallieszombies;
-		level.lowertexty = 0;
-		setDvar( "sv_cheats", 1 );
-		//setDvar( "aim_automelee_enabled", 0 );
-		//setDvar( "aim_automelee_move_limit", 10000 );
 		setDvar( "g_friendlyfireDist", 0 );
-		//level.czm_gamerule_weapon_restriction_list = ::grief_parse_wall_weapon_restrictions;
-		level.grief_round_win_next_round_countdown = ::countdown_timer_hud;
-		level.grief_round_intermission_countdown = ::intermission_hud();
+		//promod custom overrides
+		level.grief_round_win_next_round_countdown = ::round_change_hud;
+		level.grief_round_intermission_countdown = ::intermission_hud;
 		level.grief_loadout_save = ::grief_loadout_save;
 		grief_parse_perk_restrictions();
         level thread on_player_connect();
-		level thread draw_hud();
-		if ( getDvarIntDefault( "grief_testing", 0 ) )
+		if ( getDvarInt( "grief_testing" ) )
 		{
-			level.spawnclient = ::spawnclient;
 			level thread test_bots();
 		}
-		level thread instructions();
-		level thread monitor_players_expected_and_connected();
+		level thread draw_hud();
 		wait 15;
-		//level thread shuffle_teams();
-		level thread kick_players_not_playing();
+		level thread instructions_on_all_players();
+		
     }
+}
+
+monitor_players_connecting_status()
+{
+	level.num_players_connecting = 0;
+	while ( true )
+	{
+		level waittill( "connecting", player );
+		level.num_players_connecting++;
+		logline1 = "Player: " + player.name + " is connecting " + "\n";
+		logprint( logline1 );
+		if ( level.num_players_connecting > 0 )
+		{
+			player thread kick_player_if_dont_spawn_in_time();
+		}
+		player thread watch_for_disconnect();
+	}
+}
+
+watch_for_disconnect()
+{
+	self waittill_either( "disconnect", "begin" );
+	level.num_players_connecting--;
+}
+
+kick_player_if_dont_spawn_in_time()
+{
+	self endon( "begin" );
+	wait 20;
+	logline1 = "Kicking player because they failed to notify begin in less than 12 seconds" + "\n";
+	logprint( logline1 );
+	kick( self getEntityNumber() );
+
+}
+
+monitor_players_connection_status()
+{
+	while ( true )
+	{
+		level waittill( "connected", player );
+		logline1 = "Player: " + player.name + " is connected " + "\n";
+		logprint( logline1 );
+	}
 }
 
 instructions_on_all_players()
 {
 	level endon( "end_game" );
+	flag_wait( "initial_blackscreen_passed" );
 	players = getPlayers();
-	foreach ( player in players )
+	if ( isDefined( players ) && ( players.size > 0 ) )
 	{
-		player thread instructions();
+		foreach ( player in players )
+		{
+			player thread instructions();
+		}
 	}
 }
 
@@ -64,6 +105,7 @@ instructions()
 {
 	level endon( "end_game" );
 	self endon( "disconnect" );
+	level waittill( "grief_begin" );
 	rounds = level.grief_gamerules[ "scorelimit" ];
 	self iPrintLn( "Welcome to Grief!" );
 	wait 3;
@@ -78,43 +120,18 @@ instructions()
 monitor_players_expected_and_connected()
 {
 	level endon( "end_game" );
+	i = 0;
 	while ( true )
 	{
-		logline1 = "getNumExpectedPlayers(): " + getnumexpectedplayers() + " getNumConnectedPlayers(): " + getnumconnectedplayers();
+		logline1 = "getNumExpectedPlayers(): " + getnumexpectedplayers() + " getNumConnectedPlayers(): " + getnumconnectedplayers() + "\n";
 		logprint( logline1 );
 		wait 1;
-		if ( flag( "initial_players_connected" ) )
+		i++;
+		if ( i == 30 )
 		{
 			break;
 		}
 	}
-}
-
-kick_players_not_playing()
-{
-	level endon( "end_game" );
-	players = getPlayers();
-	foreach ( player in players )
-	{
-		logline1 = "player.name: " + player.name + " player.sessionstate: " + player.sessionstate + "\n";
-		logprint( logline1 );
-		if ( player.sessionstate != "playing" )
-		{
-			player.sessionstate = "playing";
-			if ( player.sessionstate != "playing" )
-			{
-				kick( player getEntityNumber() );
-			}
-		}
-	}
-}
-
-draw_hud()
-{
-	level thread zombiesleft_hud();
-	level thread grief_score();
-	level thread grief_score_shaders();
-	level thread destroy_hud_on_game_end();
 }
 
 on_player_connect()
@@ -123,6 +140,7 @@ on_player_connect()
     while ( true )
     {
     	level waittill( "connected", player );
+		//player thread grief_spawn_protection(); //too op for the game
 		if ( !isDefined( player.last_griefed_by ) )
 		{
 			player.last_griefed_by = spawnStruct();
@@ -130,10 +148,13 @@ on_player_connect()
 			player.last_griefed_by.meansofdeath = undefined;
 			player.last_griefed_by.weapon = undefined;
 		}
-		player thread on_player_spawn();
 		player thread give_points_on_restart_and_round_change();
        	player set_team();
 		player [[ level.givecustomcharacters ]]();
+		player.killsconfirmed = 0;
+		player.stabs = 0;
+		player.assists = 0;
+		player thread watch_for_down();
     }
 }
 
@@ -143,18 +164,18 @@ give_points_on_restart_and_round_change()
 	while ( true )
 	{
 		level waittill( "start_of_round" );
-		self.score = 10000;
+		if ( self.score < 8000 )
+		{
+			self.score = 8000;
+		}
 	}
 }
 
-on_player_spawn()
+grief_spawn_protection()
 {
-	self endon( "disconnect" );
-	level endon( "end_game" );
-	while ( true )
-	{
-		self waittill( "spawned_player" );
-	}
+	self.has_grief_spawn_protection = true;
+	wait 10;
+	self.has_grief_spawn_protection = false;
 }
 
 set_team()
@@ -164,44 +185,55 @@ set_team()
 	if ( getDvarInt( "grief_gamerule_use_preset_teams" ) )
 	{
 	 	allies_team_members = getDvar( "grief_allies_team_player_names" );
-		team_keys = strTok( allies_team_members, ";" ); 
+		team_keys = strTok( allies_team_members, " " ); 
 		if ( teamplayersallies < 4 )
 		{
 			foreach ( key in team_keys )
 			{
+				logline1 = "Checking player: " + self.name + " comparing with: " + key + "\n";
+				logprint( logline1 );
 				if ( self.name == key )
 				{
 					self.team = "allies";
 					self.sessionteam = "allies";
 					self.pers[ "team" ] = "allies";
 					self._encounters_team = "B";
+					team_is_defined = true;
 					logline1 = "trying to set player based on name: " + self.name + " to preset team: " + self.team + "\n";
 					logprint( logline1 );
 					break;
 				}
 			}
 		}
-		else if ( teamplayersaxis < 4 )
+		if ( !is_true( team_is_defined ) )
 		{
-			self.team = "axis";
-			self.sessionteam = "axis";
-			self.pers[ "team" ] = "axis";
-			self._encounters_team = "A";
-			logline1 = "player didn't have name match: " + self.name + " to preset team: " + self.team + "\n";
-			logprint( logline1 );
-		}
-		else 
-		{
-			self.team = "allies";
-			self.sessionteam = "allies";
-			self.pers[ "team" ] = "allies";
-			self._encounters_team = "B";
-			logline1 = "player team failsafe: " + self.name + " to preset team: " + self.team + "\n";
-			logprint( logline1 );
+			teamplayersaxis = countplayers( "axis");
+			if ( teamplayersaxis < 4 )
+			{
+				self.team = "axis";
+				self.sessionteam = "axis";
+				self.pers[ "team" ] = "axis";
+				self._encounters_team = "A"; 
+				team_is_defined = true;
+				logline1 = "player didn't have name match: " + self.name + " to preset team: " + self.team + "\n";
+				logprint( logline1 );
+			}
+			else 
+			{
+				self.team = "allies";
+				self.sessionteam = "allies";
+				self.pers[ "team" ] = "allies";
+				self._encounters_team = "B";
+				team_is_defined = true;
+				logline1 = "player team failsafe: " + self.name + " to preset team: " + self.team + "\n";
+				logprint( logline1 );
+			}
 		}
 	}
 	else 
 	{
+		teamplayersallies = countplayers( "allies");
+		teamplayersaxis = countplayers( "axis");
 		if ( teamplayersallies > teamplayersaxis && !level.isresetting_grief )
 		{
 			self.team = "axis";
@@ -223,6 +255,360 @@ set_team()
 			self.pers[ "team" ] = "allies";
 			self._encounters_team = "B";
 		}
+	}
+}
+
+is_weapon_shotgun( sweapon )
+{
+	switch ( sweapon )
+	{
+		case "saiga12_zm":
+		case "saiga12_upgraded_zm":
+		case "srm1216_zm":
+		case "srm1216_upgraded_zm":
+		case "rottweil72_zm":
+		case "rottweil72_upgraded_zm":
+		case "ksg_zm":
+		case "ksg_upgraded_zm":
+		case "870mcs_zm":
+		case "870mcs_upgraded_zm":
+			return 1;
+		default:
+			return 0;
+	}
+}
+
+test_bots()
+{
+	add_bots();
+}
+
+add_bots()
+{
+	//Wait for the host!
+	players = get_players();
+	while ( players.size < 1 )
+	{
+		players = get_players();
+		wait 1;
+		if ( getDvarInt( "debugModBotsWaitForPlayers" ) == 0 )
+		{
+			break;
+		}
+	}
+	wait 5;
+	//Then spawn bots
+	botsToSpawn = getDvarIntDefault( "debugModBotsToSpawn", 7 );
+	for ( currentBots = 0; currentBots < botsToSpawn; currentBots++ )
+	{
+		wait 0.25;
+		zbot_spawn();
+	}
+	SetDvar("bot_AllowMovement", "1");
+	SetDvar("bot_PressAttackBtn", "1");
+	SetDvar("bot_PressMeleeBtn", "1");
+}
+
+zbot_spawn()
+{
+	bot = AddTestClient();			
+	bot.equipment_enabled = false;
+	bot [[ level.spawnplayer ]]();
+	return bot;
+}
+
+init_gamerules()
+{
+	level.default_solo_laststandpistol = "m1911_zm";
+	level.is_forever_solo_game = undefined;
+	level.speed_change_round = undefined;
+	level.grief_gamerules = [];
+	level.grief_gamerules[ "scorelimit" ] = getDvarIntDefault( "grief_gamerule_scorelimit", 3 );
+	level.grief_gamerules[ "zombies_per_round" ] = getDvarIntDefault( "grief_gamerule_zombies_per_round", 3 );
+	level.grief_gamerules[ "perk_restrictions" ] = getDvar( "grief_gamerule_perk_restrictions" );
+	level.grief_gamerules[ "mystery_box_enabled" ] = getDvarIntDefault( "grief_gamerule_mystery_box_enabled" );
+	level.grief_gamerules[ "wall_weapon_restrictions" ] = getDvar( "grief_gamerule_wall_weapon_restrictions" );
+	level.grief_gamerules[ "next_round_time" ] = getDvarIntDefault( "grief_gamerule_next_round_timer", 5 );
+	level.grief_gamerules[ "intermission_time" ] = getDvarIntDefault( "grief_gamerule_intermission_time", 0 );
+	level.grief_gamerules[ "door_restrictions" ] = getDvar( "grief_gamerule_door_restrictions" );
+	level.grief_gamerules[ "round_restart_points" ] = getDvarIntDefault( "grief_gamerule_round_restart_points" );
+	level.grief_gamerules[ "use_preset_teams" ] = getDvarIntDefault( "grief_gamerule_use_preset_teams", 0 );
+	level.grief_gamerules[ "disable_zombie_special_runspeeds" ] = getDvarIntDefault( "grief_gamerules_disable_zombie_special_runspeeds", 1 );
+	level.grief_gamerules[ "suicide_check" ] = getDvarFloatDefault( "grief_gamerule_suicide_check_wait", 5 );
+	//init_gamelengths();
+}
+/*
+init_gamelengths()
+{
+	if ( getDvar( "grief_game_length_override" ) != "" )
+	{
+		switch ( getDvar( "grief_game_length_override" ) )
+		{
+			case "short":
+				setup_grief_rule_for_game_length( "perk_restrictions", "specialty_quickrevive specialty_armorvest specialty_weapupgrade" );
+				setup_grief_rule_for_game_length( "zombies_per_round", 3 );
+				setup_grief_rule_for_game_length( "scorelimit", 3 );
+				setup_grief_rule_for_game_length( "mystery_box_enabled", 0 );
+				setup_grief_rule_for_game_length( "door_restrictions", "" );
+				setup_grief_rule_for_game_length( "start_round", 20 );
+				restart_points = level.round_number * 500;
+				setup_grief_rule_for_game_length( "restart_points", restart_points );
+				break;
+			case "medium":
+				setup_grief_rule_for_game_length( "perk_restrictions", "specialty_weapupgrade" );
+				setup_grief_rule_for_game_length( "zombies_per_round", 3 );
+				setup_grief_rule_for_game_length( "scorelimit", 3 );
+				setup_grief_rule_for_game_length( "mystery_box_enabled", 1 );
+				setup_grief_rule_for_game_length( "door_restrictions", "" );
+				setup_grief_rule_for_game_length( "start_round", 10 );
+				break;
+			case "long":
+				setup_grief_rule_for_game_length( "perk_restrictions", "" );
+				setup_grief_rule_for_game_length( "zombies_per_round", 3 );
+				setup_grief_rule_for_game_length( "scorelimit", 2 );
+				setup_grief_rule_for_game_length( "mystery_box_enabled", 1 );
+				setup_grief_rule_for_game_length( "door_restrictions", "" );
+				setup_grief_rule_for_game_length( "start_round", 1 );
+				break;
+			default:
+				logline1 = "Invalid game length" + "\n";
+				logprint( logline1 );
+				break;
+		}
+	}
+}
+*/
+setup_grief_rule_for_game_length( rule, value )
+{
+	level.grief_gamerules[ rule ] = value;
+}
+
+//doesn't work yet
+grief_parse_wall_weapon_restrictions( weapon )
+{
+	if ( level.grief_gamerules[ "wall_weapon_restrictions" ] == "" )
+	{
+		return false;
+	}
+	weapon_keys = strTok( level.grief_gamerules[ "wall_weapon_restrictions" ], " " );
+	foreach ( key in weapon_keys )
+	{
+		if ( key == weapon )
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+grief_parse_perk_restrictions()
+{
+	if ( level.grief_gamerules[ "perk_restrictions" ] == "" )
+	{
+		return;
+	}
+	perk_keys = strTok( level.grief_gamerules[ "perk_restrictions" ], " " );
+	foreach ( key in perk_keys )
+	{
+		level thread perk_machine_removal( key );
+	}
+}
+
+//HUD Grouping
+draw_hud()
+{
+	level thread zombiesleft_hud();
+	level thread grief_score();
+	level thread grief_score_shaders();
+	level thread destroy_hud_on_game_end();
+}
+
+round_change_hud()
+{   
+	level endon( "end_game" );
+	remaining = create_simple_hud();
+  	remaining.horzAlign = "center";
+  	remaining.vertAlign = "middle";
+   	remaining.alignX = "center";
+   	remaining.alignY = "middle";
+   	remaining.y = 20;
+   	remaining.x = 0;
+   	remaining.foreground = 1;
+   	remaining.fontscale = 2.0;
+   	remaining.alpha = 1;
+   	remaining.color = ( 0.98, 0.549, 0 );
+	remaining.hidewheninmenu = true;
+	remaining maps/mp/gametypes_zm/_hud::fontpulseinit();
+
+   	countdown = create_simple_hud();
+   	countdown.horzAlign = "center"; 
+   	countdown.vertAlign = "middle";
+   	countdown.alignX = "center";
+   	countdown.alignY = "middle";
+   	countdown.y = -20;
+   	countdown.x = 0;
+   	countdown.foreground = 1;
+   	countdown.fontscale = 2.0;
+   	countdown.alpha = 1;
+   	countdown.color = ( 1.000, 1.000, 1.000 );
+	countdown.hidewheninmenu = true;
+   	countdown setText( "Next Round Starts In" );
+	level.round_countdown_timer = remaining;
+	level.round_countdown_text = countdown;
+	timer = level.grief_gamerules[ "next_round_time" ];
+	while ( 1 )
+	{
+		level.round_countdown_timer setValue( timer ); 
+		wait 1;
+		timer--;
+		if ( timer <= 5 )
+		{
+			countdown_pulse( level.round_countdown_timer, timer );
+			break;
+		}
+	}
+	if ( isDefined( level.round_countdown_text ) )
+	{
+		level.round_countdown_text destroy();
+	}
+	if ( isDefined( level.round_countdown_timer ) )
+	{
+		level.round_countdown_timer destroy();
+	}
+}
+
+countdown_pulse( hud_elem, duration )
+{
+	level endon( "end_game" );
+	waittillframeend;
+	while ( duration > 0 && !level.gameended )
+	{
+		hud_elem thread maps/mp/gametypes_zm/_hud::fontpulse( level );
+		wait ( hud_elem.inframes * 0.05 );
+		hud_elem setvalue( duration );
+		duration--;
+		wait ( 1 - ( hud_elem.inframes * 0.05 ) );
+	}
+}
+
+intermission_hud()
+{   
+	level endon( "end_game" );
+	remaining = create_simple_hud();
+  	remaining.horzAlign = "center";
+  	remaining.vertAlign = "middle";
+   	remaining.alignX = "center";
+   	remaining.alignY = "middle";
+   	remaining.y = 20;
+   	remaining.x = 0;
+   	remaining.foreground = 1;
+   	remaining.fontscale = 2.0;
+   	remaining.alpha = 1;
+   	remaining.color = ( 0.98, 0.549, 0 );
+	remaining.hidewheninmenu = true;
+	remaining maps/mp/gametypes_zm/_hud::fontpulseinit();
+
+   	countdown = create_simple_hud();
+   	countdown.horzAlign = "center"; 
+   	countdown.vertAlign = "middle";
+   	countdown.alignX = "center";
+   	countdown.alignY = "middle";
+   	countdown.y = -20;
+   	countdown.x = 0;
+   	countdown.foreground = 1;
+   	countdown.fontscale = 2.0;
+   	countdown.alpha = 1;
+   	countdown.color = ( 1.000, 1.000, 1.000 );
+	countdown.hidewheninmenu = true;
+   	countdown setText( "Intermission" );
+	level.intermission_countdown = remaining;
+	level.intermission_text = countdown;
+	timer = level.grief_gamerules[ "intermission_time" ];
+	while ( 1 )
+	{
+		level.intermission_countdown setValue( timer ); 
+		wait 1;
+		timer--;
+		if ( timer <= 5 )
+		{
+			countdown_pulse( level.intermission_countdown, timer );
+			break;
+		}
+	}
+	if ( isDefined( level.intermission_countdown ) )
+	{
+		level.intermission_countdown destroy();
+	}
+	if ( isDefined( level.intermission_text ) )
+	{
+		level.intermission_text destroy();
+	}
+}
+
+zombiesleft_hud()
+{   
+	level endon( "end_game" );
+	flag_wait( "initial_blackscreen_passed" );
+
+	level.remaining_zombies_hud = create_simple_hud();
+	level.remaining_zombies_hud.alignx = "left";
+    level.remaining_zombies_hud.aligny = "top";
+    level.remaining_zombies_hud.horzalign = "user_left";
+    level.remaining_zombies_hud.vertalign = "user_top";
+    level.remaining_zombies_hud.x += 5;
+    level.remaining_zombies_hud.y += 2;
+    level.remaining_zombies_hud.fontscale = 1.5;
+    level.remaining_zombies_hud.color = ( 0.423, 0.004, 0 );
+	level.remaining_zombies_hud.alpha = 1;
+    level.remaining_zombies_hud.hidewheninmenu = true;
+    level.remaining_zombies_hud.label = &"Zombies Left: "; 
+
+	while ( true )
+	{
+		remaining_zombies = get_current_zombie_count() + level.zombie_total;
+		level.remaining_zombies_hud setValue( remaining_zombies );
+		wait 0.05;
+	}		
+}
+
+destroy_hud_on_game_end()
+{
+	level waittill_either( "end_game", "disable_all_hud" );
+	if ( isDefined( level.round_countdown_timer ) )
+	{
+		level.round_countdown_timer destroy();
+	}
+	if ( isDefined( level.round_countdown_text ) )
+	{
+		level.round_countdown_text destroy();
+	}
+	if ( isDefined( level.grief_score_hud[ "A" ] ) )
+	{
+		//level.grief_score_hud[ "A" ] destroy();
+	}
+	if ( isDefined( level.grief_score_hud[ "B" ] ) )
+	{
+		//level.grief_score_hud[ "B" ] destroy();
+	}
+	if ( isDefined( level.team_shader1 ) ) 
+	{
+		//level.team_shader1 destroy();
+	}
+	if ( isDefined( level.team_shader2 ) ) 
+	{
+		//level.team_shader2 destroy();
+	}
+	if ( isDefined( level.remaining_zombies_hud ) )
+	{
+		level.remaining_zombies_hud destroy();
+	}
+	if ( isDefined( level.intermission_countdown ) )
+	{
+		level.intermission_countdown destroy();
+	}
+	if ( isDefined( level.intermission_text ) )
+	{
+		level.intermission_text destroy();
 	}
 }
 
@@ -259,10 +645,6 @@ grief_score_shaders()
 	flag_wait( "initial_blackscreen_passed" );
 	if ( level.script == "zm_prison" )
 	{
-		precacheshader( "faction_inmates" );
-		precacheshader( "faction_guards" );
-		//level.team_shader1 = createservericon( game[ "icons" ][ "axis" ], 35, 35 );
-		//level.team_shader2 = createservericon( game[ "icons" ][ "allies" ], 35, 35 );
 		level.team_shader1 = create_simple_hud();
 		level.team_shader2 = create_simple_hud();
 		text = 1;
@@ -271,7 +653,6 @@ grief_score_shaders()
 	{
 		level.team_shader1 = createservericon( game[ "icons" ][ "axis" ], 35, 35 );
 		level.team_shader2 = createservericon( game[ "icons" ][ "allies" ], 35, 35 );
-		//printf( "Using Tranzit/Buried shaders" );
 	}
 	if ( is_true( text ) )
 	{
@@ -301,6 +682,39 @@ grief_score_shaders()
 	}
 }
 
+grief_loadout_save( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration )
+{
+	self.grief_savedweapon_weapons = self getweaponslist();
+	self.grief_savedweapon_weaponsammo_stock = [];
+	self.grief_savedweapon_weaponsammo_clip = [];
+	self.grief_savedweapon_currentweapon = self getcurrentweapon();
+	self.grief_savedweapon_grenades = self get_player_lethal_grenade();
+	if ( isDefined( self.grief_savedweapon_grenades ) )
+	{
+		self.grief_savedweapon_grenades_clip = self getweaponammoclip( self.grief_savedweapon_grenades );
+	}
+	self.grief_savedweapon_tactical = self get_player_tactical_grenade();
+	if ( isDefined( self.grief_savedweapon_tactical ) )
+	{
+		self.grief_savedweapon_tactical_clip = self getweaponammoclip( self.grief_savedweapon_tactical );
+	}
+	for ( i = 0; i < self.grief_savedweapon_weapons.size; i++ )
+	{
+		self.grief_savedweapon_weaponsammo_clip[ i ] = self getweaponammoclip( self.grief_savedweapon_weapons[ i ] );
+		self.grief_savedweapon_weaponsammo_stock[ i ] = self getweaponammostock( self.grief_savedweapon_weapons[ i ] );
+	}
+	if ( isDefined( self.hasriotshield ) && self.hasriotshield )
+	{
+		self.grief_hasriotshield = 1;
+	}
+	if ( self hasweapon( "claymore_zm" ) )
+	{
+		self.grief_savedweapon_claymore = 1;
+		self.grief_savedweapon_claymore_clip = self getweaponammoclip( "claymore_zm" );
+	}
+}
+
+//Function Overrides
 round_spawning() //checked changed to match cerberus output
 {
 	level endon( "intermission" );
@@ -393,32 +807,7 @@ round_spawning() //checked changed to match cerberus output
 	}
 }
 
-zombiesleft_hud()
-{   
-	level endon( "end_game" );
-	flag_wait( "initial_blackscreen_passed" );
-
-	level.remaining_zombies_hud = create_simple_hud();
-	level.remaining_zombies_hud.alignx = "left";
-    level.remaining_zombies_hud.aligny = "top";
-    level.remaining_zombies_hud.horzalign = "user_left";
-    level.remaining_zombies_hud.vertalign = "user_top";
-    level.remaining_zombies_hud.x += 5;
-    level.remaining_zombies_hud.y += 2;
-    level.remaining_zombies_hud.fontscale = 1.5;
-    level.remaining_zombies_hud.color = ( 0.423, 0.004, 0 );
-	level.remaining_zombies_hud.alpha = 1;
-    level.remaining_zombies_hud.hidewheninmenu = true;
-    level.remaining_zombies_hud.label = &"Zombies Left: "; 
-
-	while ( true )
-	{
-		remaining_zombies = get_current_zombie_count() + level.zombie_total;
-		level.remaining_zombies_hud setValue( remaining_zombies );
-		wait 0.05;
-	}		
-}
-
+//Extended Grief Mechanics
 game_module_player_damage_callback( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime ) //checked partially changed output to cerberus output
 {
 	self.last_damage_from_zombie_or_player = 0;
@@ -438,6 +827,7 @@ game_module_player_damage_callback( einflictor, eattacker, idamage, idflags, sme
 		if ( smeansofdeath == "MOD_MELEE" )
 		{
 			eattacker.pers[ "stabs" ]++;
+			eattacker.stabs++;
 		}
 	}
 	if ( isplayer( eattacker ) && isDefined( eattacker._encounters_team ) && eattacker._encounters_team != self._encounters_team )
@@ -485,7 +875,6 @@ game_module_player_damage_callback( einflictor, eattacker, idamage, idflags, sme
 				playfx( level._effect[ "butterflies" ], vpoint, vdir );
 			}
 		}
-		self thread watch_for_down( eattacker, sweapon, smeansofdeath );
 		self thread do_game_mode_shellshock( eattacker, smeansofdeath );
 		self playsound( "zmb_player_hit_ding" );
 	}
@@ -514,7 +903,7 @@ watch_for_down( attacker, weapon, meansofdeath )
 		return;
 	}
 	self.grief_already_checking_for_down = true;
-	self waittill_notify_or_timeout( "player_downed", 5 );
+	self waittill_notify_or_timeout( "player_downed", 3 );
 	if ( self player_is_in_laststand() )
 	{
 		if ( isDefined( self.last_griefed_by.attacker ) )
@@ -705,554 +1094,4 @@ game_module_player_damage_grief_callback( einflictor, eattacker, idamage, idflag
 		self player_steal_points( eattacker, "deny_revive" );
 	}
 	self.is_reviving_grief = false;
-}
-
-is_weapon_shotgun( sweapon )
-{
-	if ( weaponclass( sweapon ) == "spread" )
-	{
-		return 1;
-	}
-	return 0;
-}
-
-test_bots()
-{
-	add_bots();
-}
-
-add_bots()
-{
-	//Wait for the host!
-	players = get_players();
-	while ( players.size < 1 )
-	{
-		players = get_players();
-		wait 1;
-		if ( getDvarInt( "debugModBotsWaitForPlayers" ) == 0 )
-		{
-			break;
-		}
-	}
-	//Then spawn bots
-	botsToSpawn = getDvarIntDefault( "debugModBotsToSpawn", 7 );
-	for ( currentBots = 0; currentBots < botsToSpawn; currentBots++ )
-	{
-		wait 1;
-		zbot_spawn();
-	}
-	SetDvar("bot_AllowMovement", "1");
-	SetDvar("bot_PressAttackBtn", "1");
-	SetDvar("bot_PressMeleeBtn", "1");
-}
-
-zbot_spawn()
-{
-	bot = AddTestClient();			
-	bot.equipment_enabled = false;
-	bot [[ level.spawnplayer ]]();
-	return bot;
-}
-
-init_gamerules()
-{
-	level.default_solo_laststandpistol = "m1911_zm";
-	level.is_forever_solo_game = undefined;
-	level.speed_change_round = undefined;
-	level.grief_gamerules = [];
-	level.grief_gamerules[ "scorelimit" ] = getDvarIntDefault( "grief_gamerule_scorelimit", 3 );
-	level.grief_gamerules[ "zombies_per_round" ] = getDvarIntDefault( "grief_gamerule_zombies_per_round", 3 );
-	level.grief_gamerules[ "perk_restrictions" ] = getDvar( "grief_gamerule_perk_restrictions" );
-	level.grief_gamerules[ "mystery_box_enabled" ] = getDvarIntDefault( "grief_gamerule_mystery_box_enabled" );
-	level.grief_gamerules[ "wall_weapon_restrictions" ] = getDvar( "grief_gamerule_wall_weapon_restrictions" );
-	level.grief_gamerules[ "next_round_time" ] = getDvarIntDefault( "grief_gamerule_next_round_timer", 5 );
-	level.grief_gamerules[ "intermission_time" ] = getDvarIntDefault( "grief_gamerule_intermission_time", 0 );
-	level.grief_gamerules[ "door_restrictions" ] = getDvar( "grief_gamerule_door_restrictions" );
-	level.grief_gamerules[ "round_restart_points" ] = getDvarIntDefault( "grief_gamerule_round_restart_points" );
-	level.grief_gamerules[ "use_preset_teams" ] = getDvarIntDefault( "grief_gamerule_use_preset_teams", 0 );
-	level.grief_gamerules[ "disable_zombie_special_runspeeds" ] = getDvarIntDefault( "grief_gamerules_disable_zombie_special_runspeeds", 1 );
-	init_gamelengths();
-}
-
-init_gamemodes()
-{
-	level.grief_gamemodes = [];
-	level.grief_gamemodes[ "tdm" ] = spawnStruct();
-	level.grief_gamemodes[ "tdm" ].respawn_delay = 5;
-	level.grief_gamemodes[ "tdm" ].optional_spawn = 1;
-}
-
-init_gamelengths()
-{
-	level.grief_game_lengths = [];
-	level.grief_game_lengths[ "short" ] = [];
-	level.grief_game_lengths[ "short" ][ "perk_restrictions" ] = "specialty_quickrevive specialty_armorvest specialty_weapupgrade";
-	level.grief_game_lengths[ "short" ][ "zombies_per_round" ] = 3;
-	level.grief_game_lengths[ "short" ][ "scorelimit" ] = 3;
-	level.grief_game_lengths[ "short" ][ "mystery_box_enabled" ] = 0;
-	level.grief_game_lengths[ "short" ][ "door_restrictions" ] = "";
-	level.grief_game_lengths[ "short" ][ "start_round" ] = 20;
-	level.grief_game_lengths[ "short" ][ "restart_points" ] = level.round_number * 500;
-	level.grief_game_lengths[ "medium" ] = [];
-	level.grief_game_lengths[ "medium" ][ "perk_restrictions" ] = "specialty_weapupgrade";
-	level.grief_game_lengths[ "medium" ][ "zombies_per_round" ] = 3;
-	level.grief_game_lengths[ "medium" ][ "scorelimit" ] = 5;
-	level.grief_game_lengths[ "medium" ][ "mystery_box_enabled" ] = 1;
-	level.grief_game_lengths[ "medium" ][ "door_restrictions" ] = "";
-	level.grief_game_lengths[ "medium" ][ "start_round" ] = 10;
-	level.grief_game_lengths[ "long" ] = [];
-	level.grief_game_lengths[ "long" ][ "perk_restrictions" ] = "";
-	level.grief_game_lengths[ "long" ][ "zombies_per_round" ] = 3;
-	level.grief_game_lengths[ "long" ][ "scorelimit" ] = 5;
-	level.grief_game_lengths[ "long" ][ "mystery_box_enabled" ] = 1;
-	level.grief_game_lengths[ "long" ][ "door_restrictions" ] = "";
-	level.grief_game_lengths[ "long" ][ "start_round" ] = 1;
-}
-
-//doesn't work yet
-grief_parse_wall_weapon_restrictions( weapon )
-{
-	if ( level.grief_gamerules[ "wall_weapon_restrictions" ] == "" )
-	{
-		return false;
-	}
-	weapon_keys = strTok( level.grief_gamerules[ "wall_weapon_restrictions" ], " " );
-	foreach ( key in weapon_keys )
-	{
-		if ( key == weapon )
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-grief_parse_perk_restrictions()
-{
-	if ( level.grief_gamerules[ "perk_restrictions" ] == "" )
-	{
-		return;
-	}
-	perk_keys = strTok( level.grief_gamerules[ "perk_restrictions" ], " " );
-	foreach ( key in perk_keys )
-	{
-		level thread perk_machine_removal( key );
-	}
-}
-
-countdown_timer_hud()
-{   
-	level endon( "end_game" );
-	remaining = create_simple_hud();
-  	remaining.horzAlign = "center";
-  	remaining.vertAlign = "middle";
-   	remaining.alignX = "center";
-   	remaining.alignY = "middle";
-   	remaining.y = 20;
-   	remaining.x = 0;
-   	remaining.foreground = 1;
-   	remaining.fontscale = 2.0;
-   	remaining.alpha = 1;
-   	remaining.color = ( 0.98, 0.549, 0 );
-	remaining.hidewheninmenu = true;
-	remaining maps/mp/gametypes_zm/_hud::fontpulseinit();
-
-   	countdown = create_simple_hud();
-   	countdown.horzAlign = "center"; 
-   	countdown.vertAlign = "middle";
-   	countdown.alignX = "center";
-   	countdown.alignY = "middle";
-   	countdown.y = -20;
-   	countdown.x = 0;
-   	countdown.foreground = 1;
-   	countdown.fontscale = 2.0;
-   	countdown.alpha = 1;
-   	countdown.color = ( 1.000, 1.000, 1.000 );
-	countdown.hidewheninmenu = true;
-   	countdown setText( "Next Round Starts In" );
-	level.gdm_countdown_timer = remaining;
-	level.gdm_countdown_text = countdown;
-	timer = level.grief_gamerules[ "next_round_time" ];
-	while ( 1 )
-	{
-		level.gdm_countdown_timer setValue( timer ); 
-		wait 1;
-		timer--;
-		if ( timer <= 5 )
-		{
-			countdown_pulse( level.gdm_countdown_timer, timer );
-			break;
-		}
-	}
-	if ( isDefined( level.gdm_countdown_text ) )
-	{
-		level.gdm_countdown_text destroy();
-	}
-	if ( isDefined( level.gdm_countdown_timer ) )
-	{
-		level.gdm_countdown_timer destroy();
-	}
-}
-
-countdown_pulse( hud_elem, duration )
-{
-	level endon( "end_game" );
-	waittillframeend;
-	while ( duration > 0 && !level.gameended )
-	{
-		hud_elem thread maps/mp/gametypes_zm/_hud::fontpulse( level );
-		wait ( hud_elem.inframes * 0.05 );
-		hud_elem setvalue( duration );
-		duration--;
-		wait ( 1 - ( hud_elem.inframes * 0.05 ) );
-	}
-}
-
-intermission_hud()
-{   
-	level endon( "end_game" );
-	remaining = create_simple_hud();
-  	remaining.horzAlign = "center";
-  	remaining.vertAlign = "middle";
-   	remaining.alignX = "center";
-   	remaining.alignY = "middle";
-   	remaining.y = 20;
-   	remaining.x = 0;
-   	remaining.foreground = 1;
-   	remaining.fontscale = 2.0;
-   	remaining.alpha = 1;
-   	remaining.color = ( 0.98, 0.549, 0 );
-	remaining.hidewheninmenu = true;
-	remaining maps/mp/gametypes_zm/_hud::fontpulseinit();
-
-   	countdown = create_simple_hud();
-   	countdown.horzAlign = "center"; 
-   	countdown.vertAlign = "middle";
-   	countdown.alignX = "center";
-   	countdown.alignY = "middle";
-   	countdown.y = -20;
-   	countdown.x = 0;
-   	countdown.foreground = 1;
-   	countdown.fontscale = 2.0;
-   	countdown.alpha = 1;
-   	countdown.color = ( 1.000, 1.000, 1.000 );
-	countdown.hidewheninmenu = true;
-   	countdown setText( "Intermission" );
-	level.gdm_countdown_timer = remaining;
-	level.gdm_countdown_text = countdown;
-	timer = level.grief_gamerules[ "intermission_time" ];
-	while ( 1 )
-	{
-		level.gdm_countdown_timer setValue( timer ); 
-		wait 1;
-		timer--;
-		if ( timer <= 5 )
-		{
-			countdown_pulse( level.gdm_countdown_timer, timer );
-			break;
-		}
-	}
-	if ( isDefined( level.gdm_countdown_text ) )
-	{
-		level.gdm_countdown_text destroy();
-	}
-	if ( isDefined( level.gdm_countdown_timer ) )
-	{
-		level.gdm_countdown_timer destroy();
-	}
-}
-
-destroy_hud_on_game_end()
-{
-	level waittill( "end_game" );
-	if ( isDefined( level.gdm_countdown_timer ) )
-	{
-		level.gdm_countdown_timer destroy();
-	}
-	if ( isDefined( level.gdm_countdown_text ) )
-	{
-		level.gdm_countdown_text destroy();
-	}
-	if ( isDefined( level.grief_score_hud[ "A" ] ) )
-	{
-		level.grief_score_hud[ "A" ] destroy();
-		//level.grief_score_hud[ "B" ].alpha = 0;
-	}
-	if ( isDefined( level.grief_score_hud[ "B" ] ) )
-	{
-		level.grief_score_hud[ "B" ] destroy();
-		//level.grief_score_hud[ "B" ].alpha = 0;
-	}
-	if ( isDefined( level.team_shader1 ) ) 
-	{
-		level.team_shader1 destroy();
-		//level.team_shader1.alpha = 0;
-	}
-	if ( isDefined( level.team_shader2 ) ) 
-	{
-		level.team_shader2 destroy();
-		//level.team_shader2.alpha = 0;
-	}
-	if ( isDefined( level.remaining_zombies_hud ) )
-	{
-		level.remaining_zombies_hud destroy();
-		level.remaining_zombies_hud.alpha = 0;
-	}
-}
-
-spawnclient( timealreadypassed ) //checked matches cerberus output
-{
-	pixbeginevent( "spawnClient" );
-	if ( !self mayspawn() )
-	{
-		currentorigin = self.origin;
-		currentangles = self.angles;
-		self showspawnmessage();
-		self thread [[ level.spawnspectator ]]( currentorigin + vectorScale( ( 0, 0, 1 ), 60 ), currentangles );
-		pixendevent();
-		logline1 = "client may not spawn" + "\n";
-		logprint( logline1 );
-		return;
-	}
-	if ( self.waitingtospawn )
-	{
-		pixendevent();
-		logline1 = "client is waiting to spawn already" + "\n";
-		logprint( logline1 );
-		return;
-	}
-	self.waitingtospawn = 1;
-	self.allowqueuespawn = undefined;
-	self waitandspawnclient( timealreadypassed );
-	if ( isDefined( self ) )
-	{
-		self.waitingtospawn = 0;
-	}
-	pixendevent();
-}
-
-waitandspawnclient( timealreadypassed ) //checked matches cerberus output
-{
-	logline1 = "waitAndSpawnClient() is called" + "\n";
-	logprint( logline1 );
-	self endon( "disconnect" );
-	//self endon( "end_respawn" );
-	if ( !isDefined( timealreadypassed ) )
-	{
-		timealreadypassed = 0;
-	}
-	spawnedasspectator = 0;
-	if ( !isDefined( self.wavespawnindex ) && isDefined( level.waveplayerspawnindex[ self.team ] ) )
-	{
-		self.wavespawnindex = level.waveplayerspawnindex[ self.team ];
-		level.waveplayerspawnindex[ self.team ]++;
-	}
-	timeuntilspawn = 5;
-	if ( timeuntilspawn > timealreadypassed )
-	{
-		timeuntilspawn -= timealreadypassed;
-		timealreadypassed = 0;
-	}
-	else
-	{
-		timealreadypassed -= timeuntilspawn;
-		timeuntilspawn = 0;
-	}
-	if ( flag( "start_zombie_round_logic" ) && level.grief_gamemode[ "tdm" ].respawn_delay )
-	{
-		if ( level.playerqueuedrespawn )
-		{
-			setlowermessage( game[ "strings" ][ "you_will_spawn" ], timeuntilspawn );
-		}
-		else
-		{
-			setlowermessage( game[ "strings" ][ "waiting_to_spawn" ], timeuntilspawn );
-		}
-		if ( !spawnedasspectator )
-		{
-			spawnorigin = self.origin + vectorScale( ( 0, 0, 1 ), 60 );
-			spawnangles = self.angles;
-			if ( isDefined( level.useintermissionpointsonwavespawn ) && [[ level.useintermissionpointsonwavespawn ]]() == 1 )
-			{
-				spawnpoint = maps/mp/gametypes_zm/_spawnlogic::getrandomintermissionpoint();
-				if ( isDefined( spawnpoint ) )
-				{
-					spawnorigin = spawnpoint.origin;
-					spawnangles = spawnpoint.angles;
-				}
-			}
-			self thread respawn_asspectator( spawnorigin, spawnangles );
-		}
-		spawnedasspectator = 1;
-		self maps/mp/gametypes_zm/_globallogic_utils::waitfortimeornotify( timeuntilspawn, "force_spawn" );
-		self notify( "stop_wait_safe_spawn_button" );
-	}
-	wavebased = level.waverespawndelay > 0;
-	if ( flag( "start_zombie_round_logic" ) && level.grief_gamemode[ "tdm" ].optional_spawn )
-	{
-		setlowermessage( game[ "strings" ][ "press_to_spawn" ] );
-		if ( !spawnedasspectator )
-		{
-			self thread respawn_asspectator( self.origin + vectorScale( ( 0, 0, 1 ), 60 ), self.angles );
-		}
-		spawnedasspectator = 1;
-		self waitrespawnorsafespawnbutton();
-	}
-	self.waitingtospawn = 0;
-	self clearlowermessage();
-	self.wavespawnindex = undefined;
-	self.respawntimerstarttime = undefined;
-	logline1 = "waitAndSpawnClient() spawns player" + "\n";
-	logprint( logline1 );
-	self thread [[ level.spawnplayer ]]();
-}
-
-waitrespawnorsafespawnbutton() //checked changed to match cerberus output
-{
-	self endon( "disconnect" );
-	//self endon( "end_respawn" );
-	while ( 1 )
-	{
-		if ( self useButtonPressed() )
-		{
-			return;
-		}
-		wait 0.05;
-	}
-}
-
-menuallieszombies() //checked changed to match cerberus output
-{
-	self maps/mp/gametypes_zm/_globallogic_ui::closemenus();
-	if ( !level.console && level.allow_teamchange == 0 && is_true( self.hasdonecombat ) )
-	{
-		return;
-	}
-	if ( self.pers[ "team" ] != "allies" )
-	{
-		if ( level.ingraceperiod && !isDefined( self.hasdonecombat ) || !self.hasdonecombat )
-		{
-			self.hasspawned = 0;
-		}
-		if ( self.sessionstate == "playing" )
-		{
-			self.switching_teams = 1;
-			self.joining_team = "allies";
-			self.leaving_team = self.pers[ "team" ];
-			self suicide();
-		}
-		self.pers["team"] = "allies";
-		self.team = "allies";
-		self.pers["class"] = undefined;
-		self.class = undefined;
-		self.pers["weapon"] = undefined;
-		self.pers["savedmodel"] = undefined;
-		self updateobjectivetext();
-		if ( level.teambased )
-		{
-			self.sessionteam = "allies";
-		}
-		else
-		{
-			self.sessionteam = "none";
-			self.ffateam = "allies";
-		}
-		self setclientscriptmainmenu( game[ "menu_class" ] );
-		self notify( "joined_team" );
-		level notify( "joined_team" );
-		self notify( "end_respawn" );
-	}
-}
-
-shuffle_teams()
-{
-	players = getPlayers();
-	foreach ( player in players )
-	{
-		player setclientminiscoreboardhide( 1 );
-		random_team = pick_weighted_random_team();
-		if ( random_team == "" )
-		{
-			return;
-		}
-		if ( countplayers( random_team ) == 4 )
-		{
-			player team_swap( random_team );
-		}
-		else 
-		{
-			player.team = random_team;
-			player.sessionteam = random_team;
-			player.pers[ "team" ] = random_team;
-		}
-		if ( random_team == "axis" )
-		{
-			player._encounters_team = "A";
-		}
-		else 
-		{
-			player._encounters_team = "B";
-		}
-		player.team_changed = true;
-		player setclientminiscoreboardhide( 0 );
-	}
-}
-
-pick_weighted_random_team()
-{
-	if ( !isDefined( level.grief_teams_random_watcher ) )
-	{
-		level.grief_teams_random_watcher = [];
-		level.grief_teams_random_watcher[ "axis" ].times_picked = 0;
-		level.grief_teams_random_watcher[ "allies" ].times_picked = 0;
-	}
-	random_team = random( level.teams );
-	level.grief_teams_random_watcher[ random_team ].times_picked++;
-	if ( level.grief_teams_random_watcher[ random_team ].times_picked > 4 )
-	{
-		random_team = getOtherTeam( random_team );
-	}
-	if ( level.grief_teams_random_watcher[ random_team ].times_picked > 4 )
-	{
-		logline1 = "no free slots to swap to!" + "\n";
-		logprint( logline1 );
-		random_team = "";
-	}
-	return random_team;
-}
-
-team_swap( team )
-{
-	other_team_players = getPlayers( team );
-	foreach ( player in other_team_players )
-	{
-		if ( !is_true( player.team_changed ) )
-		{
-			self.team = team;
-			self.sessionteam = team;
-			self.pers[ "team" ] = team;
-			if ( team == "axis" )
-			{
-				self._encounters_team = "A";
-			}
-			else 
-			{
-				self._encounters_team = "B";
-			}
-			self.team_changed = true;
-			player.team = getotherteam( team );
-			player.sessionteam = getotherteam( team );
-			player.pers[ "team" ] = getotherteam( team );
-			if ( getotherteam( random_team ) == "axis" )
-			{
-				player._encounters_team = "A";
-			}
-			else 
-			{
-				player._encounters_team = "B";
-			}
-			player.team_changed = true;
-			return;
-		}
-	}
 }

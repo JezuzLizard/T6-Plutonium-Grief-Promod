@@ -34,6 +34,10 @@ main() //checked matches cerberus output
 			set_location_ents();
 		}
 	}
+	if ( location == "farm" )
+	{
+		level.grief_swap_jugg = true;
+	}
 	level.custom_spawnplayer = ::spectator_respawn;
 
 	maps/mp/gametypes_zm/_globallogic::init();
