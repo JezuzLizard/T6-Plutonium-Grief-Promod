@@ -3073,11 +3073,11 @@ shock_onpain() //checked changed to match cerberus output
 	{
 		oldhealth = self.health;
 		self waittill( "damage", damage, attacker, direction_vec, point, mod );
-		if ( !is_true( level.shock_onpain ) )
+		if( IsDefined( level.shock_onpain ) && !level.shock_onpain )
 		{
 			continue;
 		}
-		if ( !is_true( self.shock_onpain ) )
+		if( IsDefined( self.shock_onpain ) && !self.shock_onpain )
 		{
 			continue;
 		}
