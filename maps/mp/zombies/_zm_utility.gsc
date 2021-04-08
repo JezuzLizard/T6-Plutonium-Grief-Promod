@@ -245,8 +245,6 @@ set_run_speed() //checked matches cerberus output
 			{
 				self.is_bus_sprinter = true;
 				level.bus_sprinters++;
-				logline1 = "bus sprinter spawned" + "\n";
-				logprint( logline1 );
 			}
 			else 
 			{
@@ -286,8 +284,6 @@ zombie_watch_for_bus_sprinter()
 	if ( is_true( self.is_bus_sprinter ) )
 	{
 		self waittill( "death" );
-		logline1 = "bus sprinter died" + "\n";
-		logprint( logline1 );
 		level.bus_sprinters--;
 	}
 }
@@ -4335,7 +4331,7 @@ track_players_intersection_tracker() //checked partially changed to match cerber
 					}
 					else if ( players[ j ] getStance() == "prone" )
 					{
-						players[ i ].is_grief_jumped_on = true;
+						players[ j ].is_grief_jumped_on = true;
 					}
 					players[ i ] dodamage( 1000, ( 0, 0, 1 ) );
 					players[ j ] dodamage( 1000, ( 0, 0, 1 ) );
@@ -4353,10 +4349,9 @@ track_players_intersection_tracker() //checked partially changed to match cerber
 						obituary( players[ i ], players[ j ], "none", "MOD_IMPACT" );
 						players[ j ].is_grief_jumped_on = undefined;
 					}
-					
 					killed_players = 1;
-					j++;
 				}
+				j++;
 			}
 			i++;
 		}

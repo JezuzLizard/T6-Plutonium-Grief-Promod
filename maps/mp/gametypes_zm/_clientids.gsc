@@ -33,14 +33,13 @@ init()
 		level.grief_loadout_save = ::grief_loadout_save;
 		grief_parse_perk_restrictions();
         level thread on_player_connect();
-		if ( getDvarInt( "grief_testing" ) )
+		if ( getDvarInt( "grief_testing" ) == 1 )
 		{
 			level thread test_bots();
 		}
 		level thread draw_hud();
 		wait 15;
 		level thread instructions_on_all_players();
-		
     }
 }
 
@@ -53,10 +52,7 @@ monitor_players_connecting_status()
 		level.num_players_connecting++;
 		logline1 = "Player: " + player.name + " is connecting " + "\n";
 		logprint( logline1 );
-		if ( level.num_players_connecting > 0 )
-		{
-			player thread kick_player_if_dont_spawn_in_time();
-		}
+		player thread kick_player_if_dont_spawn_in_time();
 		player thread watch_for_disconnect();
 	}
 }
@@ -70,11 +66,10 @@ watch_for_disconnect()
 kick_player_if_dont_spawn_in_time()
 {
 	self endon( "begin" );
-	wait 20;
-	logline1 = "Kicking player because they failed to notify begin in less than 12 seconds" + "\n";
+	wait 45;
+	logline1 = "Kicking player because they failed to notify begin in less than 30 seconds" + "\n";
 	logprint( logline1 );
 	kick( self getEntityNumber() );
-
 }
 
 monitor_players_connection_status()
@@ -140,7 +135,7 @@ on_player_connect()
     while ( true )
     {
     	level waittill( "connected", player );
-		//player thread grief_spawn_protection(); //too op for the game
+		player thread on_player_spawned();
 		if ( !isDefined( player.last_griefed_by ) )
 		{
 			player.last_griefed_by = spawnStruct();
@@ -154,8 +149,18 @@ on_player_connect()
 		player.killsconfirmed = 0;
 		player.stabs = 0;
 		player.assists = 0;
-		player thread watch_for_down();
     }
+}
+
+on_player_spawned()
+{
+	while ( true )
+	{
+		self waittill_either( "spawned_player", "player_revived" );
+		self thread grief_spawn_protection(); //too op for the game
+		self.health = level.grief_gamerules[ "player_health" ];
+		self.maxHealth = self.health;
+	}
 }
 
 give_points_on_restart_and_round_change()
@@ -163,29 +168,29 @@ give_points_on_restart_and_round_change()
 	level endon( "end_game" );
 	while ( true )
 	{
-		level waittill( "start_of_round" );
-		if ( self.score < 8000 )
+		level waittill( "grief_give_points" );
+		if ( self.score < level.grief_gamerules[ "round_restart_points" ] )
 		{
-			self.score = 8000;
+			self.score = level.grief_gamerules[ "round_restart_points" ];
 		}
 	}
 }
 
 grief_spawn_protection()
 {
-	self.has_grief_spawn_protection = true;
+	self.has_grief_spawn_protection = 1;
 	wait 10;
-	self.has_grief_spawn_protection = false;
+	self.has_grief_spawn_protection = 0;
 }
 
 set_team()
 {
 	teamplayersallies = countplayers( "allies");
 	teamplayersaxis = countplayers( "axis");
-	if ( getDvarInt( "grief_gamerule_use_preset_teams" ) )
+	if ( getDvarInt( "grief_gamerule_use_preset_teams" ) == 1 )
 	{
 	 	allies_team_members = getDvar( "grief_allies_team_player_names" );
-		team_keys = strTok( allies_team_members, " " ); 
+		team_keys = strTok( allies_team_members, "+" ); 
 		if ( teamplayersallies < 4 )
 		{
 			foreach ( key in team_keys )
@@ -198,7 +203,7 @@ set_team()
 					self.sessionteam = "allies";
 					self.pers[ "team" ] = "allies";
 					self._encounters_team = "B";
-					team_is_defined = true;
+					team_is_defined = 1;
 					logline1 = "trying to set player based on name: " + self.name + " to preset team: " + self.team + "\n";
 					logprint( logline1 );
 					break;
@@ -214,7 +219,7 @@ set_team()
 				self.sessionteam = "axis";
 				self.pers[ "team" ] = "axis";
 				self._encounters_team = "A"; 
-				team_is_defined = true;
+				team_is_defined = 1;
 				logline1 = "player didn't have name match: " + self.name + " to preset team: " + self.team + "\n";
 				logprint( logline1 );
 			}
@@ -224,11 +229,18 @@ set_team()
 				self.sessionteam = "allies";
 				self.pers[ "team" ] = "allies";
 				self._encounters_team = "B";
-				team_is_defined = true;
+				team_is_defined = 1;
 				logline1 = "player team failsafe: " + self.name + " to preset team: " + self.team + "\n";
 				logprint( logline1 );
 			}
 		}
+	}
+	else if ( getDvarInt( "grief_gamerule_use_mmr_teams" ) == 1 )
+	{
+		self.mmr = self get_mmr();
+		total_mmr = get_total_mmr();
+		equal_mmr = total_mmr / 2;
+
 	}
 	else 
 	{
@@ -256,6 +268,42 @@ set_team()
 			self._encounters_team = "B";
 		}
 	}
+}
+
+get_mmr()
+{
+	//total_kills = self get_stat( "kills" );
+	//kill_stat_scalar = 0.5;
+	total_stabs = self get_stat( "stabs" );
+	total_stabs_scalar = 5;
+	total_kills_confirmed = self get_stat( "kills_confirmed" );
+	total_kills_confirmed_scalar = 25;
+	total_revives = self get_stat( "revives" );
+	total_revives_scalar = 15;
+	total_assists = self get_stat( "assists" );
+	total_assists_scalar = 15;
+	total_wins = self get_stat( "wins" );
+	total_wins_scalar = 100;
+	total_games = self get_stat( "total_games" );
+	total_games_scalar = 50;
+	win_rate_percent = total_wins / total_games;
+	win_rate = int( ( win_rate_percent * 100 ) );
+	
+}
+
+get_total_mmr()
+{
+
+}
+
+get_stat( statname )
+{
+	statvalue = look_up_player_stat_table( statname, self.name, self getXUID() );
+}
+
+look_up_player_stat_table( statname, player_name, player_xuid )
+{
+
 }
 
 is_weapon_shotgun( sweapon )
@@ -331,10 +379,12 @@ init_gamerules()
 	level.grief_gamerules[ "next_round_time" ] = getDvarIntDefault( "grief_gamerule_next_round_timer", 5 );
 	level.grief_gamerules[ "intermission_time" ] = getDvarIntDefault( "grief_gamerule_intermission_time", 0 );
 	level.grief_gamerules[ "door_restrictions" ] = getDvar( "grief_gamerule_door_restrictions" );
-	level.grief_gamerules[ "round_restart_points" ] = getDvarIntDefault( "grief_gamerule_round_restart_points" );
+	level.grief_gamerules[ "round_restart_points" ] = getDvarIntDefault( "grief_gamerule_round_restart_points", 8000 );
 	level.grief_gamerules[ "use_preset_teams" ] = getDvarIntDefault( "grief_gamerule_use_preset_teams", 0 );
 	level.grief_gamerules[ "disable_zombie_special_runspeeds" ] = getDvarIntDefault( "grief_gamerules_disable_zombie_special_runspeeds", 1 );
 	level.grief_gamerules[ "suicide_check" ] = getDvarFloatDefault( "grief_gamerule_suicide_check_wait", 5 );
+	level.grief_gamerules[ "player_health" ] = getDvarIntDefault( "grief_gamerule_player_health", 100 );
+	level.grief_gamerules[ "perk_limit" ] = getDvarIntDefault( "grief_gamerule_perk_limit", 4 );
 	//init_gamelengths();
 }
 /*
@@ -410,6 +460,15 @@ grief_parse_perk_restrictions()
 	perk_keys = strTok( level.grief_gamerules[ "perk_restrictions" ], " " );
 	foreach ( key in perk_keys )
 	{
+		if ( key == "specialty_weapupgrade" )
+		{
+			trig = getent( key, "script_noteworthy" );
+			if ( isdefined( trig.target ) )
+			{
+				machine = getent( trig.target, "targetname" );
+				machine.wait_flag delete();
+			}
+		}
 		level thread perk_machine_removal( key );
 	}
 }
@@ -437,7 +496,7 @@ round_change_hud()
    	remaining.fontscale = 2.0;
    	remaining.alpha = 1;
    	remaining.color = ( 0.98, 0.549, 0 );
-	remaining.hidewheninmenu = true;
+	remaining.hidewheninmenu = 1;
 	remaining maps/mp/gametypes_zm/_hud::fontpulseinit();
 
    	countdown = create_simple_hud();
@@ -451,7 +510,7 @@ round_change_hud()
    	countdown.fontscale = 2.0;
    	countdown.alpha = 1;
    	countdown.color = ( 1.000, 1.000, 1.000 );
-	countdown.hidewheninmenu = true;
+	countdown.hidewheninmenu = 1;
    	countdown setText( "Next Round Starts In" );
 	level.round_countdown_timer = remaining;
 	level.round_countdown_text = countdown;
@@ -505,7 +564,7 @@ intermission_hud()
    	remaining.fontscale = 2.0;
    	remaining.alpha = 1;
    	remaining.color = ( 0.98, 0.549, 0 );
-	remaining.hidewheninmenu = true;
+	remaining.hidewheninmenu = 1;
 	remaining maps/mp/gametypes_zm/_hud::fontpulseinit();
 
    	countdown = create_simple_hud();
@@ -519,7 +578,7 @@ intermission_hud()
    	countdown.fontscale = 2.0;
    	countdown.alpha = 1;
    	countdown.color = ( 1.000, 1.000, 1.000 );
-	countdown.hidewheninmenu = true;
+	countdown.hidewheninmenu = 1;
    	countdown setText( "Intermission" );
 	level.intermission_countdown = remaining;
 	level.intermission_text = countdown;
@@ -560,7 +619,7 @@ zombiesleft_hud()
     level.remaining_zombies_hud.fontscale = 1.5;
     level.remaining_zombies_hud.color = ( 0.423, 0.004, 0 );
 	level.remaining_zombies_hud.alpha = 1;
-    level.remaining_zombies_hud.hidewheninmenu = true;
+    level.remaining_zombies_hud.hidewheninmenu = 1;
     level.remaining_zombies_hud.label = &"Zombies Left: "; 
 
 	while ( true )
@@ -622,7 +681,7 @@ grief_score()
     level.grief_score_hud[ "A" ].fontscale = 2.5;
     level.grief_score_hud[ "A" ].color = ( 0.423, 0.004, 0 );
 	level.grief_score_hud[ "A" ].alpha = 1;
-    level.grief_score_hud[ "A" ].hidewheninmenu = true;
+    level.grief_score_hud[ "A" ].hidewheninmenu = 1;
 	level.grief_score_hud[ "A" ] setValue( 0 );
 	level.grief_score_hud[ "B" ] = create_simple_hud();
     level.grief_score_hud[ "B" ].x += 240;
@@ -630,7 +689,7 @@ grief_score()
     level.grief_score_hud[ "B" ].fontscale = 2.5;
     level.grief_score_hud[ "B" ].color = ( 0.423, 0.004, 0 );
 	level.grief_score_hud[ "B" ].alpha = 1;
-    level.grief_score_hud[ "B" ].hidewheninmenu = true;
+    level.grief_score_hud[ "B" ].hidewheninmenu = 1;
 	level.grief_score_hud[ "B" ] setValue( 0 );
 
 	while ( 1 )
@@ -661,24 +720,24 @@ grief_score_shaders()
 		level.team_shader1.fontscale = 2.5;
 		level.team_shader1.color = ( 1, 0.333, 0.333 );
 		level.team_shader1.alpha = 1;
-		level.team_shader1.hidewheninmenu = true;
+		level.team_shader1.hidewheninmenu = 1;
 		level.team_shader1.label = &"Inmates "; 
 		level.team_shader2.x += 170;
 		level.team_shader2.y += 20;
 		level.team_shader2.fontscale = 2.5;
 		level.team_shader2.color = ( 0, 0.004, 0.423 );
 		level.team_shader2.alpha = 1;
-		level.team_shader2.hidewheninmenu = true;
+		level.team_shader2.hidewheninmenu = 1;
 		level.team_shader2.label = &"Guards "; 
 	}
 	else 
 	{
 		level.team_shader1.x += 90;
 		level.team_shader1.y += -20;
-		level.team_shader1.hideWhenInMenu = true;
+		level.team_shader1.hideWhenInMenu = 1;
 		level.team_shader2.x += -110;
 		level.team_shader2.y += -20;
-		level.team_shader2.hideWhenInMenu = true;
+		level.team_shader2.hideWhenInMenu = 1;
 	}
 }
 
@@ -875,6 +934,7 @@ game_module_player_damage_callback( einflictor, eattacker, idamage, idflags, sme
 				playfx( level._effect[ "butterflies" ], vpoint, vdir );
 			}
 		}
+		self thread watch_for_down( eattacker );
 		self thread do_game_mode_shellshock( eattacker, smeansofdeath );
 		self playsound( "zmb_player_hit_ding" );
 	}
@@ -896,14 +956,14 @@ do_game_mode_shellshock( attacker, meansofdeath ) //checked matched cerberus out
 	self._being_shellshocked = 0;
 }
 
-watch_for_down( attacker, weapon, meansofdeath )
+watch_for_down( attacker )
 {
 	if ( is_true( self.grief_already_checking_for_down ) )
 	{
 		return;
 	}
-	self.grief_already_checking_for_down = true;
-	self waittill_notify_or_timeout( "player_downed", 3 );
+	self.grief_already_checking_for_down = 1;
+	self waittill_notify_or_timeout( "player_downed", 4 );
 	if ( self player_is_in_laststand() )
 	{
 		if ( isDefined( self.last_griefed_by.attacker ) )
@@ -911,12 +971,16 @@ watch_for_down( attacker, weapon, meansofdeath )
 			self player_steal_points( self.last_griefed_by.attacker, "down_player" );
 			if ( isDefined( self.last_griefed_by.attacker ) && isDefined( self.last_griefed_by.meansofdeath ) )
 			{
-				obituary( self, self.last_griefed_by.attacker, self.last_griefed_by.weapon, self.last_griefed_by.meansofdeath );
+				if ( getDvarInt( "grief_killfeed_enable" ) == 1 )
+				{
+					obituary( self, self.last_griefed_by.attacker, self.last_griefed_by.weapon, self.last_griefed_by.meansofdeath );
+				}
+				attacker.killsconfirmed++;
 				attacker.pers[ "killsconfirmed" ]++;
 			}
 		}
 	}
-	self.grief_already_checking_for_down = false;
+	self.grief_already_checking_for_down = 0;
 }
 
 meat_bounce_override( pos, normal, ent ) //checked matches cerberus output
@@ -1066,7 +1130,7 @@ game_module_player_damage_grief_callback( einflictor, eattacker, idamage, idflag
 			//check if player is reviving before knockback
 			if ( self is_reviving_any() )
 			{
-				self.is_reviving_grief = true;
+				self.is_reviving_grief = 1;
 			}
 			self applyknockback( idamage, vdir );
 		}
@@ -1074,7 +1138,7 @@ game_module_player_damage_grief_callback( einflictor, eattacker, idamage, idflag
 		{
 			if ( self is_reviving_any() )
 			{
-				self.is_reviving_grief = true;
+				self.is_reviving_grief = 1;
 			}
 			self applyknockback( idamage, vdir );
 		}
@@ -1085,7 +1149,7 @@ game_module_player_damage_grief_callback( einflictor, eattacker, idamage, idflag
 		{
 			if ( !self is_reviving_any() )
 			{
-				knocked_off_revive = true;
+				knocked_off_revive = 1;
 			}
 		}
 	}

@@ -22,6 +22,7 @@
 #include common_scripts/utility;
 #include maps/mp/gametypes_zm/_hud_util;
 #include maps/mp/_utility;
+#include maps/mp/zombies/_zm_perks;
 
 main() //checked matches cerberus output
 {
@@ -34,12 +35,7 @@ main() //checked matches cerberus output
 			set_location_ents();
 		}
 	}
-	if ( location == "farm" )
-	{
-		level.grief_swap_jugg = true;
-	}
-	level.custom_spawnplayer = ::spectator_respawn;
-
+	level.custom_spawnplayer = ::grief_spectator_respawn;
 	maps/mp/gametypes_zm/_globallogic::init();
 	maps/mp/gametypes_zm/_callbacksetup::setupcallbacks();
 	globallogic_setupdefault_zombiecallbacks();
@@ -1409,67 +1405,48 @@ onspawnplayer( predictedspawn ) //fixed checked changed partially to match cerbe
 		self [[ level.custom_spawnplayer ]]();
 		return;
 	}
-	if ( isDefined( level.customspawnlogic ) )
+	match_string = "";
+	location = level.scr_zm_map_start_location;
+	if ( ( location == "default" || location == "" ) && isDefined( level.default_start_location ) )
 	{
-		spawnpoint = self [[ level.customspawnlogic ]]( predictedspawn );
-		if ( predictedspawn )
+		location = level.default_start_location;
+	}
+	match_string = level.scr_zm_ui_gametype + "_" + location;
+	spawnpoints = [];
+	structs = getstructarray( "initial_spawn", "script_noteworthy" );
+	if ( isdefined( structs ) )
+	{
+		i = 0;
+		while ( i < structs.size )
 		{
-			return;
+			if ( isdefined( structs[ i ].script_string ) )
+			{
+				tokens = strtok( structs[ i ].script_string, " " );
+				foreach ( token in tokens )
+				{
+					if ( token == match_string )
+					{
+						spawnpoints[ spawnpoints.size ] = structs[ i ];
+					}
+				}
+			}
+			i++;
 		}
+	}
+	if ( !isDefined( spawnpoints ) || spawnpoints.size == 0 )
+	{
+		spawnpoints = getstructarray( "initial_spawn_points", "targetname" );
+	}	
+	level.initial_spawnpoints = spawnpoints;
+	spawnpoint = getfreespawnpoint( spawnpoints, self );
+	if ( predictedspawn )
+	{
+		self predictspawnpoint( spawnpoint.origin, spawnpoint.angles );
+		return;
 	}
 	else
 	{
-		if ( flag( "begin_spawning" ) )
-		{
-			spawnpoint = maps/mp/zombies/_zm::check_for_valid_spawn_near_team( self, 1 );
-		}
-		if ( !isDefined( spawnpoint ) )
-		{
-			match_string = "";
-			location = level.scr_zm_map_start_location;
-			if ( ( location == "default" || location == "" ) && isDefined( level.default_start_location ) )
-			{
-				location = level.default_start_location;
-			}
-			match_string = level.scr_zm_ui_gametype + "_" + location;
-			spawnpoints = [];
-			structs = getstructarray( "initial_spawn", "script_noteworthy" );
-			if ( isdefined( structs ) )
-			{
-				i = 0;
-				while ( i < structs.size )
-				{
-					if ( isdefined( structs[ i ].script_string ) )
-					{
-						tokens = strtok( structs[ i ].script_string, " " );
-						foreach ( token in tokens )
-						{
-							if ( token == match_string )
-							{
-								spawnpoints[ spawnpoints.size ] = structs[ i ];
-							}
-						}
-					}
-					i++;
-				}
-			}
-			if ( !isDefined( spawnpoints ) || spawnpoints.size == 0 )
-			{
-				spawnpoints = getstructarray( "initial_spawn_points", "targetname" );
-			}	
-			level.initial_spawnpoints = spawnpoints;
-			spawnpoint = getfreespawnpoint( spawnpoints, self );
-
-		}
-		if ( predictedspawn )
-		{
-			self predictspawnpoint( spawnpoint.origin, spawnpoint.angles );
-			return;
-		}
-		else
-		{
-			self spawn( spawnpoint.origin, spawnpoint.angles, "zsurvival" );
-		}
+		self spawn( spawnpoint.origin, spawnpoint.angles, "zsurvival" );
 	}
 	self.entity_num = self getentitynumber();
 	self thread maps/mp/zombies/_zm::onplayerspawned();
@@ -2053,19 +2030,12 @@ getfreespawnpoint( spawnpoints, player ) //checked changed to match cerberus out
 	{
 		return undefined;
 	}
-	if ( !isdefined( player.playernum ) )
-	{
-		player.playernum = get_free_playernum_for_spawnpoints( spawnpoints, player );
-	}
+	assign_spawnpoints_player_data( spawnpoints, player );
 	logline1 = "checking if there is a free playernum for spawnpoint" + "\n";
 	logprint( logline1 );
 	for ( j = 0; j < spawnpoints.size; j++ )
 	{
-		if ( !isDefined( spawnpoints[ j ].en_num ) )
-		{
-			spawnpoints[ j ].en_num = j;
-		}
-		if ( spawnpoints[ j ].en_num == player.playernum )
+		if ( spawnpoints[ j ].player_property == player getGUID() )
 		{
 			logline1 = "playernum matches spawnpointnum" + "\n";
 			logprint( logline1 );
@@ -2075,18 +2045,17 @@ getfreespawnpoint( spawnpoints, player ) //checked changed to match cerberus out
 	return spawnpoints[ 0 ];
 }
 
-get_free_playernum_for_spawnpoints( spawnpoints, player )
+assign_spawnpoints_player_data( spawnpoints, player )
 {
 	remove_disconnected_players_spawnpoint_property( spawnpoints );
 	for ( i = 0; i < spawnpoints.size; i++ )
 	{
 		if ( !isDefined( spawnpoints[ i ].player_property ) )
 		{
-			spawnpoints[ i ].player_property = player.name;
-			return i;
+			spawnpoints[ i ].player_property = player getGUID();
+			break;
 		}
 	}
-	return 0;
 }
 
 remove_disconnected_players_spawnpoint_property( spawnpoints )
@@ -2102,7 +2071,7 @@ remove_disconnected_players_spawnpoint_property( spawnpoints )
 		{
 			for ( j = 0; j < players.size; j++ )
 			{
-				if ( spawnpoints[ i ].player_property == players[ j ].name )
+				if ( spawnpoints[ i ].player_property == players[ j ] getGUID() )
 				{
 					spawnpoints[ i ].do_not_discard_player_property = true;
 					break;
@@ -2119,39 +2088,12 @@ remove_disconnected_players_spawnpoint_property( spawnpoints )
 	}
 }
 
-spectator_respawn() //checked changed to match cerberus output
+grief_spectator_respawn() //checked changed to match cerberus output
 {
 	origin = self.spectator_respawn.origin;
 	angles = self.spectator_respawn.angles;
 	self setspectatepermissions( 0 );
-	new_origin = undefined;
-	if ( isDefined( level.check_valid_spawn_override ) )
-	{
-		new_origin = [[ level.check_valid_spawn_override ]]( self );
-	}
-	if ( !isDefined( new_origin ) )
-	{
-		if ( getDvar( "g_gametype" != "zgrief" ) )
-		{
-			new_origin = check_for_valid_spawn_near_team( self, 1 );
-		}
-	}
-	if ( isDefined( new_origin ) )
-	{
-		if ( !isDefined( new_origin.angles ) )
-		{
-			angles = ( 0, 0, 0 );
-		}
-		else
-		{
-			angles = new_origin.angles;
-		}
-		self spawn( new_origin.origin, angles );
-	}
-	else
-	{
-		self spawn( origin, angles );
-	}
+	self spawn( origin, angles );
 	if ( isDefined( self get_player_placeable_mine() ) )
 	{
 		self takeweapon( self get_player_placeable_mine() );
@@ -2183,8 +2125,6 @@ spectator_respawn() //checked changed to match cerberus output
 	self thread return_retained_perks();
 	return 1;
 }
-
-
 
 
 

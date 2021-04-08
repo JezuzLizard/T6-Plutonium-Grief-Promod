@@ -54,10 +54,12 @@ main() //checked matches cerberus output
 	deletebuildabletarp( "courthouse" );
 	deletebuildabletarp( "bar" );
 	deletebuildabletarp( "generalstore" );
-
 	delete_door_and_debris_trigs();
 	deleteSlothBarricade( "juggernaut_alley" );
-
+	deleteSlothBarricade( "jail" );
+	deleteSlothBarricade( "candystore_alley" );
+	//deleteSlothBarricade( "gun_store_door1" );
+	deleteSlothBarricade( "darkwest_nook_door1" );
 	//deleteslothbarricades();
 	powerswitchstate( 1 );
 	level.enemy_location_override_func = ::enemy_location_override;

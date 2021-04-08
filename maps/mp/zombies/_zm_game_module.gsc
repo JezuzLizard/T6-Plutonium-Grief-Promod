@@ -99,6 +99,7 @@ kill_all_zombies() //checked changed to match cerberus output
 		if ( isDefined( zombie ) )
 		{
 			zombie dodamage( zombie.maxhealth * 2, zombie.origin, zombie, zombie, "none", "MOD_SUICIDE" );
+			level.zombie_total++;
 			wait 0.05;
 		}
 	}
@@ -144,6 +145,8 @@ respawn_spectators_and_freeze_players() //checked changed to match cerberus outp
 			{
 				player.spectate_hud destroy();
 			}
+			logline1 = "_zm_game_module.gsc respawn_spectators_and_freeze_players() spawns a spectator in " + player.name + "\n";
+			logprint( logline1 );
 			player [[ level.spawnplayer ]]();
 		}
 		player freeze_player_controls( 1 );
@@ -174,10 +177,14 @@ respawn_players() //checked changed to match cerberus output
 	{
 		if ( player.sessionstate == "spectator" )
 		{
+			logline1 = "_zm_game_module.gsc respawn_players() spawns a spectator in " + player.name + "\n";
+			logprint( logline1 );
 			player [[ level.spawnplayer ]]();
 		}
 		else if ( !is_true( level.initial_spawn_players ) )
 		{
+			logline1 = "_zm_game_module.gsc respawn_players() does an initial respawn " + player.name + "\n";
+			logprint( logline1 );
 			player [[ level.spawnplayer ]]();
 			player freeze_player_controls( 1 );
 		}
@@ -246,8 +253,10 @@ wait_for_team_death_and_round_end() //checked partially changed to match cerberu
 		level.grief_teams = [];
 		level.grief_teams[ "B" ] = spawnStruct();
 		level.grief_teams[ "B" ].score = 0;
+		level.grief_teams[ "B" ].mmr = 0;
 		level.grief_teams[ "A" ] = spawnStruct();
 		level.grief_teams[ "A" ].score = 0;
+		level.grief_teams[ "A" ].mmr = 0;
 		level thread grief_save_loadouts2();
 	}
 	level.checking_for_round_end = 0;
@@ -391,6 +400,12 @@ check_for_round_end( winner )
 		level notify( "end_game" );
 		return;
 	}
+	execute_round_change();
+}
+
+execute_round_change()
+{
+	level notify( "grief_round_end" );
 	flag_clear( "spawn_zombies" );
 	level thread kill_all_zombies();
 	if ( isDefined( level.grief_round_win_next_round_countdown ) && !in_grief_intermission() )
@@ -428,6 +443,7 @@ check_for_round_end( winner )
 	level thread maps/mp/zombies/_zm::round_think( 1 );
 	level.checking_for_round_end = 0;
 	level thread wait_for_team_death_and_round_end();
+	level notify( "grief_give_points" );
 }
 
 reset_players_last_griefed_by()
