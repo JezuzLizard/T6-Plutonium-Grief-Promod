@@ -100,7 +100,6 @@ kill_all_zombies() //checked changed to match cerberus output
 		{
 			zombie dodamage( zombie.maxhealth * 2, zombie.origin, zombie, zombie, "none", "MOD_SUICIDE" );
 			level.zombie_total++;
-			wait 0.05;
 		}
 	}
 }
@@ -243,7 +242,6 @@ team_suicide_check()
 
 wait_for_team_death_and_round_end() //checked partially changed to match cerberus output //did not use foreach with continue to prevent continue bug
 {
-	level notify( "restart_round_check" );
 	level endon( "game_module_ended" );
 	level endon( "end_game" );
 	level endon( "restart_round_check" );
@@ -299,7 +297,6 @@ wait_for_team_death_and_round_end() //checked partially changed to match cerberu
 				level thread [[ level._grief_reset_message ]]();
 			}
 			level.isresetting_grief = 1;
-			level notify( "stop_round_end_check" );
 			level notify( "end_round_think" );
 			level.zombie_vars[ "spectators_respawn" ] = 1;
 			level notify( "keep_griefing" );
@@ -357,6 +354,10 @@ reset_grief() //checked matches cerberus output
 
 grief_team_forfeits()
 {
+	if ( getDvarInt( "grief_testing" ) == 1 )
+	{
+		return 0;
+	}
 	if ( ( getPlayers( "axis" ).size == 0 ) || ( getPlayers( "allies" ).size == 0 ) )
 	{
 		logline1 = "other team forfeited" + "\n";
@@ -400,12 +401,6 @@ check_for_round_end( winner )
 		level notify( "end_game" );
 		return;
 	}
-	execute_round_change();
-}
-
-execute_round_change()
-{
-	level notify( "grief_round_end" );
 	flag_clear( "spawn_zombies" );
 	level thread kill_all_zombies();
 	if ( isDefined( level.grief_round_win_next_round_countdown ) && !in_grief_intermission() )
@@ -438,11 +433,11 @@ execute_round_change()
 	level.isresetting_grief = 1;
 	level notify( "end_round_think" );
 	level.zombie_vars[ "spectators_respawn" ] = 1;
+	level.checking_for_round_end = 0;
 	zombie_goto_round( level.round_number );
 	level thread reset_grief();
 	level thread maps/mp/zombies/_zm::round_think( 1 );
 	level.checking_for_round_end = 0;
-	level thread wait_for_team_death_and_round_end();
 	level notify( "grief_give_points" );
 }
 
