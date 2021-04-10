@@ -192,31 +192,71 @@ main( bscriptgened, bcsvgened, bsgenabled ) //checked partially changed to match
 	{
 		if ( location == "diner" || location == "cornfield" || location == "power" || location == "tunnel" )
 		{
+			level.trash_spawns = getDvarIntDefault( "grief_use_trash_spawns_power", 0 );
 			register_perk_structs();
 			register_spawnpoint_structs();
 		}
-		if ( is_true( level.grief_swap_jugg ) )
+		if ( getDvar( "grief_perk_location_override" ) != "" )
 		{
-			for ( i = 0; i < level.struct_class_names[ "targetname" ][ "zm_perk_machine" ].size; i++ )
+			perks_moved = [];
+			perk_keys = strTok( getDvar( "grief_perk_location_override" ), " " );
+			for ( i = 0; i < perk_keys.size; i++ )
 			{
-				if ( level.struct_class_names[ "targetname" ][ "zm_perk_machine" ][ i ].origin == ( 8216.6, -6410.6, 245 ) )
+				if ( perk_keys[ i ] == "location" )
 				{
-					farm_jugg_index = i;
-					farm_jugg_origin = level.struct_class_names[ "targetname" ][ "zm_perk_machine" ][ i ].origin;
-					farm_jugg_angles = level.struct_class_names[ "targetname" ][ "zm_perk_machine" ][ i ].angles;
+					location = perk_keys[ i + 1 ];
+					if ( !isDefined( perks_index ) )
+					{
+						perks_index = 0;
+					}
+					else 
+					{
+						perks_index++;
+					}
 				}
-				else if ( level.struct_class_names[ "targetname" ][ "zm_perk_machine" ][ i ].origin == ( 8053.1, -5459.5, 43.4 ) )
+				if ( location != getDvar( "ui_zm_mapstartlocation" ) )
 				{
-					farm_quickrevive_index = i;
-					farm_quickrevive_origin = level.struct_class_names[ "targetname" ][ "zm_perk_machine" ][ i ].origin;
-					farm_quickrevive_angles = level.struct_class_names[ "targetname" ][ "zm_perk_machine" ][ i ].angles;
-					break;
+				}
+				else 
+				{
+					if ( perk_keys[ i ] == "perk" )
+					{
+						perks_moved[ perks_index ] = spawnStruct();
+						perks_moved[ perks_index ].perk = perk_keys[ i + 1 ];
+						logprint( "perks_moved array: index " + perks_index + " perks_moved array: perk " + perks_moved[ perks_index ].perk + "\n" );
+					}
+					else if ( perk_keys[ i ] == "origin" )
+					{
+						perks_moved[ perks_index ].origin = cast_to_vector( perk_keys[ i + 1 ] );
+						logprint( "perks_moved array: index " + perks_index + " perks_moved array: origin " + perks_moved[ perks_index ].origin + "\n" );
+					}
+					else if ( perk_keys[ i ] == "angles" )
+					{
+						perks_moved[ perks_index ].angles = cast_to_vector( perk_keys[ i + 1 ] );
+						logprint( "perks_moved array: index " + perks_index + " perks_moved array: angles " + perks_moved[ perks_index ].angles + "\n" );
+					}
 				}
 			}
-			level.struct_class_names[ "targetname" ][ "zm_perk_machine" ][ farm_jugg_index ].origin = farm_quickrevive_origin;
-			level.struct_class_names[ "targetname" ][ "zm_perk_machine" ][ farm_quickrevive_index ].origin = farm_jugg_origin;
-			level.struct_class_names[ "targetname" ][ "zm_perk_machine" ][ farm_jugg_index ].angles = farm_jugg_angles;
-			level.struct_class_names[ "targetname" ][ "zm_perk_machine" ][ farm_quickrevive_index ].angles = farm_quickrevive_angles;
+			perks_location = "zgrief_perks_" + location;
+			for ( i = 0; i < level.struct_class_names[ "targetname" ][ "zm_perk_machine" ].size; i++ )
+			{
+				for ( j = 0; j < perks_moved.size; j++ )
+				{
+					script_string_locations = strTok( level.struct_class_names[ "targetname" ][ "zm_perk_machine" ][ i ].script_string, " " );
+					for ( k = 0; k < script_string_locations.size; k++ )
+					{
+						if ( level.struct_class_names[ "targetname" ][ "zm_perk_machine" ][ i ].script_noteworthy == perks_moved[ j ].perk && script_string_locations[ k ] == perks_location )
+						{
+							level.struct_class_names[ "targetname" ][ "zm_perk_machine" ][ i ].origin = perks_moved[ j ].origin;
+							level.struct_class_names[ "targetname" ][ "zm_perk_machine" ][ i ].angles = perks_moved[ j ].angles;
+
+							logprint( "perks_moved array: index " + j + " perks_moved array: perk " + perks_moved[ j ].perk + "\n" );
+							logprint( "perks_moved array: index " + j + " perks_moved array: origin " + perks_moved[ j ].origin + "\n" );
+							logprint( "perks_moved array: index " + j + " perks_moved array: angles " + perks_moved[ j ].angles + "\n" );
+						}
+					}
+				}
+			}
 		}
 	}
 	/////////////////////////////
@@ -629,9 +669,18 @@ register_spawnpoint_structs() //custom function
 			angles = array( ( 0, 40, 0 ), ( 0, 145, 0 ), ( 0, -131, 0 ), ( 0, -24, 0 ), ( 0, -178, 0 ), ( 0, -179, 0 ), ( 0, -177, 0 ), ( 0, -177, 0 ) );
 			break;
 		case "power":
-			coordinates = array( ( 11257, 8233, -487 ), ( 11403, 8245, -487 ), ( 11381, 8374, -487), ( 11269, 8360, -487 ),
+			if ( !is_true( level.trash_spawns ) )
+			{
+				coordinates = array( ( 11288, 7988, -550 ), ( 11284, 7760, -549 ), ( 10784, 7623, -584 ), ( 10866, 7473, -580 ),
+									( 10261, 8146, -580 ), ( 10595, 8055, -541 ), ( 10477, 7679, -567 ), ( 10165, 7879, -570 ) );
+				angles = array( ( 0, -137, 0 ), ( 0, 177, 0 ), ( 0, -10, 0 ), ( 0, 21, 0 ), ( 0, -31, 0 ), ( 0, -43, 0 ), ( 0, -9, 0 ), ( 0, -15, 0 ) );
+			}
+			else 
+			{
+				coordinates = array( ( 11257, 8233, -487 ), ( 11403, 8245, -487 ), ( 11381, 8374, -487), ( 11269, 8360, -487 ),
 									( 10871, 8433, -407 ), ( 10852, 8230, -407 ), ( 10641, 8228, -407 ), ( 10655, 8431, -407 ) );
-			angles = array( ( 0, -137, 0 ), ( 0, 177, 0 ), ( 0, -10, 0 ), ( 0, 21, 0 ), ( 0, -31, 0 ), ( 0, -43, 0 ), ( 0, -9, 0 ), ( 0, -15, 0 ) );
+				angles = array( ( 0, -137, 0 ), ( 0, 177, 0 ), ( 0, -10, 0 ), ( 0, 21, 0 ), ( 0, -31, 0 ), ( 0, -43, 0 ), ( 0, -9, 0 ), ( 0, -15, 0 ) );
+			}
 			break;
 	}
 	for ( i = 0; i < 8; i++ )
@@ -654,11 +703,25 @@ _register_map_initial_spawnpoint( spawnpoint_coordinates, spawnpoint_angles ) //
 	player_initial_spawnpoint_size = level.struct_class_names[ "script_noteworthy" ][ "initial_spawn" ].size;
 	level.struct_class_names[ "targetname" ][ "player_respawn_point" ][ player_respawn_point_size ] = spawnpoint_struct;
 	level.struct_class_names[ "script_noteworthy" ][ "initial_spawn" ][ player_initial_spawnpoint_size ] = spawnpoint_struct;
-	level.spawnpoint_index++;
 }
 
 _get_spawnpoint_script_string_for_location( location, gametype )
 {
 	string = gametype + "_" + location;
 	return string;
+}
+
+cast_to_vector( vector_string )
+{
+	logprint( vector_string + "\n" );
+	keys = strTok( vector_string, "," );
+	logprint( keys[ 0 ] + "\n" );
+	vector_array = [];
+	for ( i = 0; i < keys.size; i++ )
+	{
+		vector_array[ i ] = float( keys[ i ] ); 
+		logprint( vector_array[ i ] + "\n" );
+	}
+	vector = ( vector_array[ 0 ], vector_array[ 1 ], vector_array[ 2 ] );
+	return vector;
 }
