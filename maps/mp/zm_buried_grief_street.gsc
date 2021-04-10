@@ -44,6 +44,7 @@ street_treasure_chest_init() //checked matches cerberus output
 
 main() //checked matches cerberus output
 {
+	disable_buried_tunnel_zone();
 	spawn_barriers();
 	level.buildables_built[ "pap" ] = 1;
 	level.equipment_team_pick_up = 1;
@@ -124,6 +125,13 @@ spawn_barriers()
 	collision = spawn( "script_model", ( -728, -529, 117 ), 1 );
 	collision.angles = ( 19, 4, 0 );
 	collision setModel( "collision_player_64x64x128" );
+	//tunnel blockade
+	collision = spawn( "script_model", (-1495, -280, 40) );
+    collision.angles = ( 0, 90, 0 );
+    collision setmodel( "collision_clip_wall_128x128x10" );
+    couch = spawn( "script_model", (-1512, -262, 26.5) );
+    couch.angles = ( 0, 90, 0 );
+    couch setmodel( "p6_zm_bu_victorian_couch" );
 	//mule kick barrier
 	/*
 	barrier_model = spawn( "script_model", ( -578, 1006, 167 ), 1 );
@@ -135,7 +143,7 @@ spawn_barriers()
 
 delete_door_and_debris_trigs()
 {
-	door_trigs_to_delete = array( "pf728_auto2520" );
+	door_trigs_to_delete = array( "pf728_auto2520", "pf728_auto2513", "pf728_auto2496", "pf728_auto2497" );
 	doors_trigs = getentarray( "zombie_door", "targetname" );
 	foreach ( door_trig in doors_trigs )
 	{
@@ -157,6 +165,19 @@ delete_door_and_debris_trigs()
 			{
 				debris_trig delete();
 			}
+		}
+	}
+}
+
+disable_buried_tunnel_zone()
+{
+	foreach ( zone in getArrayKeys( level.zones ) )
+	{
+		if ( zone == "zone_tunnel_gun2stables2" )
+		{
+			level.zones[ zone ].is_enabled = 0;
+			level.zones[ zone ].is_spawning_allowed = 0;
+			break;
 		}
 	}
 }
