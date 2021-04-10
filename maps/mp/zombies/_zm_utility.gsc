@@ -4310,47 +4310,44 @@ track_players_intersection_tracker() //checked partially changed to match cerber
 						continue;
 					}
 				}
-				if ( !is_true( players[ i ].has_grief_spawn_protection ) && !is_true( players[ j ].has_grief_spawn_protection ) )
+				playeri_origin = players[ i ].origin;
+				playerj_origin = players[ j ].origin;
+				if ( abs( playeri_origin[ 2 ] - playerj_origin[ 2 ] ) > 60 )
 				{
-					playeri_origin = players[ i ].origin;
-					playerj_origin = players[ j ].origin;
-					if ( abs( playeri_origin[ 2 ] - playerj_origin[ 2 ] ) > 60 )
-					{
-						j++;
-						continue;
-					}
-					distance_apart = distance2d( playeri_origin, playerj_origin );
-					if ( abs( distance_apart ) > 18 )
-					{
-						j++;
-						continue;
-					}
-					if ( players[ i ] getStance() == "prone" )
-					{
-						players[ i ].is_grief_jumped_on = true;
-					}
-					else if ( players[ j ] getStance() == "prone" )
-					{
-						players[ j ].is_grief_jumped_on = true;
-					}
-					players[ i ] dodamage( 1000, ( 0, 0, 1 ) );
-					players[ j ] dodamage( 1000, ( 0, 0, 1 ) );
-					if ( !killed_players )
-					{
-						players[ i ] playlocalsound( level.zmb_laugh_alias );
-					}
-					if ( is_true( players[ i ].is_grief_jumped_on ) )
-					{
-						obituary( players[ j ], players[ i ], "none", "MOD_IMPACT" );
-						players[ i ].is_grief_jumped_on = undefined;
-					}
-					else if ( is_true( players[ j ].is_grief_jumped_on ) )
-					{
-						obituary( players[ i ], players[ j ], "none", "MOD_IMPACT" );
-						players[ j ].is_grief_jumped_on = undefined;
-					}
-					killed_players = 1;
+					j++;
+					continue;
 				}
+				distance_apart = distance2d( playeri_origin, playerj_origin );
+				if ( abs( distance_apart ) > 18 )
+				{
+					j++;
+					continue;
+				}
+				if ( players[ i ] getStance() == "prone" )
+				{
+					players[ i ].is_grief_jumped_on = true;
+				}
+				else if ( players[ j ] getStance() == "prone" )
+				{
+					players[ j ].is_grief_jumped_on = true;
+				}
+				players[ i ] dodamage( 1000, ( 0, 0, 1 ) );
+				players[ j ] dodamage( 1000, ( 0, 0, 1 ) );
+				if ( !killed_players )
+				{
+					players[ i ] playlocalsound( level.zmb_laugh_alias );
+				}
+				if ( is_true( players[ i ].is_grief_jumped_on ) )
+				{
+					obituary( players[ j ], players[ i ], "none", "MOD_IMPACT" );
+					players[ i ].is_grief_jumped_on = undefined;
+				}
+				else if ( is_true( players[ j ].is_grief_jumped_on ) )
+				{
+					obituary( players[ i ], players[ j ], "none", "MOD_IMPACT" );
+					players[ j ].is_grief_jumped_on = undefined;
+				}
+				killed_players = 1;
 				j++;
 			}
 			i++;
@@ -5215,7 +5212,6 @@ get_player_perk_purchase_limit() //checked matches cerberus output
 	}
 	return level.perk_purchase_limit;
 }
-
 
 
 
