@@ -15,6 +15,7 @@
 #include common_scripts/utility;
 #include maps/mp/zombies/_zm_weap_claymore;
 #include maps/mp/zombies/_zm_weap_ballistic_knife;
+#include maps/mp/gametypes_zm/_clientids;
 
 
 init() //checked matches cerberus output
@@ -941,6 +942,10 @@ init_spawnable_weapon_upgrade() //checked partially changed to match cerberus ou
 			continue;
 		}
 		precachemodel( target_struct.model );
+	 	if ( grief_restrict_wallbuy( spawn_list[ i ].zombie_weapon_upgrade ) )
+		{
+			continue;
+		}
 		unitrigger_stub = spawnstruct();
 		unitrigger_stub.origin = spawn_list[ i ].origin;
 		unitrigger_stub.angles = spawn_list[ i ].angles;
@@ -2406,7 +2411,14 @@ weapon_give( weapon, is_upgrade, magic_box, nosound ) //checked changed to match
 		{
 			self notify( "zmb_lost_knife" );
 		}
-		self givestartammo( weapon );
+		if( weapon == "mp5k_zm" )
+		{
+			self itemweaponsetammo( 0, 30 );
+		}
+		else
+		{
+			self givestartammo( weapon );
+		}
 		if ( !is_offhand_weapon( weapon ) )
 		{
 			self switchtoweapon( weapon );

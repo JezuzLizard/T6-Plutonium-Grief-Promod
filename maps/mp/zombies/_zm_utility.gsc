@@ -224,13 +224,13 @@ set_run_speed() //checked matches cerberus output
 	{
 		self.zombie_move_speed = "run";
 	}
-	else if ( rand <= 219 )
+	else if ( rand <= 200 )
 	{
 		self.zombie_move_speed = "sprint";
 	}
 	else if ( !level.grief_gamerules[ "disable_zombie_special_runspeeds" ] )
 	{
-		if ( rand <= 234 )
+		if ( rand <= 219 )
 		{
 			if ( !isDefined( level.grief_super_sprinter_zombies_start ) )
 			{
@@ -260,6 +260,10 @@ set_run_speed() //checked matches cerberus output
 				self.zombie_move_speed = speed;
 			}
 		}
+	}
+	else
+	{
+		self.zombie_move_speed = "sprint";
 	}
 }
 

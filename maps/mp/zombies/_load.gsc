@@ -188,13 +188,13 @@ main( bscriptgened, bcsvgened, bsgenabled ) //checked partially changed to match
 	/////////////////////////////
 	map = getDvar( "mapname" );
 	location = getDvar( "ui_zm_mapstartlocation" ); 
+	register_spawnpoint_structs();
+	register_perk_structs();
 	if ( map == "zm_transit" )
 	{
 		if ( location == "diner" || location == "cornfield" || location == "power" || location == "tunnel" )
 		{
 			level.trash_spawns = getDvarIntDefault( "grief_use_trash_spawns_power", 0 );
-			register_perk_structs();
-			register_spawnpoint_structs();
 		}
 		if ( getDvar( "grief_perk_location_override" ) != "" )
 		{
@@ -623,6 +623,12 @@ register_perk_structs()
 			_register_survival_perk( "specialty_quickrevive", "zombie_vending_quickrevive", ( 0, -90, 0 ), ( 7831, -464, -203 ) );
 			_register_survival_perk( "specialty_fastreload", "zombie_vending_sleight", ( 0, -4, 0 ), ( 13255, 74, -195 ) );
 			break;
+		case "cellblock":
+			_register_survival_perk( "specialty_armorvest", "zombie_vending_jugg", ( 0, 86, 0 ), ( 1403, 9664, 1336 ) );
+			break;
+		case "transit":
+			_register_survival_perk( "specialty_armorvest", "zombie_vending_jugg", ( 0, -5, 0), ( -6136, 5590, -63.85 ) );
+			break;
 	}
 }
 
@@ -682,10 +688,29 @@ register_spawnpoint_structs() //custom function
 				angles = array( ( 0, -137, 0 ), ( 0, 177, 0 ), ( 0, -10, 0 ), ( 0, 21, 0 ), ( 0, -31, 0 ), ( 0, -43, 0 ), ( 0, -9, 0 ), ( 0, -15, 0 ) );
 			}
 			break;
+		case "cellblock":
+			coordinates = array( ( 1422, 9597, 1336 ), ( 1432, 9745, 1336 ), ( 2154, 9062, 1336 ), ( 1969, 9950, 1336 ),
+								  ( 2150, 9496, 1336 ), ( 2144, 9931, 1336 ), ( 1665, 9053, 1336 ), ( 1661, 9211, 1336 ) );
+			angles = array( ( 0, 0, 0 ), ( 0, 0, 0 ), ( 0, 180, 0 ), ( 0, 0, 0 ),
+							( 0, 180, 0 ), ( 0, 180, 0), ( 0, 0, 0 ), ( 0, 0, 0) );
+			break;
 	}
+	if ( getDvar( "ui_zm_mapstartlocation" ) == "cellblock" )
+	{
+		level.struct_class_names[ "targetname" ][ "player_respawn_point" ] = [];
+		level.struct_class_names[ "script_noteworthy" ][ "initial_spawn" ] = [];
+	} 
 	for ( i = 0; i < 8; i++ )
 	{
-		_register_map_initial_spawnpoint( coordinates[ i ], angles[ i ] );
+		if ( isDefined( angles ) )
+		{
+			_register_map_initial_spawnpoint( coordinates[ i ], angles[ i ] );
+		}
+		else 
+		{
+			_register_map_initial_spawnpoint( coordinates[ i ], undefined );
+		}
+
 	}
 }
 
@@ -693,7 +718,14 @@ _register_map_initial_spawnpoint( spawnpoint_coordinates, spawnpoint_angles ) //
 {
 	spawnpoint_struct = spawnStruct();
 	spawnpoint_struct.origin = spawnpoint_coordinates;
-	spawnpoint_struct.angles = spawnpoint_angles;
+	if ( isDefined( spawnpoint_angles ) )
+	{
+		spawnpoint_struct.angles = spawnpoint_angles;
+	}
+	else 
+	{
+		spawnpoint_struct.angles = ( 0, 0, 0 );
+	}
 	spawnpoint_struct.radius = 32;
 	spawnpoint_struct.script_noteworthy = "initial_spawn";
 	spawnpoint_struct.script_int = 2048;

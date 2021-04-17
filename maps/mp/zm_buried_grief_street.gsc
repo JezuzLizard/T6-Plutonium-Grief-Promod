@@ -181,3 +181,17 @@ disable_buried_tunnel_zone()
 		}
 	}
 }
+
+remove_buried_spawns()
+{
+	foreach ( zone in getArrayKeys( level.zones ) )
+	{
+		for ( i = 0; i < zone.spawn_locations.size; i++ )
+		{
+			if ( zone.spawn_locations[ i ].origin == ( -1551, -611, 36.69 ) )
+			{
+				zone.spawn_locations[ i ].is_enabled = false;
+			}
+		}
+	}
+}

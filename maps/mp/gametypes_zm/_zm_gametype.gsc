@@ -112,7 +112,7 @@ main() //checked matches cerberus output
 	set_gamemode_var( "post_init_zombie_spawn_func", undefined );
 	set_gamemode_var( "match_end_notify", undefined );
 	set_gamemode_var( "match_end_func", undefined );
-	setscoreboardcolumns( "score", "stabs", "killsconfirmed", "revives", "assists" );
+	setscoreboardcolumns( "score", "stabs", "killsconfirmed", "revives", "downs" );
 	onplayerconnect_callback( ::onplayerconnect_check_for_hotjoin );
 }
 
@@ -2026,23 +2026,14 @@ location_common_ent_deletion()
 
 getfreespawnpoint( spawnpoints, player ) //checked changed to match cerberus output
 {
-	if ( !isDefined( spawnpoints ) )
-	{
-		return undefined;
-	}
 	assign_spawnpoints_player_data( spawnpoints, player );
-	logline1 = "checking if there is a free playernum for spawnpoint" + "\n";
-	logprint( logline1 );
 	for ( j = 0; j < spawnpoints.size; j++ )
 	{
-		if ( spawnpoints[ j ].player_property == player getGUID() )
+		if ( spawnpoints[ j ].player_property == player.name )
 		{
-			logline1 = "playernum matches spawnpointnum" + "\n";
-			logprint( logline1 );
 			return spawnpoints[ j ];
 		}
 	}
-	return spawnpoints[ 0 ];
 }
 
 assign_spawnpoints_player_data( spawnpoints, player )
@@ -2050,9 +2041,9 @@ assign_spawnpoints_player_data( spawnpoints, player )
 	remove_disconnected_players_spawnpoint_property( spawnpoints );
 	for ( i = 0; i < spawnpoints.size; i++ )
 	{
-		if ( !isDefined( spawnpoints[ i ].player_property ) )
+		if ( spawnpoints[ i ].player_property == "" )
 		{
-			spawnpoints[ i ].player_property = player getGUID();
+			spawnpoints[ i ].player_property = player.name;
 			break;
 		}
 	}
@@ -2071,7 +2062,7 @@ remove_disconnected_players_spawnpoint_property( spawnpoints )
 		{
 			for ( j = 0; j < players.size; j++ )
 			{
-				if ( spawnpoints[ i ].player_property == players[ j ] getGUID() )
+				if ( spawnpoints[ i ].player_property == players[ j ].name )
 				{
 					spawnpoints[ i ].do_not_discard_player_property = true;
 					break;
@@ -2083,7 +2074,7 @@ remove_disconnected_players_spawnpoint_property( spawnpoints )
 	{
 		if ( !spawnpoints[ i ].do_not_discard_player_property )
 		{
-			spawnpoints[ i ].player_property = undefined;
+			spawnpoints[ i ].player_property = "";
 		}
 	}
 }

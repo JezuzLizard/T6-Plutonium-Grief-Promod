@@ -238,6 +238,7 @@ main()
 			break;
 		case "power":
 			//_weapon_spawner( ( 0, 90, 0), ( 10559, 8226, -504 ), "m14_zm_fx", "m14_zm", "t6_wpn_ar_m14_world", "m14", "weapon_upgrade" );
+			_weapon_spawner( ( 0, -180, 0 ), ( 10620, 8135, -490 ), "mp5k_zm_fx", "mp5k_zm", "t6_wpn_smg_mp5_world", "mp5", "weapon_upgrade" );
 			//_weapon_spawner( ( 0, 170, 0 ), ( 11769, 7662, -701 ), "rottweil72_zm_fx", "rottweil72_zm", "t6_wpn_shotty_olympia_world", "olympia", "weapon_upgrade" );
 			_weapon_spawner( ( 0, 0, 0 ), ( 10859, 8146, -353 ), "m16_zm_fx", "m16_zm", "t6_wpn_ar_m16a2_world", "m16", "weapon_upgrade" );
 			_weapon_spawner( ( 0, 90, 0 ), ( 11452, 8692, -521 ), "mp5k_zm_fx", "mp5k_zm", "t6_wpn_smg_mp5_world", "mp5", "weapon_upgrade" );
@@ -515,6 +516,10 @@ create_spawner_list( zkeys ) //modified function
 				if ( !is_true( zone.spawn_locations[ i ].checked ) )
 				{
 					if ( zone.spawn_locations[ i ].origin == ( 8394, -2545, -205.16 ) )
+					{
+						zone.spawn_locations[ i ].is_enabled = false;
+					}
+					else if ( zone.spawn_locations[ i ].origin == ( 10705, 7347, -576 ) )
 					{
 						zone.spawn_locations[ i ].is_enabled = false;
 					}

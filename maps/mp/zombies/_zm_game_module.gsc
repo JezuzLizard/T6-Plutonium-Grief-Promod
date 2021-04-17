@@ -5,6 +5,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 #include maps/mp/zombies/_zm_laststand;
+#include maps/mp/gametypes_zm/_globallogic;
 
 register_game_module( index, module_name, pre_init_func, post_init_func, pre_init_zombie_spawn_func, post_init_zombie_spawn_func, hub_start_func ) //checked partially changed to match cerberus output //did not change while loop to for loop to prevent the infinite loop bu caused by continues
 {
@@ -174,7 +175,7 @@ respawn_players() //checked changed to match cerberus output
 	players = get_players();
 	foreach ( player in players )
 	{
-		if ( player.sessionstate == "spectator" )
+		if ( player.sessionstate == "spectator" || player player_is_in_laststand() )
 		{
 			logline1 = "_zm_game_module.gsc respawn_players() spawns a spectator in " + player.name + "\n";
 			logprint( logline1 );
@@ -229,6 +230,18 @@ wait_for_players()
 		}
 		wait 1;
 	}
+	if ( getDvarInt( "grief_tournament_mode" ) == 1 )
+	{
+		players = getPlayers();
+		while ( getDvarInt( "zombies_minplayers" ) > players.size )
+		{
+			players = getPlayers();
+			for ( i = 0; i < players.size; i++ )
+			{
+				players[ i ] iPrintLn( "Waiting for all players to connect" );
+			}
+			wait 1;
+		}
 	level notify( "grief_begin" );
 	flag_set( "spawn_zombies" );
 	respawn_players();
@@ -369,18 +382,25 @@ grief_team_forfeits()
 
 check_for_round_end( winner )
 {
-	//level endon( "keep_griefing" );
-	level endon( "stop_round_end_check" );
+	level endon( "keep_griefing" );
+	flag_clear( "grief_brutus_can_spawn" );
+	//level endon( "stop_round_end_check" );
 	//level waittill( "end_of_round" );
+	level.zombie_vars[ "spectators_respawn" ] = 0;
 	team_suicide_check();
 	level.grief_teams[ winner ].score++;
 	level notify( "grief_point", winner );
+	loser = get_loser( winner );
+	mapname = get_mapname();
+	match_length = to_mins( getGameLength() );
 	if ( level.grief_teams[ winner ].score == level.grief_gamerules[ "scorelimit" ] || grief_team_forfeits() )
 	{
 		level.gamemodulewinningteam = winner;
 		level.zombie_vars[ "spectators_respawn" ] = 0;
 		players = get_players();
 		i = 0;
+		winning_team_size = 0;
+		losing_team_size = 0;
 		while ( i < players.size )
 		{
 			players[ i ] freezecontrols( 1 );
@@ -388,17 +408,21 @@ check_for_round_end( winner )
 			{
 				players[ i ] thread maps/mp/zombies/_zm_audio_announcer::leaderdialogonplayer( "grief_won" );
 				players[ i ].pers[ "wins" ]++;
+				winning_team_size++;
 				i++;
 				continue;
 			}
 			players[ i ] thread maps/mp/zombies/_zm_audio_announcer::leaderdialogonplayer( "grief_lost" );
 			players[ i ].pers[ "losses" ]++;
+			losing_team_size++;
 			i++;
 		}
 		level notify( "game_module_ended", winner );
 		level._game_module_game_end_check = undefined;
 		maps/mp/gametypes_zm/_zm_gametype::track_encounters_win_stats( level.gamemodulewinningteam );
 		level notify( "end_game" );
+		logline1 = "MAP:" + mapname + ";W:" + winner + ";WTS:" + winning_team_size + ";L:" + loser + ";LTS:" + losing_team_size + ";ML:" + match_length + ";D:" + time() + "\n";
+		logprint( logline1 );
 		return;
 	}
 	flag_clear( "spawn_zombies" );
@@ -421,6 +445,10 @@ check_for_round_end( winner )
 			{
 				player auto_revive( player );
 			}
+			else if ( player.sessionstate == "spectator" )
+			{	
+				player [[ level.spawnplayer ]]();
+			}
 		}
 		level thread all_surviving_players_invulnerable();
 		level.isresetting_grief = false;
@@ -439,7 +467,43 @@ check_for_round_end( winner )
 	level thread maps/mp/zombies/_zm::round_think( 1 );
 	level.checking_for_round_end = 0;
 	level notify( "grief_give_points" );
+	flag_set( "grief_brutus_can_spawn" );
 }
+
+get_mapname()
+{
+	switch ( getDvar( "ui_zm_mapstartlocation" ) )
+	{
+		case "transit":
+			return "Bus Depot";
+		case "town":
+			return "Town";
+		case "farm":
+			return "Farm";
+		case "diner":
+			return "Diner";
+		case "Power":
+			return "Power";
+		case "cornfield":
+			return "Cornfield";
+		case "Tunnel":
+			return "Tunnel";
+		case "cellblock":
+			return "Cellblock";
+		case "street":
+			return "Buried";
+	}
+	return "NULL";
+}
+
+get_loser( winner )
+{
+	if ( winner = "A" )
+	{
+		return "B";
+	}
+	return "A";
+} 
 
 reset_players_last_griefed_by()
 {
