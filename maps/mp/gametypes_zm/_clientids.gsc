@@ -39,6 +39,7 @@ init()
 		level.grief_loadout_save = ::grief_loadout_save;
 		grief_parse_perk_restrictions();
 		grief_parse_powerup_restrictions();
+		level thread reduce_starting_ammo();
         level thread on_player_connect();
 		level thread draw_hud();
 		wait 15;
@@ -247,46 +248,30 @@ on_player_spawned()
 	level endon( "game_ended" );
 	self endon( "disconnect" );
 
-	self.initial_spawn = true;
-
 	while ( true )
 	{	
 		self waittill( "spawned_player" );
-
-		if(level.inital_spawn)
-		{
-			level.inital_spawn = false;
-			level thread post_all_players_spawned();
-		}
 		self.health = level.grief_gamerules[ "player_health" ];
 		self.maxHealth = self.health;
 	}
 }
 
-post_all_players_spawned()
+reduce_starting_ammo()
 {	
-	flag_wait( "start_zombie_round_logic" );
-	wait 0.05;
-
-	unload_clip();
-}
-
-unload_clip()
-{
+	level endon( "game_ended" );
+	flag_wait( "initial_blackscreen_passed" );
+	wait 2;
 	players = get_players();
-
 	for(i = 0; i < players.size; i++)
 	{	
 		weapon = players[ i ] getcurrentweapon();
-		if( weapon == "m1911_zm" )
-		{	
-			self itemweaponsetammo( 0, 8 );
-		}
+		players[ i ] setweaponammostock( weapon, 8 );
 	}
 }
 
 afk_kick()
 {   
+	level endon( "game_ended" );
     self endon("disconnect");
 
     time = 0;
@@ -301,7 +286,7 @@ afk_kick()
         {
             time = 0;
         }
-        if( time == 3600 )
+        if( time == 6000 ) //5mins
         {
             say( clean_player_name_of_clantag( self.name ) + " has been kicked for inactivity!" );
             kick( self getEntityNumber() );
@@ -1494,11 +1479,11 @@ commands()
 					if ( !is_true( level.votekick_in_progress ) )
 					{
 						level thread vote_kick_started();
-						level thread vote_kick_watch_for_end();
+						level thread votekick_count_votes();
 						level.votekick_in_progress = 1;
 						say( "Votekick started!" );
 					}
-					level notify( "grief_votekick", clean_player_name_of_clantag( args[ 1 ] ), player );
+					level notify( "grief_votekick",  args[ 1 ], player );
 					break;
 				// case "gts":
 				// 	setgametypeSetting( args[ 1 ], args[ 2 ] );
@@ -1518,6 +1503,7 @@ vote_kick_started()
 {
 	level endon( "end_game" );
 	level endon( "grief_votekick_ended" );
+
 	for ( i = 0; i < level.players.size; i++ )
 	{
 		level.players[ i ].kick_votes = 0;
@@ -1525,15 +1511,16 @@ vote_kick_started()
 	while ( true )
 	{
 		level waittill( "grief_votekick", player_name, player );
-		if ( !isDefined( vote ) )
+		if ( !isDefined( player_name ) )
 		{
 			continue;
 		}
 		for( i = 0; i < level.players.size; i++ )
 		{
-			if( player_name == clean_player_name_of_clantag( level.players[ i ].name ) )
-			{
+			if( clean_player_name_of_clantag(player_name) == clean_player_name_of_clantag(level.players[ i ].name) )
+			{	
 				level.players[ i ].kick_votes++;
+				player tell( level.players[ i ].name + " has " + level.players[ i ].kick_votes + "/" + get_vote_threshold() + " votes needed to be kicked" );
 			}
 		}
 	}
@@ -1548,23 +1535,25 @@ votekick_count_votes()
 	{
 		for ( i = 0; i < level.players.size; i++ )
 		{
-			if ( level.players[ i ].kick_votes >= get_vote_kick_threshold() )
+			if ( level.players[ i ].kick_votes >= get_vote_threshold() )
 			{
 				kick( level.players[ i ] getEntityNumber() );
 				say( level.players[ i ].name + " was kicked!" );
+				level.votekick_in_progress = 0;
 				level notify( "grief_votekick_ended" );
 			}
 		}
-		if ( ( getTime() / 1000 ) > ( start_time + 60 ) )
+		if ( ( getTime() / 1000 ) > ( start_time + 180 ) )
 		{	
 			say( "Vote kick timed out!" );
+			level.votekick_in_progress = 0;
 			level notify( "grief_votekick_ended" );
 		}
 		wait 0.05;
 	}
 }
 
-get_vote_kick_threshold()
+get_vote_threshold()
 {
 	switch ( level.players.size )
 	{
@@ -1576,11 +1565,11 @@ get_vote_kick_threshold()
 		case 4:
 			return 3;
 		case 5:
-			return 4;
+			return 3;
 		case 6:
 			return 4;
 		case 7:
-			return 5;
+			return 4;
 		case 8:
 			return 5;
 	}
@@ -1699,6 +1688,10 @@ find_alias_and_set_map( mapname, player, map_rotate )
 	{
 		cmdexecute( "map_rotate" );
 	}
+	else
+	{
+		say( "Next map set to " + mapname + " " + location );
+	}
 }
 
 give_player_points( points )
@@ -1807,7 +1800,7 @@ mapvote_started()
 							if ( player.previous_votes[ k ] != mapname )
 							{
 								level.mapvote_array[ i ].votes++;
-								player tell( "You voted for " + mapname + " which has " + level.mapvote_array[ i ].votes + " votes" );
+								player tell( "You voted for " + mapname + " which has " + level.mapvote_array[ i ].votes + "/" + get_vote_threshold() + " votes" );
 								break;
 							}
 						}
@@ -1815,7 +1808,7 @@ mapvote_started()
 					else 
 					{
 						level.mapvote_array[ i ].votes++;
-						player tell( "You voted for " + mapname + " which has " + level.mapvote_array[ i ].votes + " votes" );
+						player tell( "You voted for " + mapname + " which has " + level.mapvote_array[ i ].votes + " vote" );
 						break;
 					}
 				}
@@ -1838,7 +1831,7 @@ mapvote_count_votes()
 	{
 		for ( i = 0; i < level.mapvote_array.size; i++ )
 		{
-			if ( level.mapvote_array[ i ].votes > ( level.players.size / 2 ) )
+			if ( level.mapvote_array[ i ].votes >= get_vote_threshold() )
 			{
 				map = level.mapvote_array[ i ].mapname;
 				break;
@@ -1848,8 +1841,8 @@ mapvote_count_votes()
 		{
 			break;
 		}
-		if ( ( getTime() / 1000 ) > ( start_time + 60 ) )
-		{
+		if ( ( getTime() / 1000 ) > ( start_time + 180 ) )
+		{	
 			level notify( "grief_mapvote_ended" );
 		}
 		wait 0.05;
