@@ -35,7 +35,7 @@ init()
 		setDvar( "g_friendlyfireDist", 0 );
 		//promod custom overrides
 		level.grief_round_win_next_round_countdown = ::round_change_hud;
-		level.grief_round_intermission_c	ountdown = ::intermission_hud;
+		level.grief_round_intermission_countdown = ::intermission_hud;
 		level.grief_loadout_save = ::grief_loadout_save;
 		grief_parse_perk_restrictions();
 		grief_parse_powerup_restrictions();
@@ -126,6 +126,7 @@ parse_ban_list()
         buffer += fgetc( ban_list );
 		i++;
 	}
+	fclose( ban_list ); 
 	names_and_guids = strTok( buffer, ";" );
 	for ( i = 0; i < names_and_guids.size; i++ )
 	{
@@ -1386,7 +1387,8 @@ clean_player_name_of_clantag( name )
 
 commands()
 {
-	setDvar( "grief_original_rotation", getDvar( "sv_maprotation" ) );
+	level endon( "end_commands" );
+	level thread end_commands_on_end_game();
 	while ( true )
     {
         level waittill( "say", player, message );
@@ -1416,7 +1418,8 @@ commands()
 				case "maprestart":
 					logline1 = "CMD:" + player.name + ";FR" + "\n";
 					logprint( logline1 );
-					cmdexecute( "map_restart" );
+					level thread change_level();
+					level notify( "end_commands", 0 );
 					break;
 				case "nm":
 				case "nextmap":
@@ -1429,18 +1432,20 @@ commands()
                 case "maprotate":
 					logline1 = "CMD:" + player.name + ";MR" + "\n";
 					logprint( logline1 );
-                    cmdexecute( "map_rotate" );
+					level thread change_level();
+					level notify( "end_commands", 1 );
                     break;
 				case "m":
 				case "map":
-					logline1 = "CMD:" + player.name + ";M:" + args[ 1 ] + "\n";
+					logline1 = "CMD:" + player.name + ";MAP:" + args[ 1 ] + "\n";
 					logprint( logline1 );
-					find_alias_and_set_map( toLower( args[ 1 ] ), player, 1 );
+					level notify( "end_commands", 1 );
 					break;
 				case "rr":
 				case "resetrotation":
 					logline1 = "CMD:" + player.name + ";RR" + "\n";
 					logprint( logline1 );
+					setDvar( "sv_maprotation", getDvar( "grief_original_rotation" ) );
 					setDvar( "sv_maprotationCurrent", getDvar( "grief_original_rotation" ) );
 					break;
 				// case "s":
@@ -1541,6 +1546,30 @@ commands()
     }
 }
 
+end_commands_on_end_game()
+{
+	level waittill( "end_game" );
+	wait 15;
+	level notify( "end_commands" );
+}
+
+change_level()
+{
+	level waittill( "end_commands", result );
+	wait 0.5;
+	switch ( result )
+	{
+		case 0:
+			cmdExecute( "map_restart" );
+			break;
+		case 1:
+			cmdExecute( "map_rotate" );
+			break;
+		default:
+			break;
+	}
+}
+
 vote_kick_started()
 {
 	level endon( "end_game" );
@@ -1559,7 +1588,7 @@ vote_kick_started()
 		}
 		for( i = 0; i < level.players.size; i++ )
 		{
-			if( clean_player_name_of_clantag(player_name) == clean_player_name_of_clantag(level.players[ i ].name) )
+			if ( clean_player_name_of_clantag( player_name ) == clean_player_name_of_clantag( level.players[ i ].name ) )
 			{	
 				level.players[ i ].kick_votes++;
 				player tell( level.players[ i ].name + " has " + level.players[ i ].kick_votes + "/" + get_vote_threshold() + " votes needed to be kicked" );
@@ -1634,19 +1663,8 @@ setup_permissions()
     // level.server_users[ "TrustedUsers" ].names = [];
     // level.server_users[ "TrustedUsers" ].guids = [];
     path = level.basepath + "command_permissions.txt";
-    file = fopen(path, "r+");
-    buffer = [];
-    i = 0;
-    buffer = "";
-    while ( 1 ) 
-    {
-        eof = feof( file );
-        if ( eof )
-        {
-            break;
-        }
-        buffer += fgetc( file );
-    }
+    file = fopen( path, "r+" );
+	buffer = fread( file );
     fclose( file );
 	rank_type = strTok( buffer, ":" );
 	names_and_guids = strTok( rank_type[ 1 ], "," );
@@ -1728,11 +1746,16 @@ find_alias_and_set_map( mapname, player, map_rotate )
             player tell( "Invalid map" );
             return;
     }
+	if ( getDvar( "grief_original_rotation" ) == "" )
+	{
+		setDvar( "grief_original_rotation", getDvar( "sv_maprotation" ) );
+	}
     setDvar( "sv_maprotation", "exec zm_" + gamemode + "_" + location + ".cfg" + " map " + mapname );
 	setDvar( "sv_maprotationCurrent", "exec zm_" + gamemode + "_" + location + ".cfg" + " map " + mapname );
 	if ( map_rotate )
 	{
-		cmdexecute( "map_rotate" );
+		level thread change_level();
+		level notify( "end_commands", 1 );
 	}
 	else
 	{
@@ -1758,7 +1781,7 @@ has_permissions_for_command( command, args )
 	}
     for ( i = 0; i < level.server_users[ "Admins" ].names.size; i++ )
     {
-        if ( self.name == level.server_users[ "Admins" ].names[ i ] )
+        if ( self getGUID() == level.server_users[ "Admins" ].guids[ i ] )
         {
             return 1;
         }
