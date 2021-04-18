@@ -1525,8 +1525,8 @@ commands()
 						}
 					}
 					break;
-				case "vm":
-				case "votemap":
+				case "mv":
+				case "mapvote":
 					if ( !is_true( level.mapvote_in_progress ) )
 					{
 						logline1 = "CMD:" + player.name + ";MVS:" + args[ 1 ] + "\n";
@@ -1768,7 +1768,7 @@ votekick_count_votes()
 				level notify( "grief_votekick_ended" );
 			}
 		}
-		if ( ( getTime() / 1000 ) > ( start_time + 180 ) )
+		if ( ( getTime() / 1000 ) > ( start_time + 600 ) )
 		{	
 			say( "Vote kick timed out!" );
 			level.votekick_in_progress = 0;
@@ -1933,14 +1933,14 @@ give_player_points( points )
 
 has_permissions_for_command( command, args )
 {
-	for ( i = 0; i < level.grief_no_permissions_required_commands; i++ )
+	for ( i = 0; i < level.grief_no_permissions_required_commands.size; i++ )
 	{
 		if ( command == level.grief_no_permissions_required_commands[ i ] )
 		{
 			return 1;
 		}
 	}
-    for ( i = 0; i < level.server_users[ "Admins" ].names.size; i++ )
+    for ( i = 0; i < level.server_users[ "Admins" ].guids.size; i++ )
     {
         if ( self getGUID() == level.server_users[ "Admins" ].guids[ i ] )
         {
@@ -1955,9 +1955,8 @@ initialize_no_permissions_required_commands()
 	level.grief_no_permissions_required_commands = [];
 	level.grief_no_permissions_required_commands[ 0 ] = "mv";
 	level.grief_no_permissions_required_commands[ 1 ] = "mapvote";
-	level.grief_no_permissions_required_commands[ 2 ] = "v";
-	level.grief_no_permissions_required_commands[ 3 ] = "vk";
-	level.grief_no_permissions_required_commands[ 4 ] = "votekick";
+	level.grief_no_permissions_required_commands[ 2 ] = "vk";
+	level.grief_no_permissions_required_commands[ 3 ] = "votekick";
 
 	level.mapvote_array = [];
 	level.mapvote_array[ 0 ] = spawnStruct();
@@ -2075,7 +2074,7 @@ mapvote_count_votes()
 		{
 			break;
 		}
-		if ( ( getTime() / 1000 ) > ( start_time + 180 ) )
+		if ( ( getTime() / 1000 ) > ( start_time + 600 ) )
 		{	
 			level notify( "grief_mapvote_ended" );
 		}
