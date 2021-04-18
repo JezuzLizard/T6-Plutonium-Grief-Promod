@@ -1,6 +1,8 @@
 # T6-Plutonium-Grief-Promod
 A plutonium mod for the Grief gamemode in zombies.
 
+This mod requires this plugin to run: https://github.com/fedddddd/t6-gsc-utils
+
 ### Created by: JezuzLizard and 5and5
 
 ## Change Notes
