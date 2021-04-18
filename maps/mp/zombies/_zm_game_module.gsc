@@ -145,8 +145,6 @@ respawn_spectators_and_freeze_players() //checked changed to match cerberus outp
 			{
 				player.spectate_hud destroy();
 			}
-			logline1 = "_zm_game_module.gsc respawn_spectators_and_freeze_players() spawns a spectator in " + player.name + "\n";
-			logprint( logline1 );
 			player [[ level.spawnplayer ]]();
 		}
 		player freeze_player_controls( 1 );
@@ -177,14 +175,10 @@ respawn_players() //checked changed to match cerberus output
 	{
 		if ( player.sessionstate == "spectator" || player player_is_in_laststand() )
 		{
-			logline1 = "_zm_game_module.gsc respawn_players() spawns a spectator in " + player.name + "\n";
-			logprint( logline1 );
 			player [[ level.spawnplayer ]]();
 		}
 		else if ( !is_true( level.initial_spawn_players ) )
 		{
-			logline1 = "_zm_game_module.gsc respawn_players() does an initial respawn " + player.name + "\n";
-			logprint( logline1 );
 			player [[ level.spawnplayer ]]();
 			player freeze_player_controls( 1 );
 		}
@@ -242,6 +236,7 @@ wait_for_players()
 			}
 			wait 1;
 		}
+	}
 	level notify( "grief_begin" );
 	flag_set( "spawn_zombies" );
 	respawn_players();
@@ -302,9 +297,11 @@ wait_for_team_death_and_round_end() //checked partially changed to match cerberu
 		}
 		if ( cia_alive == 0 && cdc_alive == 0 && !level.isresetting_grief && !is_true( level.host_ended_game ) )
 		{
-			logline1 = "reseting grief" + "\n";
-			logprint( logline1 );
 			wait 0.5;
+			if ( is_true( level.grief_team_suicide_check_over ) )
+			{
+				continue;
+			}
 			if ( isDefined( level._grief_reset_message ) )
 			{
 				level thread [[ level._grief_reset_message ]]();
@@ -388,7 +385,9 @@ check_for_round_end( winner )
 	//level endon( "stop_round_end_check" );
 	//level waittill( "end_of_round" );
 	level.zombie_vars[ "spectators_respawn" ] = 0;
+	level.grief_team_suicide_check_over = 0;
 	team_suicide_check();
+	level.grief_team_suicide_check_over = 1;
 	level.grief_teams[ winner ].score++;
 	level notify( "grief_point", winner );
 	loser = get_loser( winner );
@@ -469,6 +468,7 @@ check_for_round_end( winner )
 	level.checking_for_round_end = 0;
 	level notify( "grief_give_points" );
 	flag_set( "grief_brutus_can_spawn" );
+	level.grief_team_suicide_check_over = 1;
 }
 
 get_mapname()
@@ -499,7 +499,7 @@ get_mapname()
 
 get_loser( winner )
 {
-	if ( winner = "A" )
+	if ( winner == "A" )
 	{
 		return "B";
 	}
@@ -519,7 +519,7 @@ reset_players_last_griefed_by()
 
 in_grief_intermission()
 {
-	if ( is_true( level.grief_intermission_done ) || !isDefined( level.grief_intermission_done ) )
+	if ( is_true( level.grief_intermission_done ) || level.grief_gamerules[ "intermission_time" ] < 1 )
 	{
 		return false;
 	}
