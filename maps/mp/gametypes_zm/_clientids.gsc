@@ -310,7 +310,7 @@ afk_kick()
     time = 0;
     while( 1 )
     {   
-		if ( self.sessionstate == "spectator" )
+		if ( self.sessionstate == "spectator" || level.players <= 2 )
 		{	
 			wait 1;
 			continue;
@@ -1847,6 +1847,7 @@ find_alias_and_set_map( mapname, player, map_rotate )
 		case "cell":
 		case "block":
         case "cellblock":
+		case "mob":
             gamemode = "grief";
             location = "cellblock";
             mapname = "zm_prison";
