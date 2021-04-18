@@ -44,7 +44,8 @@ street_treasure_chest_init() //checked matches cerberus output
 
 main() //checked matches cerberus output
 {
-	//disable_buried_tunnel_zone();
+	disable_buried_tunnel_zone();
+	remove_buried_spawns();
 	spawn_barriers();
 	level.buildables_built[ "pap" ] = 1;
 	level.equipment_team_pick_up = 1;
