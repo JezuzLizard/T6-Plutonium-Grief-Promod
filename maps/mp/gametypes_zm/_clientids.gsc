@@ -14,9 +14,16 @@
 #include maps\mp\gametypes_zm\_globallogic_spawn;
 #include maps\mp\gametypes_zm\_globallogic_ui;
 #include maps\mp\zombies\_zm_unitrigger;
+#include maps\mp\zombies\_zm_game_module;
 
 init()
 {
+	if ( getDvarInt( "grief_new_map_set" ) == 1 )
+	{
+		setDvar( "grief_new_map_set", 0 );
+		setDvar( "sv_maprotation", getDvar( "grief_original_rotation" ) );
+		setDvar( "sv_maprotationCurrent", getDvar( "grief_original_rotation" ) );
+	}
 	level thread monitor_players_connecting_status();
 	level thread emptyLobbyRestart();
 	level.basepath = getDvar( "fs_basepath" ) + "/" + getDvar( "fs_basegame" ) + "/" + "scriptdata" + "/";
@@ -84,6 +91,10 @@ monitor_players_connecting_status()
 	while ( true )
 	{
 		level waittill( "connecting", player );
+		if ( is_true( player.pers[ "IsBot" ] ) )
+		{
+			player.custom_team = "team4";
+		}
 		player parse_ban_list();
 		player set_clan_tag();
 		if ( !flag( "initial_players_connected" ) )
@@ -102,6 +113,7 @@ set_clan_tag()
 		if ( self getGUID() == level.server_users[ "Admins" ].guids[ i ] )
 		{
 			self setClanTag( "Admin" );
+			self.grief_is_admin = 1;
 		}
 	}
 }
@@ -157,6 +169,23 @@ ban_player( player_ban_name )
 		}
 	}
 	ban_list = fopen( level.basepath + "bans.txt", "a+" );
+	fprintf( ";" + clean_player_name_of_clantag( player_to_be_banned.name ) + ":" + player_to_be_banned getGUID(), ban_list );
+	fclose( ban_list );
+	say( clean_player_name_of_clantag( player_to_be_banned.name ) + " has been banned!" );
+	kick( player_to_be_banned getEntityNumber() );
+}
+
+temp_ban_player( player_ban_name )
+{
+	foreach ( player in level.players )
+	{
+		if ( clean_player_name_of_clantag( player.name ) == player_ban_name )
+		{
+			player_to_be_banned = player;
+			break;
+		}
+	}
+	ban_list = fopen( level.basepath + "tempbans.txt", "a+" );
 	fprintf( ";" + clean_player_name_of_clantag( player_to_be_banned.name ) + ":" + player_to_be_banned getGUID(), ban_list );
 	fclose( ban_list );
 	say( clean_player_name_of_clantag( player_to_be_banned.name ) + " has been banned!" );
@@ -274,7 +303,10 @@ afk_kick()
 {   
 	level endon( "game_ended" );
     self endon("disconnect");
-
+	if ( self.grief_is_admin )
+	{
+		return;
+	}
     time = 0;
     while( 1 )
     {   
@@ -311,26 +343,13 @@ give_points_on_restart_and_round_change()
 	}
 }
 
-
-
-set_team( swap_team )
+set_team()
 {
-	if ( is_true( swap_team ) )
+	if ( isDefined( self.custom_team ) )
 	{
-		if ( self.grief_desired_team == "A" )
-		{
-			self.team = "allies";
-			self.sessionteam = "allies";
-			self.pers[ "team" ] = "allies";
-			self._encounters_team = "B";
-		}
-		else 
-		{
-			self.team = "allies";
-			self.sessionteam = "allies";
-			self.pers[ "team" ] = "allies";
-			self._encounters_team = "B";
-		}
+		self.team = self.custom_team;
+		self.sessionteam = self.custom_team;
+		self._encounters_team = undefined;
 		self [[ level.givecustomcharacters ]]();
 		return;
 	}
@@ -650,6 +669,24 @@ remove_powerup( powerup )
 	arrayremoveindex(level.zombie_include_powerups, powerup);
 	arrayremoveindex(level.zombie_powerups, powerup);
 	arrayremovevalue(level.zombie_powerup_array, powerup);
+}
+
+no_magic()
+{	
+	no_drops();
+	machines = getentarray( "zombie_vending", "targetname" );
+	for( i = 0; i < machines.size; i++ )
+	{
+		level thread perk_machine_removal( machines[ i ].script_noteworthy );
+	}
+}
+
+no_drops()
+{
+	flag_clear( "zombie_drop_powerups" );
+	level.zombie_include_powerups = [];
+	level.zombie_powerup_array= [];
+	level.zombie_include_powerups = [];
 }
 
 //HUD Grouping
@@ -1122,12 +1159,12 @@ game_module_player_damage_callback( einflictor, eattacker, idamage, idflags, sme
 			}
 		}
 		self thread watch_for_down( eattacker );
-		self thread do_game_mode_shellshock( eattacker, smeansofdeath );
+		self thread do_game_mode_shellshock( eattacker, smeansofdeath, sweapon );
 		self playsound( "zmb_player_hit_ding" );
 	}
 }
 
-do_game_mode_shellshock( attacker, meansofdeath ) //checked matched cerberus output
+do_game_mode_shellshock( attacker, meansofdeath, weapon ) //checked matched cerberus output
 {
 	self endon( "disconnect" );
 	self._being_shellshocked = 1;
@@ -1139,7 +1176,14 @@ do_game_mode_shellshock( attacker, meansofdeath ) //checked matched cerberus out
 	{
 		self shellshock( "grief_stab_zm", 0.25 );
 	}
-	wait 0.75;
+	if ( !is_weapon_shotgun( weapon ) )
+	{
+		wait 0.75;
+	}
+	else 
+	{
+		wait 0.75;
+	}
 	self._being_shellshocked = 0;
 }
 
@@ -1257,7 +1301,7 @@ player_steal_points( attacker, event )
 	{
 		event = "impact";
 	}
-	if ( isDefined( attacker ) && isDefined( self ) && self maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
+	if ( isDefined( attacker ) && isDefined( self ) && !self maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
 	{
 		points_to_steal = 0;
 		switch( event )
@@ -1409,9 +1453,9 @@ commands()
 					{
 						break;
 					}
-					ban_player( args[ 1 ] );
 					logline1 = "CMD:" + player.name + ";B:" + args[ 1 ] + "\n";
 					logprint( logline1 );
+					ban_player( args[ 1 ] );
 					break;
 				case "fr":
 				case "restart":
@@ -1439,7 +1483,7 @@ commands()
 				case "map":
 					logline1 = "CMD:" + player.name + ";MAP:" + args[ 1 ] + "\n";
 					logprint( logline1 );
-					level notify( "end_commands", 1 );
+					find_alias_and_set_map( toLower( args[ 1 ] ), player, 1 );
 					break;
 				case "rr":
 				case "resetrotation":
@@ -1473,29 +1517,28 @@ commands()
 					{
 						if ( clean_player_name_of_clantag( player.name ) == clean_player_name_of_clantag( args[ 1 ] ) )
 						{
-							say( clean_player_name_of_clantag( player.name ) + " has been kicked!" );
-							kick( player getEntityNumber() );
 							logline1 = "CMD:" + player.name + ";K:" + args[ 1 ] + "\n";
 							logprint( logline1 );
+							say( clean_player_name_of_clantag( player.name ) + " has been kicked!" );
+							kick( player getEntityNumber() );
 							break;
 						}
 					}
 					break;
-				case "mv":
-				case "mapvote":
+				case "vm":
+				case "votemap":
 					if ( !is_true( level.mapvote_in_progress ) )
 					{
+						logline1 = "CMD:" + player.name + ";MVS:" + args[ 1 ] + "\n";
+						logprint( logline1 );
 						level thread mapvote_started();
 						level thread mapvote_count_votes();
 						level thread mapvote_end();
 						level.mapvote_in_progress = 1;
 						say( "Mapvote started!" );
-						logline1 = "CMD:" + player.name + ";MVS:" + args[ 1 ] + "\n";
-						logprint( logline1 );
 					}
 					level notify( "grief_mapvote", args[ 1 ], player );
 					break;
-				case "v":
 				case "vk":
 				case "votekick":
 					if ( level.players.size < 3 )
@@ -1505,25 +1548,53 @@ commands()
 					}
 					if ( !is_true( level.votekick_in_progress ) )
 					{
+						logline1 = "CMD:" + player.name + ";VKS:" + args[ 1 ] + "\n";
+						logprint( logline1 );
 						level thread vote_kick_started();
 						level thread votekick_count_votes();
 						level.votekick_in_progress = 1;
 						say( "Votekick started!" );
-						logline1 = "CMD:" + player.name + ";VKS:" + args[ 1 ] + "\n";
-						logprint( logline1 );
 					}
 					level notify( "grief_votekick", args[ 1 ], player );
 					break;
-				case "gts":
-					if ( !isDefined( args[ 1 ] ) || !isDefined( args[ 2 ] ) )
+				// case "gts":
+				// 	if ( !isDefined( args[ 1 ] ) || !isDefined( args[ 2 ] ) )
+				// 	{
+				// 		player tell( "You need to specify a gts and its value" );
+				// 		break;
+				// 	}
+				// 	player tell( "Gametype setting set " + args[ 1 ] + " to " + args[ 2 ] );
+				// 	logline1 = "CMD:" + player.name + ";GTS:" + args[ 1 ] + ";VAL:" + args[ 2 ] + "\n";
+				// 	logprint( logline1 );
+				// 	setgametypeSetting( args[ 1 ], args[ 2 ] );
+				// 	break;
+				case "mag":
+				case "magic":
+				case "nomagic":
+					logline1 = "CMD:" + player.name + ";TOGMAG" + "\n";
+					logprint( logline1 );
+					say( "Magic is disabled" );
+					no_magic();
+					break;
+				case "np":
+				case "drops":
+				case "powerups":
+					logline1 = "CMD:" + player.name + ";TOGDROPS" + "\n";
+					logprint( logline1 );
+					say( "Powerups are disabled" );
+					no_drops();
+					break;
+				case "rn":
+				case "roundnumber":
+					if ( !isDefined( args[ 1 ] ) )
 					{
-						player tell( "You need to specify a gts and its value" );
+						player tell( "You need to specify a round number" );
 						break;
 					}
-					player tell( "Gametype setting set" + args[ 1 ] + " to " + args[ 2 ] );
-					logline1 = "CMD:" + player.name + ";GTS:" + args[ 1 ] + ";VAL:" + args[ 2 ] + "\n";
+					logline1 = "CMD:" + player.name + ";ROUND:" + args[ 1 ] + "\n";
 					logprint( logline1 );
-					setgametypeSetting( args[ 1 ], args[ 2 ] );
+					say( "The round is set to " + args[ 1 ] );
+					set_round( int( args[ 1 ] ) );
 					break;
 				case "d":
 				case "dvar":
@@ -1532,7 +1603,7 @@ commands()
 						player tell( "You need to specify a dvar and its value" );
 						break;
 					}
-					player tell( "Dvar set" + args[ 1 ] + " to " + args[ 2 ] );
+					player tell( "Dvar set " + args[ 1 ] + " to " + args[ 2 ] );
 					logline1 = "CMD:" + player.name + ";DVAR:" + args[ 1 ] + ";VAL:" + args[ 2 ] + "\n";
 					logprint( logline1 );
 					setDvar( args[ 1 ], args[ 2 ] );
@@ -1544,7 +1615,7 @@ commands()
 						player tell( "You need to specify a dvar and its value" );
 						break;
 					}
-					player tell( "Cvar set" + args[ 1 ] + " to " + args[ 2 ] );
+					player tell( "Cvar set " + args[ 1 ] + " to " + args[ 2 ] );
 					logline1 = "CMD:" + player.name + ";CVAR:" + args[ 1 ] + ";VAL:" + args[ 2 ] + "\n";
 					logprint( logline1 );
 					player setClientDvar( args[ 1 ], args[ 2 ] );
@@ -1558,7 +1629,7 @@ commands()
 					}
 					foreach ( player in level.players )
 					{
-						player tell( "Cvar set" + args[ 1 ] + " to " + args[ 2 ] );
+						player tell( "Cvar set " + args[ 1 ] + " to " + args[ 2 ] );
 						logline1 = "CMD:" + player.name + ";CVARA:" + args[ 1 ] + ";VAL:" + args[ 2 ] + "\n";
 						logprint( logline1 );
 						player setClientDvar( args[ 1 ], args[ 2 ] );
@@ -1584,6 +1655,31 @@ commands()
 					logline1 = "CMD:" + player.name + ";UNLOCK:" + "\n";
 					logprint( logline1 );
 					setDvar( "g_password", "" );
+					break;
+				// case "im":
+				// case "intermission":
+				// 	level.grief_gamerules[ "intermission_time" ] = args[ 1 ];
+				// 	say( "Intermission will take place after next round and last " + args[ 1 ] );
+				// 	logline1 = "CMD:" + player.name + ";IM" + ";TIME:" + args[ 1 ] + "\n";
+				// 	logprint( logline1 );
+				// 	break;
+				case "bot":
+				case "spawnbot":
+					bot = addtestClient();
+					bot.pers[ "IsBot" ] = 1;
+					if ( isDefined( args[ 1 ] ) )
+					{
+						say( "Bot spawned on team " + args[ 1 ] );
+						logline1 = "CMD:" + player.name + ";BOT" + ";TEAM:" + args[ 1 ] + "\n";
+						logprint( logline1 );
+						bot.custom_team = args[ 1 ];
+					}
+					else 
+					{
+						say( "Bot spawned in" );
+						logline1 = "CMD:" + player.name + ";BOT:" + "\n";
+						logprint( logline1 );
+					}
 					break;
 				default:
 					player tell( "No such command exists" );
@@ -1658,7 +1754,7 @@ votekick_count_votes()
 	{
 		for ( i = 0; i < level.players.size; i++ )
 		{
-			if ( level.players[ i ].kick_votes >= get_vote_threshold() && !is_true( level.players[ i ].vk_voted ) )
+			if ( level.players[ i ].kick_votes >= get_vote_threshold() )
 			{
 				kick( level.players[ i ] getEntityNumber() );
 				say( level.players[ i ].name + " was kicked!" );
@@ -1701,7 +1797,7 @@ get_vote_threshold()
 		case 6:
 			return 4;
 		case 7:
-			return 4;
+			return 5;
 		case 8:
 			return 5;
 		default:
@@ -1789,7 +1885,7 @@ find_alias_and_set_map( mapname, player, map_rotate )
             location = "diner";
             mapname = "zm_transit";
             break;
-		case "t":
+		case "tu":
         case "tunnel":
             gamemode = "grief";
             location = "tunnel";
@@ -1803,7 +1899,10 @@ find_alias_and_set_map( mapname, player, map_rotate )
             mapname = "zm_transit";
             break;
         default:
-            player tell( "Invalid map" );
+			if ( isDefined( player ) )
+			{
+				player tell( "Invalid map" );
+			}
             return;
     }
 	if ( getDvar( "grief_original_rotation" ) == "" )
@@ -1814,12 +1913,14 @@ find_alias_and_set_map( mapname, player, map_rotate )
 	setDvar( "sv_maprotationCurrent", "exec zm_" + gamemode + "_" + location + ".cfg" + " map " + mapname );
 	if ( map_rotate )
 	{
+		setDvar( "grief_new_map_set", 1 );
 		level thread change_level();
 		level notify( "end_commands", 1 );
 	}
 	else
 	{
 		say( "Next map set to " + mapname + " " + location );
+		setDvar( "grief_new_map_set", 1 );
 	}
 }
 
@@ -1930,7 +2031,7 @@ mapvote_started()
 							{
 								level.mapvote_array[ i ].votes++;
 								player tell( "You voted for " + mapname + " which has " + level.mapvote_array[ i ].votes + "/" + get_vote_threshold() + " votes" );
-								logline1 = "CMD:" + player.name + ";MVS:" + args[ 1 ] + "\n";
+								logline1 = "MV:" + player.name + ";V:" + mapname + "\n";
 								logprint( logline1 );
 								break;
 							}
@@ -1939,7 +2040,9 @@ mapvote_started()
 					else 
 					{
 						level.mapvote_array[ i ].votes++;
-						player tell( "You voted for " + mapname + " which has " + level.mapvote_array[ i ].votes + " vote" );
+						player tell( "You voted for " + mapname + " which has " + level.mapvote_array[ i ].votes + "/" + get_vote_threshold() + " votes" );
+						logline1 = "MV:" + player.name + ";V:" + mapname + "\n";
+						logprint( logline1 );
 						break;
 					}
 				}
@@ -1986,9 +2089,9 @@ mapvote_end()
 	level waittill( "grief_mapvote_ended", result );
 	if ( isDefined( result ) )
 	{
-		find_alias_and_set_map( toLower( result ), undefined, 0 );
 		logline1 = "MV;" + "MAP:" + result + "\n";
 		logprint( logline1 );
+		find_alias_and_set_map( toLower( result ), undefined, 0 );
 	}
 	else 
 	{
@@ -2053,4 +2156,57 @@ DecToHex2( dec ) //credit to sorex for this function
 	if((int(value)/16) > 0)
 		hex = hex + value;
 	return int( hex );
+}
+
+zombie_spawn_delay_fix()
+{
+	i = 1;
+	while ( i <= level.round_number )
+	{
+		timer = level.zombie_vars[ "zombie_spawn_delay" ];
+		if ( timer > 0.08 )
+		{
+			level.zombie_vars[ "zombie_spawn_delay" ] = timer * 0.95;
+			i++;
+			continue;
+		}
+		if ( timer < 0.08 )
+		{
+			level.zombie_vars[ "zombie_spawn_delay" ] = 0.08;
+			break;
+		}
+		i++;
+	}
+}
+
+zombie_speed_fix()
+{
+	if ( level.gamedifficulty == 0 )
+	{
+		level.zombie_move_speed = level.round_number * level.zombie_vars[ "zombie_move_speed_multiplier_easy" ];
+	}
+	else
+	{
+		level.zombie_move_speed = level.round_number * level.zombie_vars[ "zombie_move_speed_multiplier" ];
+	}
+}
+
+set_round( round_number )
+{
+	if ( isDefined( level._grief_reset_message ) )
+	{
+		level thread [[ level._grief_reset_message ]]();
+	}
+	level.isresetting_grief = 1;
+	level notify( "end_round_think" );
+	level.zombie_vars[ "spectators_respawn" ] = 1;
+	level notify( "keep_griefing" );
+	level.checking_for_round_end = 0;
+	level.round_number = round_number;
+	zombie_goto_round( round_number );
+	zombie_spawn_delay_fix();
+	zombie_speed_fix();
+	level thread reset_grief();
+	level thread maps/mp/zombies/_zm::round_think( 1 );
+	level notify( "grief_give_points" );
 }
