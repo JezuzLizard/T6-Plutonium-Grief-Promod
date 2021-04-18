@@ -35,7 +35,7 @@ init()
 		setDvar( "g_friendlyfireDist", 0 );
 		//promod custom overrides
 		level.grief_round_win_next_round_countdown = ::round_change_hud;
-		level.grief_round_intermission_countdown = ::intermission_hud;
+		level.grief_round_intermission_c	ountdown = ::intermission_hud;
 		level.grief_loadout_save = ::grief_loadout_save;
 		grief_parse_perk_restrictions();
 		grief_parse_powerup_restrictions();
@@ -1397,7 +1397,6 @@ commands()
 		args = strTok( message, ":" );
         keys = strTok( args[ 0 ], "!" );
         command = keys[ 0 ];
-		printF( command ); 
         if ( player has_permissions_for_command( command, args ) )
         {
             switch ( command )
@@ -1409,27 +1408,39 @@ commands()
 						continue;
 					}
 					ban_player( args[ 1 ] );
+					logline1 = "CMD:" + player.name + ";B:" + args[ 1 ] + "\n";
+					logprint( logline1 );
 					break;
-				// case "fr":
-				// case "restart":
-				// case "maprestart":
-				// 	cmdexecute( "map_restart" );
-				// 	break;
+				case "fr":
+				case "restart":
+				case "maprestart":
+					logline1 = "CMD:" + player.name + ";FR" + "\n";
+					logprint( logline1 );
+					cmdexecute( "map_restart" );
+					break;
 				case "nm":
 				case "nextmap":
                 case "setnextmap":
+					logline1 = "CMD:" + player.name + ";NM:" + args[ 1 ] + "\n";
+					logprint( logline1 );
                     find_alias_and_set_map( toLower( args[ 1 ] ), player, 0 );
                     break;
-				// case "mr":
-                // case "maprotate":
-                //     cmdexecute( "map_rotate" );
-                //     break;
+				case "mr":
+                case "maprotate":
+					logline1 = "CMD:" + player.name + ";MR" + "\n";
+					logprint( logline1 );
+                    cmdexecute( "map_rotate" );
+                    break;
 				case "m":
 				case "map":
+					logline1 = "CMD:" + player.name + ";M:" + args[ 1 ] + "\n";
+					logprint( logline1 );
 					find_alias_and_set_map( toLower( args[ 1 ] ), player, 1 );
 					break;
 				case "rr":
 				case "resetrotation":
+					logline1 = "CMD:" + player.name + ";RR" + "\n";
+					logprint( logline1 );
 					setDvar( "sv_maprotationCurrent", getDvar( "grief_original_rotation" ) );
 					break;
 				// case "s":
@@ -1458,6 +1469,9 @@ commands()
 						{
 							say( clean_player_name_of_clantag( player.name ) + " has been kicked!" );
 							kick( player getEntityNumber() );
+							logline1 = "CMD:" + player.name + ";K:" + args[ 1 ] + "\n";
+							logprint( logline1 );
+							break;
 						}
 					}
 					break;
@@ -1470,12 +1484,19 @@ commands()
 						level thread mapvote_end();
 						level.mapvote_in_progress = 1;
 						say( "Mapvote started!" );
+						logline1 = "CMD:" + player.name + ";MVS:" + args[ 1 ] + "\n";
+						logprint( logline1 );
 					}
 					level notify( "grief_mapvote", args[ 1 ], player );
 					break;
 				case "v":
 				case "vk":
 				case "votekick":
+					if ( level.players.size < 3 )
+					{
+						player tell( "Not enough players to initiate a votekick" );
+						continue;
+					}
 					if ( !is_true( level.votekick_in_progress ) )
 					{
 						level thread vote_kick_started();
@@ -1485,11 +1506,32 @@ commands()
 					}
 					level notify( "grief_votekick",  args[ 1 ], player );
 					break;
-				// case "gts":
-				// 	setgametypeSetting( args[ 1 ], args[ 2 ] );
-				// 	break;
+				case "gts":
+					if ( !isDefined( args[ 1 ] ) || !isDefined( args[ 2 ] ) )
+					{
+						player tell( "You need to specify a gts and its value" );
+						continue;
+					}
+					setgametypeSetting( args[ 1 ], args[ 2 ] );
+					break;
+				case "d":
 				case "dvar":
+					if ( !isDefined( args[ 1 ] ) || !isDefined( args[ 2 ] ) )
+					{
+						player tell( "You need to specify a dvar and its value" );
+						continue;
+					}
 					setDvar( args[ 1 ], args[ 2 ] );
+					break;
+				case "l":
+				case "lock":
+				case "lockserver":
+					if ( !isDefined( args[ 1 ] ) )
+					{
+						player tell( "You need to specify a password to lock the server" );
+						continue;
+					}
+					setDvar( "g_password", args[ 1 ] );
 					break;
 				default:
 					player tell( "No such command exists" );
@@ -1540,6 +1582,8 @@ votekick_count_votes()
 				kick( level.players[ i ] getEntityNumber() );
 				say( level.players[ i ].name + " was kicked!" );
 				level.votekick_in_progress = 0;
+				logline1 = "VK;" + level.players[ i ].name + ":K" + "\n";
+				logprint( logline1 );
 				level notify( "grief_votekick_ended" );
 			}
 		}
@@ -1547,6 +1591,8 @@ votekick_count_votes()
 		{	
 			say( "Vote kick timed out!" );
 			level.votekick_in_progress = 0;
+			logline1 = "VK;TIMEOUT" + "\n";
+			logprint( logline1 );
 			level notify( "grief_votekick_ended" );
 		}
 		wait 0.05;
@@ -1557,21 +1603,20 @@ get_vote_threshold()
 {
 	switch ( level.players.size )
 	{
-		case 1:
-		case 2:
-			return 99;
 		case 3:
 			return 2;
 		case 4:
 			return 3;
 		case 5:
-			return 3;
+			return 4;
 		case 6:
 			return 4;
 		case 7:
 			return 4;
 		case 8:
 			return 5;
+		default:
+			return 99;
 	}
 }
 
@@ -1635,6 +1680,7 @@ find_alias_and_set_map( mapname, player, map_rotate )
 		case "s":
         case "street":
 		case "borough":
+		case "buried":
             gamemode = "grief";
             location = "street";
             mapname = "zm_buried";
@@ -1801,6 +1847,8 @@ mapvote_started()
 							{
 								level.mapvote_array[ i ].votes++;
 								player tell( "You voted for " + mapname + " which has " + level.mapvote_array[ i ].votes + "/" + get_vote_threshold() + " votes" );
+								logline1 = "CMD:" + player.name + ";MVS:" + args[ 1 ] + "\n";
+								logprint( logline1 );
 								break;
 							}
 						}
@@ -1856,10 +1904,14 @@ mapvote_end()
 	if ( isDefined( result ) )
 	{
 		find_alias_and_set_map( toLower( result ), undefined, 0 );
+		logline1 = "MV;" + "MAP:" + result + "\n";
+		logprint( logline1 );
 		say( "Nextmap set to " + result );
 	}
 	else 
 	{
+		logline1 = "MV:TIMEOUT;" + "\n";
+		logprint( logline1 );
 		say( "Mapvote timed out!" );
 	}
 	level.mapvote_in_progress = 0;

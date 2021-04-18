@@ -624,7 +624,7 @@ register_perk_structs()
 			_register_survival_perk( "specialty_fastreload", "zombie_vending_sleight", ( 0, -4, 0 ), ( 13255, 74, -195 ) );
 			break;
 		case "cellblock":
-			_register_survival_perk( "specialty_armorvest", "zombie_vending_jugg", ( 0, 86, 0 ), ( 1403, 9664, 1336 ) );
+			_register_survival_perk( "specialty_armorvest", "zombie_vending_jugg", ( 0, 86, 0 ), ( 1403, 9662, 1336 ) );
 			break;
 		case "transit":
 			_register_survival_perk( "specialty_armorvest", "zombie_vending_jugg", ( 0, -5, 0), ( -6136, 5590, -63.85 ) );

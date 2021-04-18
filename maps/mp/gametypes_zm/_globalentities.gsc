@@ -653,7 +653,6 @@ create_spawner_list( zkeys ) //modified function
 			{
 				if ( !is_true( zone.dog_locations[ x ].checked ) )
 				{
-
 					if ( zone.dog_locations[ x ].origin == ( -11428.5, 764.5, 220 ) )
 					{
 						zone.dog_locations[ x ].origin = ( -10952, -1950, 220 );
