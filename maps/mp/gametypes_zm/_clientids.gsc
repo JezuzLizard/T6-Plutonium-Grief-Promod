@@ -1407,7 +1407,7 @@ commands()
 				case "ban":
 					if ( args[ 1 ] == clean_player_name_of_clantag( player.name ) )
 					{
-						continue;
+						break;
 					}
 					ban_player( args[ 1 ] );
 					logline1 = "CMD:" + player.name + ";B:" + args[ 1 ] + "\n";
@@ -1445,6 +1445,7 @@ commands()
 				case "resetrotation":
 					logline1 = "CMD:" + player.name + ";RR" + "\n";
 					logprint( logline1 );
+					player tell( "Map rotation reset to the default" );
 					setDvar( "sv_maprotation", getDvar( "grief_original_rotation" ) );
 					setDvar( "sv_maprotationCurrent", getDvar( "grief_original_rotation" ) );
 					break;
@@ -1500,7 +1501,7 @@ commands()
 					if ( level.players.size < 3 )
 					{
 						player tell( "Not enough players to initiate a votekick" );
-						continue;
+						break;
 					}
 					if ( !is_true( level.votekick_in_progress ) )
 					{
@@ -1508,15 +1509,20 @@ commands()
 						level thread votekick_count_votes();
 						level.votekick_in_progress = 1;
 						say( "Votekick started!" );
+						logline1 = "CMD:" + player.name + ";VKS:" + args[ 1 ] + "\n";
+						logprint( logline1 );
 					}
-					level notify( "grief_votekick",  args[ 1 ], player );
+					level notify( "grief_votekick", args[ 1 ], player );
 					break;
 				case "gts":
 					if ( !isDefined( args[ 1 ] ) || !isDefined( args[ 2 ] ) )
 					{
 						player tell( "You need to specify a gts and its value" );
-						continue;
+						break;
 					}
+					player tell( "Gametype setting set" + args[ 1 ] + " to " + args[ 2 ] );
+					logline1 = "CMD:" + player.name + ";GTS:" + args[ 1 ] + ";VAL:" + args[ 2 ] + "\n";
+					logprint( logline1 );
 					setgametypeSetting( args[ 1 ], args[ 2 ] );
 					break;
 				case "d":
@@ -1524,9 +1530,39 @@ commands()
 					if ( !isDefined( args[ 1 ] ) || !isDefined( args[ 2 ] ) )
 					{
 						player tell( "You need to specify a dvar and its value" );
-						continue;
+						break;
 					}
+					player tell( "Dvar set" + args[ 1 ] + " to " + args[ 2 ] );
+					logline1 = "CMD:" + player.name + ";DVAR:" + args[ 1 ] + ";VAL:" + args[ 2 ] + "\n";
+					logprint( logline1 );
 					setDvar( args[ 1 ], args[ 2 ] );
+					break;
+				case "cv":
+				case "cvar":
+					if ( !isDefined( args[ 1 ] ) || !isDefined( args[ 2 ] ) )
+					{
+						player tell( "You need to specify a dvar and its value" );
+						break;
+					}
+					player tell( "Cvar set" + args[ 1 ] + " to " + args[ 2 ] );
+					logline1 = "CMD:" + player.name + ";CVAR:" + args[ 1 ] + ";VAL:" + args[ 2 ] + "\n";
+					logprint( logline1 );
+					player setClientDvar( args[ 1 ], args[ 2 ] );
+					break;
+				case "cva":
+				case "cvarall":
+					if ( !isDefined( args[ 1 ] ) || !isDefined( args[ 2 ] ) )
+					{
+						player tell( "You need to specify a dvar and its value" );
+						break;
+					}
+					foreach ( player in level.players )
+					{
+						player tell( "Cvar set" + args[ 1 ] + " to " + args[ 2 ] );
+						logline1 = "CMD:" + player.name + ";CVARA:" + args[ 1 ] + ";VAL:" + args[ 2 ] + "\n";
+						logprint( logline1 );
+						player setClientDvar( args[ 1 ], args[ 2 ] );
+					} 
 					break;
 				case "l":
 				case "lock":
@@ -1534,9 +1570,20 @@ commands()
 					if ( !isDefined( args[ 1 ] ) )
 					{
 						player tell( "You need to specify a password to lock the server" );
-						continue;
+						break;
 					}
+					player tell( "Server is now password protected" );
+					logline1 = "CMD:" + player.name + ";LOCK:" + args[ 1 ] + "\n";
+					logprint( logline1 );
 					setDvar( "g_password", args[ 1 ] );
+					break;
+				case "ul":
+				case "unlock":
+				case "unlockserver":
+					player tell( "Server is now open" );
+					logline1 = "CMD:" + player.name + ";UNLOCK:" + "\n";
+					logprint( logline1 );
+					setDvar( "g_password", "" );
 					break;
 				default:
 					player tell( "No such command exists" );
@@ -1586,12 +1633,17 @@ vote_kick_started()
 		{
 			continue;
 		}
+		if ( is_true( player.vk_voted ) )
+		{
+			continue;
+		}
 		for( i = 0; i < level.players.size; i++ )
 		{
 			if ( clean_player_name_of_clantag( player_name ) == clean_player_name_of_clantag( level.players[ i ].name ) )
 			{	
 				level.players[ i ].kick_votes++;
 				player tell( level.players[ i ].name + " has " + level.players[ i ].kick_votes + "/" + get_vote_threshold() + " votes needed to be kicked" );
+				player.vk_voted = 1;
 			}
 		}
 	}
@@ -1606,13 +1658,17 @@ votekick_count_votes()
 	{
 		for ( i = 0; i < level.players.size; i++ )
 		{
-			if ( level.players[ i ].kick_votes >= get_vote_threshold() )
+			if ( level.players[ i ].kick_votes >= get_vote_threshold() && !is_true( level.players[ i ].vk_voted ) )
 			{
 				kick( level.players[ i ] getEntityNumber() );
 				say( level.players[ i ].name + " was kicked!" );
 				level.votekick_in_progress = 0;
 				logline1 = "VK;" + level.players[ i ].name + ":K" + "\n";
 				logprint( logline1 );
+				for ( i = 0; i < level.players.size; i++ )
+				{
+					level.players[ i ].vk_voted = 0;
+				}
 				level notify( "grief_votekick_ended" );
 			}
 		}
@@ -1622,6 +1678,10 @@ votekick_count_votes()
 			level.votekick_in_progress = 0;
 			logline1 = "VK;TIMEOUT" + "\n";
 			logprint( logline1 );
+			for ( i = 0; i < level.players.size; i++ )
+			{
+				level.players[ i ].vk_voted = 0;
+			}
 			level notify( "grief_votekick_ended" );
 		}
 		wait 0.05;
@@ -1929,7 +1989,6 @@ mapvote_end()
 		find_alias_and_set_map( toLower( result ), undefined, 0 );
 		logline1 = "MV;" + "MAP:" + result + "\n";
 		logprint( logline1 );
-		say( "Nextmap set to " + result );
 	}
 	else 
 	{
