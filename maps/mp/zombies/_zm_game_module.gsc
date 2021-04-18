@@ -317,6 +317,7 @@ wait_for_team_death_and_round_end() //checked partially changed to match cerberu
 			zombie_goto_round( level.round_number );
 			level thread reset_grief();
 			level thread maps/mp/zombies/_zm::round_think( 1 );
+			level notify( "grief_give_points" );
 		}
 		else if ( !level.checking_for_round_end )
 		{
