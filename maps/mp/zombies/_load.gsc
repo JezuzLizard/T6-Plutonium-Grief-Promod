@@ -584,7 +584,10 @@ start_intro_screen_zm() //checked changed to match cerberus output
 //Begin cut locations functions
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 register_perk_structs()
-{
+{	
+	level.mob_jug = getDvarIntDefault( "grief_gamerule_cellblock_jug", 1 );
+	level.depot_jug = getDvarIntDefault( "grief_gamerule_depot_jug", 0 );
+
 	switch ( getDvar( "ui_zm_mapstartlocation" ) )
 	{
 		case "diner":
@@ -624,10 +627,16 @@ register_perk_structs()
 			_register_survival_perk( "specialty_fastreload", "zombie_vending_sleight", ( 0, -4, 0 ), ( 13255, 74, -195 ) );
 			break;
 		case "cellblock":
-			_register_survival_perk( "specialty_armorvest", "zombie_vending_jugg", ( 0, 86, 0 ), ( 1403, 9662, 1336 ) );
+			if( level.mob_jug )
+			{
+				_register_survival_perk( "specialty_armorvest", "zombie_vending_jugg", ( 0, 86, 0 ), ( 1403, 9662, 1336 ) );
+			}
 			break;
 		case "transit":
-			_register_survival_perk( "specialty_armorvest", "zombie_vending_jugg", ( 0, -5, 0), ( -6136, 5590, -63.85 ) );
+			if( level.depot_jug )
+			{
+				_register_survival_perk( "specialty_armorvest", "zombie_vending_jugg", ( 0, -5, 0), ( -6136, 5590, -63.85 ) );
+			}
 			break;
 	}
 }

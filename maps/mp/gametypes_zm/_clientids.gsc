@@ -46,6 +46,7 @@ init()
 		level.grief_loadout_save = ::grief_loadout_save;
 		grief_parse_perk_restrictions();
 		grief_parse_powerup_restrictions();
+		grief_parse_magic_restrictions();
 		level thread reduce_starting_ammo();
         level thread on_player_connect();
 		level thread draw_hud();
@@ -255,7 +256,12 @@ on_player_connect()
     while ( true )
     {
     	level waittill( "connected", player );
-		player setClientDvar( "aim_automelee_range", 0 );
+		if ( level.grief_gamerules[ "knife_lunge" ] )
+		{
+			player setClientDvar( "aim_automelee_range", 120 ); //default
+		}else{
+			player setClientDvar( "aim_automelee_range", 0 );
+		}
 		player thread on_player_spawned();
 		player thread afk_kick();
 		if ( !isDefined( player.last_griefed_by ) )
@@ -310,7 +316,7 @@ afk_kick()
     time = 0;
     while( 1 )
     {   
-		if ( self.sessionstate == "spectator" || level.players <= 2 )
+		if ( self.sessionstate == "spectator" || level.players.size <= 2 )
 		{	
 			wait 1;
 			continue;
@@ -560,12 +566,14 @@ init_gamerules()
 	level.grief_gamerules[ "intermission_time" ] = getDvarIntDefault( "grief_gamerule_intermission_time", 0 );
 	level.grief_gamerules[ "door_restrictions" ] = getDvar( "grief_gamerule_door_restrictions" );
 	level.grief_gamerules[ "round_restart_points" ] = getDvarIntDefault( "grief_gamerule_round_restart_points", 8000 );
-	level.grief_gamerules[ "use_preset_teams" ] = getDvarIntDefault( "grief_gamerule_use_preset_teams", 0 );
+	//level.grief_gamerules[ "use_preset_teams" ] = getDvarIntDefault( "grief_gamerule_use_preset_teams", 0 );
 	level.grief_gamerules[ "disable_zombie_special_runspeeds" ] = getDvarIntDefault( "grief_gamerules_disable_zombie_special_runspeeds", 1 );
 	level.grief_gamerules[ "suicide_check" ] = getDvarFloatDefault( "grief_gamerule_suicide_check_wait", 5 );
 	level.grief_gamerules[ "player_health" ] = getDvarIntDefault( "grief_gamerule_player_health", 100 );
 	level.grief_gamerules[ "perk_limit" ] = getDvarIntDefault( "grief_gamerule_perk_limit", 4 );
 	level.grief_gamerules[ "powerup_restrictions" ] = getDvar( "grief_gamerule_powerup_restrictions" );
+	level.grief_gamerules[ "knife_lunge" ] = getDvarIntDefault( "grief_gamerule_knife_lunge", 1 );
+	level.grief_gamerules[ "magic" ] = getDvarIntDefault( "grief_gamerule_magic", 1 );
 	 //location farm perkA specialty_armorvest perkB specialty_fastreload
 	//init_gamelengths();
 }
@@ -656,11 +664,46 @@ grief_parse_perk_restrictions()
 }
 
 grief_parse_powerup_restrictions()
-{
+{	
+	if ( level.grief_gamerules[ "powerup_restrictions" ] == "all" )
+	{
+		no_drops();
+		return;
+	}
 	powerups = strTok( level.grief_gamerules[ "powerup_restrictions" ], " " );
 	for ( i = 0; i < powerups.size; i++ )
 	{
 		remove_powerup( powerups[ i ] );
+	}
+}
+
+grief_parse_magic_restrictions()
+{	
+	if ( level.grief_gamerules[ "magic" ] == 0 )
+	{
+		no_magic();
+	}
+}
+
+set_knife_lunge( arg )
+{
+	if ( arg == 1 )
+	{	
+		setDvar( "grief_gamerule_knife_lunge", arg );
+		foreach ( player in level.players )
+		{	
+			say( "Knife lunge is set to default" );
+			player setClientDvar( "aim_automelee_range", 120 );
+		}
+	}
+	else if ( arg == 0 )
+	{	
+		setDvar( "grief_gamerule_knife_lunge", arg );
+		foreach ( player in level.players )
+		{	
+			say( "Knife lunge is disabled" );
+			player setClientDvar( "aim_automelee_range", 0 );
+		}
 	}
 }
 
@@ -1442,7 +1485,7 @@ commands()
         }
 		args = strTok( message, ":" );
         keys = strTok( args[ 0 ], "!" );
-        command = keys[ 0 ];
+        command = toLower( keys[ 0 ] );
         if ( player has_permissions_for_command( command, args ) )
         {
             switch ( command )
@@ -1460,6 +1503,7 @@ commands()
 				case "fr":
 				case "restart":
 				case "maprestart":
+				case "map_restart":
 					logline1 = "CMD:" + player.name + ";FR" + "\n";
 					logprint( logline1 );
 					level thread change_level();
@@ -1471,6 +1515,12 @@ commands()
 					logline1 = "CMD:" + player.name + ";NM:" + args[ 1 ] + "\n";
 					logprint( logline1 );
                     find_alias_and_set_map( toLower( args[ 1 ] ), player, 0 );
+                    break;
+				case "sm":
+				case "setmap":
+					logline1 = "CMD:" + player.name + ";SM:" + args[ 1 ] + "\n";
+					logprint( logline1 );
+                    find_alias_and_set_map( toLower( args[ 1 ] ), player, 0, 1 );
                     break;
 				case "mr":
                 case "maprotate":
@@ -1490,6 +1540,7 @@ commands()
 					logline1 = "CMD:" + player.name + ";RR" + "\n";
 					logprint( logline1 );
 					player tell( "Map rotation reset to the default" );
+					setDvar( "grief_new_map_set", 1 );
 					setDvar( "sv_maprotation", getDvar( "grief_original_rotation" ) );
 					setDvar( "sv_maprotationCurrent", getDvar( "grief_original_rotation" ) );
 					break;
@@ -1571,18 +1622,48 @@ commands()
 				case "mag":
 				case "magic":
 				case "nomagic":
-					logline1 = "CMD:" + player.name + ";TOGMAG" + "\n";
-					logprint( logline1 );
-					say( "Magic is disabled" );
-					no_magic();
+					if ( !isDefined( args[ 1 ] ) )
+					{
+						say( "Magic is disabled for this round only" );
+						no_magic();
+						break;
+					}
+					if ( args[ 1 ] == "0" )
+					{	
+						logline1 = "CMD:" + player.name + ";TOGMAG" + "\n";
+						logprint( logline1 );
+						say( "Magic is disabled on the server" );
+						setDvar( "grief_gamerule_magic", 0 );
+						no_magic();
+					}
+					if ( args[ 1 ] == "1" )
+					{
+						say( "Magic will be enabled on the server starting next match" );
+						setDvar( "grief_gamerule_magic", 1 );
+					}
 					break;
 				case "np":
 				case "drops":
 				case "powerups":
-					logline1 = "CMD:" + player.name + ";TOGDROPS" + "\n";
+					if ( !isDefined( args[ 1 ] ) )
+					{
+						say( "Powerups are disabled for this match only" );
+						no_drops();
+						break;
+					}
+					logline1 = "CMD:" + player.name + ";TOGDROPS:" + args[ 1 ] + "\n";
 					logprint( logline1 );
-					say( "Powerups are disabled" );
-					no_drops();
+					if ( args[ 1 ] == "0" )
+					{
+						say( "Powerups are disabled on the server" );
+						no_drops();
+						setDvar( "grief_gamerule_powerup_restrictions", "all" );
+					}
+					else if ( args[ 1 ] == "1" )
+					{
+						say( "Powerups will be enabled on the server starting next match" );
+						setDvar( "grief_gamerule_powerup_restrictions", "" );
+					}
 					break;
 				case "rn":
 				case "roundnumber":
@@ -1595,6 +1676,12 @@ commands()
 					logprint( logline1 );
 					say( "The round is set to " + args[ 1 ] );
 					set_round( int( args[ 1 ] ) );
+					break;
+				case "kl":
+				case "knifelunge":
+					logline1 = "CMD:" + player.name + ";KNIFE:" + args[ 1 ] + "\n";
+					logprint( logline1 );
+					set_knife_lunge( int( args[ 1 ] ) );
 					break;
 				case "d":
 				case "dvar":
@@ -1663,6 +1750,46 @@ commands()
 				// 	logline1 = "CMD:" + player.name + ";IM" + ";TIME:" + args[ 1 ] + "\n";
 				// 	logprint( logline1 );
 				// 	break;
+				case "mobjug":
+				case "celljug":
+				case "cellblockjug":
+					if ( !isDefined( args[ 1 ] ) )
+					{
+						player tell( "You need to specify 1 or 0" );
+						break;
+					}
+					if ( args[ 1 ] == "1" )
+					{	
+						say( "Jug is enabled on Cellblock");
+						setDvar( "grief_gamerule_cellblock_jug", 1 );
+					}
+					else if ( args[ 1 ] == "0" )
+					{	
+						say( "Jug is disabled on Cellblock");
+						setDvar( "grief_gamerule_cellblock_jug", 0 );
+					}
+					logline1 = "CMD:" + player.name + ";MOBJUG:" + args[ 1 ] + "\n";
+					logprint( logline1 );
+					break;
+				case "depotjug":
+					if ( !isDefined( args[ 1 ] ) )
+					{
+						player tell( "You need to specify 1 or 0" );
+						break;
+					}
+					if ( args[ 1 ] == "1" )
+					{	
+						say( "Jug is enabled on Bus Depot");
+						setDvar("grief_gamerule_depot_jug", 1 );
+					}
+					else if ( args[ 1 ] == "0" )
+					{	
+						say( "Jug is disabled on Bus Depot");
+						setDvar("grief_gamerule_depot_jug", 0 );
+					}
+					logline1 = "CMD:" + player.name + ";DEPOTJUG:" + args[ 1 ] + "\n";
+					logprint( logline1 );
+					break;
 				case "bot":
 				case "spawnbot":
 					bot = addtestClient();
@@ -1681,12 +1808,53 @@ commands()
 						logprint( logline1 );
 					}
 					break;
+				case "cmd":
+				case "commandlist":
+				case "list":
+				case "commands":
+					if ( !player.printing_commands )
+					{
+						player thread print_command_list();
+					}
+					break;
 				default:
 					player tell( "No such command exists" );
 					break;
             }
         }
     }
+}
+
+print_command_list()
+{	
+	self endon( "command_print_end" );
+	self.printing_commands = 1;
+
+	self tell( "!restart" );
+	self tell( "!maprotate" );
+	self tell( "!resetrotation" );
+	self tell( "!map:<mapname>" );
+	self tell( "!nextmap:<mapname>" );
+	self tell( "!setmap:<mapname>" );
+	self tell( "!kick:<playername>" );
+	self tell( "!timeout:<playername>" ); //doesn't work yet
+	wait 12;
+	self tell( "!ban:<playername>" );
+	self tell( "!magic:<bool>" );
+	self tell( "!knifelunge:<bool>" );
+	self tell( "!powerups:<bool>" );
+	self tell( "!roundnumber:<value>" );
+	self tell( "!dvar:<name>:<value>" );
+	self tell( "!cvar:<name>:<value>" );
+	self tell( "!cvarall:<name>:<value>" );
+	wait 12;
+	self tell( "!lockserver:<password>" );
+	self tell( "!unlockserver" );
+	self tell( "!depotjug:<bool>" );
+	self tell( "!cellblockjug:<bool>" );
+
+	self.printing_commands = 0;
+	self notify( "command_print_end" );
 }
 
 end_commands_on_end_game()
@@ -1839,7 +2007,7 @@ setup_permissions()
 	}
 }
 
-find_alias_and_set_map( mapname, player, map_rotate )
+find_alias_and_set_map( mapname, player, map_rotate, set_map )
 {
     switch ( mapname )
     {
@@ -1912,9 +2080,15 @@ find_alias_and_set_map( mapname, player, map_rotate )
 	}
     setDvar( "sv_maprotation", "exec zm_" + gamemode + "_" + location + ".cfg" + " map " + mapname );
 	setDvar( "sv_maprotationCurrent", "exec zm_" + gamemode + "_" + location + ".cfg" + " map " + mapname );
-	if ( map_rotate )
+	if ( map_rotate && !isDefined( set_map ))
 	{
 		setDvar( "grief_new_map_set", 1 );
+		level thread change_level();
+		level notify( "end_commands", 1 );
+	}
+	else if ( isDefined( set_map ) && set_map )
+	{	
+		setDvar( "grief_new_map_set", 0 );
 		level thread change_level();
 		level notify( "end_commands", 1 );
 	}
