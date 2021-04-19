@@ -144,7 +144,7 @@ spawn_barriers()
 
 delete_door_and_debris_trigs()
 {
-	door_trigs_to_delete = array( "pf728_auto2520", "pf728_auto2513", "pf728_auto2496", "pf728_auto2497" );
+	door_trigs_to_delete = array( "pf728_auto2520", "pf728_auto2513", "pf728_auto2496", "pf728_auto2516", "pf728_auto2500" );
 	doors_trigs = getentarray( "zombie_door", "targetname" );
 	foreach ( door_trig in doors_trigs )
 	{
