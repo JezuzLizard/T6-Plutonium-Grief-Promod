@@ -51,7 +51,7 @@ init()
 		level thread draw_hud();
 		wait 15;
 		level thread instructions_on_all_players();
-		if ( getDvar( "mapname" ) == "zm_prison" )
+		if ( getDvar( "mapname" ) == "zm_prison" && getDvarInt( "grief_brutus_enabled") == 1 )
 		{
 			flag_init( "grief_brutus_can_spawn", 1 );
 			level thread grief_brutus_logic();
