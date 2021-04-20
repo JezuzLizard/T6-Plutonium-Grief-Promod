@@ -5,20 +5,23 @@ This mod requires this plugin to run: https://github.com/fedddddd/t6-gsc-utils
 
 ### Created by: JezuzLizard and 5and5
 
+## Download
+[Download](https://www.mediafire.com/file/344hf0kvpal2exv/BO2-Pluto_Grief_Server.zip/file)
+
 ## Change Notes
 
 ### General 
 * Round scoring - Down all enemy players to score a point for your team, reach the roundlimit to win the match
-* Knife lunge disabled
 * Shellshock due to bullets reduced from 0.75 to 0.25 seconds
 * Zombies per round limited
-* 
+* Reduced pistol starting ammo
+* Removed quick revive, staminup and pack-a-punch on all maps
 
 ### Teams
 * Server owner can set preset teams for tournament settings
 
 ### UI
-* Scoreboard tracks stabs, confirms and more
+* Scoreboard tracks stabs, confirms, revives and downs
 * Kill feed displayed when hitting a player within 4 seconds of downing
 * HUD shows round wins, 3 wins equals a game win
 
@@ -26,31 +29,49 @@ This mod requires this plugin to run: https://github.com/fedddddd/t6-gsc-utils
 
 ### Mob of the Dead
 * Moved initial spawn points to east cellblock
-* Added Jug to east cellblock
+* Added option for Jug
 * Disabled doors leading to spawn
 * Blocked off hallway to spawn
 
 ### Buried
-* Blocked off ways to get to the roof and upper tunnels
-* Disabled saloon and gerenal store doors
+* Moved initial spawn points to Jug
+* Blocked off ways to get to the upper tunnels and courthouse area
+* Disabled candy shop and gerenal store doors
 
 ### Trazit Farm
 * Switched Jug and Speed Cola
 
 ### Trazit Town
-* Disabled semtex
+* No changes made
 
-### Trazit Power
-* Added Jug
-* Added mp5
+### Custom Maps
+* Trazit Depot
+* Trazit Power
+* Trazit Tunnel
+* Trazit Dinner
 
-### Trazit Tunnel
-* Added Jug and Speed Cola
-* Added mp5 and m14
-
-### Trazit Dinner
-* Added Jug 
-
-### Trazit Depot
+### Admin Command List
+```
+"!restart"
+"!maprotate"
+"!resetrotation"
+"!map:<mapname>"
+"!nextmap:<mapname>"
+"!setmap:<mapname>"
+"!kick:<playername>"
+"!timeout:<playername>"
+"!ban:<playername>"
+"!magic:<bool>"
+"!knifelunge:<bool>"
+"!powerups:<bool>"
+"!roundnumber:<value>"
+"!dvar:<name>:<value>"
+"!cvar:<name>:<value>"
+"!cvarall:<name>:<value>"
+"!lockserver:<password>"
+"!unlockserver"
+"!depotjug:<bool>"
+"!cellblockjug:<bool>"
+```
 
 Fully integrated with the Cut Survival Maps mod: https://github.com/JezuzLizard/Cut-Tranzit-Locations

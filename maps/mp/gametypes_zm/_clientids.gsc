@@ -294,7 +294,7 @@ on_player_spawned()
 
 reduce_starting_ammo()
 {	
-	if( self hasweapon( "m1911_zm" ) && level.grief_gamerules[ "reduced_pistol_ammo" ] )
+	if( self hasweapon( "m1911_zm" ) && (self getammocount( "m1911_zm" ) > 16 ) && level.grief_gamerules[ "reduced_pistol_ammo" ] )
 	{
 		self setweaponammostock( "m1911_zm", 8 );
 	}
