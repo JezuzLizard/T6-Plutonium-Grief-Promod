@@ -10,6 +10,11 @@
 #include maps/mp/zombies/_zm_utility;
 #include common_scripts/utility;
 #include maps/mp/_utility;
+#include maps/mp/zombies/_zm_weapons;
+#include maps/mp/zombies/_zm_unitrigger;
+#include maps/mp/zombies/_zm_weap_claymore;
+#include maps/mp/zombies/_zm_melee_weapon;
+#include maps/mp/zombies/_zm;
 
 precache() //checked matches cerberus output
 {
@@ -59,7 +64,7 @@ main() //checked matches cerberus output
 	delete_door_and_debris_trigs();
 	deleteSlothBarricade( "juggernaut_alley" );
 	deleteSlothBarricade( "jail" );
-	deleteSlothBarricade( "candystore_alley" );
+	//deleteSlothBarricade( "candystore_alley" );
 	//deleteSlothBarricade( "gun_store_door1" );
 	deleteSlothBarricade( "darkwest_nook_door1" );
 	//deleteslothbarricades();
@@ -71,6 +76,7 @@ main() //checked matches cerberus output
 	wait 1;
 	builddynamicwallbuys();
 	buildbuildables();
+	spawn_mp5_wallbuy();
 	turnperkon( "revive" );
 	turnperkon( "doubletap" );
 	turnperkon( "marathon" );
@@ -98,22 +104,25 @@ builddynamicwallbuys() //checked matches cerberus output
 	builddynamicwallbuy( "bank", "beretta93r_zm" );
 	builddynamicwallbuy( "bar", "pdw57_zm" );
 	builddynamicwallbuy( "church", "ak74u_zm" );
-	builddynamicwallbuy( "courthouse", "mp5k_zm" );
+	//builddynamicwallbuy( "courthouse", "mp5k_zm" );
 	builddynamicwallbuy( "generalstore", "m16_zm" );
 	builddynamicwallbuy( "mansion", "an94_zm" );
 	builddynamicwallbuy( "morgue", "svu_zm" );
 	builddynamicwallbuy( "prison", "claymore_zm" );
-	builddynamicwallbuy( "stables", "bowie_knife_zm" );
-	builddynamicwallbuy( "stablesroof", "frag_grenade_zm" );
+	builddynamicwallbuy( "stables", "mp5k_zm" );
+	builddynamicwallbuy( "stablesroof", "mp5k_zm" );
 	builddynamicwallbuy( "toystore", "tazer_knuckles_zm" );
 	builddynamicwallbuy( "candyshop", "870mcs_zm" );
 }
 
 buildbuildables() //checked matches cerberus output
-{
-	buildbuildable( "springpad_zm" );
-	buildbuildable( "subwoofer_zm" );
-	buildbuildable( "turbine" );
+{	
+	if( level.grief_gamerules[ "buildables" ] )
+	{
+		buildbuildable( "springpad_zm" );
+		buildbuildable( "subwoofer_zm" );
+		buildbuildable( "turbine" );
+	}
 }
 
 spawn_barriers()
@@ -143,28 +152,31 @@ spawn_barriers()
 }
 
 delete_door_and_debris_trigs()
-{
-	door_trigs_to_delete = array( "pf728_auto2520", "pf728_auto2513", "pf728_auto2496", "pf728_auto2516", "pf728_auto2500" );
-	doors_trigs = getentarray( "zombie_door", "targetname" );
-	foreach ( door_trig in doors_trigs )
+{	
+	if( level.grief_gamerules[ "disable_doors" ] )
 	{
-		for ( i = 0; i < door_trigs_to_delete.size; i++ )
+		door_trigs_to_delete = array( "pf728_auto2520", "pf728_auto2513", "pf728_auto2496", "pf728_auto2516", "pf728_auto2500" );
+		doors_trigs = getentarray( "zombie_door", "targetname" );
+		foreach ( door_trig in doors_trigs )
 		{
-			if ( door_trig.target == door_trigs_to_delete[ i ] )
+			for ( i = 0; i < door_trigs_to_delete.size; i++ )
 			{
-				door_trig delete();
+				if ( door_trig.target == door_trigs_to_delete[ i ] )
+				{
+					door_trig delete();
+				}
 			}
 		}
-	}
-	debris_trigs_to_delete = array( "pf728_auto2529", "pf728_auto2528", "pf728_auto2531", "pf728_auto2530", "pf728_auto2532", "pf728_auto2534" );
-	debris_trigs = getentarray( "zombie_debris", "targetname" );
-	foreach ( debris_trig in debris_trigs )
-	{
-		for ( i = 0; i < debris_trigs_to_delete.size; i++ )
+		debris_trigs_to_delete = array( "pf728_auto2529", "pf728_auto2528", "pf728_auto2531", "pf728_auto2530", "pf728_auto2532", "pf728_auto2534" );
+		debris_trigs = getentarray( "zombie_debris", "targetname" );
+		foreach ( debris_trig in debris_trigs )
 		{
-			if ( debris_trig.target == debris_trigs_to_delete[ i ] )
+			for ( i = 0; i < debris_trigs_to_delete.size; i++ )
 			{
-				debris_trig delete();
+				if ( debris_trig.target == debris_trigs_to_delete[ i ] )
+				{
+					debris_trig delete();
+				}
 			}
 		}
 	}
@@ -194,5 +206,95 @@ remove_buried_spawns()
 				zone.spawn_locations[ i ].is_enabled = false;
 			}
 		}
+	}
+}
+
+spawn_mp5_wallbuy()
+{
+	_weapon_spawner( ( 0, -180, 0 ), ( -279, 886, 190 ), "mp5k_zm_fx", "mp5k_zm", "t6_wpn_smg_mp5_world", "mp5", "weapon_upgrade" );
+}
+
+_weapon_spawner( weapon_angles, weapon_coordinates, chalk_fx, weapon_name, weapon_model, target, targetname )
+{
+	tempmodel = spawn( "script_model", ( 0, 0, 0 ) );
+	precachemodel( weapon_model );
+	unitrigger_stub = spawnstruct();
+	unitrigger_stub.origin = weapon_coordinates;
+	unitrigger_stub.angles = weapon_angles;
+	tempmodel.origin = weapon_coordinates;
+	tempmodel.angles = weapon_angles;
+	mins = undefined;
+	maxs = undefined;
+	absmins = undefined;
+	absmaxs = undefined;
+	tempmodel setmodel( weapon_model );
+	tempmodel useweaponhidetags( weapon_name );
+	mins = tempmodel getmins();
+	maxs = tempmodel getmaxs();
+	absmins = tempmodel getabsmins();
+	absmaxs = tempmodel getabsmaxs();
+	bounds = absmaxs - absmins;
+	unitrigger_stub.script_length = bounds[ 0 ] * 0.25;
+	unitrigger_stub.script_width = bounds[ 1 ];
+	unitrigger_stub.script_height = bounds[ 2 ];
+	unitrigger_stub.origin -= anglesToRight( unitrigger_stub.angles ) * ( unitrigger_stub.script_length * 0.4 );
+	unitrigger_stub.target = target;
+	unitrigger_stub.targetname = targetname;
+	unitrigger_stub.cursor_hint = "HINT_NOICON";
+	if ( unitrigger_stub.targetname == "weapon_upgrade" )
+	{
+		unitrigger_stub.cost = get_weapon_cost( weapon_name );
+		if ( !is_true( level.monolingustic_prompt_format ) )
+		{
+			unitrigger_stub.hint_string = get_weapon_hint( weapon_name );
+			unitrigger_stub.hint_parm1 = unitrigger_stub.cost;
+		}
+		else
+		{
+			unitrigger_stub.hint_parm1 = get_weapon_display_name( weapon_name );
+			if ( !isDefined( unitrigger_stub.hint_parm1 ) || unitrigger_stub.hint_parm1 == "" || unitrigger_stub.hint_parm1 == "none" )
+			{
+				unitrigger_stub.hint_parm1 = "missing weapon name " + weapon_name;
+			}
+			unitrigger_stub.hint_parm2 = unitrigger_stub.cost;
+			unitrigger_stub.hint_string = &"ZOMBIE_WEAPONCOSTONLY";
+		}
+	}
+	unitrigger_stub.weapon_upgrade = weapon_name;
+	unitrigger_stub.script_unitrigger_type = "unitrigger_box_use";
+	unitrigger_stub.require_look_at = 1;
+	unitrigger_stub.require_look_from = 0;
+	unitrigger_stub.zombie_weapon_upgrade = weapon_name;
+	maps/mp/zombies/_zm_unitrigger::unitrigger_force_per_player_triggers( unitrigger_stub, 1 );
+	if ( is_melee_weapon( weapon_name ) )
+	{
+		if ( weapon_name == "tazer_knuckles_zm" && isDefined( level.taser_trig_adjustment ) )
+		{
+			unitrigger_stub.origin += level.taser_trig_adjustment;
+		}
+		maps/mp/zombies/_zm_unitrigger::register_static_unitrigger( unitrigger_stub, ::melee_weapon_think );
+	}
+	else if ( weapon_name == "claymore_zm" )
+	{
+		unitrigger_stub.prompt_and_visibility_func = ::claymore_unitrigger_update_prompt;
+		maps/mp/zombies/_zm_unitrigger::register_static_unitrigger( unitrigger_stub, ::buy_claymores );
+	}
+	else
+	{
+		unitrigger_stub.prompt_and_visibility_func = ::wall_weapon_update_prompt;
+		maps/mp/zombies/_zm_unitrigger::register_static_unitrigger( unitrigger_stub, ::weapon_spawn_think );
+	}
+	tempmodel delete();
+    thread playchalkfx( chalk_fx, weapon_coordinates, weapon_angles );
+}
+
+playchalkfx( effect, origin, angles ) //custom function
+{
+	while ( 1 )
+	{
+		fx = SpawnFX( level._effect[ effect ], origin, AnglesToForward( angles ), AnglesToUp( angles ) );
+		TriggerFX( fx );
+		level waittill( "connected", player );
+		fx Delete();
 	}
 }

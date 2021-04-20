@@ -47,7 +47,6 @@ init()
 		grief_parse_perk_restrictions();
 		grief_parse_powerup_restrictions();
 		grief_parse_magic_restrictions();
-		level thread reduce_starting_ammo();
         level thread on_player_connect();
 		level thread draw_hud();
 		wait 15;
@@ -289,19 +288,15 @@ on_player_spawned()
 		self waittill( "spawned_player" );
 		self.health = level.grief_gamerules[ "player_health" ];
 		self.maxHealth = self.health;
+		reduce_starting_ammo();
 	}
 }
 
 reduce_starting_ammo()
 {	
-	level endon( "game_ended" );
-	flag_wait( "initial_blackscreen_passed" );
-	wait 2;
-	players = get_players();
-	for(i = 0; i < players.size; i++)
-	{	
-		weapon = players[ i ] getcurrentweapon();
-		players[ i ] setweaponammostock( weapon, 8 );
+	if( self hasweapon( "m1911_zm" ) && level.grief_gamerules[ "reduced_pistol_ammo" ] )
+	{
+		self setweaponammostock( "m1911_zm", 8 );
 	}
 }
 
@@ -325,7 +320,7 @@ afk_kick()
         {
             time = 0;
         }
-        if( time == 6000 ) //5mins
+        if( time == 4800 ) //4mins
         {
             say( clean_player_name_of_clantag( self.name ) + " has been kicked for inactivity!" );
             kick( self getEntityNumber() );
@@ -574,8 +569,9 @@ init_gamerules()
 	level.grief_gamerules[ "powerup_restrictions" ] = getDvar( "grief_gamerule_powerup_restrictions" );
 	level.grief_gamerules[ "knife_lunge" ] = getDvarIntDefault( "grief_gamerule_knife_lunge", 1 );
 	level.grief_gamerules[ "magic" ] = getDvarIntDefault( "grief_gamerule_magic", 1 );
-	 //location farm perkA specialty_armorvest perkB specialty_fastreload
-	//init_gamelengths();
+	level.grief_gamerules[ "reduced_pistol_ammo" ] = getDvarIntDefault( "grief_gamerule_reduced_pistol_ammo", 1 );
+	level.grief_gamerules[ "buildables" ] = getDvarIntDefault( "grief_gamerule_buildables", 1 );
+	level.grief_gamerules[ "disable_doors" ] = getDvarIntDefault( "grief_gamerule_disable_doors", 1 );
 }
 /*
 init_gamelengths()
@@ -617,11 +613,12 @@ init_gamelengths()
 		}
 	}
 }
-*/
+
 setup_grief_rule_for_game_length( rule, value )
 {
 	level.grief_gamerules[ rule ] = value;
 }
+*/
 
 //doesn't work yet
 grief_restrict_wallbuy( weapon )
@@ -690,18 +687,18 @@ set_knife_lunge( arg )
 	if ( arg == 1 )
 	{	
 		setDvar( "grief_gamerule_knife_lunge", arg );
+		say( "Knife lunge is set to default" );
 		foreach ( player in level.players )
 		{	
-			say( "Knife lunge is set to default" );
 			player setClientDvar( "aim_automelee_range", 120 );
 		}
 	}
 	else if ( arg == 0 )
 	{	
 		setDvar( "grief_gamerule_knife_lunge", arg );
+		say( "Knife lunge is disabled" );
 		foreach ( player in level.players )
 		{	
-			say( "Knife lunge is disabled" );
 			player setClientDvar( "aim_automelee_range", 0 );
 		}
 	}

@@ -194,7 +194,7 @@ main() //checked partially changed to match cerberus output changed at own discr
 		}
 		i++;
 	}
-	delete_starting_door_trigs();
+	delete_door_trigs();
 	first_room_hallway_barrier();
 	// a_t_doors = getentarray( "zombie_door", "targetname" );
 	// foreach ( t_door in a_t_doors )
@@ -482,14 +482,17 @@ turn_afterlife_interact_on()
 	}
 }
 
-delete_starting_door_trigs()
-{
-	doors = getentarray( "zombie_door", "targetname" );
-	foreach ( door in doors )
+delete_door_trigs()
+{	
+	if ( level.grief_gamerules[ "disable_doors" ] )
 	{
-		if (  door.target == "pf3674_auto2581" || door.target == "cellblock_start_door" )
+		doors = getentarray( "zombie_door", "targetname" );
+		foreach ( door in doors )
 		{
-			door delete();
+			if (  door.target == "pf3674_auto2581" || door.target == "cellblock_start_door" )
+			{
+				door delete();
+			}
 		}
 	}
 }
