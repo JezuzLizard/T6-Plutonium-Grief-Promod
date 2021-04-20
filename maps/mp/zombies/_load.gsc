@@ -703,8 +703,19 @@ register_spawnpoint_structs() //custom function
 			angles = array( ( 0, 0, 0 ), ( 0, 0, 0 ), ( 0, 180, 0 ), ( 0, 0, 0 ),
 							( 0, 180, 0 ), ( 0, 180, 0), ( 0, 0, 0 ), ( 0, 0, 0) );
 			break;
+		case "street":
+			coordinates = array( ( -832, -153, 132 ), ( -718, 73, -23 ), ( -1034, 210, -23 ), ( -1170, 425, 8 ),
+									( -356, 169, 10 ), ( 54, 156, 10 ), ( 40, 296, -28 ), ( -94, 573, -23 ) );
+			angles = array( ( 0, 68, 0 ), ( 0, 75, 0 ), ( 0, 40, 0 ), ( 0, -1, 0 ),
+							( 0, 142, 0 ), ( 0, 152, 0), ( 0, 179, 0 ), ( 0, -145, 0) );
+			break;
 	}
 	if ( getDvar( "ui_zm_mapstartlocation" ) == "cellblock" )
+	{
+		level.struct_class_names[ "targetname" ][ "player_respawn_point" ] = [];
+		level.struct_class_names[ "script_noteworthy" ][ "initial_spawn" ] = [];
+	}
+	if ( getDvar( "ui_zm_mapstartlocation" ) == "street" )
 	{
 		level.struct_class_names[ "targetname" ][ "player_respawn_point" ] = [];
 		level.struct_class_names[ "script_noteworthy" ][ "initial_spawn" ] = [];
