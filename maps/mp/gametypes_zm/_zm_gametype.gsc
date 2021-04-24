@@ -23,9 +23,22 @@
 #include maps/mp/gametypes_zm/_hud_util;
 #include maps/mp/_utility;
 #include maps/mp/zombies/_zm_perks;
+#include maps/mp/zombies/_zm_zonemgr;
+#include maps/mp/zombies/_zm_magicbox;
 
 main() //checked matches cerberus output
 {
+	//uncomment when replacefunc is available on production.
+	// replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_override );
+	// replaceFunc( maps/mp/zombies/_zm_utility::set_run_speed, ::set_run_speed_override );
+	// replaceFunc( maps/mp/zombies/_zm_zonemgr::manage_zones, ::manage_zones_override );
+	// replaceFunc( maps/mp/zombies/_zm_audio_announcer::playleaderdialogonplayer, ::playleaderdialogonplayer_override );
+	// replaceFunc( maps/mp/zombies/_zm_magicbox::treasure_chest_init, ::treasure_chest_init_override );
+
+	// replaceFunc( maps/mp/zombies/_zm_game_module::kill_all_zombies, ::kill_all_zombies_override );
+	// replaceFunc( maps/mp/zombies/_zm_game_module::respawn_players, ::respawn_players_override );
+	// replaceFunc( maps/mp/zombies/_zm_game_module::wait_for_team_death_and_round_end, ::wait_for_team_death_and_round_end_override );
+	// replaceFunc( maps/mp/zombies/_zm_game_module::check_for_round_end, ::check_for_round_end_override );
 	location = getDvar( "ui_zm_mapstartlocation" );
 	map = getDvar( "mapname" );
 	if ( map == "zm_transit" )
@@ -2118,6 +2131,1059 @@ grief_spectator_respawn() //checked changed to match cerberus output
 }
 
 
+set_run_speed_override() //checked matches cerberus output
+{
+	if ( !isDefined( level.bus_sprinters ) )
+	{
+		level.bus_sprinters = 0;
+		level.bus_sprinter_max = 1;
+		logline1 = "level.bus_sprinters initialized" + "\n";
+		logprint( logline1 );
+	}
+	if ( !isDefined( level.zombie_movespeed_type_array ) )
+	{
+		level.zombie_movespeed_type_array = [];
+		level.zombie_movespeed_type_array[ 0 ] = "walk";
+		level.zombie_movespeed_type_array[ 1 ] = "run";
+		level.zombie_movespeed_type_array[ 2 ] = "sprint";
+		level.zombie_movespeed_type_array[ 3 ] = "sprint";
+		level.zombie_movespeed_type_array[ 4 ] = "sprint";
+		level.zombie_movespeed_type_array[ 5 ] = "super_sprint";
+		level.zombie_movespeed_type_array[ 6 ] = "super_sprint";
+		level.zombie_movespeed_type_array[ 7 ] = "super_sprint";
+		if ( level.script == "zm_transit" )
+		{
+			level.zombie_movespeed_type_array[ 8 ] = "chase_bus";
+		}
+	}
+	rand = randomintrange( level.zombie_move_speed, level.zombie_move_speed + 35 );
+	if ( rand <= 35 )
+	{
+		self.zombie_move_speed = "walk";
+	}
+	else if ( rand <= 70 )
+	{
+		self.zombie_move_speed = "run";
+	}
+	else if ( rand <= 200 )
+	{
+		self.zombie_move_speed = "sprint";
+	}
+	else if ( !level.grief_gamerules[ "disable_zombie_special_runspeeds" ] )
+	{
+		if ( rand <= 219 )
+		{
+			if ( !isDefined( level.grief_super_sprinter_zombies_start ) )
+			{
+				level.grief_super_sprinter_zombies_start = true;
+			}
+			self thread make_super_sprinter( "super_sprint" );
+		}
+		else
+		{
+			speed = random( level.zombie_movespeed_type_array );
+			if ( speed == "chase_bus" && ( level.bus_sprinters < level.bus_sprinter_max ) )
+			{
+				self.is_bus_sprinter = true;
+				level.bus_sprinters++;
+			}
+			else 
+			{
+				speed = "super_sprint";
+			}
+			if ( speed == "super_sprint" || speed == "chase_bus" )
+			{
+				self thread make_super_sprinter( speed );
+				self thread zombie_watch_for_bus_sprinter();
+			}
+			else
+			{
+				self.zombie_move_speed = speed;
+			}
+		}
+	}
+	else
+	{
+		self.zombie_move_speed = "sprint";
+	}
+}
+
+manage_zones_override( initial_zone ) //checked changed to match cerberus output
+{
+	printF( "manage_zones_override() overrides manage_zones()" );
+	map = getDvar( "mapname" );
+	location = getDvar( "ui_zm_mapstartlocation" ); 
+	if ( map == "zm_transit" )
+	{
+		if ( location == "diner" || location == "cornfield" || location == "power" || location == "tunnel" )
+		{
+			initial_zone = [];
+			initial_zone[ 0 ] = "zone_pri";
+			initial_zone[ 1 ] = "zone_station_ext";
+			initial_zone[ 2 ] = "zone_tow";
+			initial_zone[ 3 ] = "zone_far_ext";
+			initial_zone[ 4 ] = "zone_brn";
+			//Initialize cut location zones
+			////////////////////////////////////
+			initial_zone[ 5 ] = "zone_pow";
+			initial_zone[ 6 ] = "zone_pow_warehouse";
+			initial_zone[ 7 ] = "zone_amb_tunnel";
+			////////////////////////////////////
+		}
+	}
+	deactivate_initial_barrier_goals();
+	zone_choke = 0;
+	spawn_points = maps/mp/gametypes_zm/_zm_gametype::get_player_spawns_for_gametype();
+	for ( i = 0; i < spawn_points.size; i++ )
+	{
+		spawn_points[ i ].locked = 1;
+	}
+	if ( isDefined( level.zone_manager_init_func ) )
+	{
+		[[ level.zone_manager_init_func ]]();
+	}
+
+	if ( isarray( initial_zone ) )
+	{
+		for ( i = 0; i < initial_zone.size; i++ )
+		{
+			zone_init( initial_zone[ i ] );
+			enable_zone( initial_zone[ i ] );
+		}
+	}
+	else
+	{
+		zone_init( initial_zone );
+		enable_zone( initial_zone );
+	}
+	setup_zone_flag_waits();
+	zkeys = getarraykeys( level.zones );
+	level.zone_keys = zkeys;
+	level.newzones = [];
+	for ( z = 0; z < zkeys.size; z++ )
+	{
+		level.newzones[ zkeys[ z ] ] = spawnstruct();
+	}
+	oldzone = undefined;
+	flag_set( "zones_initialized" );
+	flag_wait( "begin_spawning" );
+	while ( getDvarInt( "noclip" ) == 0 || getDvarInt( "notarget" ) != 0 )
+	{	
+		for( z = 0; z < zkeys.size; z++ )
+		{
+			level.newzones[ zkeys[ z ] ].is_active = 0;
+			level.newzones[ zkeys[ z ] ].is_occupied = 0;
+		}
+		a_zone_is_active = 0;
+		a_zone_is_spawning_allowed = 0;
+		level.zone_scanning_active = 1;
+		z = 0;
+		while ( z < zkeys.size )
+		{
+			zone = level.zones[ zkeys[ z ] ];
+			newzone = level.newzones[ zkeys[ z ] ];
+			if( !zone.is_enabled )
+			{
+				z++;
+				continue;
+			}
+			if ( isdefined(level.zone_occupied_func ) )
+			{
+				newzone.is_occupied = [[ level.zone_occupied_func ]]( zkeys[ z ] );
+			}
+			else
+			{
+				newzone.is_occupied = player_in_zone( zkeys[ z ] );
+			}
+			if ( newzone.is_occupied )
+			{
+				newzone.is_active = 1;
+				a_zone_is_active = 1;
+				if ( zone.is_spawning_allowed )
+				{
+					a_zone_is_spawning_allowed = 1;
+				}
+				if ( !isdefined(oldzone) || oldzone != newzone )
+				{
+					level notify( "newzoneActive", zkeys[ z ] );
+					oldzone = newzone;
+				}
+				azkeys = getarraykeys( zone.adjacent_zones );
+				for ( az = 0; az < zone.adjacent_zones.size; az++ )
+				{
+					if ( zone.adjacent_zones[ azkeys[ az ] ].is_connected && level.zones[ azkeys[ az ] ].is_enabled )
+					{
+						level.newzones[ azkeys[ az ] ].is_active = 1;
+						if ( level.zones[ azkeys[ az ] ].is_spawning_allowed )
+						{
+							a_zone_is_spawning_allowed = 1;
+						}
+					}
+				}
+			}
+			zone_choke++;
+			if ( zone_choke >= 3 )
+			{
+				zone_choke = 0;
+				wait 0.05;
+			}
+			z++;
+		}
+		level.zone_scanning_active = 0;
+		for ( z = 0; z < zkeys.size; z++ )
+		{
+			level.zones[ zkeys[ z ] ].is_active = level.newzones[ zkeys[ z ] ].is_active;
+			level.zones[ zkeys[ z ] ].is_occupied = level.newzones[ zkeys[ z ] ].is_occupied;
+		}
+		if ( !a_zone_is_active || !a_zone_is_spawning_allowed )
+		{
+			if ( isarray( initial_zone ) )
+			{
+				level.zones[ initial_zone[ 0 ] ].is_active = 1;
+				level.zones[ initial_zone[ 0 ] ].is_occupied = 1;
+				level.zones[ initial_zone[ 0 ] ].is_spawning_allowed = 1;
+			}
+			else
+			{
+				level.zones[ initial_zone ].is_active = 1;
+				level.zones[ initial_zone ].is_occupied = 1;
+				level.zones[ initial_zone ].is_spawning_allowed = 1;
+			}
+		}
+		[[ level.create_spawner_list_func ]]( zkeys );
+		level.active_zone_names = maps/mp/zombies/_zm_zonemgr::get_active_zone_names();
+		wait 1;
+	}
+}
+
+playleaderdialogonplayer_override( dialog, team, waittime ) //checked changed to match cerberus output
+{
+	self endon( "disconnect" );
+
+	if ( level.allowzmbannouncer )
+	{
+		if ( !isDefined( game[ "zmbdialog" ][ dialog ] ) )
+		{
+			return;
+		}
+	}
+	self.zmbdialogactive = 1;
+	if ( isDefined( self.zmbdialoggroups[ dialog ] ) )
+	{
+		group = dialog;
+		dialog = self.zmbdialoggroups[ group ];
+		self.zmbdialoggroups[ group ] = undefined;
+		self.zmbdialoggroup = group;
+	}
+	if ( level.allowzmbannouncer )
+	{
+		alias = game[ "zmbdialog" ][ "prefix" ] + "_" + game[ "zmbdialog" ][ dialog ];
+		variant = self getleaderdialogvariant( alias );
+		if ( !isDefined( variant ) )
+		{
+			full_alias = alias + "_" + "0";
+			if ( level.script == "zm_prison" )
+			{
+				dialogType = strtok( game[ "zmbdialog" ][ dialog ], "_" );
+				switch ( dialogType[ 0 ] )
+				{
+					case "powerup":
+						full_alias = alias;
+						break;
+					case "grief":
+						full_alias = alias + "_" + "0";
+						break;
+					default:
+						full_alias = alias;
+				}
+			}
+		}
+		else
+		{
+			full_alias =  alias + "_" + variant;
+		}
+		self playlocalsound( full_alias );
+	}
+	if ( isDefined( waittime ) )
+	{
+		wait waittime;
+	}
+	else
+	{
+		wait 4;
+	}
+	self.zmbdialogactive = 0;
+	self.zmbdialoggroup = "";
+	if ( self.zmbdialogqueue.size > 0 && level.allowzmbannouncer )
+	{
+		nextdialog = self.zmbdialogqueue[0];
+		for( i = 1; i < self.zmbdialogqueue.size; i++ )
+		{
+			self.zmbdialogqueue[ i - 1 ] = self.zmbdialogqueue[ i ];
+		}
+		self.zmbdialogqueue[ i - 1 ] = undefined;
+		self thread playleaderdialogonplayer( nextdialog, team );
+	}
+}
+
+treasure_chest_init_override( start_chest_name ) //checked changed to match cerberus output
+{
+	flag_init( "moving_chest_enabled" );
+	flag_init( "moving_chest_now" );
+	flag_init( "chest_has_been_used" );
+	level.chest_moves = 0;
+	level.chest_level = 0;
+	if ( level.chests.size == 0 )
+	{
+		return;
+	}
+	for ( i = 0; i < level.chests.size; i++ )
+	{
+		level.chests[ i ].box_hacks = [];
+		level.chests[ i ].orig_origin = level.chests[ i ].origin;
+		level.chests[ i ] get_chest_pieces();
+		if ( isDefined( level.chests[ i ].zombie_cost ) )
+		{
+			level.chests[ i ].old_cost = level.chests[ i ].zombie_cost;
+		}
+		else 
+		{
+			level.chests[ i ].old_cost = 950;
+		}
+	}
+	if ( !level.enable_magic || !level.grief_gamerules[ "mystery_box_enabled" ] )
+	{
+		foreach( chest in level.chests )
+		{
+			chest hide_chest();
+		}
+		return;
+	}
+	level.chest_accessed = 0;
+	if ( level.chests.size > 1 )
+	{
+		flag_set( "moving_chest_enabled" );
+		level.chests = array_randomize( level.chests );
+	}
+	else
+	{
+		level.chest_index = 0;
+		level.chests[ 0 ].no_fly_away = 1;
+	}
+	init_starting_chest_location( start_chest_name );
+	array_thread( level.chests, ::treasure_chest_think );
+}
+
+kill_all_zombies_override() //checked changed to match cerberus output
+{
+	ai = get_round_enemy_array();
+	foreach ( zombie in ai )
+	{
+		if ( isDefined( zombie ) )
+		{
+			zombie dodamage( zombie.maxhealth * 2, zombie.origin, zombie, zombie, "none", "MOD_SUICIDE" );
+			level.zombie_total++;
+		}
+	}
+}
+
+respawn_players_override() //checked changed to match cerberus output
+{
+	players = get_players();
+	foreach ( player in players )
+	{
+		if ( player.sessionstate == "spectator" || player player_is_in_laststand() )
+		{
+			player [[ level.spawnplayer ]]();
+		}
+		else if ( !is_true( level.initial_spawn_players ) )
+		{
+			player [[ level.spawnplayer ]]();
+			player freeze_player_controls( 1 );
+		}
+	}
+}
+
+wait_for_team_death_and_round_end_override() //checked partially changed to match cerberus output //did not use foreach with continue to prevent continue bug
+{
+	printF( "wait_for_team_death_and_round_end_override() ")
+	level endon( "game_module_ended" );
+	level endon( "end_game" );
+	level endon( "restart_round_check" );
+	if ( !isDefined( level.initial_spawn_players ) )
+	{
+		promod_wait_for_players();
+		level.grief_teams = [];
+		level.grief_teams[ "B" ] = spawnStruct();
+		level.grief_teams[ "B" ].score = 0;
+		level.grief_teams[ "B" ].mmr = 0;
+		level.grief_teams[ "A" ] = spawnStruct();
+		level.grief_teams[ "A" ].score = 0;
+		level.grief_teams[ "A" ].mmr = 0;
+		level thread grief_save_loadouts2();
+	}
+	level.checking_for_round_end = 0;
+	level.isresetting_grief = 0;
+	while ( 1 )
+	{
+		cdc_alive = 0;
+		cia_alive = 0;
+		players = get_players();
+		i = 0;
+		while ( i < players.size )
+		{
+			if ( !isDefined( players[ i ]._encounters_team ) )
+			{
+				i++;
+				continue;
+			}
+			if ( players[ i ]._encounters_team == "A" )
+			{
+				if ( is_player_valid( players[ i ] ) )
+				{
+					cia_alive++;
+				}
+				i++;
+				continue;
+			}
+			if ( is_player_valid( players[ i ] ) )
+			{
+				cdc_alive++;
+			}
+			i++;
+		}
+		if ( cia_alive == 0 && cdc_alive == 0 && !level.isresetting_grief && !is_true( level.host_ended_game ) )
+		{
+			wait 0.5;
+			if ( is_true( level.grief_team_suicide_check_over ) )
+			{
+				continue;
+			}
+			if ( isDefined( level._grief_reset_message ) )
+			{
+				level thread [[ level._grief_reset_message ]]();
+			}
+			level.isresetting_grief = 1;
+			level notify( "end_round_think" );
+			level.zombie_vars[ "spectators_respawn" ] = 1;
+			level notify( "keep_griefing" );
+			level.checking_for_round_end = 0;
+			zombie_goto_round( level.round_number );
+			level thread reset_grief();
+			level thread maps/mp/zombies/_zm::round_think( 1 );
+			level notify( "grief_give_points" );
+		}
+		else if ( !level.checking_for_round_end )
+		{
+			if ( cia_alive == 0 )
+			{
+				level thread check_for_round_end( "B" );
+				level.checking_for_round_end = 1;
+			}
+			else if ( cdc_alive == 0 )
+			{
+				level thread check_for_round_end( "A" );
+				level.checking_for_round_end = 1;
+			}
+		}
+		if ( cia_alive > 0 && cdc_alive > 0 )
+		{
+			//level notify( "stop_round_end_check" );
+			level.checking_for_round_end = 0;
+		}
+		wait 0.05;
+	}
+}
+
+check_for_round_end_override( winner )
+{
+	level endon( "keep_griefing" );
+	flag_clear( "grief_brutus_can_spawn" );
+	//level endon( "stop_round_end_check" );
+	//level waittill( "end_of_round" );
+	level.zombie_vars[ "spectators_respawn" ] = 0;
+	level.grief_team_suicide_check_over = 0;
+	team_suicide_check();
+	level.grief_team_suicide_check_over = 1;
+	level.grief_teams[ winner ].score++;
+	level notify( "grief_point", winner );
+	loser = get_loser( winner );
+	mapname = get_mapname();
+	match_length = to_mins( getGameLength() );
+	if ( level.grief_teams[ winner ].score == level.grief_gamerules[ "scorelimit" ] || grief_team_forfeits() )
+	{
+		level.gamemodulewinningteam = winner;
+		level.zombie_vars[ "spectators_respawn" ] = 0;
+		players = get_players();
+		i = 0;
+		winning_team_size = 0;
+		losing_team_size = 0;
+		while ( i < players.size )
+		{
+			players[ i ] freezecontrols( 1 );
+			if ( players[ i ]._encounters_team == winner )
+			{
+				players[ i ] thread maps/mp/zombies/_zm_audio_announcer::leaderdialogonplayer( "grief_won" );
+				players[ i ].pers[ "wins" ]++;
+				winning_team_size++;
+				i++;
+				continue;
+			}
+			players[ i ] thread maps/mp/zombies/_zm_audio_announcer::leaderdialogonplayer( "grief_lost" );
+			players[ i ].pers[ "losses" ]++;
+			losing_team_size++;
+			i++;
+		}
+		level notify( "game_module_ended", winner );
+		level._game_module_game_end_check = undefined;
+		maps/mp/gametypes_zm/_zm_gametype::track_encounters_win_stats( level.gamemodulewinningteam );
+		level notify( "end_game" );
+		logline1 = "MAP:" + mapname + ";W:" + winner + ";WTS:" + winning_team_size + ";L:" + loser + ";LTS:" + losing_team_size + ";ML:" + match_length + ";D:" + time() + "\n";
+		logprint( logline1 );
+		return;
+	}
+	flag_clear( "spawn_zombies" );
+	level thread kill_all_zombies();
+	if ( isDefined( level.grief_round_win_next_round_countdown ) && !in_grief_intermission() )
+	{
+		level thread freeze_players( 1 );
+		level thread [[ level.grief_round_win_next_round_countdown ]]();
+		level thread all_surviving_players_invulnerable();
+		wait level.grief_gamerules[ "next_round_time" ];
+	}
+	else if ( isDefined( level.grief_round_intermission_countdown ) && level.grief_gamerules[ "intermission_time" ] > 0 )
+	{
+		level.isresetting_grief = true;
+		level.grief_intermission_done = false;
+		players = getPlayers();
+		foreach ( player in players )
+		{
+			if ( player player_is_in_laststand() )
+			{
+				player auto_revive( player );
+			}
+			else if ( player.sessionstate == "spectator" )
+			{	
+				player [[ level.spawnplayer ]]();
+			}
+		}
+		level thread all_surviving_players_invulnerable();
+		level.isresetting_grief = false;
+		level thread [[ level.grief_round_intermission_countdown ]]();
+		wait level.grief_gamerules[ "intermission_time" ];
+	}
+	level thread reset_players_last_griefed_by();
+	flag_set( "spawn_zombies" );
+	all_surviving_players_vulnerable();
+	level.isresetting_grief = 1;
+	level notify( "end_round_think" );
+	level.zombie_vars[ "spectators_respawn" ] = 1;
+	level.checking_for_round_end = 0;
+	zombie_goto_round( level.round_number );
+	level thread reset_grief();
+	level thread maps/mp/zombies/_zm::round_think( 1 );
+	level.checking_for_round_end = 0;
+	level notify( "grief_give_points" );
+	flag_set( "grief_brutus_can_spawn" );
+	level.grief_team_suicide_check_over = 1;
+}
+
+struct_class_init_override()
+{
+	level.struct_class_names = [];
+	level.struct_class_names[ "target" ] = [];
+	level.struct_class_names[ "targetname" ] = [];
+	level.struct_class_names[ "script_noteworthy" ] = [];
+	level.struct_class_names[ "script_linkname" ] = [];
+	level.struct_class_names[ "script_unitrigger_type" ] = [];
+    foreach ( s_struct in level.struct )
+    {
+		if ( isDefined( s_struct.targetname ) )
+		{
+			if ( !isDefined( level.struct_class_names[ "targetname" ][ s_struct.targetname ] ) )
+			{
+				level.struct_class_names[ "targetname" ][ s_struct.targetname ] = [];
+			}
+			size = level.struct_class_names[ "targetname" ][ s_struct.targetname ].size;
+			level.struct_class_names[ "targetname" ][ s_struct.targetname ][ size ] = s_struct;
+		}
+		if ( isDefined( s_struct.target ) )
+		{
+			if ( !isDefined( level.struct_class_names[ "target" ][ s_struct.target ] ) )
+			{
+				level.struct_class_names[ "target" ][ s_struct.target ] = [];
+			}
+			size = level.struct_class_names[ "target" ][ s_struct.target ].size;
+			level.struct_class_names[ "target" ][ s_struct.target ][ size ] = s_struct;
+		}
+		if ( isDefined( s_struct.script_noteworthy ) )
+		{
+			if ( !isDefined( level.struct_class_names[ "script_noteworthy" ][ s_struct.script_noteworthy ] ) )
+			{
+				level.struct_class_names[ "script_noteworthy" ][ s_struct.script_noteworthy ] = [];
+			}
+			size = level.struct_class_names[ "script_noteworthy" ][ s_struct.script_noteworthy ].size;
+			level.struct_class_names[ "script_noteworthy" ][ s_struct.script_noteworthy ][ size ] = s_struct;
+		}
+		if ( isDefined( s_struct.script_linkname ) )
+		{
+			level.struct_class_names[ "script_linkname" ][ s_struct.script_linkname ][ 0 ] = s_struct;
+		}
+		if ( isDefined( s_struct.script_unitrigger_type ) )
+		{
+			if ( !isDefined( level.struct_class_names[ "script_unitrigger_type" ][ s_struct.script_unitrigger_type ] ) )
+			{
+				level.struct_class_names[ "script_unitrigger_type" ][ s_struct.script_unitrigger_type ] = [];
+			}
+			size = level.struct_class_names[ "script_unitrigger_type" ][ s_struct.script_unitrigger_type ].size;
+			level.struct_class_names[ "script_unitrigger_type" ][ s_struct.script_unitrigger_type ][ size ] = s_struct;
+		}
+	}
+	grief_add_structs();
+}
 
 
 
+
+
+all_surviving_players_invulnerable()
+{
+	players = getPlayers();
+	foreach ( player in players )
+	{
+		if ( is_player_valid( player ) )
+		{
+			player enableInvulnerability();
+		}
+	}
+}
+
+all_surviving_players_vulnerable()
+{
+	players = getPlayers();
+	foreach ( player in players )
+	{
+		if ( is_player_valid( player ) )
+		{
+			player disableInvulnerability();
+		}
+	}
+}
+
+reset_players_last_griefed_by()
+{
+	players = getPlayers();
+	foreach ( player in players )
+	{
+		player.last_griefed_by.attacker = undefined;
+		player.last_griefed_by.meansofdeath = undefined;
+		player.last_griefed_by.weapon = undefined;
+	}
+}
+
+in_grief_intermission()
+{
+	if ( is_true( level.grief_intermission_done ) || level.grief_gamerules[ "intermission_time" ] < 1 )
+	{
+		return false;
+	}
+	team_scores = [];
+	team_scores[ "A" ] = level.grief_teams[ "A" ].score;
+	team_scores[ "B" ] = level.grief_teams[ "B" ].score;
+	score_limit = level.grief_gamerules[ "scorelimit" ];
+	intermission_score = score_limit / 2;
+	if ( team_scores[ "A" ] == int( intermission_score ) || team_scores[ "B" ] == int( intermission_score ) )
+	{
+		level.grief_intermission_done = true;
+		return true;
+	}
+	return false;
+}
+
+get_mapname()
+{
+	switch ( getDvar( "ui_zm_mapstartlocation" ) )
+	{
+		case "transit":
+			return "Bus Depot";
+		case "town":
+			return "Town";
+		case "farm":
+			return "Farm";
+		case "diner":
+			return "Diner";
+		case "Power":
+			return "Power";
+		case "cornfield":
+			return "Cornfield";
+		case "Tunnel":
+			return "Tunnel";
+		case "cellblock":
+			return "Cellblock";
+		case "street":
+			return "Buried";
+	}
+	return "NULL";
+}
+
+get_loser( winner )
+{
+	if ( winner == "A" )
+	{
+		return "B";
+	}
+	return "A";
+} 
+
+grief_team_forfeits()
+{
+	if ( getDvarInt( "grief_testing" ) == 1 )
+	{
+		return 0;
+	}
+	if ( ( getPlayers( "axis" ).size == 0 ) || ( getPlayers( "allies" ).size == 0 ) )
+	{
+		logline1 = "other team forfeited" + "\n";
+		logprint( logline1 );
+		return 1;
+	}
+	return 0;
+}
+
+grief_save_loadouts2()
+{
+	if ( isDefined( level.grief_loadout_save ) )
+	{
+		while ( true )
+		{
+			players = getPlayers();
+			foreach ( player in players )
+			{
+				if ( is_player_valid( player ) )
+				{
+					player [[ level.grief_loadout_save ]]();
+				}
+			}
+			wait 1;
+		}
+	}
+}
+
+team_suicide_check()
+{
+	wait level.grief_gamerules[ "suicide_check" ];
+}
+
+promod_wait_for_players()
+{
+	level endon( "end_game" );
+	flag_clear( "spawn_zombies" );
+	level.initial_spawn_players = true;
+	players_axis = getPlayers( "axis" );
+	players_allies = getPlayers( "allies" );
+	while ( ( players_axis.size < 1 ) || ( players_allies.size < 1 ) )
+	{
+		players_axis = getPlayers( "axis" );
+		players_allies = getPlayers( "allies" );
+		players = getPlayers();
+		for ( i = 0; i < players.size; i++ )
+		{
+			players[ i ] iPrintLn( "Waiting for 1 player on each team" );
+		}
+		wait 1;
+	}
+	if ( getDvarInt( "grief_tournament_mode" ) == 1 )
+	{
+		players = getPlayers();
+		while ( getDvarInt( "zombies_minplayers" ) > players.size )
+		{
+			players = getPlayers();
+			for ( i = 0; i < players.size; i++ )
+			{
+				players[ i ] iPrintLn( "Waiting for all players to connect" );
+			}
+			wait 1;
+		}
+	}
+	level notify( "grief_begin" );
+	flag_set( "spawn_zombies" );
+	respawn_players();
+	level.initial_spawn_players = false;
+}
+
+make_super_sprinter( special_movespeed )
+{
+	self.zombie_move_speed = "sprint";
+	while ( 1 )
+	{
+		if ( self in_enabled_playable_area() )
+		{
+			self.zombie_move_speed = special_movespeed;
+			self notify( "zombie_movespeed_set" );
+			break;
+		}
+		wait 0.05;
+	}
+}
+
+zombie_watch_for_bus_sprinter()
+{
+	self waittill( "zombie_movespeed_set" );
+	if ( is_true( self.is_bus_sprinter ) )
+	{
+		self waittill( "death" );
+		level.bus_sprinters--;
+	}
+}
+
+grief_add_structs()
+{
+	map = getDvar( "mapname" );
+	location = getDvar( "ui_zm_mapstartlocation" ); 
+	register_spawnpoint_structs();
+	register_perk_structs();
+	if ( map == "zm_transit" )
+	{
+		if ( location == "diner" || location == "cornfield" || location == "power" || location == "tunnel" )
+		{
+			level.trash_spawns = getDvarIntDefault( "grief_use_trash_spawns_power", 0 );
+		}
+		if ( getDvar( "grief_perk_location_override" ) != "" )
+		{
+			perks_moved = [];
+			perk_keys = strTok( getDvar( "grief_perk_location_override" ), " " );
+			for ( i = 0; i < perk_keys.size; i++ )
+			{
+				if ( perk_keys[ i ] == "location" )
+				{
+					location = perk_keys[ i + 1 ];
+					if ( !isDefined( perks_index ) )
+					{
+						perks_index = 0;
+					}
+					else 
+					{
+						perks_index++;
+					}
+				}
+				if ( location != getDvar( "ui_zm_mapstartlocation" ) )
+				{
+				}
+				else 
+				{
+					if ( perk_keys[ i ] == "perk" )
+					{
+						perks_moved[ perks_index ] = spawnStruct();
+						perks_moved[ perks_index ].perk = perk_keys[ i + 1 ];
+						logprint( "perks_moved array: index " + perks_index + " perks_moved array: perk " + perks_moved[ perks_index ].perk + "\n" );
+					}
+					else if ( perk_keys[ i ] == "origin" )
+					{
+						perks_moved[ perks_index ].origin = cast_to_vector( perk_keys[ i + 1 ] );
+						logprint( "perks_moved array: index " + perks_index + " perks_moved array: origin " + perks_moved[ perks_index ].origin + "\n" );
+					}
+					else if ( perk_keys[ i ] == "angles" )
+					{
+						perks_moved[ perks_index ].angles = cast_to_vector( perk_keys[ i + 1 ] );
+						logprint( "perks_moved array: index " + perks_index + " perks_moved array: angles " + perks_moved[ perks_index ].angles + "\n" );
+					}
+				}
+			}
+			perks_location = "zgrief_perks_" + location;
+			for ( i = 0; i < level.struct_class_names[ "targetname" ][ "zm_perk_machine" ].size; i++ )
+			{
+				for ( j = 0; j < perks_moved.size; j++ )
+				{
+					script_string_locations = strTok( level.struct_class_names[ "targetname" ][ "zm_perk_machine" ][ i ].script_string, " " );
+					for ( k = 0; k < script_string_locations.size; k++ )
+					{
+						if ( level.struct_class_names[ "targetname" ][ "zm_perk_machine" ][ i ].script_noteworthy == perks_moved[ j ].perk && script_string_locations[ k ] == perks_location )
+						{
+							level.struct_class_names[ "targetname" ][ "zm_perk_machine" ][ i ].origin = perks_moved[ j ].origin;
+							level.struct_class_names[ "targetname" ][ "zm_perk_machine" ][ i ].angles = perks_moved[ j ].angles;
+
+							logprint( "perks_moved array: index " + j + " perks_moved array: perk " + perks_moved[ j ].perk + "\n" );
+							logprint( "perks_moved array: index " + j + " perks_moved array: origin " + perks_moved[ j ].origin + "\n" );
+							logprint( "perks_moved array: index " + j + " perks_moved array: angles " + perks_moved[ j ].angles + "\n" );
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+register_perk_structs()
+{
+	switch ( getDvar( "ui_zm_mapstartlocation" ) )
+	{
+		case "diner":
+			_register_survival_perk( "specialty_armorvest", "zombie_vending_jugg", ( 0, 176, 0 ), ( -3634, -7464, -58 ) );
+			_register_survival_perk( "specialty_rof", "zombie_vending_doubletap2", ( 0, -90, 0 ), ( -4170, -7610, -61 ) );
+			_register_survival_perk( "specialty_longersprint", "zombie_vending_marathon", ( 0, 4, 0 ), ( -4576, -6704, -61 ) );
+			_register_survival_perk( "specialty_scavenger", "zombie_vending_tombstone", ( 0, 90, 0 ), ( -6496, -7691, 0 ) );
+			_register_survival_perk( "specialty_weapupgrade", "p6_anim_zm_buildable_pap_on", ( 0, 175, 0 ), ( -6351, -7778, 227 ) );
+			_register_survival_perk( "specialty_quickrevive", "zombie_vending_quickrevive", ( 0, 137, 0 ), ( -5424, -7920, -64 ) );
+			_register_survival_perk( "specialty_fastreload", "zombie_vending_sleight", ( 0, 270, 0 ), ( -5470, -7859.5, 0 ) );
+			break;
+		case "tunnel":
+			_register_survival_perk( "specialty_armorvest", "zombie_vending_jugg", ( 0, -180, 0 ), ( -11541, -2630, 194 ) );
+			_register_survival_perk( "specialty_rof", "zombie_vending_doubletap2", ( 0, -10, 0 ), ( -11170, -590, 196 ) );
+			_register_survival_perk( "specialty_longersprint", "zombie_vending_marathon", ( 0, -19, 0 ), ( -11681, -734, 228 ) );
+			_register_survival_perk( "specialty_scavenger", "zombie_vending_tombstone", ( 0, -98, 0 ), ( -10664, -757, 196 ) );
+			_register_survival_perk( "specialty_weapupgrade", "p6_anim_zm_buildable_pap_on", ( 0, 115, 0 ), ( -11301, -2096, 184 ) );
+			_register_survival_perk( "specialty_quickrevive", "zombie_vending_quickrevive", ( 0, 270, 0 ), ( -10780, -2565, 224 ) );
+			_register_survival_perk( "specialty_fastreload", "zombie_vending_sleight", ( 0, -89, 0 ), ( -11373, -1674, 192 ) );
+			break;
+		case "power":
+			_register_survival_perk( "specialty_armorvest", "zombie_vending_jugg", ( 0, -132, 0 ), ( 10746, 7282, -557 ) );
+			_register_survival_perk( "specialty_rof", "zombie_vending_doubletap2", ( 0, 180, 0 ), ( 11402, 8159, -487 ) );
+			_register_survival_perk( "specialty_longersprint", "zombie_vending_marathon", ( 0, -35, 0 ), ( 10856, 7879, -576 ) );
+			_register_survival_perk( "specialty_quickrevive", "zombie_vending_quickrevive", ( 0, 270, 0 ), ( 10946, 8308.77, -408 ) );
+			_register_survival_perk( "specialty_weapupgrade", "p6_anim_zm_buildable_pap_on", ( 0, 162, 0 ), ( 12625, 7434, -755 ) );
+			_register_survival_perk( "specialty_scavenger", "zombie_vending_tombstone", ( 0, -4, 0 ), ( 11156, 8120, -575 ) );
+			_register_survival_perk( "specialty_fastreload", "zombie_vending_sleight", ( 0, -1, 0 ), ( 11568, 7723, -755 ) );
+			break;
+		case "cornfield":
+			_register_survival_perk( "specialty_armorvest", "zombie_vending_jugg", ( 0, 179, 0 ), ( 13936, -649, -189 ) );
+			_register_survival_perk( "specialty_rof", "zombie_vending_doubletap2", ( 0, -137, 0 ), ( 12052, -1943, -160 ) );
+			_register_survival_perk( "specialty_longersprint", "zombie_vending_marathon", ( 0, -35, 0 ), ( 9944, -725, -211 ) );
+			_register_survival_perk( "specialty_scavenger", "zombie_vending_tombstone", ( 0, 133, 0 ), ( 13551, -1384, -188 ) );
+			_register_survival_perk( "specialty_weapupgrade", "p6_anim_zm_buildable_pap_on", ( 0, 123, 0), ( 9960, -1288, -217 ) );
+			_register_survival_perk( "specialty_quickrevive", "zombie_vending_quickrevive", ( 0, -90, 0 ), ( 7831, -464, -203 ) );
+			_register_survival_perk( "specialty_fastreload", "zombie_vending_sleight", ( 0, -4, 0 ), ( 13255, 74, -195 ) );
+			break;
+		case "cellblock":
+			_register_survival_perk( "specialty_armorvest", "zombie_vending_jugg", ( 0, 86, 0 ), ( 1403, 9662, 1336 ) );
+			break;
+		case "transit":
+			_register_survival_perk( "specialty_armorvest", "zombie_vending_jugg", ( 0, -5, 0), ( -6136, 5590, -63.85 ) );
+			break;
+	}
+}
+
+_register_survival_perk( perk_name, perk_model, perk_angles, perk_coordinates )
+{
+	if ( getDvar( "g_gametype" ) == "zgrief" && perk_name == "specialty_scavenger" )
+	{
+		return;
+	}
+	perk_struct = spawnStruct();
+	perk_struct.script_noteworthy = perk_name;
+	perk_struct.model = perk_model;
+	perk_struct.angles = perk_angles;
+	perk_struct.origin = perk_coordinates;
+	//perk_struct.script_string = _get_perk_script_string_for_location( getDvar( "ui_zm_mapstartlocation" ), getDvar( "g_gametype") );
+	perk_struct.targetname = "zm_perk_machine";
+	struct_size = level.struct_class_names[ "targetname" ][ "zm_perk_machine" ].size;
+	level.struct_class_names[ "targetname" ][ "zm_perk_machine" ][ struct_size ] = perk_struct;
+}
+
+_get_perk_script_string_for_location( location, gametype )
+{ 
+	string = gametype + "_" + "perks" + "_" + location;
+	return string;
+}
+
+register_spawnpoint_structs() //custom function
+{
+	switch ( getDvar( "ui_zm_mapstartlocation" ) )
+	{
+		case "tunnel":
+			coordinates = array( ( -11196, -837, 192 ), ( -11386, -863, 192 ), ( -11405, -1000, 192 ), ( -11498, -1151, 192 ),
+									( -11398, -1326, 191 ), ( -11222, -1345, 192 ), ( -10934, -1380, 192 ), ( -10999, -1072, 192 ) );
+			angles = array( ( 0, -94, 0 ), ( 0, -44, 0 ), ( 0, -32, 0 ), ( 0, 4, 0 ), ( 0, 50, 0 ), ( 0, 157, 0 ), ( 0, -144, 0 ) );		
+			break;
+		case "diner":
+			coordinates = array( ( -3991, -7317, -63 ), ( -4231, -7395, -60 ), ( -4127, -6757, -54 ), ( -4465, -7346, -58 ),
+									( -5770, -6600, -55 ), ( -6135, -6671, -56 ), ( -6182, -7120, -60 ), ( -5882, -7174, -61 ) );
+			angles = array( ( 0, 161, 0 ), ( 0, 120, 0 ), ( 0, 217, 0 ), ( 0, 173, 0 ), ( 0, -106, 0 ), ( 0, -46, 0 ), ( 0, 51, 0 ), ( 0, 99, 0 ) );
+			break;
+		case "cornfield":
+			coordinates = array( ( 7521, -545, -198 ), ( 7751, -522, -202 ), ( 7691, -395, -201 ), ( 7536, -432, -199 ), 
+									( 13745, -336, -188 ), ( 13758, -681, -188 ), ( 13816, -1088, -189 ), ( 13752, -1444, -182 ) );
+			angles = array( ( 0, 40, 0 ), ( 0, 145, 0 ), ( 0, -131, 0 ), ( 0, -24, 0 ), ( 0, -178, 0 ), ( 0, -179, 0 ), ( 0, -177, 0 ), ( 0, -177, 0 ) );
+			break;
+		case "power":
+			if ( !is_true( level.trash_spawns ) )
+			{
+				coordinates = array( ( 11288, 7988, -550 ), ( 11284, 7760, -549 ), ( 10784, 7623, -584 ), ( 10866, 7473, -580 ),
+									( 10261, 8146, -580 ), ( 10595, 8055, -541 ), ( 10477, 7679, -567 ), ( 10165, 7879, -570 ) );
+				angles = array( ( 0, -137, 0 ), ( 0, 177, 0 ), ( 0, -10, 0 ), ( 0, 21, 0 ), ( 0, -31, 0 ), ( 0, -43, 0 ), ( 0, -9, 0 ), ( 0, -15, 0 ) );
+			}
+			else 
+			{
+				coordinates = array( ( 11257, 8233, -487 ), ( 11403, 8245, -487 ), ( 11381, 8374, -487), ( 11269, 8360, -487 ),
+									( 10871, 8433, -407 ), ( 10852, 8230, -407 ), ( 10641, 8228, -407 ), ( 10655, 8431, -407 ) );
+				angles = array( ( 0, -137, 0 ), ( 0, 177, 0 ), ( 0, -10, 0 ), ( 0, 21, 0 ), ( 0, -31, 0 ), ( 0, -43, 0 ), ( 0, -9, 0 ), ( 0, -15, 0 ) );
+			}
+			break;
+		case "cellblock":
+			coordinates = array( ( 1422, 9597, 1336 ), ( 1432, 9745, 1336 ), ( 2154, 9062, 1336 ), ( 1969, 9950, 1336 ),
+								  ( 2150, 9496, 1336 ), ( 2144, 9931, 1336 ), ( 1665, 9053, 1336 ), ( 1661, 9211, 1336 ) );
+			angles = array( ( 0, 0, 0 ), ( 0, 0, 0 ), ( 0, 180, 0 ), ( 0, 0, 0 ),
+							( 0, 180, 0 ), ( 0, 180, 0), ( 0, 0, 0 ), ( 0, 0, 0) );
+			break;
+	}
+	if ( getDvar( "ui_zm_mapstartlocation" ) == "cellblock" )
+	{
+		level.struct_class_names[ "targetname" ][ "player_respawn_point" ] = [];
+		level.struct_class_names[ "script_noteworthy" ][ "initial_spawn" ] = [];
+	} 
+	for ( i = 0; i < 8; i++ )
+	{
+		if ( isDefined( angles ) )
+		{
+			_register_map_initial_spawnpoint( coordinates[ i ], angles[ i ] );
+		}
+		else 
+		{
+			_register_map_initial_spawnpoint( coordinates[ i ], undefined );
+		}
+
+	}
+}
+
+_register_map_initial_spawnpoint( spawnpoint_coordinates, spawnpoint_angles ) //custom function
+{
+	spawnpoint_struct = spawnStruct();
+	spawnpoint_struct.origin = spawnpoint_coordinates;
+	if ( isDefined( spawnpoint_angles ) )
+	{
+		spawnpoint_struct.angles = spawnpoint_angles;
+	}
+	else 
+	{
+		spawnpoint_struct.angles = ( 0, 0, 0 );
+	}
+	spawnpoint_struct.radius = 32;
+	spawnpoint_struct.script_noteworthy = "initial_spawn";
+	spawnpoint_struct.script_int = 2048;
+	spawnpoint_struct.script_string = _get_spawnpoint_script_string_for_location( getDvar( "ui_zm_mapstartlocation" ), getDvar( "g_gametype" ) );
+	spawnpoint_struct.locked = 0;
+	player_respawn_point_size = level.struct_class_names[ "targetname" ][ "player_respawn_point" ].size;
+	player_initial_spawnpoint_size = level.struct_class_names[ "script_noteworthy" ][ "initial_spawn" ].size;
+	level.struct_class_names[ "targetname" ][ "player_respawn_point" ][ player_respawn_point_size ] = spawnpoint_struct;
+	level.struct_class_names[ "script_noteworthy" ][ "initial_spawn" ][ player_initial_spawnpoint_size ] = spawnpoint_struct;
+}
+
+_get_spawnpoint_script_string_for_location( location, gametype )
+{
+	string = gametype + "_" + location;
+	return string;
+}
+
+cast_to_vector( vector_string )
+{
+	logprint( vector_string + "\n" );
+	keys = strTok( vector_string, "," );
+	logprint( keys[ 0 ] + "\n" );
+	vector_array = [];
+	for ( i = 0; i < keys.size; i++ )
+	{
+		vector_array[ i ] = float( keys[ i ] ); 
+		logprint( vector_array[ i ] + "\n" );
+	}
+	vector = ( vector_array[ 0 ], vector_array[ 1 ], vector_array[ 2 ] );
+	return vector;
+}
