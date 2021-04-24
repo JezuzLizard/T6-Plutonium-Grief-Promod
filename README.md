@@ -5,17 +5,32 @@ This mod requires this plugin to run: https://github.com/fedddddd/t6-gsc-utils
 
 ### Created by: JezuzLizard and 5and5
 
-## Download
-[Download](https://www.mediafire.com/file/344hf0kvpal2exv/BO2-Pluto_Grief_Server.zip/file)
+![Screenshot](Grief_on_all_maps.png)
 
 ## Change Notes
 
 ### General 
 * Round scoring - Down all enemy players to score a point for your team, reach the roundlimit to win the match
 * Shellshock due to bullets reduced from 0.75 to 0.25 seconds
-* Zombies per round limited
-* Reduced pistol starting ammo
-* Removed quick revive, staminup and pack-a-punch on all maps
+
+### Custom Game Settings
+#### General
+* Score limit
+* Starting points
+* Zombies run speed
+* Zombies per round
+* Max zombie on the map
+* Players health
+* Suicide check time
+
+#### Custom Restrictions
+* Mystery box restrictions
+* Door restrictions
+* Power ups restrictions
+* Perk restricitions
+* Buildable restricitions
+* Knife lunge restricitions
+* Starting ammo restricitions
 
 ### Teams
 * Server owner can set preset teams for tournament settings
@@ -23,7 +38,7 @@ This mod requires this plugin to run: https://github.com/fedddddd/t6-gsc-utils
 ### UI
 * Scoreboard tracks stabs, confirms, revives and downs
 * Kill feed displayed when hitting a player within 4 seconds of downing
-* HUD shows round wins, 3 wins equals a game win
+* HUD shows round wins, 3 wins equals a game win by default
 
 ## Maps
 
@@ -34,8 +49,8 @@ This mod requires this plugin to run: https://github.com/fedddddd/t6-gsc-utils
 * Blocked off hallway to spawn
 
 ### Buried
-* Moved initial spawn points to Jug
-* Blocked off ways to get to the upper tunnels and courthouse area
+* Moved initial spawn points to Jug area
+* Blocked off ways to get to the upper tunnels
 * Disabled candy shop and gerenal store doors
 
 ### Trazit Farm
@@ -52,6 +67,7 @@ This mod requires this plugin to run: https://github.com/fedddddd/t6-gsc-utils
 
 ### Admin Command List
 ```
+"!commandlist"
 "!restart"
 "!maprotate"
 "!resetrotation"
@@ -59,19 +75,46 @@ This mod requires this plugin to run: https://github.com/fedddddd/t6-gsc-utils
 "!nextmap:<mapname>"
 "!setmap:<mapname>"
 "!kick:<playername>"
-"!timeout:<playername>"
+"!tempban:<playername>"
 "!ban:<playername>"
 "!magic:<bool>"
-"!knifelunge:<bool>"
 "!powerups:<bool>"
 "!roundnumber:<value>"
+"!knifelunge:<bool>"
 "!dvar:<name>:<value>"
 "!cvar:<name>:<value>"
 "!cvarall:<name>:<value>"
 "!lockserver:<password>"
 "!unlockserver"
+"!buildables:<bool>"
+"!reducedammo:<bool>"
+"!maxzombies:<value>"
 "!depotjug:<bool>"
 "!cellblockjug:<bool>"
+```
+
+### Grief Config Setting
+```
+set grief_gamerule_scorelimit 3
+set grief_gamerule_zombies_per_round 3
+set grief_gamerule_suicide_check_wait 5
+set grief_gamerule_next_round_timer 5
+set grief_gamerule_round_restart_points 8000
+set grief_gamerule_player_health 100
+set grief_gamerule_mystery_box_enabled 0
+set grief_gamerule_knife_lunge 1
+set grief_gamerule_magic 1
+set grief_gamerule_reduced_pistol_ammo 1
+set grief_gamerules_disable_zombie_special_runspeeds 0
+set grief_gamerule_disable_doors 1
+set grief_brutus_enabled 1
+//set grief_gamerule_powerup_restrictions "all"
+set grief_gamerule_perk_restrictions "specialty_quickrevive specialty_weapupgrade specialty_longersprint specialty_rof"
+set grief_perk_location_override "location farm perk specialty_armorvest origin 8169.2,-6319.8,117 angles 0,300,0 location farm perk specialty_fastreload origin 8216.6,-6410.6,245 angles 0,300,0" // switches jug and speed cola on farm
+set grief_gamerule_mystery_box_enabled 0
+set grief_killfeed_enable 1
+//set grief_gamerule_depot_jug 1
+//set grief_gamerule_cellblock_jug 1
 ```
 
 Fully integrated with the Cut Survival Maps mod: https://github.com/JezuzLizard/Cut-Tranzit-Locations
