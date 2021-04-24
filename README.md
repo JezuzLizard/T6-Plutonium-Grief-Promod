@@ -1,9 +1,7 @@
 # T6-Plutonium-Grief-Promod
 A plutonium mod for the Grief gamemode in zombies.
 
-This mod requires this plugin to run: https://github.com/fedddddd/t6-gsc-utils
-
-### Created by: JezuzLizard and 5and5
+## Created by: JezuzLizard and 5and5
 
 ![Screenshot](Grief_on_all_maps.png)
 
@@ -12,6 +10,7 @@ This mod requires this plugin to run: https://github.com/fedddddd/t6-gsc-utils
 ### General 
 * Round scoring - Down all enemy players to score a point for your team, reach the roundlimit to win the match
 * Shellshock due to bullets reduced from 0.75 to 0.25 seconds
+* Points awarded for shooting or knifing enemy players
 
 ### Custom Game Settings
 #### General
@@ -79,21 +78,21 @@ This mod requires this plugin to run: https://github.com/fedddddd/t6-gsc-utils
 "!ban:<playername>"
 "!magic:<bool>"
 "!powerups:<bool>"
-"!roundnumber:<value>"
+"!roundnumber:<int>"
 "!knifelunge:<bool>"
-"!dvar:<name>:<value>"
-"!cvar:<name>:<value>"
-"!cvarall:<name>:<value>"
+"!dvar:<name>:<int>"
+"!cvar:<name>:<int>"
+"!cvarall:<name>:<int>"
 "!lockserver:<password>"
 "!unlockserver"
 "!buildables:<bool>"
 "!reducedammo:<bool>"
-"!maxzombies:<value>"
+"!maxzombies:<int>"
 "!depotjug:<bool>"
 "!cellblockjug:<bool>"
 ```
 
-### Grief Config Setting
+### Server Config Setting
 ```
 set grief_gamerule_scorelimit 3
 set grief_gamerule_zombies_per_round 3
@@ -115,6 +114,15 @@ set grief_gamerule_mystery_box_enabled 0
 set grief_killfeed_enable 1
 //set grief_gamerule_depot_jug 1
 //set grief_gamerule_cellblock_jug 1
+
+sv_maprotation "exec zm_grief_cellblock.cfg map zm_prison exec zm_grief_diner.cfg map zm_transit exec zm_grief_town.cfg map zm_transit exec zm_grief_transit.cfg map zm_transit exec zm_grief_farm.cfg map zm_transit exec zm_grief_power.cfg map zm_transit exec zm_grief_tunnel.cfg map zm_transit exec zm_grief_street.cfg map zm_buried"
+
 ```
 
+### Credits
 Fully integrated with the Cut Survival Maps mod: https://github.com/JezuzLizard/Cut-Tranzit-Locations
+
+### Installation
+* Server setup guide: https://forum.plutonium.pw/topic/13/plutot6-server-set-up-guide
+* This mod requires this plugin to run: https://github.com/fedddddd/t6-gsc-utils
+
