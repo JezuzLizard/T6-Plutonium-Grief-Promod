@@ -18,20 +18,23 @@
 
 init()
 {
-	if ( getDvarInt( "grief_new_map_set" ) == 1 )
+	if ( getDvar( "grief_original_rotation" ) == "" )
 	{
-		setDvar( "grief_new_map_set", 0 );
+		setDvar( "grief_original_rotation", getDvar( "sv_maprotation" ) );
+	}
+	if ( getDvarInt( "grief_new_map_kept" ) == 1 )
+	{
+		setDvar( "grief_new_map_kept", 0 );
 		setDvar( "sv_maprotation", getDvar( "grief_original_rotation" ) );
 		setDvar( "sv_maprotationCurrent", getDvar( "grief_original_rotation" ) );
 	}
+	level thread clear_temp_ban_list();
 	level thread monitor_players_connecting_status();
 	level thread emptyLobbyRestart();
 	level.basepath = getDvar( "fs_basepath" ) + "/" + getDvar( "fs_basegame" ) + "/" + "scriptdata" + "/";
 	initialize_no_permissions_required_commands();
     setup_permissions();
     level thread commands();
-	//level thread monitor_players_connection_status();
-	//level thread monitor_players_expected_and_connected();
     if ( getDvar( "g_gametype" ) == "zgrief" )
     {
 		init_gamerules();
@@ -95,11 +98,12 @@ monitor_players_connecting_status()
 		{
 			player.custom_team = "team4";
 		}
-		player parse_ban_list();
+		player parse_ban_list( "bans.txt" );
+		player parse_ban_list( "tempbans.txt" );
 		player set_clan_tag();
 		if ( !flag( "initial_players_connected" ) )
 		{
-			logline1 = "P: " + player.name + " is connecting during loadscreen" + "\n";
+			logline1 = "LOAD" + player.name + "\n";
 			logprint( logline1 );
 			player thread kick_player_if_dont_spawn_in_time();
 		}
@@ -118,9 +122,9 @@ set_clan_tag()
 	}
 }
 
-parse_ban_list()
+parse_ban_list( filename )
 {
-	ban_list = fopen( level.basepath + "bans.txt", "r+" );
+	ban_list = fopen( level.basepath + filename, "r+" );
     buffer = "";
 	i = 0;
     while ( 1 ) 
@@ -142,15 +146,12 @@ parse_ban_list()
 	names_and_guids = strTok( buffer, ";" );
 	for ( i = 0; i < names_and_guids.size; i++ )
 	{
-		printF( names_and_guids[ i ] );
+		//printF( names_and_guids[ i ] );
 	}
 	for ( i = 0; i < names_and_guids.size; i++ )
 	{
-		// printF( "parse_ban_list() names_and_guids[ " + i + " ] " + names_and_guids[ i ] );
 		guids = strTok( names_and_guids[ i ], ":" );
 		guid = int( guids[ 1 ] );
-		// printF( "parse_ban_list() guid " + guid );
-		// printF( "Player " + self.name + " guid " + self getGUID() );
 		if ( self getGUID() == guid )
 		{
 			kick( self getEntityNumber() );
@@ -185,18 +186,26 @@ temp_ban_player( player_ban_name )
 			break;
 		}
 	}
-	ban_list = fopen( level.basepath + "tempbans.txt", "a+" );
-	fprintf( ";" + clean_player_name_of_clantag( player_to_be_banned.name ) + ":" + player_to_be_banned getGUID(), ban_list );
-	fclose( ban_list );
-	say( clean_player_name_of_clantag( player_to_be_banned.name ) + " has been banned!" );
+	tempbans = fopen( level.basepath + "tempbans.txt", "a+" );
+	fprintf( ";" + clean_player_name_of_clantag( player_to_be_banned.name ) + ":" + player_to_be_banned getGUID(), tempbans );
+	fclose( tempbans );
+	say( clean_player_name_of_clantag( player_to_be_banned.name ) + " has been banned for the match duration!" );
 	kick( player_to_be_banned getEntityNumber() );
+}
+
+clear_temp_ban_list()
+{	
+	wait 0.05;
+	tempbans = fopen( level.basepath + "tempbans.txt", "w+" );
+	fprintf( "", tempbans );
+	fclose( tempbans );
 }
 
 kick_player_if_dont_spawn_in_time()
 {
 	self endon( "begin" );
-	wait 20;
-	logline1 = "Kicking player because they failed to notify begin in less than 20 seconds during the loadscreen" + "\n";
+	wait 45;
+	logline1 = "LOAD:" + self.name + ";K " + "\n";
 	logprint( logline1 );
 	kick( self getEntityNumber() );
 }
@@ -229,23 +238,6 @@ instructions()
 	wait 3;
 	self iPrintLn( "Good luck!" );
 	wait 3;
-}
-
-monitor_players_expected_and_connected()
-{
-	level endon( "end_game" );
-	i = 0;
-	while ( true )
-	{
-		logline1 = "getNumExpectedPlayers(): " + getnumexpectedplayers() + " getNumConnectedPlayers(): " + getnumconnectedplayers() + "\n";
-		logprint( logline1 );
-		wait 1;
-		i++;
-		if ( i == 30 )
-		{
-			break;
-		}
-	}
 }
 
 on_player_connect()
@@ -294,6 +286,7 @@ on_player_spawned()
 
 reduce_starting_ammo()
 {	
+	wait 0.05;
 	if( self hasweapon( "m1911_zm" ) && (self getammocount( "m1911_zm" ) > 16 ) && level.grief_gamerules[ "reduced_pistol_ammo" ] )
 	{
 		self setweaponammostock( "m1911_zm", 8 );
@@ -320,7 +313,7 @@ afk_kick()
         {
             time = 0;
         }
-        if( time == 4800 ) //4mins
+        if( time == 3600 ) //3mins
         {
             say( clean_player_name_of_clantag( self.name ) + " has been kicked for inactivity!" );
             kick( self getEntityNumber() );
@@ -573,52 +566,6 @@ init_gamerules()
 	level.grief_gamerules[ "buildables" ] = getDvarIntDefault( "grief_gamerule_buildables", 1 );
 	level.grief_gamerules[ "disable_doors" ] = getDvarIntDefault( "grief_gamerule_disable_doors", 1 );
 }
-/*
-init_gamelengths()
-{
-	if ( getDvar( "grief_game_length_override" ) != "" )
-	{
-		switch ( getDvar( "grief_game_length_override" ) )
-		{
-			case "short":
-				setup_grief_rule_for_game_length( "perk_restrictions", "specialty_quickrevive specialty_armorvest specialty_weapupgrade" );
-				setup_grief_rule_for_game_length( "zombies_per_round", 3 );
-				setup_grief_rule_for_game_length( "scorelimit", 3 );
-				setup_grief_rule_for_game_length( "mystery_box_enabled", 0 );
-				setup_grief_rule_for_game_length( "door_restrictions", "" );
-				setup_grief_rule_for_game_length( "start_round", 20 );
-				restart_points = level.round_number * 500;
-				setup_grief_rule_for_game_length( "restart_points", restart_points );
-				break;
-			case "medium":
-				setup_grief_rule_for_game_length( "perk_restrictions", "specialty_weapupgrade" );
-				setup_grief_rule_for_game_length( "zombies_per_round", 3 );
-				setup_grief_rule_for_game_length( "scorelimit", 3 );
-				setup_grief_rule_for_game_length( "mystery_box_enabled", 1 );
-				setup_grief_rule_for_game_length( "door_restrictions", "" );
-				setup_grief_rule_for_game_length( "start_round", 10 );
-				break;
-			case "long":
-				setup_grief_rule_for_game_length( "perk_restrictions", "" );
-				setup_grief_rule_for_game_length( "zombies_per_round", 3 );
-				setup_grief_rule_for_game_length( "scorelimit", 2 );
-				setup_grief_rule_for_game_length( "mystery_box_enabled", 1 );
-				setup_grief_rule_for_game_length( "door_restrictions", "" );
-				setup_grief_rule_for_game_length( "start_round", 1 );
-				break;
-			default:
-				logline1 = "Invalid game length" + "\n";
-				logprint( logline1 );
-				break;
-		}
-	}
-}
-
-setup_grief_rule_for_game_length( rule, value )
-{
-	level.grief_gamerules[ rule ] = value;
-}
-*/
 
 //doesn't work yet
 grief_restrict_wallbuy( weapon )
@@ -1216,14 +1163,7 @@ do_game_mode_shellshock( attacker, meansofdeath, weapon ) //checked matched cerb
 	{
 		self shellshock( "grief_stab_zm", 0.25 );
 	}
-	if ( !is_weapon_shotgun( weapon ) )
-	{
-		wait 0.75;
-	}
-	else 
-	{
-		wait 0.75;
-	}
+	wait 0.75;
 	self._being_shellshocked = 0;
 }
 
@@ -1487,16 +1427,6 @@ commands()
         {
             switch ( command )
             {
-				case "b":
-				case "ban":
-					if ( args[ 1 ] == clean_player_name_of_clantag( player.name ) )
-					{
-						break;
-					}
-					logline1 = "CMD:" + player.name + ";B:" + args[ 1 ] + "\n";
-					logprint( logline1 );
-					ban_player( args[ 1 ] );
-					break;
 				case "fr":
 				case "restart":
 				case "maprestart":
@@ -1511,11 +1441,11 @@ commands()
                 case "setnextmap":
 					logline1 = "CMD:" + player.name + ";NM:" + args[ 1 ] + "\n";
 					logprint( logline1 );
-                    find_alias_and_set_map( toLower( args[ 1 ] ), player, 0 );
+                    find_alias_and_set_map( toLower( args[ 1 ] ), player, 0, 0 );
                     break;
-				case "sm":
-				case "setmap":
-					logline1 = "CMD:" + player.name + ";SM:" + args[ 1 ] + "\n";
+				case "km":
+				case "keepmap":
+					logline1 = "CMD:" + player.name + ";KM:" + args[ 1 ] + "\n";
 					logprint( logline1 );
                     find_alias_and_set_map( toLower( args[ 1 ] ), player, 0, 1 );
                     break;
@@ -1537,7 +1467,6 @@ commands()
 					logline1 = "CMD:" + player.name + ";RR" + "\n";
 					logprint( logline1 );
 					player tell( "Map rotation reset to the default" );
-					setDvar( "grief_new_map_set", 1 );
 					setDvar( "sv_maprotation", getDvar( "grief_original_rotation" ) );
 					setDvar( "sv_maprotationCurrent", getDvar( "grief_original_rotation" ) );
 					break;
@@ -1572,6 +1501,26 @@ commands()
 							break;
 						}
 					}
+					break;
+				case "b":
+				case "ban":
+					if ( args[ 1 ] == clean_player_name_of_clantag( player.name ) )
+					{
+						break;
+					}
+					logline1 = "CMD:" + player.name + ";B:" + args[ 1 ] + "\n";
+					logprint( logline1 );
+					ban_player( args[ 1 ] );
+					break;
+				case "tb":
+				case "tempban":
+					if ( args[ 1 ] == clean_player_name_of_clantag( player.name ) )
+					{
+						break;
+					}
+					logline1 = "CMD:" + player.name + ";TB:" + args[ 1 ] + "\n";
+					logprint( logline1 );
+					temp_ban_player( args[ 1 ] );
 					break;
 				case "mv":
 				case "mapvote":
@@ -1757,12 +1706,12 @@ commands()
 					}
 					if ( args[ 1 ] == "1" )
 					{	
-						say( "Jug is enabled on Cellblock");
+						say( "Jug is enabled on Cellblock" );
 						setDvar( "grief_gamerule_cellblock_jug", 1 );
 					}
 					else if ( args[ 1 ] == "0" )
 					{	
-						say( "Jug is disabled on Cellblock");
+						say( "Jug is disabled on Cellblock" );
 						setDvar( "grief_gamerule_cellblock_jug", 0 );
 					}
 					logline1 = "CMD:" + player.name + ";MOBJUG:" + args[ 1 ] + "\n";
@@ -1776,16 +1725,77 @@ commands()
 					}
 					if ( args[ 1 ] == "1" )
 					{	
-						say( "Jug is enabled on Bus Depot");
+						say( "Jug is enabled on Bus Depot" );
 						setDvar("grief_gamerule_depot_jug", 1 );
 					}
 					else if ( args[ 1 ] == "0" )
 					{	
-						say( "Jug is disabled on Bus Depot");
+						say( "Jug is disabled on Bus Depot" );
 						setDvar("grief_gamerule_depot_jug", 0 );
 					}
 					logline1 = "CMD:" + player.name + ";DEPOTJUG:" + args[ 1 ] + "\n";
 					logprint( logline1 );
+					break;
+				case "rsa":
+				case "reducedammo":
+					logline1 = "CMD:" + player.name + ";AMMO:" + args[ 1 ] + "\n";
+					logprint( logline1 );
+					if ( !isDefined( args[ 1 ] ) )
+					{
+						player tell( "You need to specify 1 or 0" );
+						break;
+					}
+					if( int( args[ 1 ] ) == 1 )
+					{
+						level.grief_gamerules[ "reduced_pistol_ammo" ] = 1
+						say( "Reduced pistol starting ammo is enabled" );
+					}
+					else if( int( args[ 1 ] ) == 0 )
+					{
+						level.grief_gamerules[ "reduced_pistol_ammo" ] = 0
+						say( "Reduced pistol starting ammo is disabled" );
+					}
+					break;
+				case "build":
+				case "buildables":
+					logline1 = "CMD:" + player.name + ";BUILD:" + args[ 1 ] + "\n";
+					logprint( logline1 );
+					if ( !isDefined( args[ 1 ] ) )
+					{
+						player tell( "You need to specify 1 or 0" );
+						break;
+					}
+					if( int( args[ 1 ] ) == 1 )
+					{
+						level.grief_gamerules[ "buildables" ] = 1
+						say( "Buildables are enabled" );
+					}
+					else if( int( args[ 1 ] ) == 0 )
+					{
+						level.grief_gamerules[ "buildables" ] = 0
+						say( "Buildables are disabled" );
+					}
+					break;
+				case "zombies":
+				case "maxzombies":
+					logline1 = "CMD:" + player.name + ";MAXZM:" + args[ 1 ] + "\n";
+					logprint( logline1 );
+					if ( !isDefined( args[ 1 ] ) )
+					{
+						player tell( "You need to specify a number" );
+						break;
+					}
+					int_args = int( args[ 1 ] );
+					if( int_args <= 32 )
+					{
+						level.zombie_ai_limit = int_args;
+						level.zombie_actor_limit = int_args;
+						say( "The max amount of zombies on the map is set to " + args[ 1 ] );
+					}
+					else 
+					{
+						player tell( "The max amount of zombies you can set is 32" );
+					}
 					break;
 				case "bot":
 				case "spawnbot":
@@ -1832,21 +1842,24 @@ print_command_list()
 	self tell( "!resetrotation" );
 	self tell( "!map:<mapname>" );
 	self tell( "!nextmap:<mapname>" );
-	self tell( "!setmap:<mapname>" );
+	self tell( "!keepmap:<mapname>" );
 	self tell( "!kick:<playername>" );
-	self tell( "!timeout:<playername>" ); //doesn't work yet
+	self tell( "!tempban:<playername>" );
 	wait 12;
 	self tell( "!ban:<playername>" );
 	self tell( "!magic:<bool>" );
-	self tell( "!knifelunge:<bool>" );
 	self tell( "!powerups:<bool>" );
-	self tell( "!roundnumber:<value>" );
-	self tell( "!dvar:<name>:<value>" );
-	self tell( "!cvar:<name>:<value>" );
-	self tell( "!cvarall:<name>:<value>" );
+	self tell( "!knifelunge:<bool>" );
+	self tell( "!roundnumber:<int>" );
+	self tell( "!dvar:<name>:<int>" );
+	self tell( "!cvar:<name>:<int>" );
+	self tell( "!cvarall:<name>:<int>" );
 	wait 12;
 	self tell( "!lockserver:<password>" );
 	self tell( "!unlockserver" );
+	self tell( "!buildables:<bool>" );
+	self tell( "!reduceammo:<bool>" );
+	self tell( "!maxzombies:<int>" );
 	self tell( "!depotjug:<bool>" );
 	self tell( "!cellblockjug:<bool>" );
 
@@ -2071,28 +2084,24 @@ find_alias_and_set_map( mapname, player, map_rotate, set_map )
 			}
             return;
     }
-	if ( getDvar( "grief_original_rotation" ) == "" )
-	{
-		setDvar( "grief_original_rotation", getDvar( "sv_maprotation" ) );
-	}
     setDvar( "sv_maprotation", "exec zm_" + gamemode + "_" + location + ".cfg" + " map " + mapname );
 	setDvar( "sv_maprotationCurrent", "exec zm_" + gamemode + "_" + location + ".cfg" + " map " + mapname );
-	if ( map_rotate && !isDefined( set_map ))
+	if ( map_rotate && !set_map )
 	{
-		setDvar( "grief_new_map_set", 1 );
+		setDvar( "grief_new_map_kept", 1 );
 		level thread change_level();
 		level notify( "end_commands", 1 );
 	}
-	else if ( isDefined( set_map ) && set_map )
+	else if ( is_true( set_map ) )
 	{	
-		setDvar( "grief_new_map_set", 0 );
+		setDvar( "grief_new_map_kept", 0 );
 		level thread change_level();
 		level notify( "end_commands", 1 );
 	}
 	else
 	{
 		say( "Next map set to " + mapname + " " + location );
-		setDvar( "grief_new_map_set", 1 );
+		setDvar( "grief_new_map_kept", 1 );
 	}
 }
 
