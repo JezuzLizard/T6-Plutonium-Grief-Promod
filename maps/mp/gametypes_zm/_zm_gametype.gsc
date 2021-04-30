@@ -2210,7 +2210,7 @@ set_run_speed_override() //checked matches cerberus output
 
 manage_zones_override( initial_zone ) //checked changed to match cerberus output
 {
-	printF( "manage_zones_override() overrides manage_zones()" );
+	//printF( "manage_zones_override() overrides manage_zones()" );
 	map = getDvar( "mapname" );
 	location = getDvar( "ui_zm_mapstartlocation" ); 
 	if ( map == "zm_transit" )
@@ -2506,7 +2506,7 @@ respawn_players_override() //checked changed to match cerberus output
 
 wait_for_team_death_and_round_end_override() //checked partially changed to match cerberus output //did not use foreach with continue to prevent continue bug
 {
-	printF( "wait_for_team_death_and_round_end_override() ")
+	//printF( "wait_for_team_death_and_round_end_override() ")
 	level endon( "game_module_ended" );
 	level endon( "end_game" );
 	level endon( "restart_round_check" );
