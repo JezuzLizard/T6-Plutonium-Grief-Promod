@@ -1747,12 +1747,12 @@ commands()
 					}
 					if( int( args[ 1 ] ) == 1 )
 					{
-						level.grief_gamerules[ "reduced_pistol_ammo" ] = 1
+						level.grief_gamerules[ "reduced_pistol_ammo" ] = 1;
 						say( "Reduced pistol starting ammo is enabled" );
 					}
 					else if( int( args[ 1 ] ) == 0 )
 					{
-						level.grief_gamerules[ "reduced_pistol_ammo" ] = 0
+						level.grief_gamerules[ "reduced_pistol_ammo" ] = 0;
 						say( "Reduced pistol starting ammo is disabled" );
 					}
 					break;
@@ -1767,12 +1767,12 @@ commands()
 					}
 					if( int( args[ 1 ] ) == 1 )
 					{
-						level.grief_gamerules[ "buildables" ] = 1
+						level.grief_gamerules[ "buildables" ] = 1;
 						say( "Buildables are enabled" );
 					}
 					else if( int( args[ 1 ] ) == 0 )
 					{
-						level.grief_gamerules[ "buildables" ] = 0
+						level.grief_gamerules[ "buildables" ] = 0;
 						say( "Buildables are disabled" );
 					}
 					break;
@@ -1790,7 +1790,7 @@ commands()
 					{
 						level.zombie_ai_limit = int_args;
 						level.zombie_actor_limit = int_args;
-						say( "The max amount of zombies on the map is set to " + args[ 1 ] );
+						say( "The max amount of zombies on the map is set to " + int_args );
 					}
 					else 
 					{

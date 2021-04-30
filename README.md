@@ -1,5 +1,5 @@
 # T6-Plutonium-Grief-Promod
-A plutonium mod for the Grief gamemode in zombies.
+A Plutonium mod for the Grief gamemode in zombies.
 
 ## Created by: JezuzLizard and 5and5
 
