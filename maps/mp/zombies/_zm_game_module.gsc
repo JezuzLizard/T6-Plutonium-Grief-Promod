@@ -421,7 +421,7 @@ check_for_round_end( winner )
 		level._game_module_game_end_check = undefined;
 		maps/mp/gametypes_zm/_zm_gametype::track_encounters_win_stats( level.gamemodulewinningteam );
 		level notify( "end_game" );
-		logline1 = "MAP:" + mapname + ";W:" + winner + ";WTS:" + winning_team_size + ";L:" + loser + ";LTS:" + losing_team_size + ";ML:" + match_length + ";D:" + time() + "\n";
+		logline1 = "GAMEEND;MAP:" + mapname + ";W:" + winner + ";WTS:" + winning_team_size + ";L:" + loser + ";LTS:" + losing_team_size + ";ML:" + match_length + ";D:" + time() + "\n";
 		logprint( logline1 );
 		return;
 	}
