@@ -64,7 +64,7 @@ main() //checked matches cerberus output
 	delete_door_and_debris_trigs();
 	deleteSlothBarricade( "juggernaut_alley" );
 	deleteSlothBarricade( "jail" );
-	//deleteSlothBarricade( "candystore_alley" );
+	deleteSlothBarricade( "candystore_alley" );
 	//deleteSlothBarricade( "gun_store_door1" );
 	deleteSlothBarricade( "darkwest_nook_door1" );
 	//deleteslothbarricades();
@@ -104,7 +104,7 @@ builddynamicwallbuys() //checked matches cerberus output
 	builddynamicwallbuy( "bank", "beretta93r_zm" );
 	builddynamicwallbuy( "bar", "pdw57_zm" );
 	builddynamicwallbuy( "church", "ak74u_zm" );
-	//builddynamicwallbuy( "courthouse", "mp5k_zm" );
+	builddynamicwallbuy( "courthouse", "mp5k_zm" );
 	builddynamicwallbuy( "generalstore", "m16_zm" );
 	builddynamicwallbuy( "mansion", "an94_zm" );
 	builddynamicwallbuy( "morgue", "svu_zm" );

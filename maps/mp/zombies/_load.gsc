@@ -765,14 +765,11 @@ _get_spawnpoint_script_string_for_location( location, gametype )
 
 cast_to_vector( vector_string )
 {
-	logprint( vector_string + "\n" );
 	keys = strTok( vector_string, "," );
-	logprint( keys[ 0 ] + "\n" );
 	vector_array = [];
 	for ( i = 0; i < keys.size; i++ )
 	{
 		vector_array[ i ] = float( keys[ i ] ); 
-		logprint( vector_array[ i ] + "\n" );
 	}
 	vector = ( vector_array[ 0 ], vector_array[ 1 ], vector_array[ 2 ] );
 	return vector;
