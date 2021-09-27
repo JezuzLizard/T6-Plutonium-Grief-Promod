@@ -7,92 +7,7 @@
 #include maps/mp/zombies/_zm_laststand;
 #include maps/mp/gametypes_zm/_globallogic;
 
-register_game_module( index, module_name, pre_init_func, post_init_func, pre_init_zombie_spawn_func, post_init_zombie_spawn_func, hub_start_func ) //checked partially changed to match cerberus output //did not change while loop to for loop to prevent the infinite loop bu caused by continues
-{
-	if ( !isDefined( level._game_modules ) )
-	{
-		level._game_modules = [];
-		level._num_registered_game_modules = 0;
-	}
-	i = 0;
-	while ( i < level._num_registered_game_modules )
-	{
-		if ( !isDefined( level._game_modules[ i ] ) )
-		{
-			i++;
-			continue;
-		}
-		i++;
-	}
-	level._game_modules[ level._num_registered_game_modules ] = spawnstruct();
-	level._game_modules[ level._num_registered_game_modules ].index = index;
-	level._game_modules[ level._num_registered_game_modules ].module_name = module_name;
-	level._game_modules[ level._num_registered_game_modules ].pre_init_func = pre_init_func;
-	level._game_modules[ level._num_registered_game_modules ].post_init_func = post_init_func;
-	level._game_modules[ level._num_registered_game_modules ].pre_init_zombie_spawn_func = pre_init_zombie_spawn_func;
-	level._game_modules[ level._num_registered_game_modules ].post_init_zombie_spawn_func = post_init_zombie_spawn_func;
-	level._game_modules[ level._num_registered_game_modules ].hub_start_func = hub_start_func;
-	level._num_registered_game_modules++;
-}
-
-set_current_game_module( game_module_index ) //checked matches cerberus output
-{
-	if ( !isDefined( game_module_index ) )
-	{
-		level.current_game_module = level.game_module_classic_index;
-		level.scr_zm_game_module = level.game_module_classic_index;
-		return;
-	}
-	game_module = get_game_module( game_module_index );
-	if ( !isDefined( game_module ) )
-	{
-		return;
-	}
-	level.current_game_module = game_module_index;
-}
-
-get_current_game_module() //checked matches cerberus output
-{
-	return get_game_module( level.current_game_module );
-}
-
-get_game_module( game_module_index ) //checked changed to match cerberus output
-{
-	if ( !isDefined( game_module_index ) )
-	{
-		return undefined;
-	}
-	for ( i = 0; i < level._game_modules.size; i++ )
-	{
-		if ( level._game_modules[ i ].index == game_module_index )
-		{
-			return level._game_modules[ i ];
-		}
-	}
-	return undefined;
-}
-
-game_module_pre_zombie_spawn_init() //checked matches cerberus output
-{
-	current_module = get_current_game_module();
-	if ( !isDefined( current_module ) || !isDefined( current_module.pre_init_zombie_spawn_func ) )
-	{
-		return;
-	}
-	self [[ current_module.pre_init_zombie_spawn_func ]]();
-}
-
-game_module_post_zombie_spawn_init() //checked matches cerberus output
-{
-	current_module = get_current_game_module();
-	if ( !isDefined( current_module ) || !isDefined( current_module.post_init_zombie_spawn_func ) )
-	{
-		return;
-	}
-	self [[ current_module.post_init_zombie_spawn_func ]]();
-}
-
-kill_all_zombies() //checked changed to match cerberus output
+kill_all_zombies()
 {
 	ai = get_round_enemy_array();
 	foreach ( zombie in ai )
@@ -105,7 +20,7 @@ kill_all_zombies() //checked changed to match cerberus output
 	}
 }
 
-freeze_players( freeze ) //checked changed to match cerberus output
+freeze_players( freeze )
 {
 	players = get_players();
 	for ( i = 0; i < players.size; i++ )
@@ -114,7 +29,7 @@ freeze_players( freeze ) //checked changed to match cerberus output
 	}
 }
 
-turn_power_on_and_open_doors() //checked changed at own discretion
+turn_power_on_and_open_doors()
 {
 	level.local_doors_stay_open = 1;
 	level.power_local_doors_globally = 1;
@@ -134,7 +49,7 @@ turn_power_on_and_open_doors() //checked changed at own discretion
 	}
 }
 
-respawn_spectators_and_freeze_players() //checked changed to match cerberus output
+respawn_spectators_and_freeze_players()
 {
 	players = get_players();
 	foreach ( player in players )
@@ -151,7 +66,7 @@ respawn_spectators_and_freeze_players() //checked changed to match cerberus outp
 	}
 }
 
-damage_callback_no_pvp_damage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime ) //checked matches cerberus output
+damage_callback_no_pvp_damage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime )
 {
 	if ( isDefined( eattacker ) && isplayer( eattacker ) && eattacker == self )
 	{
@@ -168,7 +83,7 @@ damage_callback_no_pvp_damage( einflictor, eattacker, idamage, idflags, smeansof
 	return 0;
 }
 
-respawn_players() //checked changed to match cerberus output
+respawn_players()
 {
 	players = get_players();
 	foreach ( player in players )
@@ -185,7 +100,7 @@ respawn_players() //checked changed to match cerberus output
 	}
 }
 
-zombie_goto_round( target_round ) //checked changed to match cerberus output
+zombie_goto_round( target_round )
 {
 	level notify( "restart_round" );
 	if ( target_round < 1 )
@@ -248,7 +163,7 @@ team_suicide_check()
 	wait level.grief_gamerules[ "suicide_check" ];
 }
 
-wait_for_team_death_and_round_end() //checked partially changed to match cerberus output //did not use foreach with continue to prevent continue bug
+wait_for_team_death_and_round_end()
 {
 	level endon( "game_module_ended" );
 	level endon( "end_game" );
@@ -331,7 +246,6 @@ wait_for_team_death_and_round_end() //checked partially changed to match cerberu
 		}
 		if ( cia_alive > 0 && cdc_alive > 0 )
 		{
-			//level notify( "stop_round_end_check" );
 			level.checking_for_round_end = 0;
 		}
 		wait 0.05;
@@ -357,7 +271,7 @@ grief_save_loadouts2()
 	}
 }
 
-reset_grief() //checked matches cerberus output
+reset_grief()
 {
 	wait 1;
 	level.isresetting_grief = 0;
@@ -382,8 +296,6 @@ check_for_round_end( winner )
 {
 	level endon( "keep_griefing" );
 	flag_clear( "grief_brutus_can_spawn" );
-	//level endon( "stop_round_end_check" );
-	//level waittill( "end_of_round" );
 	level.zombie_vars[ "spectators_respawn" ] = 0;
 	level.grief_team_suicide_check_over = 0;
 	team_suicide_check();
@@ -536,7 +448,7 @@ in_grief_intermission()
 	return false;
 }
 
-wait_for_team_death() //checked partially changed to match cerberus output //did not change while loop to foreach with continue to prevent infinite loop bug
+wait_for_team_death()
 {
 	wait 15;
 	winner = undefined;
@@ -575,12 +487,12 @@ wait_for_team_death() //checked partially changed to match cerberus output //did
 	level notify( "game_module_ended", winner );
 }
 
-make_supersprinter() //checked matches cerberus output
+make_supersprinter()
 {
 	self set_zombie_run_cycle( "super_sprint" );
 }
 
-game_module_custom_intermission( intermission_struct ) //checked matches cerberus output
+game_module_custom_intermission( intermission_struct )
 {
 	self closemenu();
 	self closeingamemenu();
