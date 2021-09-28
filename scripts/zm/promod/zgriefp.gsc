@@ -15,9 +15,9 @@
 #include maps\mp\gametypes_zm\_globallogic_ui;
 #include maps\mp\zombies\_zm_unitrigger;
 #include maps\mp\zombies\_zm_game_module;
-#include scripts/zm/promod/_utility;
+#include scripts\zm\promod\utility\_grief_util;
 
-promod_init()
+init()
 {
 	if ( getDvar( "grief_original_rotation" ) == "" )
 	{
@@ -603,4 +603,116 @@ game_module_player_damage_grief_callback( einflictor, eattacker, idamage, idflag
 		self player_steal_points( eattacker, "deny_revive" );
 	}
 	self.is_reviving_grief = false;
+}
+
+wait_for_players()
+{
+	level endon( "end_game" );
+	flag_clear( "spawn_zombies" );
+	level.initial_spawn_players = true;
+	players_axis = getPlayers( "axis" );
+	players_allies = getPlayers( "allies" );
+	while ( ( players_axis.size < 1 ) || ( players_allies.size < 1 ) )
+	{
+		players_axis = getPlayers( "axis" );
+		players_allies = getPlayers( "allies" );
+		players = getPlayers();
+		for ( i = 0; i < players.size; i++ )
+		{
+			players[ i ] iPrintLn( "Waiting for 1 player on each team" );
+		}
+		wait 1;
+	}
+	if ( getDvarInt( "grief_tournament_mode" ) == 1 )
+	{
+		players = getPlayers();
+		while ( getDvarInt( "zombies_minplayers" ) > players.size )
+		{
+			players = getPlayers();
+			for ( i = 0; i < players.size; i++ )
+			{
+				players[ i ] iPrintLn( "Waiting for all players to connect" );
+			}
+			wait 1;
+		}
+	}
+	level notify( "grief_begin" );
+	flag_set( "spawn_zombies" );
+	respawn_players();
+	level.initial_spawn_players = false;
+}
+
+team_suicide_check()
+{
+	wait level.grief_gamerules[ "suicide_check" ];
+}
+
+grief_save_loadouts2()
+{
+	if ( isDefined( level.grief_loadout_save ) )
+	{
+		while ( true )
+		{
+			players = getPlayers();
+			foreach ( player in players )
+			{
+				if ( is_player_valid( player ) )
+				{
+					player [[ level.grief_loadout_save ]]();
+				}
+			}
+			wait 1;
+		}
+	}
+}
+
+reset_grief()
+{
+	wait 1;
+	level.isresetting_grief = 0;
+}
+
+grief_team_forfeits()
+{
+	if ( getDvarInt( "grief_testing" ) == 1 )
+	{
+		return 0;
+	}
+	if ( ( getPlayers( "axis" ).size == 0 ) || ( getPlayers( "allies" ).size == 0 ) )
+	{
+		logline1 = "other team forfeited" + "\n";
+		logprint( logline1 );
+		return 1;
+	}
+	return 0;
+}
+
+reset_players_last_griefed_by()
+{
+	players = getPlayers();
+	foreach ( player in players )
+	{
+		player.last_griefed_by.attacker = undefined;
+		player.last_griefed_by.meansofdeath = undefined;
+		player.last_griefed_by.weapon = undefined;
+	}
+}
+
+in_grief_intermission()
+{
+	if ( is_true( level.grief_intermission_done ) || level.grief_gamerules[ "intermission_time" ] < 1 )
+	{
+		return false;
+	}
+	team_scores = [];
+	team_scores[ "A" ] = level.grief_teams[ "A" ].score;
+	team_scores[ "B" ] = level.grief_teams[ "B" ].score;
+	score_limit = level.grief_gamerules[ "scorelimit" ];
+	intermission_score = score_limit / 2;
+	if ( team_scores[ "A" ] == int( intermission_score ) || team_scores[ "B" ] == int( intermission_score ) )
+	{
+		level.grief_intermission_done = true;
+		return true;
+	}
+	return false;
 }

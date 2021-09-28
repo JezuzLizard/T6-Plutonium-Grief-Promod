@@ -1,5 +1,3 @@
-
-//HUD Grouping
 draw_hud()
 {
 	level thread grief_score();

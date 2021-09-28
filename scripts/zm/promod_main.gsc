@@ -4,20 +4,40 @@
 
 
 
-
-
-//#include scripts/zm/promod/_zm_game_module; //merge into zgriefp
-//#include scripts/zm/promod/_zm_gametype; //merge into zgriefp
-//#include scripts/zm/promod/_zm_utility; //merge into zgriefp_mechanics
 #include scripts/zm/promod/zgriefp;
-#include scripts/zm/promod/zgriefp_mechanics;
-//#include scripts/zm/promod/_zm_zonemgr; //merge into _gametype_setup
+#include scripts/zm/promod/zgriefp_overrides;
 #include scripts/zm/promod/_gametype_setup;
-#include scripts/zm/promod/basegamepatches;
+#include scripts/zm/promod/utility/_grief_util;
+#include scripts/zm/promod/plugin/commands;
+#include scripts/zm/promod/_gamerules;
+#include scripts/zm/promod/_gametype_setup;
+#include scripts/zm/promod/_hud;
+#include scripts/zm/promod/_player_spawning;
+#include scripts/zm/promod/_teams;
 
 //Function that sets up all the overrides automatically.
 main()
 {
+	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
+	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
+	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
+	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
+	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
+	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
+	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
+	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
+	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
+	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
+	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
+	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
+	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
+	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
+	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
+	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
+	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
+	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
+	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
+	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
 	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
 }
 

@@ -100,7 +100,7 @@ menu_onmenuresponse()
 			self closeingamemenu();
 			continue;
 		}
-		if ( response == "changeteam" && level.allow_teamchange == "1" )
+		if ( response == "changeteam" && self player_can_change_teams() )
 		{
 			self closemenu();
 			self closeingamemenu();
@@ -145,67 +145,142 @@ menu_onmenuresponse()
 			}
 			continue;
 		}
-		if ( menu == game[ "menu_team" ] && level.allow_teamchange == "1" )
+		if ( menu == game[ "menu_team" ] && self player_can_change_teams() )
 		{
-			switch( response )
+			if ( response == "autoassign" )
 			{
-				case "allies":
-					self [[ level.allies ]]();
-					break;
-				case "axis":
-					self [[ level.teammenu ]]( response );
-					break;
-				case "autoassign":
-					self [[ level.autoassign ]]( 1 );
-					break;
-				case "spectator":
-					self [[ level.spectator ]]();
-					break;
+				if ( self menuautoassign( response ) )
+				{
+					self iPrintLn( "You will change to " + self.new_team + " next round." );
+				}
+			}
+			else 
+			{
+				if ( self menuteam( response ) )
+				{
+					self iPrintLn( "You will change to " + self.new_team + " next round." );
+				}
 			}
 			continue;
 		}
 	}
 }
 
-menuallieszombies()
+menuteam( team )
 {
-	self maps/mp/gametypes_zm/_globallogic_ui::closemenus();
-	if ( !level.console && level.allow_teamchange == "0" && is_true( self.hasdonecombat ) )
+	self closemenus();
+	self thread change_team_next_round( team );
+	return true;
+}
+
+change_team_next_round( team )
+{
+	level notify( "team_change_set" );
+	level endon( "team_change_set" );
+	self.new_team = team;
+	level waittill( "end_round_think" );
+	if ( self.pers[ "team" ] != team )
 	{
-		return;
-	}
-	if ( self.pers[ "team" ] != "allies" )
-	{
-		if ( level.ingraceperiod && !isDefined( self.hasdonecombat ) || !self.hasdonecombat )
-		{
-			self.hasspawned = 0;
-		}
 		if ( self.sessionstate == "playing" )
 		{
 			self.switching_teams = 1;
-			self.joining_team = "allies";
+			self.joining_team = team;
 			self.leaving_team = self.pers[ "team" ];
-			self suicide();
 		}
-		self.pers["team"] = "allies";
-		self.team = "allies";
-		self.pers["class"] = undefined;
+		self.pers[ "team" ] = team;
+		self.team = team;
 		self.class = undefined;
-		self.pers["weapon"] = undefined;
-		self.pers["savedmodel"] = undefined;
 		self updateobjectivetext();
 		if ( level.teambased )
 		{
-			self.sessionteam = "allies";
+			self.sessionteam = team;
 		}
 		else
 		{
 			self.sessionteam = "none";
-			self.ffateam = "allies";
+			self.ffateam = team;
 		}
-		self setclientscriptmainmenu( game[ "menu_class" ] );
-		self notify( "joined_team" );
-		level notify( "joined_team" );
-		self notify( "end_respawn" );
+		switch ( team )
+		{
+			case "allies":
+				self._encounters_team = "B";
+				break;
+			case "axis":
+				self._encounters_team = "A";
+				break;
+			default:
+				break;
+		}
+	}
+}
+
+menuautoassign( comingfrommenu )
+{
+	teamkeys = getarraykeys( level.teams );
+	assignment = teamkeys[ randomint( teamkeys.size ) ];
+	self closemenus();
+	self thread change_team_next_round( assignment );
+	return true;;
+}
+
+player_can_change_teams()
+{
+	if ( !isDefined( level.team_change_cooldown ) )
+	{
+		level.team_change_cooldown = 60;
+	}
+	if ( !isDefined( level.team_change_max ) )
+	{
+		level.team_change_max = 2;
+	}
+	if ( !isDefined( self.team_num_times_changed_teams ) )
+	{
+		self.num_times_changed_teams = 0;
+	}
+	can_change_teams = false;
+	if ( getGameTypeSetting( "allowInGameTeamChange" ) == 0 )
+	{
+		self iPrintLn( "Team change is not allowed on this server." );
+	}
+	else if ( self player_banned_from_changing_teams() )
+	{
+		self iPrintLn( "You are not allowed to change teams." );
+	}
+	else if ( self.team_change_timer_count > 0 )
+	{
+		self iPrintLn( "You cannot change teams for another" + self.team_change_timer_count + " seconds." );
+	}
+	else if ( self.team_num_times_changed_teams > level.team_change_max )
+	{
+		self iPrintLn( "Max team changes reached for session." );
+	}
+	else 
+	{
+		can_change_teams = true;
+	}
+	if ( !can_change_teams )
+	{
+		self closemenus();
+	}
+	else
+	{
+		self thread team_change_timer();
+		self.team_num_times_changed_teams++;
+	}
+	return can_change_teams;
+}
+
+player_banned_from_changing_teams()
+{
+	return false;
+}
+
+team_change_timer()
+{
+	self.team_change_timer_count = level.team_change_cooldown;
+	while ( self.team_change_timer_count > 0 )
+	{
+		self.team_change_timer_count--;
+		wait 1;
 	}
 }

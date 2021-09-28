@@ -15,6 +15,7 @@
 #include maps/mp/zombies/_zm_weap_claymore;
 #include maps/mp/zombies/_zm_melee_weapon;
 #include maps/mp/zombies/_zm;
+#include scripts/zm/zm_buried/location_common;
 
 precache() //checked matches cerberus output
 {
@@ -28,23 +29,13 @@ precache() //checked matches cerberus output
 	maps/mp/zombies/_zm_equip_turbine::init_animtree();
 	maps/mp/zombies/_zm_equip_springpad::init( &"ZM_BURIED_EQ_SP_PHS", &"ZM_BURIED_EQ_SP_HTS" );
 	maps/mp/zombies/_zm_equip_subwoofer::init( &"ZM_BURIED_EQ_SW_PHS", &"ZM_BURIED_EQ_SW_HTS" );
-}
-
-street_treasure_chest_init() //checked matches cerberus output
-{
-	start_chest = getstruct( "start_chest", "script_noteworthy" );
-	court_chest = getstruct( "courtroom_chest1", "script_noteworthy" );
-	tunnel_chest = getstruct( "tunnels_chest1", "script_noteworthy" );
-	jail_chest = getstruct( "jail_chest1", "script_noteworthy" );
-	gun_chest = getstruct( "gunshop_chest", "script_noteworthy" );
 	setdvar( "disableLookAtEntityLogic", 1 );
 	level.chests = [];
-	level.chests[ level.chests.size ] = start_chest;
-	level.chests[ level.chests.size ] = court_chest;
-	level.chests[ level.chests.size ] = tunnel_chest;
-	level.chests[ level.chests.size ] = jail_chest;
-	level.chests[ level.chests.size ] = gun_chest;
-	maps/mp/zombies/_zm_magicbox::treasure_chest_init( "start_chest" );
+	level.chests[ level.chests.size ] = getstruct( "start_chest", "script_noteworthy" );;
+	level.chests[ level.chests.size ] = getstruct( "courtroom_chest1", "script_noteworthy" );;
+	level.chests[ level.chests.size ] = getstruct( "tunnels_chest1", "script_noteworthy" );;
+	level.chests[ level.chests.size ] = getstruct( "jail_chest1", "script_noteworthy" );;
+	level.chests[ level.chests.size ] = getstruct( "gunshop_chest", "script_noteworthy" );;
 }
 
 main() //checked matches cerberus output
@@ -52,77 +43,12 @@ main() //checked matches cerberus output
 	disable_buried_tunnel_zone();
 	remove_buried_spawns();
 	spawn_barriers();
-	level.buildables_built[ "pap" ] = 1;
-	level.equipment_team_pick_up = 1;
-	level thread maps/mp/zombies/_zm_buildables::think_buildables();
 	maps/mp/gametypes_zm/_zm_gametype::setup_standard_objects( "street" );
-	street_treasure_chest_init();
-	generatebuildabletarps();
-	deletebuildabletarp( "courthouse" );
-	deletebuildabletarp( "bar" );
-	deletebuildabletarp( "generalstore" );
 	delete_door_and_debris_trigs();
-	deleteSlothBarricade( "juggernaut_alley" );
-	deleteSlothBarricade( "jail" );
-	deleteSlothBarricade( "candystore_alley" );
-	//deleteSlothBarricade( "gun_store_door1" );
-	deleteSlothBarricade( "darkwest_nook_door1" );
-	//deleteslothbarricades();
-	powerswitchstate( 1 );
-	level.enemy_location_override_func = ::enemy_location_override;
+	maps/mp/zombies/_zm_magicbox::treasure_chest_init( "start_chest" );
 	spawnmapcollision( "zm_collision_buried_street_grief" );
-	flag_wait( "initial_blackscreen_passed" );
-	flag_wait( "start_zombie_round_logic" );
-	wait 1;
-	builddynamicwallbuys();
-	buildbuildables();
 	spawn_mp5_wallbuy();
-	turnperkon( "revive" );
-	turnperkon( "doubletap" );
-	turnperkon( "marathon" );
-	turnperkon( "juggernog" );
-	turnperkon( "sleight" );
-	turnperkon( "additionalprimaryweapon" );
-	turnperkon( "Pack_A_Punch" );
-}
-
-enemy_location_override( zombie, enemy ) //checked matches cerberus output
-{
-	location = enemy.origin;
-	if ( isDefined( self.reroute ) && self.reroute )
-	{
-		if ( isDefined( self.reroute_origin ) )
-		{
-			location = self.reroute_origin;
-		}
-	}
-	return location;
-}
-
-builddynamicwallbuys() //checked matches cerberus output
-{
-	builddynamicwallbuy( "bank", "beretta93r_zm" );
-	builddynamicwallbuy( "bar", "pdw57_zm" );
-	builddynamicwallbuy( "church", "ak74u_zm" );
-	builddynamicwallbuy( "courthouse", "mp5k_zm" );
-	builddynamicwallbuy( "generalstore", "m16_zm" );
-	builddynamicwallbuy( "mansion", "an94_zm" );
-	builddynamicwallbuy( "morgue", "svu_zm" );
-	builddynamicwallbuy( "prison", "claymore_zm" );
-	builddynamicwallbuy( "stables", "mp5k_zm" );
-	builddynamicwallbuy( "stablesroof", "mp5k_zm" );
-	builddynamicwallbuy( "toystore", "tazer_knuckles_zm" );
-	builddynamicwallbuy( "candyshop", "870mcs_zm" );
-}
-
-buildbuildables() //checked matches cerberus output
-{	
-	if( level.grief_gamerules[ "buildables" ] )
-	{
-		buildbuildable( "springpad_zm" );
-		buildbuildable( "subwoofer_zm" );
-		buildbuildable( "turbine" );
-	}
+	common_init();
 }
 
 spawn_barriers()

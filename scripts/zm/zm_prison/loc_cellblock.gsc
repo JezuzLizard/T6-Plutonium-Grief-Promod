@@ -23,23 +23,16 @@ struct_init()
 
 precache()
 {
-}
-
-grief_treasure_chest_init()
-{
-	chest1 = getstruct( "start_chest", "script_noteworthy" );
-	chest2 = getstruct( "cafe_chest", "script_noteworthy" );
 	setdvar( "disableLookAtEntityLogic", 1 );
 	level.chests = [];
-	level.chests[ level.chests.size ] = chest1;
-	level.chests[ level.chests.size ] = chest2;
-	maps/mp/zombies/_zm_magicbox::treasure_chest_init( "start_chest" );
+	level.chests[ level.chests.size ] = getstruct( "start_chest", "script_noteworthy" );;
+	level.chests[ level.chests.size ] = getstruct( "cafe_chest", "script_noteworthy" );;
 }
 
 main()
 {
 	maps/mp/gametypes_zm/_zm_gametype::setup_standard_objects( "cellblock" );
-	grief_treasure_chest_init();
+	maps/mp/zombies/_zm_magicbox::treasure_chest_init( "start_chest" );
 	precacheshader( "zm_al_wth_zombie" );
 	array_thread( level.zombie_spawners, ::add_spawn_function, ::remove_zombie_hats_for_grief );
 	maps/mp/zombies/_zm_ai_brutus::precache();
