@@ -2,7 +2,13 @@
 	This script sets up all global overrides and includes for the mod.
 */
 
-
+#include maps/mp/zombies/_zm_utility;
+#include maps/mp/_utility;
+#include common_scripts/utility;
+#include maps/mp/zombies/_zm_magicbox;
+#include maps/mp/gametypes_zm/_zm_gametype;
+#include maps/mp/zombies/_zm_game_module;
+#include maps/mp/zombies/_zm_audio_announcer;
 
 #include scripts/zm/promod/zgriefp;
 #include scripts/zm/promod/zgriefp_overrides;
@@ -19,26 +25,18 @@
 main()
 {
 	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
-	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
-	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
-	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
-	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
-	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
-	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
-	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
-	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
-	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
-	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
-	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
-	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
-	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
-	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
-	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
-	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
-	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
-	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
-	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
-	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
+	replaceFunc( maps/mp/zombies/_zm_magicbox::treasure_chest_init, scripts/zm/promod/zgriefp_overrides::treasure_chest_init_o );
+	replaceFunc( maps/mp/zombies/_zm_utility::track_players_intersection_tracker, scripts/zm/promod/zgriefp_overrides::track_players_intersection_tracker_o );
+	replaceFunc( maps/mp/zombies/_zm_utility::init_zombie_run_cycle, scripts/zm/promod/zgriefp_overrides::init_zombie_run_cycle_o );
+	replaceFunc( maps/mp/zombies/_zm_utility::change_zombie_run_cycle, scripts/zm/promod/zgriefp_overrides::change_zombie_run_cycle_o );
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::rungametypeprecache, scripts/zm/promod/zgriefp_overrides::rungametypeprecache_o );
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::rungametypemain, scripts/zm/promod/zgriefp_overrides::rungametypemain_o );
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::game_objects_allowed, scripts/zm/promod/zgriefp_overrides::game_objects_allowed_o );
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::setup_standard_objects, scripts/zm/promod/zgriefp_overrides::setup_standard_objects_o );
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::setup_classic_gametype, scripts/zm/promod/zgriefp_overrides::setup_classic_gametype_o );
+	replaceFunc( maps/mp/zombies/_zm_audio_announcer::playleaderdialogonplayer, scripts/zm/promod/zgriefp_overrides::playleaderdialogonplayer_o );
+	replaceFunc( maps/mp/zombies/_zm_game_module::check_for_round_end, scripts/zm/promod/zgriefp_overrides::check_for_round_end_o );
+	replaceFunc( maps/mp/zombies/_zm_game_module::wait_for_team_death_and_round_end, scripts/zm/promod/zgriefp_overrides::wait_for_team_death_and_round_end_o );
 }
 
 struct_class_init_o()

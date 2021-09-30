@@ -7,6 +7,8 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
+#include scripts/zm/zm_prison/loc_cellblock;
+
 init_o()
 {
 	level.custom_vending_precaching = maps/mp/zm_prison::custom_vending_precaching;

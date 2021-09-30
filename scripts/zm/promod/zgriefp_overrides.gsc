@@ -32,7 +32,7 @@
 #include maps/mp/gametypes_zm/_zm_gametype;
 #include maps/mp/zombies/_zm_game_module;
 
-treasure_chest_init( start_chest_name ) //checked changed to match cerberus output
+treasure_chest_init_o( start_chest_name ) //checked changed to match cerberus output
 {
 	flag_init( "moving_chest_enabled" );
 	flag_init( "moving_chest_now" );
@@ -80,7 +80,7 @@ treasure_chest_init( start_chest_name ) //checked changed to match cerberus outp
 	array_thread( level.chests, ::treasure_chest_think );
 }
 
-track_players_intersection_tracker() //checked partially changed to match cerberus output //did not change while loop to for loop because continues in for loops go infinite
+track_players_intersection_tracker_o() //checked partially changed to match cerberus output //did not change while loop to for loop because continues in for loops go infinite
 {
 	self endon( "disconnect" );
 	self endon( "death" );
@@ -160,12 +160,12 @@ track_players_intersection_tracker() //checked partially changed to match cerber
 	}
 }
 
-init_zombie_run_cycle() //checked matches cerberus output
+init_zombie_run_cycle_o() //checked matches cerberus output
 {
 	self set_zombie_run_cycle();
 }
 
-change_zombie_run_cycle() //checked matches cerberus output
+change_zombie_run_cycle_o() //checked matches cerberus output
 {
 	self set_zombie_run_cycle( "walk" );
 	self thread speed_change_watcher();
@@ -273,7 +273,7 @@ zombie_watch_for_bus_sprinter()
 	}
 }
 
-rungametypeprecache( gamemode )
+rungametypeprecache_o( gamemode )
 {
 	if ( !isDefined( level.gamemode_map_location_main ) || !isDefined( level.gamemode_map_location_main[ gamemode ] ) )
 	{
@@ -307,7 +307,7 @@ rungametypeprecache( gamemode )
 	}
 }
 
-rungametypemain( gamemode, mode_main_func, use_round_logic )
+rungametypemain_o( gamemode, mode_main_func, use_round_logic )
 {
 	if ( !isDefined( level.gamemode_map_location_main ) || !isDefined( level.gamemode_map_location_main[ gamemode ] ) )
 	{
@@ -350,7 +350,7 @@ rungametypemain( gamemode, mode_main_func, use_round_logic )
 	level thread game_end_func();
 }
 
-game_objects_allowed( mode, location )
+game_objects_allowed_o( mode, location )
 {
 	if ( location == "transit" )
 	{
@@ -402,7 +402,7 @@ game_objects_allowed( mode, location )
 	}
 }
 
-setup_standard_objects( location )
+setup_standard_objects_o( location )
 {
 	structs = getstructarray( "game_mode_object" );
 	i = 0;
@@ -462,7 +462,7 @@ setup_standard_objects( location )
 	}
 }
 
-setup_classic_gametype()
+setup_classic_gametype_o()
 {
 	ents = getentarray();
 	i = 0;
@@ -517,7 +517,7 @@ setup_classic_gametype()
 	unlink_meat_traversal_nodes();
 }
 
-playleaderdialogonplayer( dialog, team, waittime )
+playleaderdialogonplayer_o( dialog, team, waittime )
 {
 	self endon( "disconnect" );
 
@@ -587,7 +587,7 @@ playleaderdialogonplayer( dialog, team, waittime )
 	}
 }
 
-check_for_round_end( winner )
+check_for_round_end_o( winner )
 {
 	level endon( "keep_griefing" );
 	flag_clear( "grief_brutus_can_spawn" );
@@ -678,7 +678,7 @@ check_for_round_end( winner )
 	level.grief_team_suicide_check_over = 1;
 }
 
-wait_for_team_death_and_round_end()
+wait_for_team_death_and_round_end_o()
 {
 	level endon( "game_module_ended" );
 	level endon( "end_game" );

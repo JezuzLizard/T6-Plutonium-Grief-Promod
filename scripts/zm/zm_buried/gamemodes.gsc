@@ -12,6 +12,8 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
+#include scripts/zm/zm_buried/loc_street;
+
 init_o()
 {
 	add_map_gamemode( "zclassic", maps/mp/zm_buried::zclassic_preinit, undefined, undefined );

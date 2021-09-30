@@ -16,6 +16,11 @@
 #include maps\mp\zombies\_zm_unitrigger;
 #include maps\mp\zombies\_zm_game_module;
 #include scripts\zm\promod\utility\_grief_util;
+#include scripts\zm\promod\plugin\commands;
+#include scripts\zm\promod\_hud;
+#include scripts\zm\promod\_player_spawning;
+#include scripts\zm\promod\_teams;
+#include scripts\zm\promod\zgriefp_overrides;
 
 init()
 {
@@ -29,6 +34,9 @@ init()
 		setDvar( "sv_maprotation", getDvar( "grief_original_rotation" ) );
 		setDvar( "sv_maprotationCurrent", getDvar( "grief_original_rotation" ) );
 	}
+	registerroundlimit( 1, 1 );
+	registertimelimit( 0, 0 );
+	registerscorelimit( 0, 0 );
 	level thread monitor_players_connecting_status();
 	level thread emptyLobbyRestart();
 	level.basepath = getDvar( "fs_basepath" ) + "/" + getDvar( "fs_basegame" ) + "/" + "scriptdata" + "/";
@@ -36,6 +44,8 @@ init()
 	setup_permissions();
 	level thread commands();
 	init_gamerules();
+	setdvar( "ui_scorelimit", level.grief_gamerules[ "scorelimit" ] );
+	setdvar( "ui_timelimit", level.grief_gamerules[ "timelimit" ] );
 	level.round_spawn_func = ::round_spawning;
 	level._game_module_player_damage_callback = ::game_module_player_damage_callback;
 	level._game_module_player_damage_grief_callback = ::game_module_player_damage_grief_callback;
@@ -97,9 +107,9 @@ on_player_connect()
 {
 	level endon( "end_game" );
 
-    while ( true )
-    {
-    	level waittill( "connected", player );
+	while ( true )
+	{
+		level waittill( "connected", player );
 		if ( level.grief_gamerules[ "knife_lunge" ] )
 		{
 			player setClientDvar( "aim_automelee_range", 120 ); //default
@@ -116,11 +126,12 @@ on_player_connect()
 			player.last_griefed_by.weapon = undefined;
 		}
 		player thread give_points_on_restart_and_round_change();
-       	player set_team();
+		player initial_player_team();
+		player store_player_session_data();
 		player.killsconfirmed = 0;
 		player.stabs = 0;
 		player.assists = 0;
-    }
+	}
 }
 
 on_player_spawned()

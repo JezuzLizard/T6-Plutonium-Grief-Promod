@@ -1,62 +1,24 @@
 
-set_team()
+initial_player_team()
 {
-	if ( isDefined( self.custom_team ) )
+	if ( isDefined( level.players_in_session[ self.name ].sessionteam ) )
 	{
-		self.team = self.custom_team;
-		self.sessionteam = self.custom_team;
-		self._encounters_team = undefined;
-		self [[ level.givecustomcharacters ]]();
-		return;
-	}
-	teamplayersallies = countplayers( "allies");
-	teamplayersaxis = countplayers( "axis");
-	if ( getDvarInt( "grief_gamerule_use_preset_teams" ) == 1 )
-	{
-	 	allies_team_members = getDvar( "grief_allies_team_player_names" );
-		team_keys = strTok( allies_team_members, "+" ); 
-		if ( teamplayersallies < 4 )
+		switch ( level.players_in_session[ self.name ].sessionteam )
 		{
-			foreach ( key in team_keys )
-			{
-				logline1 = "Checking player: " + self.name + " comparing with: " + key + "\n";
-				logprint( logline1 );
-				if ( self.name == key )
-				{
-					self.team = "allies";
-					self.sessionteam = "allies";
-					self.pers[ "team" ] = "allies";
-					self._encounters_team = "B";
-					team_is_defined = 1;
-					logline1 = "trying to set player based on name: " + self.name + " to preset team: " + self.team + "\n";
-					logprint( logline1 );
-					break;
-				}
-			}
-		}
-		if ( !is_true( team_is_defined ) )
-		{
-			teamplayersaxis = countplayers( "axis");
-			if ( teamplayersaxis < 4 )
-			{
+			case "axis":
 				self.team = "axis";
 				self.sessionteam = "axis";
 				self.pers[ "team" ] = "axis";
 				self._encounters_team = "A"; 
-				team_is_defined = 1;
-				logline1 = "player didn't have name match: " + self.name + " to preset team: " + self.team + "\n";
-				logprint( logline1 );
-			}
-			else 
-			{
+				break;
+			case "allies":
 				self.team = "allies";
 				self.sessionteam = "allies";
 				self.pers[ "team" ] = "allies";
 				self._encounters_team = "B";
-				team_is_defined = 1;
-				logline1 = "player team failsafe: " + self.name + " to preset team: " + self.team + "\n";
-				logprint( logline1 );
-			}
+				break;
+			default:
+				break;
 		}
 	}
 	else 
@@ -83,6 +45,10 @@ set_team()
 			self.sessionteam = "allies";
 			self.pers[ "team" ] = "allies";
 			self._encounters_team = "B";
+		}
+		if ( isDefined( self.team ) )
+		{
+			level.players_in_session[ self.name ].sessionteam = self.team;
 		}
 	}
 	self [[ level.givecustomcharacters ]]();
@@ -181,12 +147,6 @@ change_team_next_round( team )
 	level waittill( "end_round_think" );
 	if ( self.pers[ "team" ] != team )
 	{
-		if ( self.sessionstate == "playing" )
-		{
-			self.switching_teams = 1;
-			self.joining_team = team;
-			self.leaving_team = self.pers[ "team" ];
-		}
 		self.pers[ "team" ] = team;
 		self.team = team;
 		self.class = undefined;
@@ -211,6 +171,7 @@ change_team_next_round( team )
 			default:
 				break;
 		}
+		level.players_in_session[ self.name ].sessionteam = team;
 	}
 }
 
@@ -246,11 +207,11 @@ player_can_change_teams()
 	{
 		self iPrintLn( "You are not allowed to change teams." );
 	}
-	else if ( self.team_change_timer_count > 0 )
+	else if ( level.players_in_session[ self.name ].team_change_timer > 0 )
 	{
-		self iPrintLn( "You cannot change teams for another" + self.team_change_timer_count + " seconds." );
+		self iPrintLn( "You cannot change teams for another" + level.players_in_session[ self.name ].team_change_timer + " seconds." );
 	}
-	else if ( self.team_num_times_changed_teams > level.team_change_max )
+	else if ( level.players_in_session[ self.name ].team_changed_times > level.team_change_max )
 	{
 		self iPrintLn( "Max team changes reached for session." );
 	}
@@ -265,22 +226,74 @@ player_can_change_teams()
 	else
 	{
 		self thread team_change_timer();
-		self.team_num_times_changed_teams++;
+		level.players_in_session[ self.name ].team_changed_times++;
 	}
 	return can_change_teams;
 }
 
 player_banned_from_changing_teams()
 {
-	return false;
+	return level.players_in_session[ self.name ].team_change_ban;
 }
 
 team_change_timer()
 {
-	self.team_change_timer_count = level.team_change_cooldown;
-	while ( self.team_change_timer_count > 0 )
+
+	level.players_in_session[ self.name ].team_change_timer = level.team_change_cooldown;
+	while ( level.players_in_session[ self.name ].team_change_timer > 0 )
 	{
-		self.team_change_timer_count--;
+		level.players_in_session[ self.name ].team_change_timer--;
 		wait 1;
 	}
 }
+
+store_player_session_data()
+{
+	if ( !isDefined( level.players_in_session ) )
+	{
+		level.players_in_session = [];
+	}
+	if ( !isDefined( level.players_in_session[ self.name ] ) )
+	{
+		level.players_in_session[ self.name ] = spawnStruct();
+		if ( level.grief_gamerules[ "use_preset_teams" ] )
+		{
+			level.players_in_session[ self.name ].sessionteam = self check_for_predefined_team();
+		}
+		else 
+		{
+			level.players_in_session[ self.name ].sessionteam = undefined;
+		}
+		level.players_in_session[ self.name ].team_change_timer = 0;
+		level.players_in_session[ self.name ].team_changed_times = 0;
+		level.players_in_session[ self.name ].team_change_ban = false;
+	}
+}
+
+//set grief_preset_teams "player_name(team_name,is_perm) player_name(team_name,is_perm) etc"
+
+check_for_predefined_team()
+{
+	preset_teams = getDvar( "grief_preset_teams" );
+	team_keys = strTok( preset_teams, " " ); 
+	if ( teamplayersallies < 4 )
+	{
+		foreach ( key in team_keys )
+		{
+			logline1 = "Checking player: " + self.name + " comparing with: " + key + "\n";
+			logprint( logline1 );
+			if ( self.name == key )
+			{
+				self.team = "allies";
+				self.sessionteam = "allies";
+				self.pers[ "team" ] = "allies";
+				self._encounters_team = "B";
+				team_is_defined = 1;
+				logline1 = "trying to set player based on name: " + self.name + " to preset team: " + self.team + "\n";
+				logprint( logline1 );
+				break;
+			}
+		}
+	}
+}
+

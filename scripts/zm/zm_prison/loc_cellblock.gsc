@@ -324,9 +324,9 @@ delete_door_trigs()
 first_room_hallway_barrier()
 {
 	collision = spawn( "script_model", ( 2113, 9772, 1530 ) );
-    collision.angles = ( 0, 90, 0 );
-    collision setmodel( "collision_clip_wall_128x128x10" );
-    gate = spawn( "script_model", ( 2111, 9728, 1458 ) );
-    gate.angles = ( 0, 90, 0 );
-    gate setmodel( "p6_zm_al_cell_door_r_90x102x2" );
+	collision.angles = ( 0, 90, 0 );
+	collision setmodel( "collision_clip_wall_128x128x10" );
+	gate = spawn( "script_model", ( 2111, 9728, 1458 ) );
+	gate.angles = ( 0, 90, 0 );
+	gate setmodel( "p6_zm_al_cell_door_r_90x102x2" );
 }

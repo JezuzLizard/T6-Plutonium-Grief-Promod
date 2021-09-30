@@ -1,3 +1,5 @@
+#include scripts/zm/promod/_utility;
+#include scripts/zm/zm_transit/gamemodes;
 
 main()
 {

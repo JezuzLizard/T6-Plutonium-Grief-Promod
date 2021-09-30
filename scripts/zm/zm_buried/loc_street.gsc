@@ -63,11 +63,11 @@ spawn_barriers()
 	collision setModel( "collision_player_64x64x128" );
 	//tunnel blockade
 	collision = spawn( "script_model", (-1495, -280, 40) );
-    collision.angles = ( 0, 90, 0 );
-    collision setmodel( "collision_clip_wall_128x128x10" );
-    couch = spawn( "script_model", (-1512, -262, 26.5) );
-    couch.angles = ( 0, 90, 0 );
-    couch setmodel( "p6_zm_bu_victorian_couch" );
+	collision.angles = ( 0, 90, 0 );
+	collision setmodel( "collision_clip_wall_128x128x10" );
+	couch = spawn( "script_model", (-1512, -262, 26.5) );
+	couch.angles = ( 0, 90, 0 );
+	couch setmodel( "p6_zm_bu_victorian_couch" );
 	//mule kick barrier
 	/*
 	barrier_model = spawn( "script_model", ( -578, 1006, 167 ), 1 );
@@ -137,10 +137,10 @@ remove_buried_spawns()
 
 spawn_mp5_wallbuy()
 {
-	_weapon_spawner( ( 0, -180, 0 ), ( -279, 886, 190 ), "mp5k_zm_fx", "mp5k_zm", "t6_wpn_smg_mp5_world", "mp5", "weapon_upgrade" );
+	wallbuy( ( 0, -180, 0 ), ( -279, 886, 190 ), "mp5k_zm_fx", "mp5k_zm", "t6_wpn_smg_mp5_world", "mp5", "weapon_upgrade" );
 }
 
-_weapon_spawner( weapon_angles, weapon_coordinates, chalk_fx, weapon_name, weapon_model, target, targetname )
+wallbuy( weapon_angles, weapon_coordinates, chalk_fx, weapon_name, weapon_model, target, targetname )
 {
 	tempmodel = spawn( "script_model", ( 0, 0, 0 ) );
 	precachemodel( weapon_model );
@@ -211,7 +211,7 @@ _weapon_spawner( weapon_angles, weapon_coordinates, chalk_fx, weapon_name, weapo
 		maps/mp/zombies/_zm_unitrigger::register_static_unitrigger( unitrigger_stub, ::weapon_spawn_think );
 	}
 	tempmodel delete();
-    thread playchalkfx( chalk_fx, weapon_coordinates, weapon_angles );
+	thread playchalkfx( chalk_fx, weapon_coordinates, weapon_angles );
 }
 
 playchalkfx( effect, origin, angles ) //custom function

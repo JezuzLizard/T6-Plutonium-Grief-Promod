@@ -75,6 +75,7 @@ init_gamerules()
 	level.speed_change_round = undefined;
 	level.grief_gamerules = [];
 	level.grief_gamerules[ "scorelimit" ] = getDvarIntDefault( "grief_gamerule_scorelimit", 3 );
+	level.grief_gamerules[ "roundlimit" ] = getGametypeSetting( "roundLimit" );
 	level.grief_gamerules[ "zombies_per_round" ] = getDvarIntDefault( "grief_gamerule_zombies_per_round", 3 );
 	level.grief_gamerules[ "perk_restrictions" ] = getDvar( "grief_gamerule_perk_restrictions" );
 	level.grief_gamerules[ "mystery_box_enabled" ] = getDvarIntDefault( "grief_gamerule_mystery_box_enabled", 0 );

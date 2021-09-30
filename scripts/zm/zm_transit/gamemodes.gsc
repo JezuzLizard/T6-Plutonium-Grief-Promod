@@ -13,6 +13,15 @@
 #include maps/mp/zm_transit_standard_station;
 #include maps/mp/zm_transit_classic;
 
+#include scripts/zm/promod/_gametype_setup;
+#include scripts/zm/zm_transit/loc_cornfield;
+#include scripts/zm/zm_transit/loc_diner;
+#include scripts/zm/zm_transit/loc_farm;
+#include scripts/zm/zm_transit/loc_power;
+#include scripts/zm/zm_transit/loc_town;
+#include scripts/zm/zm_transit/loc_transit;
+#include scripts/zm/zm_transit/loc_tunnel;
+
 init_o()
 {
 	add_map_gamemode( "zclassic", maps/mp/zm_transit::zclassic_preinit, undefined, undefined );

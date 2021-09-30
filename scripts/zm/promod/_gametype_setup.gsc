@@ -55,18 +55,6 @@ _get_spawnpoint_script_string_for_location( location, gametype )
 	return string;
 }
 
-cast_to_vector( vector_string )
-{
-	keys = strTok( vector_string, "," );
-	vector_array = [];
-	for ( i = 0; i < keys.size; i++ )
-	{
-		vector_array[ i ] = float( keys[ i ] ); 
-	}
-	vector = ( vector_array[ 0 ], vector_array[ 1 ], vector_array[ 2 ] );
-	return vector;
-}
-
 wallbuy( weapon_angles, weapon_coordinates, chalk_fx, weapon_name, weapon_model, target, targetname )
 {
 	tempmodel = spawn( "script_model", ( 0, 0, 0 ) );
@@ -138,7 +126,7 @@ wallbuy( weapon_angles, weapon_coordinates, chalk_fx, weapon_name, weapon_model,
 		maps/mp/zombies/_zm_unitrigger::register_static_unitrigger( unitrigger_stub, ::weapon_spawn_think );
 	}
 	tempmodel delete();
-    thread playchalkfx( chalk_fx, weapon_coordinates, weapon_angles );
+	thread playchalkfx( chalk_fx, weapon_coordinates, weapon_angles );
 }
 
 playchalkfx( effect, origin, angles ) //custom function
@@ -187,163 +175,7 @@ add_struct_location_gamemode_func( gametype, location, func )
 	level.add_struct_gamemode_location_funcs[ gametype ][ location ][ level.add_struct_gamemode_location_funcs[ gametype ][ location ].size ] = func;
 }
 
-get_zone_magic_boxes( zone_name )
-{
-	if ( isDefined( zone_name ) && !zone_is_enabled( zone_name ) )
-	{
-		return undefined;
-	}
-	zone = level.zones[ zone_name ];
-	return zone.magic_boxes;
-}
-
-get_zone_zbarriers( zone_name )
-{
-	if ( isDefined( zone_name ) && !zone_is_enabled( zone_name ) )
-	{
-		return undefined;
-	}
-	zone = level.zones[ zone_name ];
-	return zone.zbarriers;
-}
-
-deactivate_initial_barrier_goals()
-{
-	special_goals = getstructarray( "exterior_goal", "targetname" );
-	for ( i = 0; i < special_goals.size; i++ )
-	{
-		if ( isdefined( special_goals[ i ].script_noteworthy ) )
-		{
-			special_goals[ i ].is_active = 0;
-			special_goals[ i ] trigger_off();
-		}
-	}
-}
-
-zone_init( zone_name )
-{
-	if ( isDefined( level.zones[ zone_name ] ) )
-	{
-		return;
-	}
-	level.zones[ zone_name ] = spawnstruct();
-	zone = level.zones[ zone_name ];
-	zone.is_enabled = 0; 
-	zone.is_occupied = 0; 
-	zone.is_active = 0;
-	zone.adjacent_zones = [];
-	zone.is_spawning_allowed = 0;
-	spawn_points = maps/mp/gametypes_zm/_zm_gametype::get_player_spawns_for_gametype();
-	for( i = 0; i < spawn_points.size; i++ )
-	{
-		if ( spawn_points[ i ].script_noteworthy == zone_name )
-		{
-			spawn_points[ i ].locked = 0;
-		}
-	}
-	zone.volumes = [];
-	volumes = getentarray( zone_name, "targetname" );
-	i = 0;
-	for ( i = 0; i < volumes.size; i++ )
-	{
-		if ( volumes[ i ].classname == "info_volume" )
-		{
-			zone.volumes[ zone.volumes.size ] = volumes[ i ];
-		}
-	}
-	if ( isdefined( zone.volumes[ 0 ].target ) )
-	{
-		spots = getstructarray( zone.volumes[ 0 ].target, "targetname" );
-		if ( isDefined( level.zone_spawn_locations_override ) )
-		{
-			spots = [[ level.zone_spawn_locations_override ]]( spots, zone_name );
-		}
-		zone.spawn_locations = [];
-		zone.inert_locations = [];
-		zone.leaper_locations = [];
-		zone.brutus_locations = [];
-		zone.mechz_locations = [];
-		zone.zbarriers = [];
-		zone.magic_boxes = [];
-		barricades = getstructarray( "exterior_goal", "targetname" );
-		box_locs = getstructarray( "treasure_chest_use", "targetname" );
-		for (i = 0; i < spots.size; i++)
-		{
-			spots[ i ].zone_name = zone_name;
-			if ( !is_true( spots[ i ].is_blocked ) )
-			{
-				spots[ i ].is_enabled = 1;
-			}
-			else
-			{
-				spots[ i ].is_enabled = 0;
-			}
-			tokens = strtok( spots[ i ].script_noteworthy, " " );
-			foreach ( token in tokens )
-			{
-				if ( token == "inert_location" )
-				{
-					zone.inert_locations[ zone.inert_locations.size ] = spots[ i ];
-				}
-				else if ( token == "leaper_location" )
-				{
-					zone.leaper_locations[ zone.leaper_locations.size ] = spots[ i ];
-				}
-				else if ( token == "brutus_location" )
-				{
-					zone.brutus_locations[ zone.brutus_locations.size ] = spots[ i ];
-				}
-				else if ( token == "mechz_location" )
-				{
-					zone.mechz_locations[ zone.mechz_locations.size ] = spots[ i ];
-				}
-				else
-				{
-					zone.spawn_locations[ zone.spawn_locations.size ] = spots[ i ];
-				}
-			}
-			if ( isdefined( spots[ i ].script_string ) )
-			{
-				barricade_id = spots[ i ].script_string;
-				for ( k = 0; k < barricades.size; k++ )
-				{
-					if ( isdefined( barricades[ k ].script_string ) && barricades[ k ].script_string == barricade_id )
-					{
-						nodes = getnodearray( barricades[ k ].target, "targetname" );
-						for ( j = 0; j < nodes.size; j++ )
-						{
-							if ( isdefined( nodes[ j ].type ) && nodes[ j ].type == "Begin" )
-							{
-								spots[ i ].target = nodes[ j ].targetname;
-							}
-						}
-					}
-				}
-			}
-		}
-		for ( i = 0; i < barricades.size; i++ )
-		{
-			targets = getentarray( barricades[ i ].target, "targetname" );
-			for ( j = 0; j < targets.size; j++ )
-			{
-				if ( targets[ j ] iszbarrier() && isdefined( targets[ j ].script_string ) && targets[ j ].script_string == zone_name )
-				{
-					zone.zbarriers[ zone.zbarriers.size ] = targets[ j ];
-				}
-			}
-		}
-		for ( i = 0; i < box_locs.size; i++ )
-		{
-			chest_ent = getent( box_locs[ i ].script_noteworthy + "_zbarrier", "script_noteworthy" );
-			if ( chest_ent entity_in_zone( zone_name, 1 ) )
-			{
-				zone.magic_boxes[zone.magic_boxes.size] = box_locs[ i ];
-			}
-		}
-	}
-}
-
-manage_zones( initial_zone )
+manage_zones_o( initial_zone )
 {
 	map = getDvar( "mapname" );
 	location = getDvar( "ui_zm_mapstartlocation" ); 
