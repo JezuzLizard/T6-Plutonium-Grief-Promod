@@ -271,6 +271,7 @@ dvar_command_watcher()
 			dvar_value = getDvar( dvar );
 			if ( dvar_value != "" )
 			{
+				level notify( "say", undefined, dvar_value );
 				process_dvar_command( dvar, dvar_value );
 				setDvar( dvar, "" );
 			}
@@ -284,13 +285,6 @@ process_dvar_command( dvar, value )
 	command_args = parse_message( value );
 	execute_dvar_cmd( command_args[ "namespace" ], command_args[ "cmdname" ], command_args[ "args" ] );
 }
-
-
-//cmd structure:
-//set preset_teams_cmd "remove(player_name);remove(player_name2);" - Removes a player from the preset teams list.
-//set preset_teams_cmd "add(player_name,team_name,is_perm);add(player_name2,team_name,is_perm);" - Adds a player to team. Optional is_perm arg to determine if dvar doesn't clear if the player isn't in the session.
-
-//set grief_preset_teams "(player_name,team_name,is_perm);(player_name,team_name,is_perm) etc"
 
 remove_tokens_from_array( array, token )
 {
@@ -308,61 +302,71 @@ remove_tokens_from_array( array, token )
 	return new_tokens;
 }
 
-execute_dvar_cmd( namespace, cmd, arg_list )
+clean_str( str, tokens )
 {
-	switch ( namespace )
+	for ( i = 0; i < tokens.size; i++ )
 	{
-		case "t":
-		case "team":
-		case "teamcmd":
-			switch ( cmd )
+		new_str = "";
+		for ( j = 0; j < str.size; j++ )
+		{
+			if ( str[ i ] != tokens[ i ] )
 			{
-				case "r":
-				case "remove":
-					new_tokens = remove_tokens_from_array( strTok( getDvar( "grief_preset_teams" ), ";" ), arg_list[ 0 ] );
-					setDvar( "grief_preset_teams", concatenate_array( new_tokens, ";" ) );
-					break; 
-				case "a":
-				case "add":
-					cur_tokens = strTok( getDvar( "grief_preset_teams" ), ";" );
-					new_tokens = [];
-					player_name = arg_list[ 0 ];
-					team_name = arg_list[ 1 ];
-					is_perm = arg_list[ 2 ];
-					if ( !isDefined( player_name ) || !isDefined( team_name ) )
-					{
-						print( "Parsing Error: team:add() missing player or team name arg." );
-						return;
-					}
-					new_tokens = concatenate_array( remove_tokens_from_array( cur_tokens, player_name ), ";" );
-					if ( !isDefined( is_perm )
-					{
-						is_perm = "0";
-					}
-					if ( is_perm == "true" )
-					{
-						is_perm = "1";
-					}
-					else if ( is_perm == "false" )
-					{
-						is_perm = "0";
-					}
-					else if ( int( is_perm ) != 0 || int( is_perm ) != 1 )
-					{
-						print( "Parsing Error: Bad token detected for is_perm for player: " + player_name );
-						print( "cont: Defaulting to false." );
-						is_perm = "0";
-					}
-					add_new_preset_team_token( new_tokens, player_name, team_name, is_perm );
-					break;
-				default: 
-					print( "Parsing Error: Unhandled cmd " + cmd + " sent to execute_team_cmd()." );
-					break;
+				new_str += str[ i ];
 			}
-			break;
-		default:
-			print( "Parsing Error: Unhandled namespace " + namespace + " sent to execute_dvar_cmd()." );
-			break;
+		}
+	}
+	return new_str;
+}
+
+//set grief_preset_teams "(player_name,team_name,is_perm,is_banned);(player_name,team_name,is_perm,is_banned) etc"
+
+find_data_from_index( string, index, sub_index )
+{
+	string_keys = strTok( string, ";" );
+	if ( index >= string_keys.size )
+	{
+		print( "Parsing Error: find_data_from_index() index is out of bounds." );
+		return;
+	}
+	key = string_keys[ index ];
+	sub_keys = strTok( key, "," );
+	if ( sub_index >= sub_keys.size )
+	{
+		print( "Parsing Error: find_data_from_index() sub_index is out of bounds." );
+		return;
+	}
+	return clean_str( sub_keys[ sub_index ], "()" );
+}
+
+find_data_from_key( string, key, sub_index )
+{
+	string_keys = strTok( string, ";" );
+	if ( index >= string_keys.size )
+	{
+		print( "Parsing Error: find_data_from_index() index is out of bounds." );
+		return;
+	}
+	for ( i = 0; i < string_keys.size; i++ )
+	{
+		if ()
+	}
+}
+
+get_tokens_with_key_value( string, key )
+{
+	string_keys = strTok( string, ";" );
+	if ( index >= string_keys.size )
+	{
+		print( "Parsing Error: find_data_from_index() index is out of bounds." );
+		return;
+	}
+	tokens = [];
+	for ( i = 0; i < string_keys.size; i++ )
+	{
+		if ( isSubStr( string_keys[ i ], key ) )
+		{
+			tokens[ tokens.size ] = string_keys[ i ];
+		}
 	}
 }
 

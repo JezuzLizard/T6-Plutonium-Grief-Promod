@@ -38,34 +38,40 @@ get_cmd_namespace( message )
 
 parse_message( message )
 {
+	multi_cmds = [];
 	command_keys = [];
-	command_keys[ "namespace" ] = "";
-	command_keys[ "cmdname" ] = "";
-	command_keys[ "args" ] = [];
-	namespace_found = false;
-	command_keys[ "namespace" ] = get_cmd_namespace( message );
-	for ( buffer_index = 0; command_keys[ "namespace" ] != "" && buffer_index < command_keys[ "namespace" ].size + 2; buffer_index++ )
+	multiple_cmds_keys = strTok( message, ";" );
+	for ( i = 0; i < multiple_cmds_keys.size; i++ )
 	{
-	}
-	for ( ; message[ buffer_index ] != "("; buffer_index++ )
-	{
-		command_keys[ "cmdname" ] = command_keys[ "cmdname" ] + message[ buffer_index ];
-	}
-	for ( ; isDefined( message[ buffer_index ] ) && message[ buffer_index ] != ")"; buffer_index++ )
-	{
-		if ( message[ buffer_index ] != "," )
+		message = multiple_cmds_keys[ i ];
+		command_keys[ "namespace" ] = "";
+		command_keys[ "cmdname" ] = "";
+		command_keys[ "args" ] = [];
+		command_keys[ "namespace" ] = get_cmd_namespace( message );
+		for ( buffer_index = 0; command_keys[ "namespace" ] != "" && buffer_index < command_keys[ "namespace" ].size + 2; buffer_index++ )
 		{
-			command_keys[ "args" ][ command_keys[ "args" ].size ] = "";
 		}
-		else 
+		for ( ; message[ buffer_index ] != "("; buffer_index++ )
 		{
-			for ( ; isDefined( message[ buffer_index ] ) && message[ buffer_index ] != ","; buffer_index++ )
+			command_keys[ "cmdname" ] = command_keys[ "cmdname" ] + message[ buffer_index ];
+		}
+		for ( ; isDefined( message[ buffer_index ] ) && message[ buffer_index ] != ")"; buffer_index++ )
+		{
+			if ( message[ buffer_index ] == "," )
 			{
-				command_keys[ "args" ][ command_keys[ "args" ].size - 1 ] += message[ buffer_index ];
+				command_keys[ "args" ][ command_keys[ "args" ].size ] = "";
+			}
+			else 
+			{
+				for ( ; isDefined( message[ buffer_index ] ) && message[ buffer_index ] != ","; buffer_index++ )
+				{
+					command_keys[ "args" ][ command_keys[ "args" ].size - 1 ] += message[ buffer_index ];
+				}
 			}
 		}
+		multi_cmds[ multi_cmds.size ] = command_keys;
 	}
-	return command_keys;
+	return multi_cmds;
 }
 
 //Command struture - cmd_namespace:cmd(arg1,arg2);
@@ -76,380 +82,385 @@ commands()
 	while ( true )
 	{
 		level waittill( "say", player, message );
-		if ( !isSubStr( message, "!" ) )
+		if ( isDefined( player ) && !isSubStr( message, "!" ) )
 		{
 			continue;
 		}
-		command_keys = parse_message( message );
-		args = command_keys[ "args" ];
-		if ( player has_permissions_for_command( command_keys[ "cmdname" ], args ) )
+		multi_cmds = parse_message( message );
+		for ( i = 0; i < multi_cmds.size; i++ )
 		{
-			switch ( command_keys[ "namespace" ] )
+			args = multi_cmds[ i ][ "args" ];
+			namespace = multi_cmds[ i ][ "namespace" ];
+			cmdname = multi_cmds[ i ][ "cmdname" ];
+			if ( player has_permissions_for_command( cmdname, args ) )
 			{
-				case "t":
-				case "team":
-				case "teamcmd":
-					scripts/zm/promod/utility/_grief_util::execute_team_cmd( cmd, args );
-					break;
-				default:
-					switch ( command_keys[ "cmdname" ] )
-					{
-						case "fr":
-						case "restart":
-						case "maprestart":
-						case "map_restart":
-							logline1 = "CMD:" + player.name + ";FR" + "\n";
-							logprint( logline1 );
-							level thread change_level();
-							level notify( "end_commands", 0 );
-							break;
-						case "nm":
-						case "nextmap":
-						case "setnextmap":
-							logline1 = "CMD:" + player.name + ";NM:" + args[ 0 ] + "\n";
-							logprint( logline1 );
-							find_alias_and_set_map( toLower( args[ 0 ] ), player, 0, 0 );
-							break;
-						case "km":
-						case "keepmap":
-							logline1 = "CMD:" + player.name + ";KM:" + args[ 0 ] + "\n";
-							logprint( logline1 );
-							find_alias_and_set_map( toLower( args[ 0 ] ), player, 0, 1 );
-							break;
-						case "mr":
-						case "maprotate":
-							logline1 = "CMD:" + player.name + ";MR" + "\n";
-							logprint( logline1 );
-							level thread change_level();
-							level notify( "end_commands", 1 );
-							break;
-						case "m":
-						case "map":
-							logline1 = "CMD:" + player.name + ";MAP:" + args[ 0 ] + "\n";
-							logprint( logline1 );
-							find_alias_and_set_map( toLower( args[ 0 ] ), player, 1 );
-							break;
-						case "rr":
-						case "resetrotation":
-							logline1 = "CMD:" + player.name + ";RR" + "\n";
-							logprint( logline1 );
-							player tell( "Map rotation reset to the default" );
-							setDvar( "sv_maprotation", getDvar( "grief_original_rotation" ) );
-							setDvar( "sv_maprotationCurrent", getDvar( "grief_original_rotation" ) );
-							break;
-						case "k":
-						case "kick":
-							foreach ( player in level.players )
-							{
-								if ( clean_player_name_of_clantag( player.name ) == clean_player_name_of_clantag( args[ 0 ] ) )
+				switch ( namespace )
+				{
+					case "t":
+					case "team":
+					case "teamcmd":
+						execute_team_cmd( cmd, args );
+						break;
+					default:
+						switch ( cmdname )
+						{
+							case "fr":
+							case "restart":
+							case "maprestart":
+							case "map_restart":
+								logline1 = "CMD:" + player.name + ";FR" + "\n";
+								logprint( logline1 );
+								level thread change_level();
+								level notify( "end_commands", 0 );
+								break;
+							case "nm":
+							case "nextmap":
+							case "setnextmap":
+								logline1 = "CMD:" + player.name + ";NM:" + args[ 0 ] + "\n";
+								logprint( logline1 );
+								find_alias_and_set_map( toLower( args[ 0 ] ), player, 0, 0 );
+								break;
+							case "km":
+							case "keepmap":
+								logline1 = "CMD:" + player.name + ";KM:" + args[ 0 ] + "\n";
+								logprint( logline1 );
+								find_alias_and_set_map( toLower( args[ 0 ] ), player, 0, 1 );
+								break;
+							case "mr":
+							case "maprotate":
+								logline1 = "CMD:" + player.name + ";MR" + "\n";
+								logprint( logline1 );
+								level thread change_level();
+								level notify( "end_commands", 1 );
+								break;
+							case "m":
+							case "map":
+								logline1 = "CMD:" + player.name + ";MAP:" + args[ 0 ] + "\n";
+								logprint( logline1 );
+								find_alias_and_set_map( toLower( args[ 0 ] ), player, 1 );
+								break;
+							case "rr":
+							case "resetrotation":
+								logline1 = "CMD:" + player.name + ";RR" + "\n";
+								logprint( logline1 );
+								player tell( "Map rotation reset to the default" );
+								setDvar( "sv_maprotation", getDvar( "grief_original_rotation" ) );
+								setDvar( "sv_maprotationCurrent", getDvar( "grief_original_rotation" ) );
+								break;
+							case "k":
+							case "kick":
+								foreach ( player in level.players )
 								{
-									logline1 = "CMD:" + player.name + ";K:" + args[ 0 ] + "\n";
+									if ( clean_player_name_of_clantag( player.name ) == clean_player_name_of_clantag( args[ 0 ] ) )
+									{
+										logline1 = "CMD:" + player.name + ";K:" + args[ 0 ] + "\n";
+										logprint( logline1 );
+										say( clean_player_name_of_clantag( player.name ) + " has been kicked!" );
+										kick( player getEntityNumber() );
+										break;
+									}
+								}
+								break;
+							case "mv":
+							case "mapvote":
+								if ( !is_true( level.mapvote_in_progress ) )
+								{
+									logline1 = "CMD:" + player.name + ";MVS:" + args[ 0 ] + "\n";
 									logprint( logline1 );
-									say( clean_player_name_of_clantag( player.name ) + " has been kicked!" );
-									kick( player getEntityNumber() );
+									level thread mapvote_started();
+									level thread mapvote_count_votes();
+									level thread mapvote_end();
+									level.mapvote_in_progress = 1;
+									say( "Mapvote started!" );
+								}
+								level notify( "grief_mapvote", args[ 0 ], player );
+								break;
+							case "vk":
+							case "votekick":
+								if ( level.players.size < 3 )
+								{
+									player tell( "Not enough players to initiate a votekick" );
 									break;
 								}
-							}
-							break;
-						case "mv":
-						case "mapvote":
-							if ( !is_true( level.mapvote_in_progress ) )
-							{
-								logline1 = "CMD:" + player.name + ";MVS:" + args[ 0 ] + "\n";
+								if ( !is_true( level.votekick_in_progress ) )
+								{
+									logline1 = "CMD:" + player.name + ";VKS:" + args[ 0 ] + "\n";
+									logprint( logline1 );
+									level thread vote_kick_started();
+									level thread votekick_count_votes();
+									level.votekick_in_progress = 1;
+									say( "Votekick started!" );
+								}
+								level notify( "grief_votekick", args[ 0 ], player );
+								break;
+							case "mag":
+							case "magic":
+							case "nomagic":
+								if ( !isDefined( args[ 0 ] ) )
+								{
+									say( "Magic is disabled for this round only" );
+									no_magic();
+									break;
+								}
+								if ( args[ 0 ] == "0" )
+								{	
+									logline1 = "CMD:" + player.name + ";TOGMAG" + "\n";
+									logprint( logline1 );
+									say( "Magic is disabled on the server" );
+									setDvar( "grief_gamerule_magic", 0 );
+									no_magic();
+								}
+								if ( args[ 0 ] == "1" )
+								{
+									say( "Magic will be enabled on the server starting next match" );
+									setDvar( "grief_gamerule_magic", 1 );
+								}
+								break;
+							case "np":
+							case "drops":
+							case "powerups":
+								if ( !isDefined( args[ 0 ] ) )
+								{
+									say( "Powerups are disabled for this match only" );
+									no_drops();
+									break;
+								}
+								logline1 = "CMD:" + player.name + ";TOGDROPS:" + args[ 0 ] + "\n";
 								logprint( logline1 );
-								level thread mapvote_started();
-								level thread mapvote_count_votes();
-								level thread mapvote_end();
-								level.mapvote_in_progress = 1;
-								say( "Mapvote started!" );
-							}
-							level notify( "grief_mapvote", args[ 0 ], player );
-							break;
-						case "vk":
-						case "votekick":
-							if ( level.players.size < 3 )
-							{
-								player tell( "Not enough players to initiate a votekick" );
+								if ( args[ 0 ] == "0" )
+								{
+									say( "Powerups are disabled on the server" );
+									no_drops();
+									setDvar( "grief_gamerule_powerup_restrictions", "all" );
+								}
+								else if ( args[ 0 ] == "1" )
+								{
+									say( "Powerups will be enabled on the server starting next match" );
+									setDvar( "grief_gamerule_powerup_restrictions", "" );
+								}
 								break;
-							}
-							if ( !is_true( level.votekick_in_progress ) )
-							{
-								logline1 = "CMD:" + player.name + ";VKS:" + args[ 0 ] + "\n";
+							case "rn":
+							case "roundnumber":
+								if ( !isDefined( args[ 0 ] ) )
+								{
+									player tell( "You need to specify a round number" );
+									break;
+								}
+								logline1 = "CMD:" + player.name + ";ROUND:" + args[ 0 ] + "\n";
 								logprint( logline1 );
-								level thread vote_kick_started();
-								level thread votekick_count_votes();
-								level.votekick_in_progress = 1;
-								say( "Votekick started!" );
-							}
-							level notify( "grief_votekick", args[ 0 ], player );
-							break;
-						case "mag":
-						case "magic":
-						case "nomagic":
-							if ( !isDefined( args[ 0 ] ) )
-							{
-								say( "Magic is disabled for this round only" );
-								no_magic();
+								say( "The round is set to " + args[ 0 ] );
+								set_round( int( args[ 0 ] ) );
 								break;
-							}
-							if ( args[ 0 ] == "0" )
-							{	
-								logline1 = "CMD:" + player.name + ";TOGMAG" + "\n";
+							case "kl":
+							case "knifelunge":
+								logline1 = "CMD:" + player.name + ";KNIFE:" + args[ 0 ] + "\n";
 								logprint( logline1 );
-								say( "Magic is disabled on the server" );
-								setDvar( "grief_gamerule_magic", 0 );
-								no_magic();
-							}
-							if ( args[ 0 ] == "1" )
-							{
-								say( "Magic will be enabled on the server starting next match" );
-								setDvar( "grief_gamerule_magic", 1 );
-							}
-							break;
-						case "np":
-						case "drops":
-						case "powerups":
-							if ( !isDefined( args[ 0 ] ) )
-							{
-								say( "Powerups are disabled for this match only" );
-								no_drops();
+								set_knife_lunge( int( args[ 0 ] ) );
 								break;
-							}
-							logline1 = "CMD:" + player.name + ";TOGDROPS:" + args[ 0 ] + "\n";
-							logprint( logline1 );
-							if ( args[ 0 ] == "0" )
-							{
-								say( "Powerups are disabled on the server" );
-								no_drops();
-								setDvar( "grief_gamerule_powerup_restrictions", "all" );
-							}
-							else if ( args[ 0 ] == "1" )
-							{
-								say( "Powerups will be enabled on the server starting next match" );
-								setDvar( "grief_gamerule_powerup_restrictions", "" );
-							}
-							break;
-						case "rn":
-						case "roundnumber":
-							if ( !isDefined( args[ 0 ] ) )
-							{
-								player tell( "You need to specify a round number" );
+							case "d":
+							case "dvar":
+								if ( !isDefined( args[ 0 ] ) || !isDefined( args[ 1 ] ) )
+								{
+									player tell( "You need to specify a dvar and its value" );
+									break;
+								}
+								player tell( "Dvar set " + args[ 0 ] + " to " + args[ 1 ] );
+								logline1 = "CMD:" + player.name + ";DVAR:" + args[ 0 ] + ";VAL:" + args[ 1 ] + "\n";
+								logprint( logline1 );
+								setDvar( args[ 0 ], args[ 1 ] );
 								break;
-							}
-							logline1 = "CMD:" + player.name + ";ROUND:" + args[ 0 ] + "\n";
-							logprint( logline1 );
-							say( "The round is set to " + args[ 0 ] );
-							set_round( int( args[ 0 ] ) );
-							break;
-						case "kl":
-						case "knifelunge":
-							logline1 = "CMD:" + player.name + ";KNIFE:" + args[ 0 ] + "\n";
-							logprint( logline1 );
-							set_knife_lunge( int( args[ 0 ] ) );
-							break;
-						case "d":
-						case "dvar":
-							if ( !isDefined( args[ 0 ] ) || !isDefined( args[ 1 ] ) )
-							{
-								player tell( "You need to specify a dvar and its value" );
-								break;
-							}
-							player tell( "Dvar set " + args[ 0 ] + " to " + args[ 1 ] );
-							logline1 = "CMD:" + player.name + ";DVAR:" + args[ 0 ] + ";VAL:" + args[ 1 ] + "\n";
-							logprint( logline1 );
-							setDvar( args[ 0 ], args[ 1 ] );
-							break;
-						case "cv":
-						case "cvar":
-							if ( !isDefined( args[ 0 ] ) || !isDefined( args[ 1 ] ) )
-							{
-								player tell( "You need to specify a dvar and its value" );
-								break;
-							}
-							player tell( "Cvar set " + args[ 0 ] + " to " + args[ 1 ] );
-							logline1 = "CMD:" + player.name + ";CVAR:" + args[ 0 ] + ";VAL:" + args[ 1 ] + "\n";
-							logprint( logline1 );
-							player setClientDvar( args[ 0 ], args[ 1 ] );
-							break;
-						case "cva":
-						case "cvarall":
-							if ( !isDefined( args[ 0 ] ) || !isDefined( args[ 1 ] ) )
-							{
-								player tell( "You need to specify a dvar and its value" );
-								break;
-							}
-							foreach ( player in level.players )
-							{
+							case "cv":
+							case "cvar":
+								if ( !isDefined( args[ 0 ] ) || !isDefined( args[ 1 ] ) )
+								{
+									player tell( "You need to specify a dvar and its value" );
+									break;
+								}
 								player tell( "Cvar set " + args[ 0 ] + " to " + args[ 1 ] );
-								logline1 = "CMD:" + player.name + ";CVARA:" + args[ 0 ] + ";VAL:" + args[ 1 ] + "\n";
+								logline1 = "CMD:" + player.name + ";CVAR:" + args[ 0 ] + ";VAL:" + args[ 1 ] + "\n";
 								logprint( logline1 );
 								player setClientDvar( args[ 0 ], args[ 1 ] );
-							} 
-							break;
-						case "l":
-						case "lock":
-						case "lockserver":
-							if ( !isDefined( args[ 0 ] ) )
-							{
-								player tell( "You need to specify a password to lock the server" );
 								break;
-							}
-							player tell( "Server is now password protected" );
-							logline1 = "CMD:" + player.name + ";LOCK:" + args[ 0 ] + "\n";
-							logprint( logline1 );
-							setDvar( "g_password", args[ 0 ] );
-							break;
-						case "ul":
-						case "unlock":
-						case "unlockserver":
-							player tell( "Server is now open" );
-							logline1 = "CMD:" + player.name + ";UNLOCK:" + "\n";
-							logprint( logline1 );
-							setDvar( "g_password", "" );
-							break;
-						// case "im":
-						// case "intermission":
-						// 	level.grief_gamerules[ "intermission_time" ] = args[ 0 ];
-						// 	say( "Intermission will take place after next round and last " + args[ 0 ] );
-						// 	logline1 = "CMD:" + player.name + ";IM" + ";TIME:" + args[ 0 ] + "\n";
-						// 	logprint( logline1 );
-						// 	break;
-						case "mobjug":
-						case "celljug":
-						case "cellblockjug":
-							if ( !isDefined( args[ 0 ] ) )
-							{
-								player tell( "You need to specify 1 or 0" );
+							case "cva":
+							case "cvarall":
+								if ( !isDefined( args[ 0 ] ) || !isDefined( args[ 1 ] ) )
+								{
+									player tell( "You need to specify a dvar and its value" );
+									break;
+								}
+								foreach ( player in level.players )
+								{
+									player tell( "Cvar set " + args[ 0 ] + " to " + args[ 1 ] );
+									logline1 = "CMD:" + player.name + ";CVARA:" + args[ 0 ] + ";VAL:" + args[ 1 ] + "\n";
+									logprint( logline1 );
+									player setClientDvar( args[ 0 ], args[ 1 ] );
+								} 
 								break;
-							}
-							if ( args[ 0 ] == "1" )
-							{	
-								say( "Jug is enabled on Cellblock" );
-								setDvar( "grief_gamerule_cellblock_jug", 1 );
-							}
-							else if ( args[ 0 ] == "0" )
-							{	
-								say( "Jug is disabled on Cellblock" );
-								setDvar( "grief_gamerule_cellblock_jug", 0 );
-							}
-							logline1 = "CMD:" + player.name + ";MOBJUG:" + args[ 0 ] + "\n";
-							logprint( logline1 );
-							break;
-						case "depotjug":
-							if ( !isDefined( args[ 0 ] ) )
-							{
-								player tell( "You need to specify 1 or 0" );
-								break;
-							}
-							if ( args[ 0 ] == "1" )
-							{	
-								say( "Jug is enabled on Bus Depot" );
-								setDvar("grief_gamerule_depot_jug", 1 );
-							}
-							else if ( args[ 0 ] == "0" )
-							{	
-								say( "Jug is disabled on Bus Depot" );
-								setDvar("grief_gamerule_depot_jug", 0 );
-							}
-							logline1 = "CMD:" + player.name + ";DEPOTJUG:" + args[ 0 ] + "\n";
-							logprint( logline1 );
-							break;
-						case "rsa":
-						case "reducedammo":
-							logline1 = "CMD:" + player.name + ";AMMO:" + args[ 0 ] + "\n";
-							logprint( logline1 );
-							if ( !isDefined( args[ 0 ] ) )
-							{
-								player tell( "You need to specify 1 or 0" );
-								break;
-							}
-							if( int( args[ 0 ] ) == 1 )
-							{
-								level.grief_gamerules[ "reduced_pistol_ammo" ] = 1;
-								say( "Reduced pistol starting ammo is enabled" );
-							}
-							else if( int( args[ 0 ] ) == 0 )
-							{
-								level.grief_gamerules[ "reduced_pistol_ammo" ] = 0;
-								say( "Reduced pistol starting ammo is disabled" );
-							}
-							break;
-						case "build":
-						case "buildables":
-							logline1 = "CMD:" + player.name + ";BUILD:" + args[ 0 ] + "\n";
-							logprint( logline1 );
-							if ( !isDefined( args[ 0 ] ) )
-							{
-								player tell( "You need to specify 1 or 0" );
-								break;
-							}
-							if( int( args[ 0 ] ) == 1 )
-							{
-								level.grief_gamerules[ "buildables" ] = 1;
-								say( "Buildables are enabled" );
-							}
-							else if( int( args[ 0 ] ) == 0 )
-							{
-								level.grief_gamerules[ "buildables" ] = 0;
-								say( "Buildables are disabled" );
-							}
-							break;
-						case "zombies":
-						case "maxzombies":
-							logline1 = "CMD:" + player.name + ";MAXZM:" + args[ 0 ] + "\n";
-							logprint( logline1 );
-							if ( !isDefined( args[ 0 ] ) )
-							{
-								player tell( "You need to specify a number" );
-								break;
-							}
-							int_args = int( args[ 0 ] );
-							if( int_args <= 32 )
-							{
-								level.zombie_ai_limit = int_args;
-								level.zombie_actor_limit = int_args;
-								say( "The max amount of zombies on the map is set to " + int_args );
-							}
-							else 
-							{
-								player tell( "The max amount of zombies you can set is 32" );
-							}
-							break;
-						case "bot":
-						case "spawnbot":
-							bot = addtestClient();
-							bot.pers[ "IsBot" ] = 1;
-							if ( isDefined( args[ 0 ] ) )
-							{
-								say( "Bot spawned on team " + args[ 0 ] );
-								logline1 = "CMD:" + player.name + ";BOT" + ";TEAM:" + args[ 0 ] + "\n";
+							case "l":
+							case "lock":
+							case "lockserver":
+								if ( !isDefined( args[ 0 ] ) )
+								{
+									player tell( "You need to specify a password to lock the server" );
+									break;
+								}
+								player tell( "Server is now password protected" );
+								logline1 = "CMD:" + player.name + ";LOCK:" + args[ 0 ] + "\n";
 								logprint( logline1 );
-								bot.custom_team = args[ 0 ];
-							}
-							else 
-							{
-								say( "Bot spawned in" );
-								logline1 = "CMD:" + player.name + ";BOT:" + "\n";
+								setDvar( "g_password", args[ 0 ] );
+								break;
+							case "ul":
+							case "unlock":
+							case "unlockserver":
+								player tell( "Server is now open" );
+								logline1 = "CMD:" + player.name + ";UNLOCK:" + "\n";
 								logprint( logline1 );
-							}
-							break;
-						case "cmd":
-						case "commandlist":
-						case "list":
-						case "commands":
-							if ( !player.printing_commands )
-							{
-								player thread print_command_list();
-							}
-							break;
-						case "t":
-						case "team":
-						case "teamcmd":
+								setDvar( "g_password", "" );
+								break;
+							// case "im":
+							// case "intermission":
+							// 	level.grief_gamerules[ "intermission_time" ] = args[ 0 ];
+							// 	say( "Intermission will take place after next round and last " + args[ 0 ] );
+							// 	logline1 = "CMD:" + player.name + ";IM" + ";TIME:" + args[ 0 ] + "\n";
+							// 	logprint( logline1 );
+							// 	break;
+							case "mobjug":
+							case "celljug":
+							case "cellblockjug":
+								if ( !isDefined( args[ 0 ] ) )
+								{
+									player tell( "You need to specify 1 or 0" );
+									break;
+								}
+								if ( args[ 0 ] == "1" )
+								{	
+									say( "Jug is enabled on Cellblock" );
+									setDvar( "grief_gamerule_cellblock_jug", 1 );
+								}
+								else if ( args[ 0 ] == "0" )
+								{	
+									say( "Jug is disabled on Cellblock" );
+									setDvar( "grief_gamerule_cellblock_jug", 0 );
+								}
+								logline1 = "CMD:" + player.name + ";MOBJUG:" + args[ 0 ] + "\n";
+								logprint( logline1 );
+								break;
+							case "depotjug":
+								if ( !isDefined( args[ 0 ] ) )
+								{
+									player tell( "You need to specify 1 or 0" );
+									break;
+								}
+								if ( args[ 0 ] == "1" )
+								{	
+									say( "Jug is enabled on Bus Depot" );
+									setDvar("grief_gamerule_depot_jug", 1 );
+								}
+								else if ( args[ 0 ] == "0" )
+								{	
+									say( "Jug is disabled on Bus Depot" );
+									setDvar("grief_gamerule_depot_jug", 0 );
+								}
+								logline1 = "CMD:" + player.name + ";DEPOTJUG:" + args[ 0 ] + "\n";
+								logprint( logline1 );
+								break;
+							case "rsa":
+							case "reducedammo":
+								logline1 = "CMD:" + player.name + ";AMMO:" + args[ 0 ] + "\n";
+								logprint( logline1 );
+								if ( !isDefined( args[ 0 ] ) )
+								{
+									player tell( "You need to specify 1 or 0" );
+									break;
+								}
+								if( int( args[ 0 ] ) == 1 )
+								{
+									level.grief_gamerules[ "reduced_pistol_ammo" ] = 1;
+									say( "Reduced pistol starting ammo is enabled" );
+								}
+								else if( int( args[ 0 ] ) == 0 )
+								{
+									level.grief_gamerules[ "reduced_pistol_ammo" ] = 0;
+									say( "Reduced pistol starting ammo is disabled" );
+								}
+								break;
+							case "build":
+							case "buildables":
+								logline1 = "CMD:" + player.name + ";BUILD:" + args[ 0 ] + "\n";
+								logprint( logline1 );
+								if ( !isDefined( args[ 0 ] ) )
+								{
+									player tell( "You need to specify 1 or 0" );
+									break;
+								}
+								if( int( args[ 0 ] ) == 1 )
+								{
+									level.grief_gamerules[ "buildables" ] = 1;
+									say( "Buildables are enabled" );
+								}
+								else if( int( args[ 0 ] ) == 0 )
+								{
+									level.grief_gamerules[ "buildables" ] = 0;
+									say( "Buildables are disabled" );
+								}
+								break;
+							case "zombies":
+							case "maxzombies":
+								logline1 = "CMD:" + player.name + ";MAXZM:" + args[ 0 ] + "\n";
+								logprint( logline1 );
+								if ( !isDefined( args[ 0 ] ) )
+								{
+									player tell( "You need to specify a number" );
+									break;
+								}
+								int_args = int( args[ 0 ] );
+								if( int_args <= 32 )
+								{
+									level.zombie_ai_limit = int_args;
+									level.zombie_actor_limit = int_args;
+									say( "The max amount of zombies on the map is set to " + int_args );
+								}
+								else 
+								{
+									player tell( "The max amount of zombies you can set is 32" );
+								}
+								break;
+							case "bot":
+							case "spawnbot":
+								bot = addtestClient();
+								bot.pers[ "IsBot" ] = 1;
+								if ( isDefined( args[ 0 ] ) )
+								{
+									say( "Bot spawned on team " + args[ 0 ] );
+									logline1 = "CMD:" + player.name + ";BOT" + ";TEAM:" + args[ 0 ] + "\n";
+									logprint( logline1 );
+									bot.custom_team = args[ 0 ];
+								}
+								else 
+								{
+									say( "Bot spawned in" );
+									logline1 = "CMD:" + player.name + ";BOT:" + "\n";
+									logprint( logline1 );
+								}
+								break;
+							case "cmd":
+							case "commandlist":
+							case "list":
+							case "commands":
+								if ( !player.printing_commands )
+								{
+									player thread print_command_list();
+								}
+								break;
+							case "t":
+							case "team":
+							case "teamcmd":
 
-						default:
-							player tell( "No such command exists" );
-							break;
-					}
+							default:
+								player tell( "No such command exists" );
+								break;
+						}
+				}
 			}
 		}
 	}
@@ -996,4 +1007,69 @@ no_drops()
 	level.zombie_include_powerups = [];
 	level.zombie_powerup_array= [];
 	level.zombie_include_powerups = [];
+}
+
+//cmd structure:
+//set preset_teams_cmd "remove(player_name,...);" - Removes a player from the preset teams list.
+//set preset_teams_cmd "add(player_name,team_name,is_perm,is_banned_from_team_change);add(player_name2,team_name,is_perm);" - Adds a player to team. Optional is_perm arg to determine if dvar doesn't clear if the player isn't in the session.
+//set dcmd "ban(player_name,...)"
+//set dcmd "unban(player_name,...)"
+
+//set grief_preset_teams "(player_name,team_name,is_perm,is_banned);(player_name,team_name,is_perm,is_banned) etc"
+
+execute_team_cmd( cmd, arg_list )
+{
+	switch ( cmd )
+	{
+		case "r":
+		case "remove":
+			new_tokens = remove_tokens_from_array( strTok( getDvar( "grief_preset_teams" ), ";" ), arg_list[ 0 ] );
+			setDvar( "grief_preset_teams", concatenate_array( new_tokens, ";" ) );
+			break; 
+		case "a":
+		case "add":
+			cur_tokens = strTok( getDvar( "grief_preset_teams" ), ";" );
+			new_tokens = [];
+			player_name = arg_list[ 0 ];
+			team_name = arg_list[ 1 ];
+			is_perm = arg_list[ 2 ];
+			is_banned = arg_list[ 3 ];
+			if ( !isDefined( player_name ) || !isDefined( team_name ) )
+			{
+				print( "Parsing Error: team:add() missing player or team name arg." );
+				return;
+			}
+			new_tokens = concatenate_array( remove_tokens_from_array( cur_tokens, player_name ), ";" );
+			if ( !isDefined( is_perm )
+			{
+				is_perm = "0";
+			}
+			if ( !isDefined( is_banned ) )
+			{
+				is_banned = "0";
+			}
+			if ( is_perm == "true" )
+			{
+				is_perm = "1";
+			}
+			else if ( is_perm == "false" )
+			{
+				is_perm = "0";
+			}
+			else if ( int( is_perm ) != 0 || int( is_perm ) != 1 )
+			{
+				print( "Parsing Error: Bad token detected for is_perm for player: " + player_name );
+				print( "cont: Defaulting to false." );
+				is_perm = "0";
+			}
+			add_new_preset_team_token( new_tokens, player_name, team_name, is_perm );
+			break;
+		case "b":
+		case "ban":
+			
+
+		default: 
+			print( "Parsing Error: Unhandled cmd " + cmd + " sent to execute_team_cmd()." );
+			break;
+	}
 }
