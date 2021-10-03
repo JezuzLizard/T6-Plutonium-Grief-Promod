@@ -1,3 +1,10 @@
+#include maps/mp/zombies/_zm_utility;
+#include maps/mp/_utility;
+#include common_scripts/utility;
+#include maps/mp/gametypes_zm/_hud;
+#include maps/mp/gametypes_zm/_hud_util;
+#include maps/mp/gametypes_zm/_hud_message;
+
 draw_hud()
 {
 	level thread grief_score();

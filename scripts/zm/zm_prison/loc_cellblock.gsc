@@ -25,8 +25,8 @@ precache()
 {
 	setdvar( "disableLookAtEntityLogic", 1 );
 	level.chests = [];
-	level.chests[ level.chests.size ] = getstruct( "start_chest", "script_noteworthy" );;
-	level.chests[ level.chests.size ] = getstruct( "cafe_chest", "script_noteworthy" );;
+	level.chests[ level.chests.size ] = getstruct( "start_chest", "script_noteworthy" );
+	level.chests[ level.chests.size ] = getstruct( "cafe_chest", "script_noteworthy" );
 }
 
 main()

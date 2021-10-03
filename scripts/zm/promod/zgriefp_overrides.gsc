@@ -32,6 +32,9 @@
 #include maps/mp/gametypes_zm/_zm_gametype;
 #include maps/mp/zombies/_zm_game_module;
 
+#include scripts/zm/promod/utility/_grief_util;
+#include scripts/zm/promod/zgriefp;
+
 treasure_chest_init_o( start_chest_name ) //checked changed to match cerberus output
 {
 	flag_init( "moving_chest_enabled" );
@@ -604,7 +607,7 @@ check_for_round_end_o( winner )
 	{
 		level.gamemodulewinningteam = winner;
 		level.zombie_vars[ "spectators_respawn" ] = 0;
-		players = get_players();
+		players = getPlayers();
 		i = 0;
 		winning_team_size = 0;
 		losing_team_size = 0;
@@ -701,7 +704,7 @@ wait_for_team_death_and_round_end_o()
 	{
 		cdc_alive = 0;
 		cia_alive = 0;
-		players = get_players();
+		players = getPlayers();
 		i = 0;
 		while ( i < players.size )
 		{

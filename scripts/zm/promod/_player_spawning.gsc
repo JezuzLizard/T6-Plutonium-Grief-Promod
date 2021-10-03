@@ -1,9 +1,11 @@
-main()
-{
-	level.custom_spawnplayer = ::grief_spectator_respawn;
-}
+#include maps/mp/zombies/_zm_utility;
+#include maps/mp/_utility;
+#include common_scripts/utility;
+#include maps/mp/zombies/_zm;
+#include maps/mp/gametypes_zm/_spectating;
+#include maps/mp/zombies/_zm_perks;
 
-onspawnplayer( predictedspawn )
+/*private*/ onspawnplayer( predictedspawn )
 {
 	if ( !isDefined( predictedspawn ) )
 	{
@@ -28,8 +30,7 @@ onspawnplayer( predictedspawn )
 	structs = getstructarray( "initial_spawn", "script_noteworthy" );
 	if ( isdefined( structs ) )
 	{
-		i = 0;
-		while ( i < structs.size )
+		for ( i = 0; i < structs.size; i++ )
 		{
 			if ( isdefined( structs[ i ].script_string ) )
 			{
@@ -42,7 +43,6 @@ onspawnplayer( predictedspawn )
 					}
 				}
 			}
-			i++;
 		}
 	}
 	if ( !isDefined( spawnpoints ) || spawnpoints.size == 0 )
@@ -91,7 +91,7 @@ onspawnplayer( predictedspawn )
 }
 
 
-get_player_spawns_for_gametype()
+/*private*/ get_player_spawns_for_gametype()
 {
 	match_string = "";
 	location = level.scr_zm_map_start_location;
@@ -124,7 +124,7 @@ get_player_spawns_for_gametype()
 	return player_spawns;
 }
 
-grief_spectator_respawn()
+/*private*/ grief_spectator_respawn()
 {
 	origin = self.spectator_respawn.origin;
 	angles = self.spectator_respawn.angles;
@@ -162,7 +162,7 @@ grief_spectator_respawn()
 	return 1;
 }
 
-getfreespawnpoint( spawnpoints, player )
+/*private*/ getfreespawnpoint( spawnpoints, player )
 {
 	assign_spawnpoints_player_data( spawnpoints, player );
 	for ( j = 0; j < spawnpoints.size; j++ )
@@ -174,7 +174,7 @@ getfreespawnpoint( spawnpoints, player )
 	}
 }
 
-assign_spawnpoints_player_data( spawnpoints, player )
+/*private*/ assign_spawnpoints_player_data( spawnpoints, player )
 {
 	remove_disconnected_players_spawnpoint_property( spawnpoints );
 	for ( i = 0; i < spawnpoints.size; i++ )
@@ -187,7 +187,7 @@ assign_spawnpoints_player_data( spawnpoints, player )
 	}
 }
 
-remove_disconnected_players_spawnpoint_property( spawnpoints )
+/*private*/ remove_disconnected_players_spawnpoint_property( spawnpoints )
 {
 	for ( i = 0; i < spawnpoints.size; i++ )
 	{

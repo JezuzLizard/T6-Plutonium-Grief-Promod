@@ -4,6 +4,13 @@
 #include maps/mp/zombies/_zm_zonemgr;
 #include maps/mp/gametypes_zm/_zm_gametype;
 #include maps/mp/zombies/_zm_utility;
+#include scripts/zm/promod/utility/_grief_util;
+#include maps/mp/zombies/_zm_weapons;
+#include maps/mp/zombies/_zm_melee_weapon;
+#include maps/mp/zombies/_zm_weap_claymore;
+#include maps/mp/zombies/_zm_weap_ballistic_knife;
+#include maps/mp/zombies/_zm_equipment;
+#include maps/mp/zombies/_zm_magicbox;
 
 register_perk_struct( perk_name, perk_model, perk_angles, perk_coordinates )
 {

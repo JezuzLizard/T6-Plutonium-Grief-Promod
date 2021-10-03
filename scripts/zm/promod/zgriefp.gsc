@@ -21,6 +21,7 @@
 #include scripts\zm\promod\_player_spawning;
 #include scripts\zm\promod\_teams;
 #include scripts\zm\promod\zgriefp_overrides;
+#include scripts\zm\promod\_gamerules;
 
 init()
 {
@@ -34,15 +35,11 @@ init()
 		setDvar( "sv_maprotation", getDvar( "grief_original_rotation" ) );
 		setDvar( "sv_maprotationCurrent", getDvar( "grief_original_rotation" ) );
 	}
-	registerroundlimit( 1, 1 );
-	registertimelimit( 0, 0 );
-	registerscorelimit( 0, 0 );
 	level thread monitor_players_connecting_status();
 	level thread emptyLobbyRestart();
-	level.basepath = getDvar( "fs_basepath" ) + "/" + getDvar( "fs_basegame" ) + "/" + "scriptdata" + "/";
-	initialize_no_permissions_required_commands();
-	setup_permissions();
-	level thread commands();
+	scripts/zm/promod/plugin/commands::setup_permissions();
+	level thread scripts/zm/promod/plugin/commands::command_watcher();
+	scripts/zm/promod/utility/_grief_util::add_dvar_commands();
 	init_gamerules();
 	setdvar( "ui_scorelimit", level.grief_gamerules[ "scorelimit" ] );
 	setdvar( "ui_timelimit", level.grief_gamerules[ "timelimit" ] );
@@ -55,11 +52,10 @@ init()
 	level.grief_round_win_next_round_countdown = ::round_change_hud;
 	level.grief_round_intermission_countdown = ::intermission_hud;
 	level.grief_loadout_save = ::grief_loadout_save;
-	grief_parse_perk_restrictions();
-	grief_parse_powerup_restrictions();
-	grief_parse_magic_restrictions();
+	level.custom_spawnplayer = ::grief_spectator_respawn;
+	scripts/zm/promod/_gamerules::parse_restrictions();
 	level thread on_player_connect();
-	level thread draw_hud();
+	level thread scripts/zm/promod/_hud::draw_hud();
 	wait 15;
 	level thread instructions_on_all_players();
 	if ( getDvarInt( "grief_tournament_mode" ) == 1 )
@@ -126,8 +122,9 @@ on_player_connect()
 			player.last_griefed_by.weapon = undefined;
 		}
 		player thread give_points_on_restart_and_round_change();
-		player initial_player_team();
-		player store_player_session_data();
+		player scripts/zm/promod/utility/_grief_util::init_player_session_data();
+		player scripts/zm/promod/_teams::player_team_setup();
+		//player scripts/zm/promod/plugin/commands::player_command_setup();
 		player.killsconfirmed = 0;
 		player.stabs = 0;
 		player.assists = 0;
@@ -144,14 +141,17 @@ on_player_spawned()
 		self waittill( "spawned_player" );
 		self.health = level.grief_gamerules[ "player_health" ];
 		self.maxHealth = self.health;
-		reduce_starting_ammo();
+		if ( level.grief_gamerules[ "reduced_pistol_ammo" ] )
+		{
+			reduce_starting_ammo();
+		}
 	}
 }
 
 reduce_starting_ammo()
 {	
 	wait 0.05;
-	if( self hasweapon( "m1911_zm" ) && (self getammocount( "m1911_zm" ) > 16 ) && level.grief_gamerules[ "reduced_pistol_ammo" ] )
+	if ( self hasweapon( "m1911_zm" ) && ( self getammocount( "m1911_zm" ) > 16 ) )
 	{
 		self setweaponammostock( "m1911_zm", 8 );
 	}
@@ -184,9 +184,9 @@ is_weapon_shotgun( sweapon )
 		case "ksg_upgraded_zm":
 		case "870mcs_zm":
 		case "870mcs_upgraded_zm":
-			return 1;
+			return true;
 		default:
-			return 0;
+			return false;
 	}
 }
 
@@ -244,12 +244,12 @@ round_spawning() //checked changed to match cerberus output
 		return;
 	}
 	ai_calculate_health( level.round_number );
-	players = get_players();
+	players = getPlayers();
 	for ( i = 0; i < players.size; i++ )
 	{
 		players[ i ].zombification_time = 0;
 	}
-	player_num = get_players().size;
+	player_num = getPlayers().size;
 	level.zombie_total = ( level.grief_gamerules[ "zombies_per_round" ] * level.round_number ) + ( player_num * 2 );
 	level notify( "zombie_total_set" );
 	old_spawn = undefined;

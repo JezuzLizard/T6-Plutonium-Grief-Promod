@@ -1,6 +1,6 @@
 
-#include scripts/zm/promod/_utility;
-#include scripts/zm/zm_transit/gamemodes;
+#include scripts/zm/promod/_grief_util;
+#include scripts/zm/zm_buried/gamemodes;
 
 main()
 {

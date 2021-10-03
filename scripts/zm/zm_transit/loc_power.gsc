@@ -77,7 +77,7 @@ power_main()
 	level thread falling_death_init();
 	init_wallbuys();
 	init_barriers();
-	maps/mp/zombies/_zm_magicbox::treasure_chest_init( "pow_chest" );();
+	maps/mp/zombies/_zm_magicbox::treasure_chest_init( "pow_chest" );
 	scripts/zm/zm_transit/location_common::common_init();
 }
 

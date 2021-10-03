@@ -23,7 +23,6 @@ farm_main()
 {
 	maps/mp/gametypes_zm/_zm_gametype::setup_standard_objects( "farm" );
 	maps/mp/zombies/_zm_magicbox::treasure_chest_init( "farm_chest" );
-	farm_treasure_chest_init();
 	flag_wait( "initial_blackscreen_passed" );
 	level thread maps/mp/zombies/_zm_zonemgr::enable_zone( "zone_far_ext" );
 	level thread maps/mp/zombies/_zm_zonemgr::enable_zone( "zone_brn" );

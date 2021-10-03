@@ -1,3 +1,15 @@
+#include maps/mp/zombies/_zm_utility;
+#include maps/mp/_utility;
+#include common_scripts/utility;
+#include maps/mp/zombies/_zm_perks;
+#include scripts/zm/promod/utility/_grief_util;
+
+parse_restrictions()
+{
+	perk_restrictions();
+	powerup_restrictions();
+	magic_restrictions();
+}
 
 //doesn't work yet
 grief_restrict_wallbuy( weapon )
@@ -17,7 +29,7 @@ grief_restrict_wallbuy( weapon )
 	return false;
 }
 
-grief_parse_perk_restrictions()
+perk_restrictions()
 {
 	if ( level.grief_gamerules[ "perk_restrictions" ] == "" )
 	{
@@ -39,7 +51,7 @@ grief_parse_perk_restrictions()
 	}
 }
 
-grief_parse_powerup_restrictions()
+powerup_restrictions()
 {	
 	if ( level.grief_gamerules[ "powerup_restrictions" ] == "all" )
 	{
@@ -53,7 +65,7 @@ grief_parse_powerup_restrictions()
 	}
 }
 
-grief_parse_magic_restrictions()
+magic_restrictions()
 {	
 	if ( level.grief_gamerules[ "magic" ] == 0 )
 	{

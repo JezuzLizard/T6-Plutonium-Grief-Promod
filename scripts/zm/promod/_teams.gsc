@@ -1,25 +1,18 @@
+#include maps/mp/zombies/_zm_utility;
+#include maps/mp/_utility;
+#include common_scripts/utility;
+#include scripts/zm/promod/utility/_grief_util;
+#include maps/mp/gametypes_zm/_globallogic_ui;
 
-initial_player_team()
+/*public*/ player_team_setup()
 {
-	if ( isDefined( level.players_in_session[ self.name ].sessionteam ) )
+	session_team = level.players_in_session[ self.name ].sessionteam;
+	if ( isDefined( session_team ) )
 	{
-		switch ( level.players_in_session[ self.name ].sessionteam )
-		{
-			case "axis":
-				self.team = "axis";
-				self.sessionteam = "axis";
-				self.pers[ "team" ] = "axis";
-				self._encounters_team = "A"; 
-				break;
-			case "allies":
-				self.team = "allies";
-				self.sessionteam = "allies";
-				self.pers[ "team" ] = "allies";
-				self._encounters_team = "B";
-				break;
-			default:
-				break;
-		}
+		self.team = session_team;
+		self.sessionteam = session_team;
+		self.pers[ "team" ] = session_team;
+		self._encounters_team = level.data_maps[ "encounters_teams" ][ "e_team" ][ level.teamIndex[ session_team ] ]; 
 	}
 	else 
 	{
@@ -54,7 +47,7 @@ initial_player_team()
 	self [[ level.givecustomcharacters ]]();
 }
 
-menu_onmenuresponse()
+/*private*/ menu_onmenuresponse()
 {
 	self endon( "disconnect" );
 	for ( ;; )
@@ -62,14 +55,12 @@ menu_onmenuresponse()
 		self waittill( "menuresponse", menu, response );
 		if ( response == "back" )
 		{
-			self closemenu();
-			self closeingamemenu();
+			self closemenus();
 			continue;
 		}
 		if ( response == "changeteam" && self player_can_change_teams() )
 		{
-			self closemenu();
-			self closeingamemenu();
+			self closemenus();
 			self openmenu( game[ "menu_team" ] );
 			continue;
 		}
@@ -80,10 +71,6 @@ menu_onmenuresponse()
 				level.skipvote = 1;
 				if ( is_true( level.gameended ) )
 				{
-					self maps/mp/zombies/_zm_laststand::add_weighted_down();
-					self maps/mp/zombies/_zm_stats::increment_client_stat( "deaths" );
-					self maps/mp/zombies/_zm_stats::increment_player_stat( "deaths" );
-					self maps/mp/zombies/_zm_pers_upgrades_functions::pers_upgrade_jugg_player_death_stat();
 					level.host_ended_game = 1;
 					maps/mp/zombies/_zm_game_module::freeze_players( 1 );
 					level notify( "end_game" );
@@ -95,18 +82,14 @@ menu_onmenuresponse()
 		{
 			if ( is_true( level.gameended ) )
 			{
-				self maps/mp/gametypes_zm/_globallogic::gamehistoryplayerquit();
-				self maps/mp/zombies/_zm_laststand::add_weighted_down();
-				self closemenu();
-				self closeingamemenu();
+				self closemenus();
 				level.host_ended_game = 1;
 				maps/mp/zombies/_zm_game_module::freeze_players( 1 );
 				level notify( "end_game" );
 			}
 			else
 			{
-				self closemenu();
-				self closeingamemenu();
+				self closemenus();
 				self iprintln( &"MP_HOST_ENDGAME_RESPONSE" );
 			}
 			continue;
@@ -132,14 +115,14 @@ menu_onmenuresponse()
 	}
 }
 
-menuteam( team )
+/*private*/ menuteam( team )
 {
 	self closemenus();
 	self thread change_team_next_round( team );
 	return true;
 }
 
-change_team_next_round( team )
+/*private*/ change_team_next_round( team )
 {
 	level notify( "team_change_set" );
 	level endon( "team_change_set" );
@@ -160,31 +143,21 @@ change_team_next_round( team )
 			self.sessionteam = "none";
 			self.ffateam = team;
 		}
-		switch ( team )
-		{
-			case "allies":
-				self._encounters_team = "B";
-				break;
-			case "axis":
-				self._encounters_team = "A";
-				break;
-			default:
-				break;
-		}
+		self._encounters_team = level.data_maps[ "encounters_teams" ][ "e_team" ][ level.teamIndex[ team ] ];
 		level.players_in_session[ self.name ].sessionteam = team;
 	}
 }
 
-menuautoassign( comingfrommenu )
+/*private*/ menuautoassign( comingfrommenu )
 {
 	teamkeys = getarraykeys( level.teams );
 	assignment = teamkeys[ randomint( teamkeys.size ) ];
 	self closemenus();
 	self thread change_team_next_round( assignment );
-	return true;;
+	return true;
 }
 
-player_can_change_teams()
+/*private*/ player_can_change_teams()
 {
 	if ( !isDefined( level.team_change_cooldown ) )
 	{
@@ -219,26 +192,22 @@ player_can_change_teams()
 	{
 		can_change_teams = true;
 	}
-	if ( !can_change_teams )
-	{
-		self closemenus();
-	}
-	else
+	if ( can_change_teams )
 	{
 		self thread team_change_timer();
 		level.players_in_session[ self.name ].team_changed_times++;
 	}
+	self closemenus();
 	return can_change_teams;
 }
 
-player_banned_from_changing_teams()
+/*private*/ player_banned_from_changing_teams()
 {
 	return level.players_in_session[ self.name ].team_change_ban;
 }
 
-team_change_timer()
+/*private*/ team_change_timer()
 {
-
 	level.players_in_session[ self.name ].team_change_timer = level.team_change_cooldown;
 	while ( level.players_in_session[ self.name ].team_change_timer > 0 )
 	{
@@ -247,53 +216,18 @@ team_change_timer()
 	}
 }
 
-store_player_session_data()
-{
-	if ( !isDefined( level.players_in_session ) )
-	{
-		level.players_in_session = [];
-	}
-	if ( !isDefined( level.players_in_session[ self.name ] ) )
-	{
-		level.players_in_session[ self.name ] = spawnStruct();
-		if ( level.grief_gamerules[ "use_preset_teams" ] )
-		{
-			level.players_in_session[ self.name ].sessionteam = self check_for_predefined_team();
-		}
-		else 
-		{
-			level.players_in_session[ self.name ].sessionteam = undefined;
-		}
-		level.players_in_session[ self.name ].team_change_timer = 0;
-		level.players_in_session[ self.name ].team_changed_times = 0;
-		level.players_in_session[ self.name ].team_change_ban = false;
-	}
-}
-
 //set grief_preset_teams "player_name(team_name,is_perm) player_name(team_name,is_perm) etc"
 
-check_for_predefined_team()
+/*public*/ check_for_predefined_team()
 {
 	preset_teams = getDvar( "grief_preset_teams" );
-	team_keys = strTok( preset_teams, " " ); 
-	if ( teamplayersallies < 4 )
+	team = get_key_value_from_value( "grief_preset_teams", getDvar( "grief_preset_teams" ), self.name, "team_name" );
+	if ( team != "" && isDefined( level.teams[ team ] ) && countPlayers( team ) < 4 )
 	{
-		foreach ( key in team_keys )
-		{
-			logline1 = "Checking player: " + self.name + " comparing with: " + key + "\n";
-			logprint( logline1 );
-			if ( self.name == key )
-			{
-				self.team = "allies";
-				self.sessionteam = "allies";
-				self.pers[ "team" ] = "allies";
-				self._encounters_team = "B";
-				team_is_defined = 1;
-				logline1 = "trying to set player based on name: " + self.name + " to preset team: " + self.team + "\n";
-				logprint( logline1 );
-				break;
-			}
-		}
+		self.team = team;
+		self.sessionteam = team;
+		self.pers[ "team" ] = team;
+		self._encounters_team = level.data_maps[ "encounters_teams" ][ "e_team" ][ level.teamIndex[ team ] ];
 	}
 }
 

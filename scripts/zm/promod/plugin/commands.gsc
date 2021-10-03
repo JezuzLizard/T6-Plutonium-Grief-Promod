@@ -1,5 +1,11 @@
+#include maps/mp/zombies/_zm_utility;
+#include common_scripts/utility;
+#include maps/mp/_utility;
+#include scripts/zm/promod/utility/_grief_util;
+#include maps/mp/zombies/_zm_perks;
+#include scripts/zm/promod/zgriefp;
 
-init_cmd_namespaces()
+/*private*/ init_cmd_namespaces()
 {
 	level.cmd_namespaces = [];
 	level.cmd_namespaces[ "team" ] = [];
@@ -11,74 +17,12 @@ init_cmd_namespaces()
 	// level.cmd_namespaces[ "team" ][ "cmd_aliases" ][ "perm" ] = array( "perm", "p" );
 }
 
-get_cmd_namespace( message )
-{
-	cmd_namespace = "";
-	if ( !isSubStr( message, ":" ) )
-	{
-		return ":";
-	}
-	for ( i = 0; isDefined( message[ i ] ) && message[ i ] != ":"; i++ )
-	{
-		cmd_namespace = cmd_namespace + message[ i ];
-	}
-	namespace_keys = getArrayKeys( level.cmd_namespaces );
-	for ( i = 0; i < namespace_keys.size; i++ )
-	{
-		foreach ( alias in level.cmd_namespaces[ namespace_keys[ i ] ][ "namespace_aliases" ] )
-		{
-			if ( cmd_namespace == alias )
-			{
-				return namespace_keys[ i ];
-			}
-		}
-	}
-	return "";
-}
-
-parse_message( message )
-{
-	multi_cmds = [];
-	command_keys = [];
-	multiple_cmds_keys = strTok( message, ";" );
-	for ( i = 0; i < multiple_cmds_keys.size; i++ )
-	{
-		message = multiple_cmds_keys[ i ];
-		command_keys[ "namespace" ] = "";
-		command_keys[ "cmdname" ] = "";
-		command_keys[ "args" ] = [];
-		command_keys[ "namespace" ] = get_cmd_namespace( message );
-		for ( buffer_index = 0; command_keys[ "namespace" ] != "" && buffer_index < command_keys[ "namespace" ].size + 2; buffer_index++ )
-		{
-		}
-		for ( ; message[ buffer_index ] != "("; buffer_index++ )
-		{
-			command_keys[ "cmdname" ] = command_keys[ "cmdname" ] + message[ buffer_index ];
-		}
-		for ( ; isDefined( message[ buffer_index ] ) && message[ buffer_index ] != ")"; buffer_index++ )
-		{
-			if ( message[ buffer_index ] == "," )
-			{
-				command_keys[ "args" ][ command_keys[ "args" ].size ] = "";
-			}
-			else 
-			{
-				for ( ; isDefined( message[ buffer_index ] ) && message[ buffer_index ] != ","; buffer_index++ )
-				{
-					command_keys[ "args" ][ command_keys[ "args" ].size - 1 ] += message[ buffer_index ];
-				}
-			}
-		}
-		multi_cmds[ multi_cmds.size ] = command_keys;
-	}
-	return multi_cmds;
-}
-
-//Command struture - cmd_namespace:cmd(arg1,arg2);
-commands()
+//Command struture - namespace:cmd(...);
+/*public*/ command_watcher()
 {
 	level endon( "end_commands" );
 	level thread end_commands_on_end_game();
+	init_cmd_namespaces();
 	while ( true )
 	{
 		level waittill( "say", player, message );
@@ -452,10 +396,6 @@ commands()
 									player thread print_command_list();
 								}
 								break;
-							case "t":
-							case "team":
-							case "teamcmd":
-
 							default:
 								player tell( "No such command exists" );
 								break;
@@ -466,7 +406,7 @@ commands()
 	}
 }
 
-zombie_spawn_delay_fix()
+/*private*/ zombie_spawn_delay_fix()
 {
 	i = 1;
 	while ( i <= level.round_number )
@@ -487,7 +427,7 @@ zombie_spawn_delay_fix()
 	}
 }
 
-zombie_speed_fix()
+/*private*/ zombie_speed_fix()
 {
 	if ( level.gamedifficulty == 0 )
 	{
@@ -499,7 +439,7 @@ zombie_speed_fix()
 	}
 }
 
-set_round( round_number )
+/*private*/ set_round( round_number )
 {
 	if ( isDefined( level._grief_reset_message ) )
 	{
@@ -519,69 +459,26 @@ set_round( round_number )
 	level notify( "grief_give_points" );
 }
 
-has_permissions_for_command( command, args )
+/*private*/ has_permissions_for_command( command, args )
 {
 	for ( i = 0; i < level.grief_no_permissions_required_commands.size; i++ )
 	{
 		if ( command == level.grief_no_permissions_required_commands[ i ] )
 		{
-			return 1;
+			return true;
 		}
 	}
 	for ( i = 0; i < level.server_users[ "Admins" ].guids.size; i++ )
 	{
 		if ( self getGUID() == level.server_users[ "Admins" ].guids[ i ] )
 		{
-			return 1;
+			return true;
 		}
 	}
-	return 0;
+	return false;
 }
 
-initialize_no_permissions_required_commands()
-{
-	level.grief_no_permissions_required_commands = [];
-	level.grief_no_permissions_required_commands[ 0 ] = "mv";
-	level.grief_no_permissions_required_commands[ 1 ] = "mapvote";
-	level.grief_no_permissions_required_commands[ 2 ] = "vk";
-	level.grief_no_permissions_required_commands[ 3 ] = "votekick";
-
-	level.mapvote_array = [];
-	level.mapvote_array[ 0 ] = spawnStruct();
-	level.mapvote_array[ 0 ].mapname = "cellblock";
-	level.mapvote_array[ 0 ].aliases = array( "c", "cell", "block", "cellblock", "mob" );
-	level.mapvote_array[ 0 ].votes = 0;
-	level.mapvote_array[ 1 ] = spawnStruct();
-	level.mapvote_array[ 1 ].mapname = "borough";
-	level.mapvote_array[ 1 ].aliases = array( "s", "street", "borough", "buried" );
-	level.mapvote_array[ 1 ].votes = 0;
-	level.mapvote_array[ 2 ] = spawnStruct();
-	level.mapvote_array[ 2 ].mapname = "farm";
-	level.mapvote_array[ 2 ].aliases = array( "f", "farm" );
-	level.mapvote_array[ 2 ].votes = 0;
-	level.mapvote_array[ 3 ] = spawnStruct();
-	level.mapvote_array[ 3 ].mapname = "town";
-	level.mapvote_array[ 3 ].aliases = array( "t", "town" );
-	level.mapvote_array[ 3 ].votes = 0;
-	level.mapvote_array[ 4 ] = spawnStruct();
-	level.mapvote_array[ 4 ].mapname = "depot";
-	level.mapvote_array[ 4 ].aliases = array( "b", "bus", "depot" );
-	level.mapvote_array[ 4 ].votes = 0;
-	level.mapvote_array[ 5 ] = spawnStruct();
-	level.mapvote_array[ 5 ].mapname = "diner";
-	level.mapvote_array[ 5 ].aliases = array( "d", "din", "diner" );
-	level.mapvote_array[ 5 ].votes = 0;
-	level.mapvote_array[ 6 ] = spawnStruct();
-	level.mapvote_array[ 6 ].mapname = "tunnel";
-	level.mapvote_array[ 6 ].aliases = array( "t", "tunnel" );
-	level.mapvote_array[ 6 ].votes = 0;
-	level.mapvote_array[ 7 ] = spawnStruct();
-	level.mapvote_array[ 7 ].mapname = "power";
-	level.mapvote_array[ 7 ].aliases = array( "p", "pow", "power" );
-	level.mapvote_array[ 7 ].votes = 0;
-}
-
-mapvote_started()
+/*private*/ mapvote_started()
 {
 	level endon( "end_game" );
 	level endon( "grief_mapvote_ended" );
@@ -642,7 +539,7 @@ mapvote_started()
 	}
 }
 
-mapvote_count_votes()
+/*private*/ mapvote_count_votes()
 {
 	level endon( "end_game" );
 	level endon( "grief_mapvote_ended" );
@@ -671,7 +568,7 @@ mapvote_count_votes()
 	level notify( "grief_mapvote_ended", map );
 }
 
-mapvote_end()
+/*private*/ mapvote_end()
 {
 	level waittill( "grief_mapvote_ended", result );
 	if ( isDefined( result ) )
@@ -697,17 +594,7 @@ mapvote_end()
 	}
 }
 
-clean_player_name_of_clantag( name )
-{
-	if ( isSubStr( name, "]" ) )
-	{
-		keys = strTok( name, "]" );
-		return keys[ 1 ];
-	}
-	return name;
-}
-
-print_command_list()
+/*private*/ print_command_list()
 {	
 	self endon( "command_print_end" );
 	self.printing_commands = 1;
@@ -740,31 +627,32 @@ print_command_list()
 	self notify( "command_print_end" );
 }
 
-end_commands_on_end_game()
+/*private*/ end_commands_on_end_game()
 {
 	level waittill( "end_game" );
 	wait 15;
+	clear_non_perm_dvar_entries();
 	level notify( "end_commands" );
 }
 
-change_level()
+/*private*/ change_level()
 {
 	level waittill( "end_commands", result );
 	wait 0.5;
 	switch ( result )
 	{
 		case 0:
-			cmdExecute( "map_restart" );
+			map_restart( false ); 
 			break;
 		case 1:
-			cmdExecute( "map_rotate" );
+			exitLevel( false );
 			break;
 		default:
 			break;
 	}
 }
 
-vote_kick_started()
+/*private*/ vote_kick_started()
 {
 	level endon( "end_game" );
 	level endon( "grief_votekick_ended" );
@@ -796,7 +684,7 @@ vote_kick_started()
 	}
 }
 
-votekick_count_votes()
+/*private*/ votekick_count_votes()
 {
 	level endon( "end_game" );
 	level endon( "grief_votekick_ended" );
@@ -835,7 +723,7 @@ votekick_count_votes()
 	}
 }
 
-get_vote_threshold()
+/*private*/ get_vote_threshold()
 {
 	switch ( level.players.size )
 	{
@@ -856,8 +744,9 @@ get_vote_threshold()
 	}
 }
 
-setup_permissions()
+/*public*/ setup_permissions()
 {
+	level.basepath = getDvar( "fs_basepath" ) + "/" + getDvar( "fs_basegame" ) + "/" + "scriptdata" + "/";
 	level.server_users = [];
 	level.server_users[ "Admins" ] = spawnStruct();
 	level.server_users[ "Admins" ].names = [];
@@ -879,9 +768,49 @@ setup_permissions()
 		guids_keys = strTok( names_and_guids[ j ], "<" );
 		level.server_users[ rank ].guids[ j ] = int( guids_keys[ 1 ] );
 	}
+
+	level.grief_no_permissions_required_commands = [];
+	level.grief_no_permissions_required_commands[ 0 ] = "mv";
+	level.grief_no_permissions_required_commands[ 1 ] = "mapvote";
+	level.grief_no_permissions_required_commands[ 2 ] = "vk";
+	level.grief_no_permissions_required_commands[ 3 ] = "votekick";
+
+	level.mapvote_array = [];
+	level.mapvote_array[ 0 ] = spawnStruct();
+	level.mapvote_array[ 0 ].mapname = "cellblock";
+	level.mapvote_array[ 0 ].aliases = array( "c", "cell", "block", "cellblock", "mob" );
+	level.mapvote_array[ 0 ].votes = 0;
+	level.mapvote_array[ 1 ] = spawnStruct();
+	level.mapvote_array[ 1 ].mapname = "borough";
+	level.mapvote_array[ 1 ].aliases = array( "s", "street", "borough", "buried" );
+	level.mapvote_array[ 1 ].votes = 0;
+	level.mapvote_array[ 2 ] = spawnStruct();
+	level.mapvote_array[ 2 ].mapname = "farm";
+	level.mapvote_array[ 2 ].aliases = array( "f", "farm" );
+	level.mapvote_array[ 2 ].votes = 0;
+	level.mapvote_array[ 3 ] = spawnStruct();
+	level.mapvote_array[ 3 ].mapname = "town";
+	level.mapvote_array[ 3 ].aliases = array( "t", "town" );
+	level.mapvote_array[ 3 ].votes = 0;
+	level.mapvote_array[ 4 ] = spawnStruct();
+	level.mapvote_array[ 4 ].mapname = "depot";
+	level.mapvote_array[ 4 ].aliases = array( "b", "bus", "depot" );
+	level.mapvote_array[ 4 ].votes = 0;
+	level.mapvote_array[ 5 ] = spawnStruct();
+	level.mapvote_array[ 5 ].mapname = "diner";
+	level.mapvote_array[ 5 ].aliases = array( "d", "din", "diner" );
+	level.mapvote_array[ 5 ].votes = 0;
+	level.mapvote_array[ 6 ] = spawnStruct();
+	level.mapvote_array[ 6 ].mapname = "tunnel";
+	level.mapvote_array[ 6 ].aliases = array( "t", "tunnel" );
+	level.mapvote_array[ 6 ].votes = 0;
+	level.mapvote_array[ 7 ] = spawnStruct();
+	level.mapvote_array[ 7 ].mapname = "power";
+	level.mapvote_array[ 7 ].aliases = array( "p", "pow", "power" );
+	level.mapvote_array[ 7 ].votes = 0;
 }
 
-find_alias_and_set_map( mapname, player, map_rotate, set_map )
+/*private*/ find_alias_and_set_map( mapname, player, map_rotate, set_map )
 {
 	switch ( mapname )
 	{
@@ -969,7 +898,7 @@ find_alias_and_set_map( mapname, player, map_rotate, set_map )
 	}
 }
 
-set_knife_lunge( arg )
+/*private*/ set_knife_lunge( arg )
 {
 	if ( arg == 1 )
 	{	
@@ -991,24 +920,6 @@ set_knife_lunge( arg )
 	}
 }
 
-no_magic()
-{	
-	no_drops();
-	machines = getentarray( "zombie_vending", "targetname" );
-	for( i = 0; i < machines.size; i++ )
-	{
-		level thread perk_machine_removal( machines[ i ].script_noteworthy );
-	}
-}
-
-no_drops()
-{
-	flag_clear( "zombie_drop_powerups" );
-	level.zombie_include_powerups = [];
-	level.zombie_powerup_array= [];
-	level.zombie_include_powerups = [];
-}
-
 //cmd structure:
 //set preset_teams_cmd "remove(player_name,...);" - Removes a player from the preset teams list.
 //set preset_teams_cmd "add(player_name,team_name,is_perm,is_banned_from_team_change);add(player_name2,team_name,is_perm);" - Adds a player to team. Optional is_perm arg to determine if dvar doesn't clear if the player isn't in the session.
@@ -1017,30 +928,30 @@ no_drops()
 
 //set grief_preset_teams "(player_name,team_name,is_perm,is_banned);(player_name,team_name,is_perm,is_banned) etc"
 
-execute_team_cmd( cmd, arg_list )
+/*private*/ execute_team_cmd( cmd, arg_list )
 {
+	player_name = arg_list[ 0 ];
+	team_name = arg_list[ 1 ];
+	is_perm = arg_list[ 2 ];
+	is_banned = arg_list[ 3 ];
 	switch ( cmd )
 	{
 		case "r":
 		case "remove":
-			new_tokens = remove_tokens_from_array( strTok( getDvar( "grief_preset_teams" ), ";" ), arg_list[ 0 ] );
+			new_tokens = remove_tokens_from_array( strTok( getDvar( "grief_preset_teams" ), ";" ), player_name );
 			setDvar( "grief_preset_teams", concatenate_array( new_tokens, ";" ) );
 			break; 
 		case "a":
 		case "add":
 			cur_tokens = strTok( getDvar( "grief_preset_teams" ), ";" );
 			new_tokens = [];
-			player_name = arg_list[ 0 ];
-			team_name = arg_list[ 1 ];
-			is_perm = arg_list[ 2 ];
-			is_banned = arg_list[ 3 ];
 			if ( !isDefined( player_name ) || !isDefined( team_name ) )
 			{
-				print( "Parsing Error: team:add() missing player or team name arg." );
+				print( "Command Error: team:add() missing player or team name arg." );
 				return;
 			}
 			new_tokens = concatenate_array( remove_tokens_from_array( cur_tokens, player_name ), ";" );
-			if ( !isDefined( is_perm )
+			if ( !isDefined( is_perm ) )
 			{
 				is_perm = "0";
 			}
@@ -1058,7 +969,7 @@ execute_team_cmd( cmd, arg_list )
 			}
 			else if ( int( is_perm ) != 0 || int( is_perm ) != 1 )
 			{
-				print( "Parsing Error: Bad token detected for is_perm for player: " + player_name );
+				print( "Command Error: team:add() Bad token detected for is_perm for player: " + player_name );
 				print( "cont: Defaulting to false." );
 				is_perm = "0";
 			}
@@ -1066,10 +977,49 @@ execute_team_cmd( cmd, arg_list )
 			break;
 		case "b":
 		case "ban":
-			
-
+			set_key_value_from_value( "grief_preset_teams", getDvar( "grief_preset_teams" ), player_name, "is_banned", true );
+			set_key_value_from_value( "grief_preset_teams", getDvar( "grief_preset_teams" ), player_name, "is_perm", true );
+			break;
+		case "ub":
+		case "unban":
+			set_key_value_from_value( "grief_preset_teams", getDvar( "grief_preset_teams" ), player_name, "is_banned", false );
+			break;
+		case "s":
+		case "set":
+			if ( isDefined( level.teams[ team_name ] ) )
+			{
+				set_key_value_from_value( "grief_preset_teams", getDvar( "grief_preset_teams" ), player_name, "team_name", team_name );
+			}
+			else 
+			{
+				print( "Command Error: team:set() Undefined or unregistered team." );
+			}
+			break;
+		case "p":
+		case "perm":
+			set_key_value_from_value( "grief_preset_teams", getDvar( "grief_preset_teams" ), player_name, "is_perm", true );
+			break;
+		case "up":
+		case "unperm":
+			set_key_value_from_value( "grief_preset_teams", getDvar( "grief_preset_teams" ), player_name, "is_perm", false );
+			break;
 		default: 
-			print( "Parsing Error: Unhandled cmd " + cmd + " sent to execute_team_cmd()." );
+			print( "Command Error: Unhandled cmd " + cmd + " sent to execute_team_cmd()." );
 			break;
 	}
+}
+
+/*private*/ clear_non_perm_dvar_entries()
+{
+	string = getDvar( "grief_preset_teams" );
+	string_keys = strTok( string, ";" );
+	new_entries = [];
+	for ( i = 0; i < string_keys.size; i++ )
+	{
+		if ( get_value_from_indexes( string, i, 2 ) == "1" )
+		{
+			new_entries[ new_entries.size ] = string_keys[ i ];
+		}
+	}
+	setDvar( "grief_preset_teams", concatenate_array( new_entries, ";" ) );
 }

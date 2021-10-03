@@ -1,3 +1,8 @@
+#include maps/mp/_utility;
+#include maps/mp/zombies/_zm_utility;
+#include common_scripts/utility;
+
+
 common_init()
 {
 	level.create_spawner_list_func = ::create_spawner_list;

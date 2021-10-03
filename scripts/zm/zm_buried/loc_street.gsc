@@ -31,11 +31,11 @@ precache() //checked matches cerberus output
 	maps/mp/zombies/_zm_equip_subwoofer::init( &"ZM_BURIED_EQ_SW_PHS", &"ZM_BURIED_EQ_SW_HTS" );
 	setdvar( "disableLookAtEntityLogic", 1 );
 	level.chests = [];
-	level.chests[ level.chests.size ] = getstruct( "start_chest", "script_noteworthy" );;
-	level.chests[ level.chests.size ] = getstruct( "courtroom_chest1", "script_noteworthy" );;
-	level.chests[ level.chests.size ] = getstruct( "tunnels_chest1", "script_noteworthy" );;
-	level.chests[ level.chests.size ] = getstruct( "jail_chest1", "script_noteworthy" );;
-	level.chests[ level.chests.size ] = getstruct( "gunshop_chest", "script_noteworthy" );;
+	level.chests[ level.chests.size ] = getstruct( "start_chest", "script_noteworthy" );
+	level.chests[ level.chests.size ] = getstruct( "courtroom_chest1", "script_noteworthy" );
+	level.chests[ level.chests.size ] = getstruct( "tunnels_chest1", "script_noteworthy" );
+	level.chests[ level.chests.size ] = getstruct( "jail_chest1", "script_noteworthy" );
+	level.chests[ level.chests.size ] = getstruct( "gunshop_chest", "script_noteworthy" );
 }
 
 main() //checked matches cerberus output

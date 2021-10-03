@@ -103,7 +103,7 @@ struct_class_init_o()
 	{
 		if ( array_validate( level.add_struct_funcs[ gametype ] ) )
 		{
-			if ( array_validate( level.add_struct_gamemode_location_funcs[ gametype ][ location ] )
+			if ( array_validate( level.add_struct_gamemode_location_funcs[ gametype ][ location ] ) )
 			{
 				for ( i = 0; i < level.add_struct_gamemode_location_funcs[ gametype ][ location ].size; i++ )
 				{
