@@ -4,6 +4,7 @@
 #include scripts/zm/promod/utility/_grief_util;
 #include maps/mp/zombies/_zm_perks;
 #include scripts/zm/promod/zgriefp;
+#include scripts/zm/promod/zgriefp_overrides;
 
 /*private*/ init_cmd_namespaces()
 {
@@ -441,22 +442,7 @@
 
 /*private*/ set_round( round_number )
 {
-	if ( isDefined( level._grief_reset_message ) )
-	{
-		level thread [[ level._grief_reset_message ]]();
-	}
-	level.isresetting_grief = 1;
-	level notify( "end_round_think" );
-	level.zombie_vars[ "spectators_respawn" ] = 1;
-	level notify( "keep_griefing" );
-	level.checking_for_round_end = 0;
-	level.round_number = round_number;
-	zombie_goto_round( round_number );
-	zombie_spawn_delay_fix();
-	zombie_speed_fix();
-	level thread reset_grief();
-	level thread maps/mp/zombies/_zm::round_think( 1 );
-	level notify( "grief_give_points" );
+	start_new_round( true, round_number );
 }
 
 /*private*/ has_permissions_for_command( command, args )

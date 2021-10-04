@@ -34,9 +34,10 @@ main()
 	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::game_objects_allowed, scripts/zm/promod/zgriefp_overrides::game_objects_allowed_o );
 	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::setup_standard_objects, scripts/zm/promod/zgriefp_overrides::setup_standard_objects_o );
 	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::setup_classic_gametype, scripts/zm/promod/zgriefp_overrides::setup_classic_gametype_o );
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::init, scripts/zm/promod/zgrief_overrides::game_module_init_o );
 	replaceFunc( maps/mp/zombies/_zm_audio_announcer::playleaderdialogonplayer, scripts/zm/promod/zgriefp_overrides::playleaderdialogonplayer_o );
-	replaceFunc( maps/mp/zombies/_zm_game_module::check_for_round_end, scripts/zm/promod/zgriefp_overrides::check_for_round_end_o );
 	replaceFunc( maps/mp/zombies/_zm_game_module::wait_for_team_death_and_round_end, scripts/zm/promod/zgriefp_overrides::wait_for_team_death_and_round_end_o );
+	replaceFunc( maps/mp/zombies/_zm::round_start, scripts/zm/promod/zgriefp_overrides::game_start );
 }
 
 struct_class_init_o()
@@ -101,7 +102,7 @@ struct_class_init_o()
 	location = getDvar( "ui_zm_mapstartlocation" );
 	if ( array_validate( level.add_struct_gamemode_location_funcs ) )
 	{
-		if ( array_validate( level.add_struct_funcs[ gametype ] ) )
+		if ( array_validate( level.add_struct_gamemode_location_funcs[ gametype ] ) )
 		{
 			if ( array_validate( level.add_struct_gamemode_location_funcs[ gametype ][ location ] ) )
 			{

@@ -32,7 +32,6 @@ common_init()
 	wait_network_frame();
 	if ( getDvarInt( "grief_brutus_enabled") == 1 )
 	{
-		flag_init( "grief_brutus_can_spawn", 1 );
 		level thread grief_brutus_logic();
 	}
 }
@@ -186,7 +185,7 @@ grief_brutus_logic()
 		{
 			wait 1;
 		}
-		flag_wait( "grief_brutus_can_spawn" );
+		flag_wait( "spawn_zombies" );
 		wait 10;
 		if ( coinToss() )
 		{

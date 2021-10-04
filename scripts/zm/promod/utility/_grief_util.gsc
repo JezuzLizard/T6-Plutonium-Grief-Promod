@@ -137,11 +137,11 @@
 
 /*public*/ get_loser( winner )
 {
-	if ( winner == "A" )
+	if ( winner == "axis" )
 	{
-		return "B";
+		return "allies";
 	}
-	return "A";
+	return "axis";
 } 
 
 /*public*/ all_surviving_players_invulnerable()
@@ -177,22 +177,15 @@
 		{
 			player [[ level.spawnplayer ]]();
 		}
-		else if ( !is_true( level.initial_spawn_players ) )
-		{
-			player [[ level.spawnplayer ]]();
-			player freeze_player_controls( 1 );
-		}
 	}
 }
 
 /*public*/ zombie_goto_round( target_round )
 {
-	level notify( "restart_round" );
 	if ( target_round < 1 )
 	{
 		target_round = 1;
 	}
-	level.zombie_total = 0;
 	maps/mp/zombies/_zm::ai_calculate_health( target_round );
 	zombies = get_round_enemy_array();
 	if ( isDefined( zombies ) )
@@ -493,6 +486,126 @@
 	}
 }
 
+is_str_int( str )
+{
+	number_chars = "0123456789";
+	int_checks_passed = 0;
+	for ( i = 0; i < str.size; i++ )
+	{
+		if ( int_checks_passed != i )
+		{
+			break;
+		}
+		for ( j = 0; j < number_chars; j++ )
+		{
+			if ( str[ i ] == number_chars[ j ] )
+			{
+				int_checks_passed++;
+				break;
+			}
+		}
+	}
+	return int_checks_passed == str.size;
+}
+
+is_str_bool( str )
+{
+	if ( str == "0" || str == "1" || str == "false" || str == "true" )
+	{
+		return true;
+	}
+	return false;
+}
+
+is_str_float( str )
+{
+	number_chars = "0123456789";
+	decimals_found = 0;
+	float_checks_passed = 0;
+	for ( i = 0; i < str.size; i++ )
+	{
+		if ( float_checks_passed != i )
+		{
+			break;
+		}
+		for ( j = 0; j < number_chars; j++ )
+		{
+			if ( str[ i ] == number_chars[ j ] )
+			{
+				float_checks_passed++;
+				break;
+			}
+			else if ( str[ i ] == "." )
+			{
+				decimals_found++;
+				float_checks_passed++;
+				break;
+			}
+		}
+	}
+	if ( str.size <= 10 && decimals_found == 0 )
+	{
+		return false;
+	}
+	else if ( decimals_found > 1 )
+	{
+		return false;
+	}
+	return float_checks_passed == str.size;
+}
+
+is_str_vec( str )
+{
+	if ( !isSubStr( str, "," ) )
+	{
+		return false;
+	}
+	if ( str[ 0 ] == "(" && str[ str.size - 1 ] == ")" )
+	{
+		str[ str.size - 1 ] = "";
+		str[ 0 ] = "";
+	}
+	else 
+	{
+		return false;
+	}
+	keys = strTok( str, "," );
+	if ( keys.size != 3 )
+	{
+		return false;
+	}
+	vec_checks_passed = 0;
+	for ( i = 0; i < keys.size; i++ )
+	{
+		if ( is_str_float( keys[ i ] ) || is_str_int( keys[ i ] ) )
+		{
+			vec_checks_passed++;
+		}
+	}
+	return vec_checks_passed == keys.size;
+}
+
+cast_str_to_vec( str )
+{
+	str[ str.size - 1 ] = "";
+	str[ 0 ] = "";
+	keys = strTok( str, "," );
+	return ( float( keys[ 0 ] ), float( keys[ 1 ] ), float( keys[ 2 ] ) );
+}
+
+cast_str_to_bool( str )
+{
+	if ( str == "0" || str == "false" || )
+	{
+		return false;
+	}
+	if ( str == "1" || str == "true" )
+	{
+		return true;
+	}
+	return false;
+}
+
 /*public*/ get_type( var )
 {
 	is_int = isInt( var );
@@ -525,8 +638,8 @@
 	key_list = "str:player_name|str:team_name|bool:is_perm|bool:is_banned";
 	key_names = "value_types|keys";
 	generate_map( "grief_preset_teams", key_list, key_names );
-	key_list = "axis:A|allies:B|team3:C|team4:D|team5:E|team6:F|team7:G|team8:H";
-	key_names = "team|e_team";
+	key_list = "allies:B:false:0|axis:A:false:0"; //|team3:C:false:0|team4:D:false:0|team5:E:false:0|team6:F:false:0|team7:G:false:0|team8:H:false:0
+	key_names = "team|e_team|alive|score";
 	generate_map( "encounters_teams", key_list, key_names );
 }
 
@@ -553,6 +666,22 @@
 			for ( j = 0; j < name_list_keys.size; j++ )
 			{
 				size = level.data_maps[ map_name ][ name_list_keys[ j ] ].size;
+				if ( is_str_bool( pairs[ j ] ) )
+				{
+					pairs[ j ] = cast_str_to_bool( pairs[ j ] );
+				}
+				else if ( is_str_int( pairs[ j ] ) )
+				{
+					pairs[ j ] = int( pairs[ j ] );
+				}
+				else if ( is_str_float( pairs[ j ] ) )
+				{
+					pairs[ j ] = float( pairs[ j ] );
+				}
+				else if ( is_str_vec( pairs[ j ] ) )
+				{
+					pairs[ j ] = cast_str_to_vec( pairs[ j ] );
+				}
 				level.data_maps[ map_name ][ name_list_keys[ j ] ][ size ] = pairs[ j ];
 			}
 		}

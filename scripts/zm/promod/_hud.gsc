@@ -181,33 +181,37 @@ destroy_hud_on_game_end()
 	{
 		level.intermission_text destroy();
 	}
+	if ( isDefined( level.game_module_timer ) )
+	{
+		level.game_module_timer destroy();
+	}
 }
 
 grief_score()
 {   
 	flag_wait( "initial_blackscreen_passed" );
 	level.grief_score_hud = [];
-	level.grief_score_hud[ "A" ] = create_simple_hud();
-	level.grief_score_hud[ "A" ].x += 440;
-	level.grief_score_hud[ "A" ].y += 20;
-	level.grief_score_hud[ "A" ].fontscale = 2.5;
-	level.grief_score_hud[ "A" ].color = ( 0.423, 0.004, 0 );
-	level.grief_score_hud[ "A" ].alpha = 1;
-	level.grief_score_hud[ "A" ].hidewheninmenu = 1;
-	level.grief_score_hud[ "A" ] setValue( 0 );
-	level.grief_score_hud[ "B" ] = create_simple_hud();
-	level.grief_score_hud[ "B" ].x += 240;
-	level.grief_score_hud[ "B" ].y += 20;
-	level.grief_score_hud[ "B" ].fontscale = 2.5;
-	level.grief_score_hud[ "B" ].color = ( 0.423, 0.004, 0 );
-	level.grief_score_hud[ "B" ].alpha = 1;
-	level.grief_score_hud[ "B" ].hidewheninmenu = 1;
-	level.grief_score_hud[ "B" ] setValue( 0 );
+	level.grief_score_hud[ "axis" ] = create_simple_hud();
+	level.grief_score_hud[ "axis" ].x += 440;
+	level.grief_score_hud[ "axis" ].y += 20;
+	level.grief_score_hud[ "axis" ].fontscale = 2.5;
+	level.grief_score_hud[ "axis" ].color = ( 0.423, 0.004, 0 );
+	level.grief_score_hud[ "axis" ].alpha = 1;
+	level.grief_score_hud[ "axis" ].hidewheninmenu = 1;
+	level.grief_score_hud[ "axis" ] setValue( 0 );
+	level.grief_score_hud[ "allies" ] = create_simple_hud();
+	level.grief_score_hud[ "allies" ].x += 240;
+	level.grief_score_hud[ "allies" ].y += 20;
+	level.grief_score_hud[ "allies" ].fontscale = 2.5;
+	level.grief_score_hud[ "allies" ].color = ( 0.423, 0.004, 0 );
+	level.grief_score_hud[ "allies" ].alpha = 1;
+	level.grief_score_hud[ "allies" ].hidewheninmenu = 1;
+	level.grief_score_hud[ "allies" ] setValue( 0 );
 
 	while ( 1 )
 	{
 		level waittill( "grief_point", team );
-		level.grief_score_hud[ team ] SetValue( level.grief_teams[ team ].score );
+		level.grief_score_hud[ team ] SetValue( level.data_maps[ "encounters_teams" ][ "score" ][ level.teamIndex[ team ] ] );
 	}	
 }
 
@@ -281,4 +285,32 @@ instructions()
 	wait 3;
 	self iPrintLn( "Good luck!" );
 	wait 3;
+}
+
+timelimit_hud() //checked matches cerberus output
+{
+	flag_wait( "pregame" );
+	elem = newhudelem();
+	elem.hidewheninmenu = 1;
+	elem.horzalign = "center";
+	elem.vertalign = "top";
+	elem.alignx = "center";
+	elem.aligny = "middle";
+	elem.x = 0;
+	elem.y = 0;
+	elem.foreground = 1;
+	elem.font = "default";
+	elem.fontscale = 1.5;
+	elem.color = ( 1, 1, 1 );
+	elem.alpha = 2;
+	elem thread maps/mp/gametypes_zm/_hud::fontpulseinit();
+	if ( is_true( level.timercountdown ) )
+	{
+		elem settenthstimer( level.timelimit * 60 );
+	}
+	else
+	{
+		elem settenthstimerup( 0.1 );
+	}
+	level.game_module_timer = elem;
 }

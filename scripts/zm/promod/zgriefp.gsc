@@ -35,15 +35,19 @@ init()
 		setDvar( "sv_maprotation", getDvar( "grief_original_rotation" ) );
 		setDvar( "sv_maprotationCurrent", getDvar( "grief_original_rotation" ) );
 	}
+	flag_init( "pregame", 0 );
+	flag_init( "first_round", 0 );
 	level thread monitor_players_connecting_status();
 	level thread emptyLobbyRestart();
 	scripts/zm/promod/plugin/commands::setup_permissions();
 	level thread scripts/zm/promod/plugin/commands::command_watcher();
 	scripts/zm/promod/utility/_grief_util::add_dvar_commands();
 	init_gamerules();
+	level.rounds_played = 0;
 	setdvar( "ui_scorelimit", level.grief_gamerules[ "scorelimit" ] );
 	setdvar( "ui_timelimit", level.grief_gamerules[ "timelimit" ] );
-	level.round_spawn_func = ::round_spawning;
+	makeDvarServerInfo( "ui_scorelimit" );
+	makeDvarServerInfo( "ui_timelimit" );
 	level._game_module_player_damage_callback = ::game_module_player_damage_callback;
 	level._game_module_player_damage_grief_callback = ::game_module_player_damage_grief_callback;
 	level.meat_bounce_override = ::meat_bounce_override;
@@ -52,6 +56,7 @@ init()
 	level.grief_round_win_next_round_countdown = ::round_change_hud;
 	level.grief_round_intermission_countdown = ::intermission_hud;
 	level.grief_loadout_save = ::grief_loadout_save;
+	level.onplayerspawned_restore_previous_weapons = ::grief_laststand_weapons_return;
 	level.custom_spawnplayer = ::grief_spectator_respawn;
 	scripts/zm/promod/_gamerules::parse_restrictions();
 	level thread on_player_connect();
@@ -162,7 +167,7 @@ give_points_on_restart_and_round_change()
 	level endon( "end_game" );
 	while ( true )
 	{
-		level waittill( "grief_give_points" );
+		level waittill( "grief_new_round" );
 		if ( self.score < level.grief_gamerules[ "round_restart_points" ] )
 		{
 			self.score = level.grief_gamerules[ "round_restart_points" ];
@@ -226,99 +231,6 @@ grief_loadout_save( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir,
 	{
 		self.grief_savedweapon_claymore = 1;
 		self.grief_savedweapon_claymore_clip = self getweaponammoclip( "claymore_zm" );
-	}
-}
-
-//Function Overrides
-round_spawning() //checked changed to match cerberus output
-{
-	level endon( "intermission" );
-	level endon( "end_of_round" );
-	level endon( "restart_round" );
-	if ( level.intermission )
-	{
-		return;
-	}
-	if ( level.zombie_spawn_locations.size < 1 )
-	{
-		return;
-	}
-	ai_calculate_health( level.round_number );
-	players = getPlayers();
-	for ( i = 0; i < players.size; i++ )
-	{
-		players[ i ].zombification_time = 0;
-	}
-	player_num = getPlayers().size;
-	level.zombie_total = ( level.grief_gamerules[ "zombies_per_round" ] * level.round_number ) + ( player_num * 2 );
-	level notify( "zombie_total_set" );
-	old_spawn = undefined;
-	while ( 1 )
-	{
-		while ( get_current_zombie_count() >= level.zombie_ai_limit || level.zombie_total <= 0 )
-		{
-			wait 0.1;
-		}
-		while ( get_current_actor_count() >= level.zombie_actor_limit )
-		{
-			clear_all_corpses();
-			wait 0.1;
-		}
-		flag_wait( "spawn_zombies" );
-		while ( level.zombie_spawn_locations.size <= 0 )
-		{
-			wait 0.1;
-		}
-		run_custom_ai_spawn_checks();
-		spawn_point = level.zombie_spawn_locations[ randomint( level.zombie_spawn_locations.size ) ];
-		if ( !isDefined( old_spawn ) )
-		{
-			old_spawn = spawn_point;
-		}
-		else if ( spawn_point == old_spawn )
-		{
-			spawn_point = level.zombie_spawn_locations[ randomint( level.zombie_spawn_locations.size ) ];
-		}
-		old_spawn = spawn_point;
-		if ( isDefined( level.zombie_spawners ) )
-		{
-			if ( is_true( level.use_multiple_spawns ) )
-			{
-				if ( isDefined( spawn_point.script_int ) )
-				{
-					if ( isDefined( level.zombie_spawn[ spawn_point.script_int ] ) && level.zombie_spawn[ spawn_point.script_int ].size )
-					{
-						spawner = random( level.zombie_spawn[ spawn_point.script_int ] );
-					}
-				}
-				else if ( isDefined( level.zones[ spawn_point.zone_name ].script_int ) && level.zones[ spawn_point.zone_name ].script_int )
-				{
-					spawner = random( level.zombie_spawn[ level.zones[ spawn_point.zone_name ].script_int ] );
-				}
-				else if ( isDefined( level.spawner_int ) && isDefined( level.zombie_spawn[ level.spawner_int ].size ) && level.zombie_spawn[ level.spawner_int ].size )
-				{
-					spawner = random( level.zombie_spawn[ level.spawner_int ] );
-				}
-				else
-				{
-					spawner = random( level.zombie_spawners );
-				}
-			}
-			else
-			{
-				spawner = random( level.zombie_spawners );
-			}
-			ai = spawn_zombie( spawner, spawner.targetname, spawn_point );
-		}
-		if ( isDefined( ai ) )
-		{
-			level.zombie_total--;
-
-			ai thread round_spawn_failsafe();
-			count++;
-		}
-		wait level.zombie_vars[ "zombie_spawn_delay" ];
-		wait_network_frame();
 	}
 }
 
@@ -620,13 +532,8 @@ wait_for_players()
 {
 	level endon( "end_game" );
 	flag_clear( "spawn_zombies" );
-	level.initial_spawn_players = true;
-	players_axis = getPlayers( "axis" );
-	players_allies = getPlayers( "allies" );
-	while ( ( players_axis.size < 1 ) || ( players_allies.size < 1 ) )
+	while ( ( getPlayers( "axis" ).size < 1 ) && ( getPlayers( "allies" ).size < 1 ) )
 	{
-		players_axis = getPlayers( "axis" );
-		players_allies = getPlayers( "allies" );
 		players = getPlayers();
 		for ( i = 0; i < players.size; i++ )
 		{
@@ -647,15 +554,13 @@ wait_for_players()
 			wait 1;
 		}
 	}
-	level notify( "grief_begin" );
-	flag_set( "spawn_zombies" );
-	respawn_players();
-	level.initial_spawn_players = false;
 }
 
 team_suicide_check()
 {
+	level.grief_team_suicide_check_over = false;
 	wait level.grief_gamerules[ "suicide_check" ];
+	level.grief_team_suicide_check_over = true;
 }
 
 grief_save_loadouts2()
@@ -675,12 +580,6 @@ grief_save_loadouts2()
 			wait 1;
 		}
 	}
-}
-
-reset_grief()
-{
-	wait 1;
-	level.isresetting_grief = 0;
 }
 
 grief_team_forfeits()
@@ -726,4 +625,94 @@ in_grief_intermission()
 		return true;
 	}
 	return false;
+}
+
+grief_laststand_weapons_return() //checked changed to match cerberus output
+{
+	if ( !isDefined( self.grief_savedweapon_weapons ) )
+	{
+		return 0;
+	}
+	primary_weapons_returned = 0;
+	i = 0;
+	while ( i < self.grief_savedweapon_weapons.size )
+	{
+		if ( isdefined( self.grief_savedweapon_grenades ) && self.grief_savedweapon_weapons[ i ] == self.grief_savedweapon_grenades || ( isdefined( self.grief_savedweapon_tactical ) && self.grief_savedweapon_weapons[ i ] == self.grief_savedweapon_tactical ) )
+		{
+			i++;
+			continue;
+		}
+		if ( isweaponprimary( self.grief_savedweapon_weapons[ i ] ) )
+		{
+			if ( primary_weapons_returned >= 2 )
+			{
+				i++;
+				continue;
+			}
+			primary_weapons_returned++;
+		}
+		if ( "item_meat_zm" == self.grief_savedweapon_weapons[ i ] )
+		{
+			i++;
+			continue;
+		}
+		self giveweapon( self.grief_savedweapon_weapons[ i ], 0, self maps/mp/zombies/_zm_weapons::get_pack_a_punch_weapon_options( self.grief_savedweapon_weapons[ i ] ) );
+		if ( isdefined( self.grief_savedweapon_weaponsammo_clip[ index ] ) )
+		{
+			self setweaponammoclip( self.grief_savedweapon_weapons[ i ], self.grief_savedweapon_weaponsammo_clip[ index ] );
+		}
+		if ( isdefined( self.grief_savedweapon_weaponsammo_stock[ index ] ) )
+		{
+			self setweaponammostock( self.grief_savedweapon_weapons[ i ], self.grief_savedweapon_weaponsammo_stock[ index ] );
+		}
+		i++;
+	}
+	if ( isDefined( self.grief_savedweapon_grenades ) )
+	{
+		self giveweapon( self.grief_savedweapon_grenades );
+		if ( isDefined( self.grief_savedweapon_grenades_clip ) )
+		{
+			self setweaponammoclip( self.grief_savedweapon_grenades, self.grief_savedweapon_grenades_clip );
+		}
+	}
+	if ( isDefined( self.grief_savedweapon_tactical ) )
+	{
+		self giveweapon( self.grief_savedweapon_tactical );
+		if ( isDefined( self.grief_savedweapon_tactical_clip ) )
+		{
+			self setweaponammoclip( self.grief_savedweapon_tactical, self.grief_savedweapon_tactical_clip );
+		}
+	}
+	if ( isDefined( self.current_equipment ) )
+	{
+		self maps/mp/zombies/_zm_equipment::equipment_take( self.current_equipment );
+	}
+	if ( isDefined( self.grief_savedweapon_equipment ) )
+	{
+		self.do_not_display_equipment_pickup_hint = 1;
+		self maps/mp/zombies/_zm_equipment::equipment_give( self.grief_savedweapon_equipment );
+		self.do_not_display_equipment_pickup_hint = undefined;
+	}
+	if ( isDefined( self.grief_savedweapon_claymore ) && self.grief_savedweapon_claymore )
+	{
+		self giveweapon( "claymore_zm" );
+		self set_player_placeable_mine( "claymore_zm" );
+		self setactionslot( 4, "weapon", "claymore_zm" );
+		self setweaponammoclip( "claymore_zm", self.grief_savedweapon_claymore_clip );
+	}
+	primaries = self getweaponslistprimaries();
+	foreach ( weapon in primaries )
+	{
+		if ( isDefined( self.grief_savedweapon_currentweapon ) && self.grief_savedweapon_currentweapon == weapon )
+		{
+			self switchtoweapon( weapon );
+			return 1;
+		}
+	}
+	if ( primaries.size > 0 )
+	{
+		self switchtoweapon( primaries[ 0 ] );
+		return 1;
+	}
+	return 0;
 }

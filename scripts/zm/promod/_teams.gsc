@@ -18,14 +18,14 @@
 	{
 		teamplayersallies = countplayers( "allies");
 		teamplayersaxis = countplayers( "axis");
-		if ( teamplayersallies > teamplayersaxis && !level.isresetting_grief )
+		if ( teamplayersallies > teamplayersaxis )
 		{
 			self.team = "axis";
 			self.sessionteam = "axis";
 			self.pers[ "team" ] = "axis";
 			self._encounters_team = "A";
 		}
-		else if ( teamplayersallies < teamplayersaxis && !level.isresetting_grief)
+		else if ( teamplayersallies < teamplayersaxis )
 		{
 			self.team = "allies";
 			self.sessionteam = "allies";
@@ -127,7 +127,7 @@
 	level notify( "team_change_set" );
 	level endon( "team_change_set" );
 	self.new_team = team;
-	level waittill( "end_round_think" );
+	level waittill( "grief_new_round" );
 	if ( self.pers[ "team" ] != team )
 	{
 		self.pers[ "team" ] = team;
