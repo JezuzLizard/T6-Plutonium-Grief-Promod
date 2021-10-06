@@ -78,6 +78,20 @@
 	}
 }
 
+/*public*/ kill_all_zombies()
+{
+	zombies = getaispeciesarray( level.zombie_team, "all" );
+	for ( i = 0; i < zombies.size; i++ )
+	{
+		if ( isDefined( zombies[ i ] ) && isAlive( zombies[ i ] ) )
+		{
+			zombies[ i ] scripts/zm/promod/zgriefp_overrides::zombie_head_gib_o();
+			zombies[ i ] dodamage( zombies[ i ].health + 666, zombies[ i ].origin );
+			wait randomfloatrange( 0.10, 0.30 );
+		}
+	}
+}
+
 /*public*/ afk_kick()
 {   
 	level endon( "game_ended" );
@@ -175,28 +189,38 @@
 	{
 		if ( player.sessionstate == "spectator" || player player_is_in_laststand() )
 		{
+			if ( !flag( "game_start" ) )
+			{
+				player freezeControls( 1 );
+			}
 			player [[ level.spawnplayer ]]();
 		}
 	}
 }
 
-/*public*/ zombie_goto_round( target_round )
+get_other_team( team )
 {
-	if ( target_round < 1 )
+	if ( team == "allies" )
 	{
-		target_round = 1;
+		return "axis";
 	}
-	maps/mp/zombies/_zm::ai_calculate_health( target_round );
-	zombies = get_round_enemy_array();
-	if ( isDefined( zombies ) )
+	else if ( team == "axis" )
 	{
-		for ( i = 0; i < zombies.size; i++ )
-		{
-			zombies[ i ] dodamage( zombies[ i ].health + 666, zombies[ i ].origin );
-		}
+		return "allies";
 	}
-	respawn_players();
-	wait 1;
+	else
+	{
+		return "allies";
+	}
+}
+
+unfreeze_all_players_controls()
+{
+	players = getPlayers();
+	foreach ( player in players )
+	{
+		player freezeControls( 0 );
+	}
 }
 
 /*public*/ respawn_spectators_and_freeze_players()
@@ -595,7 +619,7 @@ cast_str_to_vec( str )
 
 cast_str_to_bool( str )
 {
-	if ( str == "0" || str == "false" || )
+	if ( str == "0" || str == "false" )
 	{
 		return false;
 	}
@@ -837,4 +861,84 @@ cast_str_to_bool( str )
 	level.zombie_include_powerups = [];
 	level.zombie_powerup_array= [];
 	level.zombie_include_powerups = [];
+}
+
+/*public*/ add_random_sound( group, sound, percent_chance )
+{
+	if ( !isDefined( level.random_sounds ) )
+	{
+		level.random_sounds = [];
+	}
+	if ( !isDefined( level.random_sounds[ group ] ) )
+	{
+		level.random_sounds[ group ] = [];
+	}
+	level.random_sounds[ group ][ sound ] = percent_chance;
+}
+
+/*public*/ play_random_sound_from_group( group, origin )
+{
+	if ( !isDefined( level.random_sounds[ group ] ) )
+	{
+		return;
+	}
+	sounds = getArrayKeys( level.random_sounds[ group ] );
+	random_int = randomInt( 100 );
+	sounds_can_play = [];
+	foreach ( sound in sounds )
+	{
+		if ( level.random_sounds[ group ][ sound ] >= random_int )
+		{
+			sounds_can_play[ sounds_can_play.size ] = sound;
+		}
+	}
+	if ( sounds_can_play.size > 0 )
+	{
+		sound_to_play = random( sounds_can_play );
+	}
+	else 
+	{
+		return;
+	}
+	if ( isDefined( origin ) )
+	{
+		playSoundAtPosition( sound_to_play, origin );
+	}
+	else if ( isDefined( self ) && isPlayer( self ) )
+	{
+		self playLocalSound( sound_to_play );
+	}
+}
+
+/*public*/ zombie_spawn_delay_fix()
+{
+	i = 1;
+	while ( i <= level.grief_gamerules[ "zombie_round" ] )
+	{
+		timer = level.zombie_vars[ "zombie_spawn_delay" ];
+		if ( timer > 0.08 )
+		{
+			level.zombie_vars[ "zombie_spawn_delay" ] = timer * 0.95;
+			i++;
+			continue;
+		}
+		if ( timer < 0.08 )
+		{
+			level.zombie_vars[ "zombie_spawn_delay" ] = 0.08;
+			break;
+		}
+		i++;
+	}
+}
+
+/*public*/ zombie_speed_fix()
+{
+	if ( level.gamedifficulty == 0 )
+	{
+		level.zombie_move_speed = level.grief_gamerules[ "zombie_round" ] * level.zombie_vars[ "zombie_move_speed_multiplier_easy" ];
+	}
+	else
+	{
+		level.zombie_move_speed = level.grief_gamerules[ "zombie_round" ] * level.zombie_vars[ "zombie_move_speed_multiplier" ];
+	}
 }

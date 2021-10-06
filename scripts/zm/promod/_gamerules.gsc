@@ -89,7 +89,7 @@ init_gamerules()
 	level.grief_gamerules[ "scorelimit" ] = getDvarIntDefault( "grief_gamerule_scorelimit", 3 );
 	level.grief_gamerules[ "roundlimit" ] = getGametypeSetting( "roundLimit" );
 	level.grief_gamerules[ "timelimit" ] = getGametypeSetting( "timelimit" );
-	level.grief_gamerules[ "zombies_per_round" ] = getDvarIntDefault( "grief_gamerule_zombies_per_round", 3 );
+	//level.grief_gamerules[ "zombies_per_round" ] = getDvarIntDefault( "grief_gamerule_zombies_per_round", 3 );
 	level.grief_gamerules[ "perk_restrictions" ] = getDvar( "grief_gamerule_perk_restrictions" );
 	level.grief_gamerules[ "mystery_box_enabled" ] = getDvarIntDefault( "grief_gamerule_mystery_box_enabled", 0 );
 	level.grief_gamerules[ "wall_weapon_restrictions" ] = getDvar( "grief_gamerule_wall_weapon_restrictions" );
@@ -109,4 +109,11 @@ init_gamerules()
 	level.grief_gamerules[ "buildables" ] = getDvarIntDefault( "grief_gamerule_buildables", 1 );
 	level.grief_gamerules[ "disable_doors" ] = getDvarIntDefault( "grief_gamerule_disable_doors", 1 );
 	level.grief_gamerules[ "zombie_round" ] = getDvarIntDefault( "grief_gamerules_zombie_round", 20 );
+	level.round_number = level.grief_gamerules[ "zombie_round" ];
+	level.grief_gamerules[ "round_zombie_spawn_delay" ] = getDvarIntDefault( "grief_gamerule_round_zombie_spawn_delay", 15 );
+	level.grief_gamerules[ "pregame_time" ] = getDvarIntDefault( "grief_gamerule_pregame_time", 15 );
+	setdvar( "ui_scorelimit", level.grief_gamerules[ "scorelimit" ] );
+	//setdvar( "ui_timelimit", level.grief_gamerules[ "timelimit" ] );
+	makeDvarServerInfo( "ui_scorelimit" );
+	//makeDvarServerInfo( "ui_timelimit" );
 }

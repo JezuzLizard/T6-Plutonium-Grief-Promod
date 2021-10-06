@@ -407,39 +407,6 @@
 	}
 }
 
-/*private*/ zombie_spawn_delay_fix()
-{
-	i = 1;
-	while ( i <= level.round_number )
-	{
-		timer = level.zombie_vars[ "zombie_spawn_delay" ];
-		if ( timer > 0.08 )
-		{
-			level.zombie_vars[ "zombie_spawn_delay" ] = timer * 0.95;
-			i++;
-			continue;
-		}
-		if ( timer < 0.08 )
-		{
-			level.zombie_vars[ "zombie_spawn_delay" ] = 0.08;
-			break;
-		}
-		i++;
-	}
-}
-
-/*private*/ zombie_speed_fix()
-{
-	if ( level.gamedifficulty == 0 )
-	{
-		level.zombie_move_speed = level.round_number * level.zombie_vars[ "zombie_move_speed_multiplier_easy" ];
-	}
-	else
-	{
-		level.zombie_move_speed = level.round_number * level.zombie_vars[ "zombie_move_speed_multiplier" ];
-	}
-}
-
 /*private*/ set_round( round_number )
 {
 	start_new_round( true, round_number );
@@ -739,6 +706,10 @@
 	level.server_users[ "Admins" ].guids = [];
 	path = level.basepath + "command_permissions.txt";
 	file = fopen( path, "r+" );
+	if ( file == -1 )
+	{
+		return;
+	}
 	buffer = fread( file );
 	fclose( file );
 	rank_type = strTok( buffer, ":" );

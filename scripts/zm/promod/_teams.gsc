@@ -4,6 +4,11 @@
 #include scripts/zm/promod/utility/_grief_util;
 #include maps/mp/gametypes_zm/_globallogic_ui;
 
+teams_init()
+{
+	level.autoassign = ::default_menu_autoassign;
+}
+
 /*public*/ player_team_setup()
 {
 	session_team = level.players_in_session[ self.name ].sessionteam;
@@ -47,7 +52,7 @@
 	self [[ level.givecustomcharacters ]]();
 }
 
-/*private*/ menu_onmenuresponse()
+/*private*/ menu_onmenuresponse_o()
 {
 	self endon( "disconnect" );
 	for ( ;; )
@@ -220,7 +225,6 @@
 
 /*public*/ check_for_predefined_team()
 {
-	preset_teams = getDvar( "grief_preset_teams" );
 	team = get_key_value_from_value( "grief_preset_teams", getDvar( "grief_preset_teams" ), self.name, "team_name" );
 	if ( team != "" && isDefined( level.teams[ team ] ) && countPlayers( team ) < 4 )
 	{
@@ -231,3 +235,31 @@
 	}
 }
 
+default_menu_autoassign( comingfrommenu )
+{
+	teamkeys = getarraykeys( level.teams );
+	assignment = teamkeys[ randomint( teamkeys.size ) ];
+	self closemenus();
+	self.pers[ "team" ] = assignment;
+	self.team = assignment;
+	self.class = undefined;
+	self updateobjectivetext();
+	if ( level.teambased )
+	{
+		self.sessionteam = assignment;
+	}
+	else
+	{
+		self.sessionteam = "none";
+		self.ffateam = assignment;
+	}
+	if ( !isalive( self ) )
+	{
+		self.statusicon = "hud_status_dead";
+	}
+	self notify( "joined_team" );
+	level notify( "joined_team" );
+	self notify( "end_respawn" );
+	self beginclasschoice();
+	self setclientscriptmainmenu( game[ "menu_class" ] );
+}

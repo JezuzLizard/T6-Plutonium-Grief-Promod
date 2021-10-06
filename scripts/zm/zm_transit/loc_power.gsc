@@ -133,6 +133,7 @@ insta_kill_player()
 	self maps/mp/zombies/_zm_buildables::player_return_piece_to_original_spawn();
 	if ( is_player_killable( self ) )
 	{
+		self playsoundtoplayer( "falling_death", self );
 		self.insta_killed = 1;
 		in_last_stand = 0;
 		if ( self maps/mp/zombies/_zm_laststand::player_is_in_laststand() )

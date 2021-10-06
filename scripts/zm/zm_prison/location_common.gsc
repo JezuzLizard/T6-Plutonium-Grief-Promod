@@ -60,7 +60,7 @@ zgrief_init()
 {
 	encounter_init();
 	flag_wait( "start_zombie_round_logic" );
-	if ( level.round_number < 4 && level.gamedifficulty != 0 )
+	if ( level.grief_gamerules[ "zombie_round" ] < 4 && level.gamedifficulty != 0 )
 	{
 		level.zombie_move_speed = 35;
 	}
@@ -177,9 +177,9 @@ give_player_shiv()
 grief_brutus_logic()
 {
 	level endon( "end_game" );
-	level waittill( "grief_begin" );
 	while ( true )
 	{
+		flag_wait( "spawn_zombies" );
 		random_wait = randomIntRange( 360, 720 );
 		for ( i = 0; i < random_wait; i++ )
 		{
@@ -199,5 +199,8 @@ grief_brutus_logic()
 		{
 			level notify( "spawn_brutus", 1 );
 		}
+		level.music_round_override = 1;
+		level thread maps/mp/zombies/_zm_audio::change_zombie_music( "brutus_round_start" );
+		level thread sndforcewait();
 	}
 }

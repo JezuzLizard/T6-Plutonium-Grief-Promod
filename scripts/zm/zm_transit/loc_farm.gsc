@@ -6,6 +6,7 @@
 #include maps/mp/zombies/_zm_utility;
 #include common_scripts/utility;
 #include maps/mp/_utility;
+#include scripts/zm/promod/utility/_grief_util;
 
 struct_init()
 {
@@ -17,6 +18,7 @@ precache()
 	chest1 = getstruct( "farm_chest", "script_noteworthy" );
 	level.chests = [];
 	level.chests[ level.chests.size ] = chest1;
+	add_farm_ambiance();
 }
 
 farm_main()
@@ -58,5 +60,13 @@ init_standard_farm()
 				}
 			}
 		}
+	}
+}
+
+add_farm_ambiance()
+{
+	for ( i = 0; i < 5; i++ )
+	{
+		add_random_sound( "ambiance", "crow_0" + i, 10 );
 	}
 }

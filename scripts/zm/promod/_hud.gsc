@@ -4,11 +4,13 @@
 #include maps/mp/gametypes_zm/_hud;
 #include maps/mp/gametypes_zm/_hud_util;
 #include maps/mp/gametypes_zm/_hud_message;
+#include maps/mp/zombies/_zm;
 
 draw_hud()
 {
 	level thread grief_score();
 	level thread grief_score_shaders();
+	level thread round_time_hud();
 	level thread destroy_hud_on_game_end();
 }
 
@@ -49,7 +51,7 @@ round_change_hud()
 	countdown.alpha = 1;
 	countdown.color = ( 1.000, 1.000, 1.000 );
 	countdown.hidewheninmenu = 1;
-	countdown setText( "Next Round Starts In" );
+	countdown setText( "Next Round In" );
 	level.round_countdown_timer = remaining;
 	level.round_countdown_text = countdown;
 	timer = level.grief_gamerules[ "next_round_time" ];
@@ -181,9 +183,9 @@ destroy_hud_on_game_end()
 	{
 		level.intermission_text destroy();
 	}
-	if ( isDefined( level.game_module_timer ) )
+	if ( isDefined( level.round_time_elem ) )
 	{
-		level.game_module_timer destroy();
+		level.round_time_elem destroy();
 	}
 }
 
@@ -257,60 +259,187 @@ grief_score_shaders()
 	}
 }
 
-instructions_on_all_players()
+round_time_hud() //checked matches cerberus output
 {
 	level endon( "end_game" );
-	flag_wait( "initial_blackscreen_passed" );
-	players = getPlayers();
-	if ( isDefined( players ) && ( players.size > 0 ) )
+	create_round_timer();
+	timelimit_in_seconds = level.grief_gamerules[ "timelimit" ] * 60;
+	time_left = parse_minutes( to_mins( timelimit_in_seconds ) );
+	flag_wait( "spawn_zombies" );
+	while ( true )
 	{
-		foreach ( player in players )
+		if ( is_true( level.pause_timer ) )
 		{
-			player thread instructions();
+			zombie_spawn_delay = level.grief_gamerules[ "round_zombie_spawn_delay" ];
+			while ( flag( "timer_pause" ) )
+			{
+				wait 1;
+			}
+			while ( zombie_spawn_delay > 0 )
+			{
+				wait 1;
+				zombie_spawn_delay--;
+				time_left = parse_minutes( to_mins( zombie_spawn_delay ) );
+				level.round_time_elem setText( time_left[ "minutes" ] + ":" + time_left[ "seconds" ] );
+			}
+			waittillframeend;
+			timelimit_in_seconds = level.grief_gamerules[ "timelimit" ] * 60;
+			time_left = parse_minutes( to_mins( timelimit_in_seconds ) );
+			level.round_time_elem setText( time_left[ "minutes" ] + ":" + time_left[ "seconds" ] );
 		}
+		wait 1;
+		timelimit_in_seconds--;
+		if ( timelimit_in_seconds % 20 )
+		{
+			play_sound_2d( "evt_nomans_warning" );
+			level.round_time_elem clearalltextafterhudelem();
+			level.round_time_elem settext( "" );
+			level.round_time_elem destroy();
+			create_round_timer();
+			level.round_time_elem.alpha = 1;
+		}
+		time_left = parse_minutes( to_mins( timelimit_in_seconds ) );
+		level.round_time_elem setText( time_left[ "minutes" ] + ":" + time_left[ "seconds" ] );
 	}
 }
 
-instructions()
+create_round_timer()
 {
-	level endon( "end_game" );
-	self endon( "disconnect" );
-	level waittill( "grief_begin" );
-	rounds = level.grief_gamerules[ "scorelimit" ];
-	self iPrintLn( "Welcome to Grief!" );
-	wait 3;
-	self iPrintLn( "Your goal is to win " + rounds + " rounds" );
-	wait 3;
-	self iPrintLn( "Win a round by downing the entire other team" );
-	wait 3;
-	self iPrintLn( "Good luck!" );
-	wait 3;
+	seconds_display = newhudelem();
+	seconds_display.hidewheninmenu = 1;
+	seconds_display.horzalign = "user_left";
+	seconds_display.vertalign = "user_bottom";
+	seconds_display.alignx = "bottom";
+	seconds_display.aligny = "left";
+	seconds_display.x = 0;
+	seconds_display.y = 0;
+	seconds_display.foreground = 1;
+	seconds_display.font = "default";
+	seconds_display.fontscale = 1.5;
+	seconds_display.color = ( 1, 1, 1 );
+	seconds_display.alpha = 0;
+	level.round_time_elem = seconds_display;
 }
 
-timelimit_hud() //checked matches cerberus output
+parse_minutes( start_time )
 {
-	flag_wait( "pregame" );
-	elem = newhudelem();
-	elem.hidewheninmenu = 1;
-	elem.horzalign = "center";
-	elem.vertalign = "top";
-	elem.alignx = "center";
-	elem.aligny = "middle";
-	elem.x = 0;
-	elem.y = 0;
-	elem.foreground = 1;
-	elem.font = "default";
-	elem.fontscale = 1.5;
-	elem.color = ( 1, 1, 1 );
-	elem.alpha = 2;
-	elem thread maps/mp/gametypes_zm/_hud::fontpulseinit();
-	if ( is_true( level.timercountdown ) )
+	time = [];
+	keys = strtok( start_time, ":" );
+	time[ "hours" ] = keys[ 0 ];
+	time[ "minutes" ] = keys[ 1 ];
+	time[ "seconds" ] = keys[ 2 ];
+	return time;
+}
+
+game_start_timer() //checked matches bo3 _globallogic.gsc within reason
+{	
+	visionSetNaked( "mpIntro", 0 );
+	matchStartText = createServerFontString( "objective", 1.5 );
+	matchStartText setPoint( "CENTER", "CENTER", 0, -40 );
+	matchStartText.sort = 1001;
+	matchStartText setText( game["strings"]["waiting_for_teams"] );
+	matchStartText.foreground = false;
+	matchStartText.hidewheninmenu = true;
+	flag_wait( "game_start" );
+	matchStartText setText( game["strings"]["match_starting_in"] );
+	matchStartTimer = createServerFontString( "objective", 2.2 );
+	matchStartTimer setPoint( "CENTER", "CENTER", 0, 0 );
+	matchStartTimer.sort = 1001;
+	matchStartTimer.color = ( 1, 1, 0 );
+	matchStartTimer.foreground = false;
+	matchStartTimer.hidewheninmenu = true;
+	matchStartTimer maps\mp\gametypes_zm\_hud::fontPulseInit();
+	countTime = level.grief_gamerules[ "pregame_time" ];
+	if ( countTime >= 2 )
 	{
-		elem settenthstimer( level.timelimit * 60 );
+		while ( countTime > 0 )
+		{
+			matchStartTimer setValue( countTime );
+			matchStartTimer thread maps\mp\gametypes_zm\_hud::fontPulse( level );
+			if ( countTime == 2 )
+			{
+				visionSetNaked( GetDvar( "mapname" ), 3.0 );
+			}
+			countTime--;
+			wait 1;
+		}
 	}
 	else
 	{
-		elem settenthstimerup( 0.1 );
+		visionSetNaked( GetDvar( "mapname" ), 1.0 );
 	}
-	level.game_module_timer = elem;
+	matchStartTimer destroyElem();
+	matchStartText destroyElem();
+}
+
+show_grief_hud_msg( msg, msg_parm, offset, cleanup_end_game ) //checked matches cerberus output
+{
+	self endon( "disconnect" );
+	zgrief_hudmsg = newclienthudelem( self );
+	zgrief_hudmsg.alignx = "center";
+	zgrief_hudmsg.aligny = "middle";
+	zgrief_hudmsg.horzalign = "center";
+	zgrief_hudmsg.vertalign = "middle";
+	zgrief_hudmsg.y -= 130;
+	if ( isDefined( offset ) )
+	{
+		zgrief_hudmsg.y += offset;
+	}
+	zgrief_hudmsg.foreground = 1;
+	zgrief_hudmsg.fontscale = 5;
+	zgrief_hudmsg.alpha = 0;
+	zgrief_hudmsg.color = ( 1, 1, 1 );
+	zgrief_hudmsg.hidewheninmenu = 1;
+	zgrief_hudmsg.font = "default";
+	if ( is_true( cleanup_end_game ) )
+	{
+		level endon( "end_game" );
+		zgrief_hudmsg thread show_grief_hud_msg_cleanup();
+	}
+	if ( isDefined( msg_parm ) )
+	{
+		zgrief_hudmsg settext( msg, msg_parm );
+	}
+	else
+	{
+		zgrief_hudmsg settext( msg );
+	}
+	zgrief_hudmsg changefontscaleovertime( 0.25 );
+	zgrief_hudmsg fadeovertime( 0.25 );
+	zgrief_hudmsg.alpha = 1;
+	zgrief_hudmsg.fontscale = 2;
+	wait 3.25;
+	zgrief_hudmsg changefontscaleovertime( 1 );
+	zgrief_hudmsg fadeovertime( 1 );
+	zgrief_hudmsg.alpha = 0;
+	zgrief_hudmsg.fontscale = 5;
+	wait 1;
+	zgrief_hudmsg notify( "death" );
+	if ( isDefined( zgrief_hudmsg ) )
+	{
+		zgrief_hudmsg destroy();
+	}
+}
+
+show_grief_hud_msg_cleanup() //checked matches cerberus output
+{
+	self endon( "death" );
+	level waittill( "end_game" );
+	if ( isDefined( self ) )
+	{
+		self destroy();
+	}
+}
+
+delay_thread_watch_host_migrate( timer, func, param1, param2, param3, param4, param5, param6 ) //checked matches cerberus output
+{
+	self thread _delay_thread_watch_host_migrate_proc( func, timer, param1, param2, param3, param4, param5, param6 );
+}
+
+_delay_thread_watch_host_migrate_proc( func, timer, param1, param2, param3, param4, param5, param6 ) //checked matches cerberus output
+{
+	self endon( "death" );
+	self endon( "disconnect" );
+	wait timer;
+	single_thread( self, func, param1, param2, param3, param4, param5, param6 );
 }
