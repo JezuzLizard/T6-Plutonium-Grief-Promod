@@ -665,6 +665,9 @@ cast_str_to_bool( str )
 	key_list = "allies:B:false:0|axis:A:false:0"; //|team3:C:false:0|team4:D:false:0|team5:E:false:0|team6:F:false:0|team7:G:false:0|team8:H:false:0
 	key_names = "team|e_team|alive|score";
 	generate_map( "encounters_teams", key_list, key_names );
+	key_list = "admins:player_names:player_guids:cmds:|moderators:player_names:player_guids:cmds|trusted:player_names:player_guids:cmds";
+	key_names = "tier|names|guids|cmds|privileges";
+	generate_map( "server_ranks", key_list, key_names );
 }
 
 /*private*/ generate_map( map_name, arg_list, name_list )
@@ -715,11 +718,6 @@ cast_str_to_bool( str )
 /*public*/ get_tokens_with_key_value( string, key )
 {
 	string_keys = strTok( string, ";" );
-	if ( index >= string_keys.size )
-	{
-		print( "Parsing Error: get_tokens_with_key_value() index is out of bounds." );
-		return [];
-	}
 	tokens = [];
 	for ( i = 0; i < string_keys.size; i++ )
 	{
@@ -729,6 +727,21 @@ cast_str_to_bool( str )
 		}
 	}
 	return tokens;
+}
+
+/*public*/ get_first_token_with_key_value( string, key )
+{
+	string_keys = strTok( string, ";" );
+	token = "";
+	for ( i = 0; i < string_keys.size; i++ )
+	{
+		if ( isSubStr( string_keys[ i ], key ) )
+		{
+			token = string_keys[ i ];
+			break;
+		}
+	}
+	return token;
 }
 
 /*public*/ add_new_preset_team_token( new_tokens, player_name, team_name_arg, is_perm_arg, is_banned_arg )
@@ -777,14 +790,186 @@ cast_str_to_bool( str )
 		{
 			level.players_in_session[ self.name ].sessionteam = undefined;
 		}
+		key_names = "tier|names|guids|cmds|privileges";
 		level.players_in_session[ self.name ].team_change_timer = 0;
 		level.players_in_session[ self.name ].team_changed_times = 0;
 		level.players_in_session[ self.name ].team_change_ban = false;
+		level.players_in_session[ self.name ].server_rank_system = [];
+		level.players_in_session[ self.name ].server_rank_system[ "rank" ] = self get_server_privileges_rank();
+		level.players_in_session[ self.name ].server_rank_system[ "cmds" ] = self get_server_privileges_cmds();
+		level.players_in_session[ self.name ].server_rank_system[ "privileges" ] = get_server_privileges_special();
 	}
 }
 
-/*public*/ parse_message( message )
+/*public*/ get_server_privileges_rank()
 {
+
+}
+
+/*public*/ get_server_privileges_cmds()
+{
+	//"all", "allex", "none", "noneex"
+}
+
+/*private*/ FS_init()
+{
+	level.FS_basepath = getDvar( "fs_basepath" ) + "/" + getDvar( "fs_basegame" ) + "/" + "scriptdata" + "/";
+	level.FS_open_files = [];
+}
+
+/*public*/ FS_read( filename )
+{
+	reason = FS_file_open_failure( filename );
+	if ( reason != "" )
+	{
+		print( "FS Error: Failed to open " + filename + " reason " + reason );
+		return;
+	}
+	level.FS_open_files[ level.FS_open_files.size ] = filename;
+	file = fopen( level.basepath + filename, "r+" );
+	if ( file == -1 )
+	{
+		arrayRemoveValue( level.FS_open_files, filename );
+		print( "FS Error: Failed to open " + filename );
+		return;
+	}
+	buffer = fread( file );
+	fclose( file );
+	arrayRemoveValue( level.FS_open_files, filename );
+	return buffer;
+}
+
+/*private*/ FS_file_open_failure( filename )
+{
+	if ( level.FS_open_files.size > 10 )
+	{
+		return "more than 10 open files";
+	}
+	if ( isInArray( level.FS_open_files, filename ) )
+	{
+		return "file already open";
+	}
+	return "";
+}
+
+/*private*/ SERVER_MSG_INIT()
+{
+	level.msg_types = [];
+	level.msg_types[ "info" ] = getDvarIntDefault( "sv_msg_info_display", 1 );
+	level.msg_types[ "warning" ] = getDvarIntDefault( "sv_msg_warning_display", 1 );
+	level.msg_types[ "error" ] = getDvarIntDefault( "sv_msg_error_display", 1 );
+	level.msg_types[ "debug" ] = getDvarIntDefault( "sv_msg_debug_display", 0 );
+}
+
+/*public*/ COM_PRINTF( channels, type, message, players )
+{
+	channel_keys = strTok( channels, " " );
+	if ( isDefined( arg_list ) && arg_list != "" )
+	{
+		args = strTok( arg_list, " " );
+	}
+	fmt_msg = message;
+	foreach ( channel in channel_keys )
+	{
+		switch ( channel )
+		{
+			case "console":
+				if ( is_true( level.msg_types[ type ] ) )
+				{
+					type = toUpper( type );
+					print( type + ":" + fmt_msg );
+				}
+				break;
+			case "games_log":
+				if ( is_true( level.msg_types[ type ] ) )
+				{
+					type = toUpper( type );
+					logprint( type + ":" + fmt_msg + "\n" );
+				}
+				break;
+			case "console_log":
+				if ( is_true( level.msg_types[ type ] ) )
+				{
+					type = toUpper( type );
+					//consoleprint( type + ":" + fmt_msg + "\n" );
+				}
+				break;
+			case "iprint":
+				if ( isDefined( player ) )
+				{
+					for ( i = 0; i < players.size; i++ )
+					{
+						if ( isPlayer( players[ i ] ) )
+						{
+							players[ i ] iPrintLn( fmt_msg );
+						}
+					}
+				}
+				else 
+				{
+					fmt_msg = va( "SERVER_MSG() channel is for %s but players arg is undefined", channel );
+					COM_PRINTF( "console games_log", "error", fmt_msg );
+				}
+				break;
+			case "iprintbold":
+				if ( isDefined( player ) )
+				{
+					for ( i = 0; i < players.size; i++ )
+					{
+						if ( isPlayer( players[ i ] ) )
+						{
+							players[ i ] iPrintLnBold( fmt_msg );
+						}
+					}
+				}
+				else 
+				{
+					fmt_msg = va( "SERVER_MSG() channel is for %s but players arg is undefined", channel );
+					COM_PRINTF( "console games_log", "error", fmt_msg );
+				}
+				break;
+			case "say":
+				if ( isDefined( type ) && is_true( level.msg_types[ type ] ) )
+				{
+					type = toUpper( type );
+					say( type + ":" + fmt_msg );
+				}
+				else 
+				{
+					say( fmt_msg );
+				}
+				break;
+			case "tell":
+				if ( isDefined( player ) )
+				{
+					for ( i = 0; i < players.size; i++ )
+					{
+						if ( isPlayer( players[ i ] ) )
+						{
+							players[ i ] tell( fmt_msg );
+						}
+					}
+				}
+				else 
+				{
+					fmt_msg = va( "SERVER_MSG() channel is for %s but players arg is undefined", channel );
+					COM_PRINTF( "console games_log", "error", fmt_msg );
+				}
+				break;
+			default:
+				fmt_msg = va( "SERVER_MSG() invalid %s channel", channel );
+				COM_PRINTF( "console games_log", "error", fmt_msg );
+				break;
+		}
+	}
+}
+
+/*public*/ parse_cmd_message( message )
+{
+	if ( message == "" )
+	{
+		return [];
+	}
 	multi_cmds = [];
 	command_keys = [];
 	multiple_cmds_keys = strTok( message, ";" );
@@ -825,24 +1010,13 @@ cast_str_to_bool( str )
 	cmd_namespace = "";
 	if ( !isSubStr( message, ":" ) )
 	{
-		return ":";
+		return "";
 	}
 	for ( i = 0; isDefined( message[ i ] ) && message[ i ] != ":"; i++ )
 	{
 		cmd_namespace = cmd_namespace + message[ i ];
 	}
-	namespace_keys = getArrayKeys( level.cmd_namespaces );
-	for ( i = 0; i < namespace_keys.size; i++ )
-	{
-		foreach ( alias in level.cmd_namespaces[ namespace_keys[ i ] ][ "namespace_aliases" ] )
-		{
-			if ( cmd_namespace == alias )
-			{
-				return namespace_keys[ i ];
-			}
-		}
-	}
-	return "";
+	return cmd_namespace;
 }
 
 /*public*/ no_magic()
