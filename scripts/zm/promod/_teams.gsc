@@ -235,7 +235,7 @@ teams_init()
 	}
 }
 
-default_menu_autoassign( comingfrommenu )
+default_menu_autoassign( assignment )
 {
 	teamkeys = getarraykeys( level.teams );
 	assignment = teamkeys[ randomint( teamkeys.size ) ];

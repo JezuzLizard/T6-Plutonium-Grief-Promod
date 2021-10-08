@@ -311,6 +311,11 @@ do_game_mode_shellshock( attacker, meansofdeath, weapon )
 	self._being_shellshocked = 0;
 }
 
+create_griefed_obituary_msg( victim, attacker, weapon, mod )
+{
+	return va( "GRIEF;%s;%s;%s;%s;%s;%s", victim.team, victim.name, attacker.team, attacker.name, weapon, mod );
+}
+
 watch_for_down( attacker )
 {
 	if ( is_true( self.grief_already_checking_for_down ) )
@@ -329,7 +334,9 @@ watch_for_down( attacker )
 			{
 				if ( getDvarInt( "grief_killfeed_enable" ) == 1 )
 				{
-					obituary( self, self.last_griefed_by.attacker, self.last_griefed_by.weapon, self.last_griefed_by.meansofdeath );
+					obituary_message = create_griefed_obituary_msg( self, self.last_griefed_by.attacker, self.last_griefed_by.weapon, self.last_griefed_by.meansofdeath );
+					players = array( self, self.last_griefed_by.attacker );
+					COM_PRINTF( "obituary g_log", "obituary", obituary_message, players );
 				}
 				attacker.killsconfirmed++;
 				attacker.pers[ "killsconfirmed" ]++;

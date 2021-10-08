@@ -686,7 +686,7 @@ cast_str_to_bool( str )
 				level.data_maps[ map_name ][ key ] = [];
 			}
 		}
-		key_value_types_pairs = strTok( arg_list, "|" );
+		key_value_pairs = strTok( arg_list, "|" );
 		for ( i = 0; i < key_value_pairs.size; i++ )
 		{
 			pairs = strTok( key_value_pairs[ i ], ":" );
@@ -801,6 +801,12 @@ cast_str_to_bool( str )
 	}
 }
 
+//(owner,all,all);
+//(admin,...,...);
+//(moderator,...,...);
+//(trusted,...,...);
+//(default,...,...);
+
 /*public*/ get_server_privileges_rank()
 {
 
@@ -808,7 +814,7 @@ cast_str_to_bool( str )
 
 /*public*/ get_server_privileges_cmds()
 {
-	//"all", "allex", "none", "noneex"
+	//"all", "allex", "none", "noneex", "inheritall", "inheritex"
 }
 
 /*private*/ FS_init()
@@ -822,21 +828,93 @@ cast_str_to_bool( str )
 	reason = FS_file_open_failure( filename );
 	if ( reason != "" )
 	{
-		print( "FS Error: Failed to open " + filename + " reason " + reason );
-		return;
+		print( "FS_read Error: Failed to open " + filename + " reason " + reason );
+		return "";
 	}
 	level.FS_open_files[ level.FS_open_files.size ] = filename;
 	file = fopen( level.basepath + filename, "r+" );
 	if ( file == -1 )
 	{
 		arrayRemoveValue( level.FS_open_files, filename );
-		print( "FS Error: Failed to open " + filename );
-		return;
+		print( "FS_read Error: Failed to open " + filename );
+		return "";
 	}
 	buffer = fread( file );
 	fclose( file );
 	arrayRemoveValue( level.FS_open_files, filename );
 	return buffer;
+}
+
+/*public*/ FS_write( filename, buffer )
+{
+	reason = FS_file_open_failure( filename );
+	if ( reason != "" )
+	{
+		print( "FS_write Error: Failed to open " + filename + " reason " + reason );
+		return;
+	}
+	level.FS_open_files[ level.FS_open_files.size ] = filename;
+	file = fopen( level.basepath + filename, "w+" );
+	if ( file == -1 )
+	{
+		arrayRemoveValue( level.FS_open_files, filename );
+		print( "FS_write Error: Failed to open " + filename );
+		return;
+	}
+	data = "";
+	data_printed = 0;
+	for ( buffer_index = 0; isDefined( buffer[ buffer_index ] ); buffer_index++ )
+	{
+		data += buffer[ buffer_index ];
+		if ( buffer[ buffer_index ] == ";" )
+		{
+			fprintf( data + "\n", file );
+			data_printed += data.size;
+			data = "";
+		}
+	}
+	fclose( file );
+	arrayRemoveValue( level.FS_open_files, filename );
+	if ( buffer.size != data_printed )
+	{
+		print( "FS_write Error: Failed to write entire buffer " + filename );
+	}
+}
+
+/*public*/ FS_append( filename, buffer )
+{
+	reason = FS_file_open_failure( filename );
+	if ( reason != "" )
+	{
+		print( "FS_append Error: Failed to open " + filename + " reason " + reason );
+		return;
+	}
+	level.FS_open_files[ level.FS_open_files.size ] = filename;
+	file = fopen( level.basepath + filename, "a+" );
+	if ( file == -1 )
+	{
+		arrayRemoveValue( level.FS_open_files, filename );
+		print( "FS_append Error: Failed to open " + filename );
+		return;
+	}
+	data = "";
+	data_printed = 0;
+	for ( buffer_index = 0; isDefined( buffer[ buffer_index ] ); buffer_index++ )
+	{
+		data += buffer[ buffer_index ];
+		if ( buffer[ buffer_index ] == ";" )
+		{
+			fprintf( data + "\n", file );
+			data_printed += data.size;
+			data = "";
+		}
+	}
+	fclose( file );
+	arrayRemoveValue( level.FS_open_files, filename );
+	if ( buffer.size != data_printed )
+	{
+		print( "FS_append Error: Failed to write entire buffer " + filename );
+	}
 }
 
 /*private*/ FS_file_open_failure( filename )
@@ -858,108 +936,151 @@ cast_str_to_bool( str )
 	level.msg_types[ "info" ] = getDvarIntDefault( "sv_msg_info_display", 1 );
 	level.msg_types[ "warning" ] = getDvarIntDefault( "sv_msg_warning_display", 1 );
 	level.msg_types[ "error" ] = getDvarIntDefault( "sv_msg_error_display", 1 );
+	level.msg_types[ "cmdinfo" ] = getDvarIntDefault( "sv_msg_cmdinfo_display", 1 );
+	level.msg_types[ "cmdwarning" ] = getDvarIntDefault( "sv_msg_cmdwarning_display", 1 );
+	level.msg_types[ "cmderror" ] = getDvarIntDefault( "sv_msg_cmderror_display", 1 );
 	level.msg_types[ "debug" ] = getDvarIntDefault( "sv_msg_debug_display", 0 );
+	level.msg_types[ "obituary" ] = getDvarIntDefault( "sv_msg_obituary_display", 1 );
+	level.msg_types[ "notitle" ] = getDvarIntDefault( "sv_msg_notitle_display", 1 );
+
+	level.msg_funcs[ "con" ] = ::COM_PRINT;
+	level.msg_funcs[ "g_log" ] = ::COM_LOGPRINT;
+	level.msg_funcs[ "con_log" ] = ::COM_CONSOLELOGPRINT;
+	level.msg_funcs[ "iprint" ] = ::COM_IPRINTLN;
+	level.msg_funcs[ "iprintbold" ] = ::COM_IPRINTLNBOLD;
+	level.msg_funcs[ "say" ] = ::COM_SAY;
+	level.msg_funcs[ "tell" ] = ::COM_TELL;
+	level.msg_funcs[ "obituary" ] = ::COM_OBITUARY;
 }
 
-/*public*/ COM_PRINTF( channels, type, message, players )
+COM_PRINT( channel, filter, message, players )
+{
+	if ( is_true( level.msg_types[ filter ] ) )
+	{
+		message = COM_TO_CAPS_MSG_TITLE( filter ) + message;
+		print( message );
+	}
+}
+
+COM_LOGPRINT( channel, filter, message, players )
+{
+	if ( is_true( level.msg_types[ filter ] ) )
+	{
+		message = COM_TO_CAPS_MSG_TITLE( filter ) + message;
+		logPrint( message + "/n" );
+	}
+}
+
+COM_CONSOLELOGPRINT( channel, filter, message, players )
+{
+	if ( is_true( level.msg_types[ filter ] ) )
+	{
+		message = COM_TO_CAPS_MSG_TITLE( filter ) + message;
+		//consoleLogPrint( message );
+	}
+}
+
+COM_IPRINTLN( channel, filter, message, players )
+{
+	if ( is_true( level.msg_types[ filter ] ) )
+	{
+		message = COM_TO_CAPS_MSG_TITLE( filter ) + message;
+		if ( array_validate( players ) )
+		{
+			for ( i = 0; i < players.size; i++ )
+			{
+				if ( isPlayer( players[ i ] ) && !players[ i ].is_server )
+				{
+					players[ i ] iPrintLn( message );
+				}
+			}
+		}
+		else 
+		{
+			COM_PRINTF( "con con_log", "error", va( "COM_PRINTF() msg %s sent for channel %s has bad players arg", message, channel ) );
+		}
+	}
+}
+
+COM_IPRINTLNBOLD( channel, filter, message, players )
+{
+	if ( is_true( level.msg_types[ filter ] ) )
+	{
+		message = COM_TO_CAPS_MSG_TITLE( filter ) + message;
+		if ( array_validate( players ) )
+		{
+			for ( i = 0; i < players.size; i++ )
+			{
+				if ( isPlayer( players[ i ] ) && !players[ i ].is_server )
+				{
+					players[ i ] iPrintLnBold( message );
+				}
+			}
+		}
+		else 
+		{
+			COM_PRINTF( "con con_log", "error", va( "COM_PRINTF() msg %s sent for channel %s has bad players arg", message, channel ) );
+		}
+	}
+}
+
+COM_SAY( channel, filter, message, players )
+{
+	if ( is_true( level.msg_types[ filter ] ) )
+	{
+		message = COM_TO_CAPS_MSG_TITLE( filter ) + message;
+		say( message );
+	}
+}
+
+COM_TELL( channel, filter, message, players )
+{
+	if ( is_true( level.msg_types[ filter ] ) )
+	{
+		message = COM_TO_CAPS_MSG_TITLE( filter ) + message;
+		if ( array_validate( players ) )
+		{
+			for ( i = 0; i < players.size; i++ )
+			{
+				if ( isPlayer( players[ i ] ) && !players[ i ].is_server )
+				{
+					players[ i ] tell( message );
+				}
+			}
+		}
+		else 
+		{
+			COM_PRINTF( "con con_log", "error", va( "COM_PRINTF() msg %s sent for channel %s has bad players arg", message, channel ) );
+		}
+	}
+}
+
+COM_OBITUARY( filter, message, players )
+{
+	if ( is_true( level.msg_types[ filter ] ) )
+	{
+		obituary( players[ 0 ], players[ 1 ], players[ 0 ].last_griefed_by.weapon, players[ 0 ].last_griefed_by.meansofdeath );
+	}
+}
+
+COM_TO_CAPS_MSG_TITLE( filter )
+{
+	return filter != "notitle" ? toUpper( filter ) + ":" : "";
+}
+
+/*public*/ COM_PRINTF( channels, filter, message, players )
 {
 	channel_keys = strTok( channels, " " );
-	if ( isDefined( arg_list ) && arg_list != "" )
-	{
-		args = strTok( arg_list, " " );
-	}
 	fmt_msg = message;
 	foreach ( channel in channel_keys )
 	{
-		switch ( channel )
+		if ( isDefined( level.msg_funcs[ channel ] ) )
 		{
-			case "console":
-				if ( is_true( level.msg_types[ type ] ) )
-				{
-					type = toUpper( type );
-					print( type + ":" + fmt_msg );
-				}
-				break;
-			case "games_log":
-				if ( is_true( level.msg_types[ type ] ) )
-				{
-					type = toUpper( type );
-					logprint( type + ":" + fmt_msg + "\n" );
-				}
-				break;
-			case "console_log":
-				if ( is_true( level.msg_types[ type ] ) )
-				{
-					type = toUpper( type );
-					//consoleprint( type + ":" + fmt_msg + "\n" );
-				}
-				break;
-			case "iprint":
-				if ( isDefined( player ) )
-				{
-					for ( i = 0; i < players.size; i++ )
-					{
-						if ( isPlayer( players[ i ] ) )
-						{
-							players[ i ] iPrintLn( fmt_msg );
-						}
-					}
-				}
-				else 
-				{
-					fmt_msg = va( "SERVER_MSG() channel is for %s but players arg is undefined", channel );
-					COM_PRINTF( "console games_log", "error", fmt_msg );
-				}
-				break;
-			case "iprintbold":
-				if ( isDefined( player ) )
-				{
-					for ( i = 0; i < players.size; i++ )
-					{
-						if ( isPlayer( players[ i ] ) )
-						{
-							players[ i ] iPrintLnBold( fmt_msg );
-						}
-					}
-				}
-				else 
-				{
-					fmt_msg = va( "SERVER_MSG() channel is for %s but players arg is undefined", channel );
-					COM_PRINTF( "console games_log", "error", fmt_msg );
-				}
-				break;
-			case "say":
-				if ( isDefined( type ) && is_true( level.msg_types[ type ] ) )
-				{
-					type = toUpper( type );
-					say( type + ":" + fmt_msg );
-				}
-				else 
-				{
-					say( fmt_msg );
-				}
-				break;
-			case "tell":
-				if ( isDefined( player ) )
-				{
-					for ( i = 0; i < players.size; i++ )
-					{
-						if ( isPlayer( players[ i ] ) )
-						{
-							players[ i ] tell( fmt_msg );
-						}
-					}
-				}
-				else 
-				{
-					fmt_msg = va( "SERVER_MSG() channel is for %s but players arg is undefined", channel );
-					COM_PRINTF( "console games_log", "error", fmt_msg );
-				}
-				break;
-			default:
-				fmt_msg = va( "SERVER_MSG() invalid %s channel", channel );
-				COM_PRINTF( "console games_log", "error", fmt_msg );
-				break;
+			[[ level.msg_funcs[ channel ] ]]( channel, filter, message, players );
+		}
+		else 
+		{
+			COM_PRINTF( "con", "error", va( "COM_PRINTF() channel %s is invalid", channel ) );
 		}
 	}
 }
@@ -979,14 +1100,15 @@ cast_str_to_bool( str )
 		command_keys[ "cmdname" ] = "";
 		command_keys[ "args" ] = [];
 		command_keys[ "namespace" ] = get_cmd_namespace( message );
-		for ( buffer_index = 0; command_keys[ "namespace" ] != "" && buffer_index < command_keys[ "namespace" ].size + 2; buffer_index++ )
+		buffer_index = 0;
+		for ( ; command_keys[ "namespace" ] != "" && buffer_index < command_keys[ "namespace" ].size + 2; buffer_index++ )
 		{
 		}
 		for ( ; message[ buffer_index ] != "("; buffer_index++ )
 		{
 			command_keys[ "cmdname" ] = command_keys[ "cmdname" ] + message[ buffer_index ];
 		}
-		for ( ; isDefined( message[ buffer_index ] ) && message[ buffer_index ] != ")"; buffer_index++ )
+		for ( ; isDefined( message[ buffer_index ] ); buffer_index++ )
 		{
 			if ( message[ buffer_index ] == "," )
 			{
@@ -998,6 +1120,18 @@ cast_str_to_bool( str )
 				{
 					command_keys[ "args" ][ command_keys[ "args" ].size - 1 ] += message[ buffer_index ];
 				}
+				if ( isSubStr( command_keys[ "args" ][ command_keys[ "args" ].size - 1 ], "(" ) );
+				{
+					result = execute_nested_command( command_keys[ "args" ][ command_keys[ "args" ].size - 1 ] );
+					if ( is_true( result[ "success" ] ) )
+					{
+						command_keys[ "args" ][ command_keys[ "args" ].size - 1 ] = result[ "args" ];
+					}
+					else 
+					{
+						command_keys[ "args" ][ command_keys[ "args" ].size - 1 ] = "";
+					}
+				}
 			}
 		}
 		multi_cmds[ multi_cmds.size ] = command_keys;
@@ -1007,16 +1141,12 @@ cast_str_to_bool( str )
 
 /*private*/ get_cmd_namespace( message )
 {
-	cmd_namespace = "";
 	if ( !isSubStr( message, ":" ) )
 	{
 		return "";
 	}
-	for ( i = 0; isDefined( message[ i ] ) && message[ i ] != ":"; i++ )
-	{
-		cmd_namespace = cmd_namespace + message[ i ];
-	}
-	return cmd_namespace;
+	message_tokens = strTok( message, ":" );
+	return message_tokens[ 0 ];
 }
 
 /*public*/ no_magic()

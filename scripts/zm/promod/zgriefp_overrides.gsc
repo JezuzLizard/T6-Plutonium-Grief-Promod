@@ -224,14 +224,18 @@ track_players_intersection_tracker_o() //checked partially changed to match cerb
 				{
 					players[ i ] playlocalsound( level.zmb_laugh_alias );
 				}
-				if ( is_true( players[ i ].is_grief_jumped_on ) )
+				if ( is_true( players[ j ].is_grief_jumped_on ) )
 				{
-					obituary( players[ j ], players[ i ], "none", "MOD_IMPACT" );
+					obituary_message = create_griefed_obituary_msg( players[ i ], players[ j ], "none", "MOD_IMPACT" );
+					players = array( players[ i ], players[ j ] );
+					COM_PRINTF( "obituary g_log", "obituary", obituary_message, players );
 					players[ i ].is_grief_jumped_on = undefined;
 				}
-				else if ( is_true( players[ j ].is_grief_jumped_on ) )
+				else if ( is_true( players[ i ].is_grief_jumped_on ) )
 				{
-					obituary( players[ i ], players[ j ], "none", "MOD_IMPACT" );
+					obituary_message = create_griefed_obituary_msg( players[ j ], players[ i ], "none", "MOD_IMPACT" );
+					players = array( players[ j ], players[ i ] );
+					COM_PRINTF( "obituary g_log", "obituary", obituary_message, players );
 					players[ j ].is_grief_jumped_on = undefined;
 				}
 				killed_players = 1;

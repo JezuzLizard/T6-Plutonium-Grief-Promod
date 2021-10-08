@@ -63,35 +63,35 @@
 							case "restart":
 							case "maprestart":
 							case "map_restart":
-								logline1 = "CMD:" + player.name + ";FR" + "\n";
+								cmd_outcome_log = "CMD:" + player.name + ";FR" + "\n";
 								level thread change_level();
 								level notify( "end_commands", 0 );
 								break;
 							case "nm":
 							case "nextmap":
 							case "setnextmap":
-								logline1 = "CMD:" + player.name + ";NM:" + args[ 0 ] + "\n";
+								cmd_outcome_log = "CMD:" + player.name + ";NM:" + args[ 0 ] + "\n";
 								find_alias_and_set_map( toLower( args[ 0 ] ), player, 0, 0 );
 								break;
 							case "km":
 							case "keepmap":
-								logline1 = "CMD:" + player.name + ";KM:" + args[ 0 ] + "\n";
+								cmd_outcome_log = "CMD:" + player.name + ";KM:" + args[ 0 ] + "\n";
 								find_alias_and_set_map( toLower( args[ 0 ] ), player, 0, 1 );
 								break;
 							case "mr":
 							case "maprotate":
-								logline1 = "CMD:" + player.name + ";MR" + "\n";
+								cmd_outcome_log = "CMD:" + player.name + ";MR" + "\n";
 								level thread change_level();
 								level notify( "end_commands", 1 );
 								break;
 							case "m":
 							case "map":
-								logline1 = "CMD:" + player.name + ";MAP:" + args[ 0 ] + "\n";
+								cmd_outcome_log = "CMD:" + player.name + ";MAP:" + args[ 0 ] + "\n";
 								find_alias_and_set_map( toLower( args[ 0 ] ), player, 1 );
 								break;
 							case "rr":
 							case "resetrotation":
-								logline1 = "CMD:" + player.name + ";RR" + "\n";
+								cmd_outcome_log = "CMD:" + player.name + ";RR" + "\n";
 								player tell( "Map rotation reset to the default" );
 								setDvar( "sv_maprotation", getDvar( "grief_original_rotation" ) );
 								setDvar( "sv_maprotationCurrent", getDvar( "grief_original_rotation" ) );
@@ -102,7 +102,7 @@
 								{
 									if ( clean_player_name_of_clantag( player.name ) == clean_player_name_of_clantag( args[ 0 ] ) )
 									{
-										logline1 = "CMD:" + player.name + ";K:" + args[ 0 ] + "\n";
+										cmd_outcome_log = "CMD:" + player.name + ";K:" + args[ 0 ] + "\n";
 										say( clean_player_name_of_clantag( player.name ) + " has been kicked!" );
 										kick( player getEntityNumber() );
 										break;
@@ -113,7 +113,7 @@
 							case "mapvote":
 								if ( !is_true( level.mapvote_in_progress ) )
 								{
-									logline1 = "CMD:" + player.name + ";MVS:" + args[ 0 ] + "\n";
+									cmd_outcome_log = "CMD:" + player.name + ";MVS:" + args[ 0 ] + "\n";
 									level thread mapvote_started();
 									level thread mapvote_count_votes();
 									level thread mapvote_end();
@@ -131,7 +131,7 @@
 								}
 								if ( !is_true( level.votekick_in_progress ) )
 								{
-									logline1 = "CMD:" + player.name + ";VKS:" + args[ 0 ] + "\n";
+									cmd_outcome_log = "CMD:" + player.name + ";VKS:" + args[ 0 ] + "\n";
 									level thread vote_kick_started();
 									level thread votekick_count_votes();
 									level.votekick_in_progress = 1;
@@ -150,7 +150,7 @@
 								}
 								if ( args[ 0 ] == "0" )
 								{	
-									logline1 = "CMD:" + player.name + ";TOGMAG" + "\n";
+									cmd_outcome_log = "CMD:" + player.name + ";TOGMAG" + "\n";
 									say( "Magic is disabled on the server" );
 									setDvar( "grief_gamerule_magic", 0 );
 									no_magic();
@@ -170,7 +170,7 @@
 									no_drops();
 									break;
 								}
-								logline1 = "CMD:" + player.name + ";TOGDROPS:" + args[ 0 ] + "\n";
+								cmd_outcome_log = "CMD:" + player.name + ";TOGDROPS:" + args[ 0 ] + "\n";
 								if ( args[ 0 ] == "0" )
 								{
 									say( "Powerups are disabled on the server" );
@@ -190,13 +190,13 @@
 									player tell( "You need to specify a round number" );
 									break;
 								}
-								logline1 = "CMD:" + player.name + ";ROUND:" + args[ 0 ] + "\n";
+								cmd_outcome_log = "CMD:" + player.name + ";ROUND:" + args[ 0 ] + "\n";
 								say( "The round is set to " + args[ 0 ] );
 								set_round( int( args[ 0 ] ) );
 								break;
 							case "kl":
 							case "knifelunge":
-								logline1 = "CMD:" + player.name + ";KNIFE:" + args[ 0 ] + "\n";
+								cmd_outcome_log = "CMD:" + player.name + ";KNIFE:" + args[ 0 ] + "\n";
 								set_knife_lunge( int( args[ 0 ] ) );
 								break;
 							case "d":
@@ -207,7 +207,7 @@
 									break;
 								}
 								player tell( "Dvar set " + args[ 0 ] + " to " + args[ 1 ] );
-								logline1 = "CMD:" + player.name + ";DVAR:" + args[ 0 ] + ";VAL:" + args[ 1 ] + "\n";
+								cmd_outcome_log = "CMD:" + player.name + ";DVAR:" + args[ 0 ] + ";VAL:" + args[ 1 ] + "\n";
 								setDvar( args[ 0 ], args[ 1 ] );
 								break;
 							case "cv":
@@ -218,7 +218,7 @@
 									break;
 								}
 								player tell( "Cvar set " + args[ 0 ] + " to " + args[ 1 ] );
-								logline1 = "CMD:" + player.name + ";CVAR:" + args[ 0 ] + ";VAL:" + args[ 1 ] + "\n";
+								cmd_outcome_log = "CMD:" + player.name + ";CVAR:" + args[ 0 ] + ";VAL:" + args[ 1 ] + "\n";
 								player setClientDvar( args[ 0 ], args[ 1 ] );
 								break;
 							case "cva":
@@ -231,7 +231,7 @@
 								foreach ( player in level.players )
 								{
 									player tell( "Cvar set " + args[ 0 ] + " to " + args[ 1 ] );
-									logline1 = "CMD:" + player.name + ";CVARA:" + args[ 0 ] + ";VAL:" + args[ 1 ] + "\n";
+									cmd_outcome_log = "CMD:" + player.name + ";CVARA:" + args[ 0 ] + ";VAL:" + args[ 1 ] + "\n";
 									player setClientDvar( args[ 0 ], args[ 1 ] );
 								} 
 								break;
@@ -244,21 +244,21 @@
 									break;
 								}
 								player tell( "Server is now password protected" );
-								logline1 = "CMD:" + player.name + ";LOCK:" + args[ 0 ] + "\n";
+								cmd_outcome_log = "CMD:" + player.name + ";LOCK:" + args[ 0 ] + "\n";
 								setDvar( "g_password", args[ 0 ] );
 								break;
 							case "ul":
 							case "unlock":
 							case "unlockserver":
 								player tell( "Server is now open" );
-								logline1 = "CMD:" + player.name + ";UNLOCK:" + "\n";
+								cmd_outcome_log = "CMD:" + player.name + ";UNLOCK:" + "\n";
 								setDvar( "g_password", "" );
 								break;
 							// case "im":
 							// case "intermission":
 							// 	level.grief_gamerules[ "intermission_time" ] = args[ 0 ];
 							// 	say( "Intermission will take place after next round and last " + args[ 0 ] );
-							// 	logline1 = "CMD:" + player.name + ";IM" + ";TIME:" + args[ 0 ] + "\n";
+							// 	cmd_outcome_log = "CMD:" + player.name + ";IM" + ";TIME:" + args[ 0 ] + "\n";
 							// 	break;
 							case "mobjug":
 							case "celljug":
@@ -278,7 +278,7 @@
 									say( "Jug is disabled on Cellblock" );
 									setDvar( "grief_gamerule_cellblock_jug", 0 );
 								}
-								logline1 = "CMD:" + player.name + ";MOBJUG:" + args[ 0 ] + "\n";
+								cmd_outcome_log = "CMD:" + player.name + ";MOBJUG:" + args[ 0 ] + "\n";
 								break;
 							case "depotjug":
 								if ( !isDefined( args[ 0 ] ) )
@@ -296,11 +296,11 @@
 									say( "Jug is disabled on Bus Depot" );
 									setDvar("grief_gamerule_depot_jug", 0 );
 								}
-								logline1 = "CMD:" + player.name + ";DEPOTJUG:" + args[ 0 ] + "\n";
+								cmd_outcome_log = "CMD:" + player.name + ";DEPOTJUG:" + args[ 0 ] + "\n";
 								break;
 							case "rsa":
 							case "reducedammo":
-								logline1 = "CMD:" + player.name + ";AMMO:" + args[ 0 ] + "\n";
+								cmd_outcome_log = "CMD:" + player.name + ";AMMO:" + args[ 0 ] + "\n";
 								if ( !isDefined( args[ 0 ] ) )
 								{
 									player tell( "You need to specify 1 or 0" );
@@ -319,7 +319,7 @@
 								break;
 							case "build":
 							case "buildables":
-								logline1 = "CMD:" + player.name + ";BUILD:" + args[ 0 ] + "\n";
+								cmd_outcome_log = "CMD:" + player.name + ";BUILD:" + args[ 0 ] + "\n";
 								if ( !isDefined( args[ 0 ] ) )
 								{
 									player tell( "You need to specify 1 or 0" );
@@ -338,7 +338,7 @@
 								break;
 							case "zombies":
 							case "maxzombies":
-								logline1 = "CMD:" + player.name + ";MAXZM:" + args[ 0 ] + "\n";
+								cmd_outcome_log = "CMD:" + player.name + ";MAXZM:" + args[ 0 ] + "\n";
 								if ( !isDefined( args[ 0 ] ) )
 								{
 									player tell( "You need to specify a number" );
@@ -358,18 +358,18 @@
 								break;
 							case "bot":
 							case "spawnbot":
-								bot = addtestClient();
+								bot = addTestClient();
 								bot.pers[ "IsBot" ] = 1;
 								if ( isDefined( args[ 0 ] ) )
 								{
 									say( "Bot spawned on team " + args[ 0 ] );
-									logline1 = "CMD:" + player.name + ";BOT" + ";TEAM:" + args[ 0 ] + "\n";
-									bot.custom_team = args[ 0 ];
+									cmd_outcome_log = "CMD:" + player.name + ";BOT" + ";TEAM:" + args[ 0 ] + "\n";
+									bot default_menu_autoassign( args[ 0 ] );
 								}
 								else 
 								{
 									say( "Bot spawned in" );
-									logline1 = "CMD:" + player.name + ";BOT:" + "\n";
+									cmd_outcome_log = "CMD:" + player.name + ";BOT:" + "\n";
 								}
 								break;
 							case "cmd":
@@ -386,32 +386,22 @@
 								break;
 						}
 				}
+				player_array = array( player );
 				if ( cmd_outcome_log != "" )
 				{
-					logPrint( cmd_outcome_log + "\n" );
+					COM_PRINTF( "g_log", "cmd", cmd_outcome_log );
 					if ( is_true( player.is_server ) )
 					{
-						print( "CMDEXEC: " + cmd_outcome_log );
+						COM_PRINTF( "con", "cmd", cmd_outcome_log );
 					}
 				}
 				if ( chat_say_message != "" )
 				{
-					say( chat_say_message );
-					if ( is_true( player.is_host ) )
-					{
-						print( "CMDSAY: " + chat_say_message );
-					}
+					COM_PRINTF( "con say", "cmdinfo", chat_say_message );
 				}
 				if ( pm_say_message != "" )
 				{
-					if ( is_true( player.is_server ) )
-					{
-						print( "CMDTELL: " + pm_say_message );
-					}
-					else 
-					{
-						player tell( pm_say_message );
-					}
+					COM_PRINTF( "con tell", "cmdinfo", pm_say_message, player_array );
 				}
 				if ( !success )
 				{
@@ -423,9 +413,9 @@
 						{
 							if ( expected_cmd_usage != "" )
 							{
-								print( "CMDTELL: " + "Bad command usage" );
-								print( "CMDTELL: " + "Expected:" + expected_cmd_usage );
-								print( "CMDTELL: " + "Got:" + bad_cmd_message[ cmd_index ] );
+								COM_PRINTF( "con", "cmderror", "Bad command usage" );
+								COM_PRINTF( "con", "cmdinfo", "Expected:" + expected_cmd_usage );
+								COM_PRINTF( "con", "cmdinfo", "Got:" + bad_cmd_message[ cmd_index ] );
 							}
 							else 
 							{
@@ -443,19 +433,19 @@
 									}
 									if ( !is_valid_namespace )
 									{
-										print( "CMDTELL: " + "Command bad namespace" );
-										print( "CMDTELL: " + "Got:" + namespace );
+										COM_PRINTF( "con", "cmderror", "Command bad namespace" );
+										COM_PRINTF( "con", "cmdinfo", "Got:" + namespace );
 									}
 									else 
 									{
-										print( "CMDTELL: " + "Command not found in namespace" );
-										print( "CMDTELL: " + "Got:" + namespace + ":" + cmdname );
+										COM_PRINTF( "con", "cmderror", "Command not found in namespace" );
+										COM_PRINTF( "con", "cmdinfo", "Got:" + namespace + ":" + cmdname );
 									}
 								}
 								else 
 								{
-									print( "CMDTELL: " + "Invalid command" );
-									print( "CMDTELL: " + "Got:" + cmdname );
+									COM_PRINTF( "con", "cmderror", "Invalid command" );
+									COM_PRINTF( "con", "cmdinfo", "Got:" + cmdname );
 								}
 							}
 						}
@@ -463,9 +453,9 @@
 						{
 							if ( expected_cmd_usage != "" )
 							{
-								player tell( "Bad command usage" );
-								player tell( "Expected:" + expected_cmd_usage );
-								player tell( "Got:" + bad_cmd_message[ cmd_index ] );
+								COM_PRINTF( "tell", "cmderror", "Bad command usage", player_array );
+								COM_PRINTF( "tell", "cmdinfo", "Expected:" + expected_cmd_usage, player_array );
+								COM_PRINTF( "tell", "cmdinfo", "Got:" + bad_cmd_message[ cmd_index ], player_array );
 							}
 							else 
 							{
@@ -483,19 +473,19 @@
 									}
 									if ( !is_valid_namespace )
 									{
-										player tell( "Command bad namespace" );
-										player tell( "Got:" + namespace );
+										COM_PRINTF( "tell", "cmderror", "Command bad namespace", player_array );
+										COM_PRINTF( "tell", "cmdinfo", "Got:" + namespace, player_array );
 									}
 									else 
 									{
-										player tell( "Invalid command" );
-										player tell( "Got:" + cmdname );
+										COM_PRINTF( "tell", "cmderror", "Invalid command", player_array );
+										COM_PRINTF( "tell", "cmdinfo", "Got:" + cmdname, player_array );
 									}
 								}
 								else 
 								{
-									player tell( "Invalid command" );
-									player tell( "Got:" + cmdname );
+									COM_PRINTF( "tell", "cmderror", "Invalid command", player_array );
+									COM_PRINTF( "tell", "cmdinfo", "Got:" + cmdname, player_array );
 								}
 							}
 						}
@@ -567,8 +557,8 @@
 							{
 								level.mapvote_array[ i ].votes++;
 								player tell( "You voted for " + mapname + " which has " + level.mapvote_array[ i ].votes + "/" + get_vote_threshold() + " votes" );
-								logline1 = "MV:" + player.name + ";V:" + mapname + "\n";
-								logprint( logline1 );
+								cmd_outcome_log = "MV:" + player.name + ";V:" + mapname + "\n";
+								logprint( cmd_outcome_log );
 								break;
 							}
 						}
@@ -577,8 +567,8 @@
 					{
 						level.mapvote_array[ i ].votes++;
 						player tell( "You voted for " + mapname + " which has " + level.mapvote_array[ i ].votes + "/" + get_vote_threshold() + " votes" );
-						logline1 = "MV:" + player.name + ";V:" + mapname + "\n";
-						logprint( logline1 );
+						cmd_outcome_log = "MV:" + player.name + ";V:" + mapname + "\n";
+						logprint( cmd_outcome_log );
 						break;
 					}
 				}
@@ -630,7 +620,7 @@
 	}
 	else 
 	{
-		logline1 = "MV:TIMEOUT;" + "\n";
+		cmd_outcome_log = "MV:TIMEOUT;" + "\n";
 		say( "Mapvote timed out!" );
 	}
 	logprint( mapvote_outcome_log );
@@ -749,8 +739,8 @@
 				kick( level.players[ i ] getEntityNumber() );
 				say( level.players[ i ].name + " was kicked!" );
 				level.votekick_in_progress = 0;
-				logline1 = "VK;" + level.players[ i ].name + ":K" + "\n";
-				logprint( logline1 );
+				cmd_outcome_log = "VK;" + level.players[ i ].name + ":K" + "\n";
+				logprint( cmd_outcome_log );
 				for ( i = 0; i < level.players.size; i++ )
 				{
 					level.players[ i ].vk_voted = 0;
@@ -762,8 +752,8 @@
 		{	
 			say( "Vote kick timed out!" );
 			level.votekick_in_progress = 0;
-			logline1 = "VK;TIMEOUT" + "\n";
-			logprint( logline1 );
+			cmd_outcome_log = "VK;TIMEOUT" + "\n";
+			logprint( cmd_outcome_log );
 			for ( i = 0; i < level.players.size; i++ )
 			{
 				level.players[ i ].vk_voted = 0;
@@ -1102,7 +1092,7 @@
 
 /*private*/ execute_rank_cmd( cmd, arg_list )
 {
-
+	//rank::remove(rank), rank::add(rank,cmds,privilges), rank::setplayer(rank), rank::setcmds(cmds), rank::setprivileges(privileges)
 }
 
 /*private*/ clear_non_perm_dvar_entries()
