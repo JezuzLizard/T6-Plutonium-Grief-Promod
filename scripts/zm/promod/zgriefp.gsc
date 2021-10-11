@@ -26,16 +26,6 @@
 
 zgriefp_init()
 {
-	if ( getDvar( "grief_original_rotation" ) == "" )
-	{
-		setDvar( "grief_original_rotation", getDvar( "sv_maprotation" ) );
-	}
-	if ( getDvarInt( "grief_new_map_kept" ) == 1 )
-	{
-		setDvar( "grief_new_map_kept", 0 );
-		setDvar( "sv_maprotation", getDvar( "grief_original_rotation" ) );
-		setDvar( "sv_maprotationCurrent", getDvar( "grief_original_rotation" ) );
-	}
 	add_player_death_sounds();
 	damage_feedback_init();
 	level thread monitor_players_connecting_status();
@@ -313,7 +303,7 @@ do_game_mode_shellshock( attacker, meansofdeath, weapon )
 
 create_griefed_obituary_msg( victim, attacker, weapon, mod )
 {
-	return va( "GRIEF;%s;%s;%s;%s;%s;%s", victim.team, victim.name, attacker.team, attacker.name, weapon, mod );
+	return va( "OBITUARY;%s;%s;%s;%s;%s;%s", victim.team, victim.name, attacker.team, attacker.name, weapon, mod );
 }
 
 watch_for_down( attacker )

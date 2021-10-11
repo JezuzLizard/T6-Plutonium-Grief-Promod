@@ -695,7 +695,7 @@ check_for_match_winner( winner )
 match_end( winner )
 {
 	loser = get_loser( winner );
-	mapname = get_mapname();
+	mapname = get_map_display_name_from_location( getDvar( "ui_zm_mapstartlocation" ) );
 	match_length = to_mins( getGameLength() );
 	level.gamemodulewinningteam = level.data_maps[ "encounters_teams" ][ "eteam" ][ level.teamIndex[ winner ] ];
 	players = getPlayers();
