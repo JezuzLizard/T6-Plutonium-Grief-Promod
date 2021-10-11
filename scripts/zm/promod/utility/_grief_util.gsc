@@ -375,24 +375,6 @@ unfreeze_all_players_controls()
 	return "";
 }
 
-/*public*/ no_magic()
-{	
-	no_drops();
-	machines = getentarray( "zombie_vending", "targetname" );
-	for( i = 0; i < machines.size; i++ )
-	{
-		level thread perk_machine_removal( machines[ i ].script_noteworthy );
-	}
-}
-
-/*public*/ no_drops()
-{
-	flag_clear( "zombie_drop_powerups" );
-	level.zombie_include_powerups = [];
-	level.zombie_powerup_array= [];
-	level.zombie_include_powerups = [];
-}
-
 /*public*/ add_random_sound( group, sound, percent_chance )
 {
 	if ( !isDefined( level.random_sounds ) )

@@ -16,6 +16,9 @@ CMD_INIT()
 	level.server.name = getDvar( "sv_hostname" );
 	level.server.is_server = true;
 	level.custom_commands_restart_countdown = 5;
+	level.custom_commands_magic_state_toggled = false;
+	level.custom_commands_powerups_state_toggled = false;
+	level.custom_commands_perks_state_toggled = false;
 	CMD_ADDCOMMAND( "team t", "add a", ::CMD_TEAM_ADD_f );
 	CMD_ADDCOMMAND( "team t", "remove r", ::CMD_TEAM_REMOVE_f );
 	CMD_ADDCOMMAND( "team t", "set s", ::CMD_TEAM_SET_f );
@@ -35,7 +38,13 @@ CMD_INIT()
 	CMD_ADDCOMMAND( "admin a", "rotate r", ::CMD_ROTATE_f, true );
 	CMD_ADDCOMMAND( "admin a", "nextmap nm", ::CMD_NEXTMAP_f );
 	CMD_ADDCOMMAND( "admin a", "changemap cm", ::CMD_CHANGEMAP_f, true );
-	//CMD_ADDCOMMAND( "gamerule g", )
+	CMD_ADDCOMMAND( "admin a", "resetrotation rr", ::CMD_RESETROTATION_f );
+	CMD_ADDCOMMAND( "admin a", "randomnextmap rnm", ::CMD_RANDOMNEXTMAP_f );
+	CMD_ADDCOMMAND( "gamerule g", "togmagic tm", ::CMD_TOGGLEMAGIC_f );
+	CMD_ADDCOMMAND( "gamerule g", "togpowerups tp", ::CMD_TOGGLEPOWERUPS_f );
+	CMD_ADDCOMMAND( "gamerule g", "togperks tperks", ::CMD_TOGGLEPERKS_f );
+	CMD_ADDCOMMAND( "gamerule g", "addrestriction ar", ::CMD_ADDRESTRICTION_f );
+	CMD_ADDCOMMAND( "gamerule g", "togperkrestrictions tperksr", ::CMD_TOGGLEPERKRESTRICTIONS_f );
 
 	CMD_ADDCOMMANDLISTENER( "listener_cmdlist", "showmore" );
 	CMD_ADDCOMMANDLISTENER( "listener_cmdlist", "page" );
@@ -44,10 +53,6 @@ CMD_INIT()
 
 	level thread COMMAND_BUFFER();
 
-	self tell( "resetrotation" );
-	self tell( "map(mapname)" );
-	self tell( "keepmap(mapname)" );
-	wait 12;
 	self tell( "magic(bool" );
 	self tell( "powerups(bool" );
 	self tell( "knifelunge(bool)" );
@@ -59,6 +64,239 @@ CMD_INIT()
 	self tell( "depotjug(bool)" );
 	self tell( "cellblockjug(bool)" );
 }
+
+CMD_ADDRESTRICTION_f( arg_list )
+{
+	if ( array_validate( arg_list ) && arg_list.size > 1 )
+	{
+		category = arg_list[ 0 ];
+		item = arg_list[ 1 ];
+
+	}
+}
+
+CMD_TOGGLEPERKRESTRICTIONS_f( args_list )
+{
+	new_power_state = !level.custom_commands_perks_state_toggled ? true : false;
+	new_perk_restrictions_value = new_power_state ? "" : "all";
+	perk_restriction_keys = strTok( level.grief_gamerules[ "perk_restrictions" ], " " );
+	perks = level.data_maps[ "perks" ][ "specialties" ];
+	if ( new_power_state )
+	{
+		for ( i = 0; i < perks.size; i++ )
+		{
+			if ( level.grief_gamerules[ "perk_restrictions" ] == "" || !isInArray( perk_restriction_keys, "specialty_" + perks[ i ] ) )
+			{
+				level notify( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_on" );
+			}
+		}
+	}
+	else 
+	{
+		for ( i = 0; i < perks.size; i++ )
+		{
+			if ( level.grief_gamerules[ "perk_restrictions" ] == "all" || isInArray( perk_restriction_keys, "specialty_" + perks[ i ] ) )
+			{
+				level notify( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_off" );
+			}
+		}
+	}
+	result[ "message" ] = va( "gamerule:perks: Perks are powered %s", cast_bool_to_str( new_powerup_restrictions_state, "toggle" ) );
+	result[ "channels" ] = "con say g_log";
+	result[ "filter" ] = "cmdinfo";
+	return result;
+}
+
+CMD_TOGGLEPERKS_f( args_list )
+{
+	new_power_state = !level.custom_commands_perks_state_toggled ? true : false;
+	new_perk_restrictions_value = new_power_state ? "" : "all";
+	if ( new_power_state )
+	{
+		for ( i = 0; i < perks.size; i++ )
+		{
+			level notify( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_on" );
+		}
+	}
+	else 
+	{
+		for ( i = 0; i < perks.size; i++ )
+		{
+			level notify( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_off" );
+		}
+	}
+	result[ "message" ] = va( "gamerule:perks: Perks are powered %s", cast_bool_to_str( new_powerup_restrictions_state, "toggle" ) );
+	result[ "channels" ] = "con say g_log";
+	result[ "filter" ] = "cmdinfo";
+	return result;
+}
+
+CMD_TOGGLEPERK_f( arg_list )
+{
+	new_powerup_restrictions_state = level.grief_gamerules[ "powerup_restrictions" ] == "all" ? true : false;
+	new_powerup_restrictions_value = new_powerup_restrictions_state ? "" : "all";
+	setDvar( "grief_gamerule_powerup_restrictions", new_powerup_restrictions_value );
+	level.grief_gamerules[ "powerup_restrictions" ] = new_powerup_restrictions_value;
+	if ( !level.custom_commands_powerups_state_toggled )
+	{
+		level.custom_commands_powerups_state_toggled = true;
+		result[ "message" ] = va( "gamerule:powerups: Powerups are %s", cast_bool_to_str( new_powerup_restrictions_state, "abled" ) );
+	}
+	else 
+	{
+		result[ "message" ] = va( "gamerule:powerups: Powerups will be %s next match", cast_bool_to_str( new_powerup_restrictions_state, "abled" ) );
+	}
+	result[ "channels" ] = "con say g_log";
+	result[ "filter" ] = "cmdinfo";
+	return result;
+}
+
+CMD_TOGGLEPOWERUPS_f( arg_list )
+{
+	new_powerup_restrictions_state = level.grief_gamerules[ "powerup_restrictions" ] == "all" ? true : false;
+	new_powerup_restrictions_value = new_powerup_restrictions_state ? "" : "all";
+	// setDvar( "grief_gamerule_powerup_restrictions", new_powerup_restrictions_value );
+	level.grief_gamerules[ "powerup_restrictions" ] = new_powerup_restrictions_value;
+	if ( !new_powerup_restrictions_state || !is_true( args_list[ 0 ] ) )
+	{
+		flag_clear( "zombie_drop_powerups" );
+	}
+	else 
+	{
+		flag_set( "zombie_drop_powerups" );
+	}
+	result[ "message" ] = va( "gamerule:powerups: Powerups are %s", cast_bool_to_str( new_powerup_restrictions_state, "abled" ) );
+	result[ "channels" ] = "con say g_log";
+	result[ "filter" ] = "cmdinfo";
+	return result;
+}
+
+CMD_TOGGLEMAGIC_f( arg_list )
+{
+	new_magic_state = !level.grief_gamerules[ "magic" ] ? 1 : 0;
+	setDvar( "grief_gamerule_magic", new_magic_state );
+	level.grief_gamerules[ "magic" ] = new_magic_state;
+	args = [];
+	args[ 0 ] = false;
+	self CMD_EXECUTE( "gamerule", "togpowerups", args );
+	self CMD_EXECUTE( "gamerule", "togperks", args );
+	result[ "message" ] = va( "gamerule:magic: Magic is %s", cast_bool_to_str( new_magic_state, "abled" ) );
+	result[ "channels" ] = "con say g_log";
+	result[ "filter" ] = "cmdinfo";
+	return result;
+}
+	case "rn":
+	case "roundnumber":
+		if ( !isDefined( args[ 0 ] ) )
+		{
+			player tell( "You need to specify a round number" );
+			break;
+		}
+		cmd_outcome_log = "CMD:" + player.name + ";ROUND:" + args[ 0 ] + "\n";
+		say( "The round is set to " + args[ 0 ] );
+		set_round( int( args[ 0 ] ) );
+		break;
+	case "kl":
+	case "knifelunge":
+		cmd_outcome_log = "CMD:" + player.name + ";KNIFE:" + args[ 0 ] + "\n";
+		set_knife_lunge( int( args[ 0 ] ) );
+		break;
+	case "mobjug":
+	case "celljug":
+	case "cellblockjug":
+		if ( !isDefined( args[ 0 ] ) )
+		{
+			player tell( "You need to specify 1 or 0" );
+			break;
+		}
+		if ( args[ 0 ] == "1" )
+		{	
+			say( "Jug is enabled on Cellblock" );
+			setDvar( "grief_gamerule_cellblock_jug", 1 );
+		}
+		else if ( args[ 0 ] == "0" )
+		{	
+			say( "Jug is disabled on Cellblock" );
+			setDvar( "grief_gamerule_cellblock_jug", 0 );
+		}
+		cmd_outcome_log = "CMD:" + player.name + ";MOBJUG:" + args[ 0 ] + "\n";
+		break;
+	case "depotjug":
+		if ( !isDefined( args[ 0 ] ) )
+		{
+			player tell( "You need to specify 1 or 0" );
+			break;
+		}
+		if ( args[ 0 ] == "1" )
+		{	
+			say( "Jug is enabled on Bus Depot" );
+			setDvar("grief_gamerule_depot_jug", 1 );
+		}
+		else if ( args[ 0 ] == "0" )
+		{	
+			say( "Jug is disabled on Bus Depot" );
+			setDvar("grief_gamerule_depot_jug", 0 );
+		}
+		cmd_outcome_log = "CMD:" + player.name + ";DEPOTJUG:" + args[ 0 ] + "\n";
+		break;
+	case "rsa":
+	case "reducedammo":
+		cmd_outcome_log = "CMD:" + player.name + ";AMMO:" + args[ 0 ] + "\n";
+		if ( !isDefined( args[ 0 ] ) )
+		{
+			player tell( "You need to specify 1 or 0" );
+			break;
+		}
+		if( int( args[ 0 ] ) == 1 )
+		{
+			level.grief_gamerules[ "reduced_pistol_ammo" ] = 1;
+			say( "Reduced pistol starting ammo is enabled" );
+		}
+		else if( int( args[ 0 ] ) == 0 )
+		{
+			level.grief_gamerules[ "reduced_pistol_ammo" ] = 0;
+			say( "Reduced pistol starting ammo is disabled" );
+		}
+		break;
+	case "build":
+	case "buildables":
+		cmd_outcome_log = "CMD:" + player.name + ";BUILD:" + args[ 0 ] + "\n";
+		if ( !isDefined( args[ 0 ] ) )
+		{
+			player tell( "You need to specify 1 or 0" );
+			break;
+		}
+		if( int( args[ 0 ] ) == 1 )
+		{
+			level.grief_gamerules[ "buildables" ] = 1;
+			say( "Buildables are enabled" );
+		}
+		else if( int( args[ 0 ] ) == 0 )
+		{
+			level.grief_gamerules[ "buildables" ] = 0;
+			say( "Buildables are disabled" );
+		}
+		break;
+	case "zombies":
+	case "maxzombies":
+		cmd_outcome_log = "CMD:" + player.name + ";MAXZM:" + args[ 0 ] + "\n";
+		if ( !isDefined( args[ 0 ] ) )
+		{
+			player tell( "You need to specify a number" );
+			break;
+		}
+		int_args = int( args[ 0 ] );
+		if( int_args <= 32 )
+		{
+			level.zombie_ai_limit = int_args;
+			level.zombie_actor_limit = int_args;
+			say( "The max amount of zombies on the map is set to " + int_args );
+		}
+		else 
+		{
+			player tell( "The max amount of zombies you can set is 32" );
+		}
+		break;
 
 	if ( map_rotate && !set_map )
 	{
@@ -76,15 +314,41 @@ CMD_INIT()
 		setDvar( "grief_new_map_kept", 1 );
 	}
 
+CMD_RANDOMNEXTMAP_f( arg_list )
+{
+	channel = self.is_server ? "con" : "tell";
+	string = "c s f t b d tu p";
+	alias_keys = strTok( string, " " );
+	random_alias = random( alias_keys );
+	rotation_data = find_map_data_from_alias( random_alias );
+	rotation_string = va( "exec zm_%s_%s.cfg map %s", rotation_data[ "gamemode" ], rotation_data[ "location" ], rotation_data[ "mapname" ] );
+	setDvar( "sv_maprotation", rotation_string );
+	setDvar( "sv_maprotationCurrent", rotation_string );
+	result[ "filter" ] = "cmdinfo";
+	result[ "message" ] = "admin:randomnextmap: Set new secret random map";
+	return result;
+}
+
+CMD_RESETROTATION_f( arg_list )
+{
+	setDvar( "sv_maprotation", getDvar( "grief_original_rotation" ) );
+	setDvar( "sv_maprotationCurrent", getDvar( "grief_original_rotation" ) );
+	result[ "filter" ] = "cmdinfo";
+	result[ "message" ] = "admin:resetrotation: Successfully reset the map rotation";
+	return result;
+}
+
 CMD_CHANGEMAP_f( arg_list )
 {
+	self notify( "changemap_f" );
+	self endon( "changemap_f" );
 	channel = self.is_server ? "con" : "tell";
 	if ( array_validate( arg_list ) )
 	{
 		alias = toLower( arg_list[ 0 ] );
 		rotation_data = find_map_data_from_alias( alias );
 		rotation_string = va( "exec zm_%s_%s.cfg map %s", rotation_data[ "gamemode" ], rotation_data[ "location" ], rotation_data[ "mapname" ] );
-		message = va( "admin:changemap: %s second rotate to map %s countdown started", level.custom_commands_restart_countdown );
+		message = va( "admin:changemap: %s second rotate to map %s countdown started", level.custom_commands_restart_countdown, get_map_display_name_from_location( rotation_data[ "location" ] ) );
 		COM_PRINTF( "g_log " + channel, "cmdinfo", self.name + " executed " + message );
 		setDvar( "sv_maprotation", rotation_string );
 		setDvar( "sv_maprotationCurrent", rotation_string );
@@ -109,13 +373,13 @@ CMD_NEXTMAP_f( arg_list )
 	{
 		alias = toLower( arg_list[ 0 ] );
 		rotation_data = find_map_data_from_alias( alias );
-		rotation_string = va( "exec zm_%s_%s.cfg map %s", rotation_data[ "gamemode" ], rotation_data[ "location" ], rotation_data[ "mapname" ] );
-		if ( rotation_string != 0 )
+		if ( rotation_data[ "mapname" ] != 0)
 		{
+			rotation_string = va( "exec zm_%s_%s.cfg map %s", rotation_data[ "gamemode" ], rotation_data[ "location" ], rotation_data[ "mapname" ] );
 			setDvar( "sv_maprotation", rotation_string );
 			setDvar( "sv_maprotationCurrent", rotation_string );
 			result[ "filter" ] = "cmdinfo";
-			result[ "message" ] = va( "admin:nextmap: Successfully set next map to %s", mapname );
+			result[ "message" ] = va( "admin:nextmap: Successfully set next map to %s", get_map_display_name_from_location( rotation_data[ "location" ] );
 		}
 		else 
 		{
@@ -130,21 +394,11 @@ CMD_NEXTMAP_f( arg_list )
 	}
 	return result;
 }
-	case "m":
-	case "map":
-		cmd_outcome_log = "CMD:" + player.name + ";MAP:" + args[ 0 ] + "\n";
-		find_map_data_from_alias( toLower( args[ 0 ] ), player, 1 );
-		break;
-	case "rr":
-	case "resetrotation":
-		cmd_outcome_log = "CMD:" + player.name + ";RR" + "\n";
-		player tell( "Map rotation reset to the default" );
-		setDvar( "sv_maprotation", getDvar( "grief_original_rotation" ) );
-		setDvar( "sv_maprotationCurrent", getDvar( "grief_original_rotation" ) );
-		break;
 
 CMD_ROTATE_f( arg_list )
 {
+	self notify( "rotate_f" );
+	self endon( "rotate_f" );
 	channel = self.is_server ? "con" : "tell";
 	message = va( "admin:rotate: %s second rotate countdown started", level.custom_commands_restart_countdown );
 	COM_PRINTF( "g_log " + channel, "cmdinfo", self.name + " executed " + message );
@@ -160,6 +414,8 @@ CMD_ROTATE_f( arg_list )
 
 CMD_RESTART_f( arg_list )
 {
+	self notify( "restart_f" );
+	self endon( "restart_f" );
 	channel = self.is_server ? "con" : "tell";
 	message = va( "admin:restart: %s second restart countdown started", level.custom_commands_restart_countdown );
 	COM_PRINTF( "g_log " + channel, "cmdinfo", self.name + " executed " + message );
@@ -185,6 +441,8 @@ CMD_RESTART_f( arg_list )
 
 CMD_PLAYERLIST_f( arg_list )
 {
+	self notify( "playerlist_f" );
+	self endon( "playerlist_f" );
 	channel = self.is_server ? "con" : "tell";
 	current_page = 1;
 	user_defined_page = 1;
@@ -519,11 +777,9 @@ CMD_EXECUTE( namespace, cmdname, arg_list )
 	if ( isDefined( result ) && result[ "filter" ] != "cmderror" )
 	{
 		message = self.name + " executed " + result[ "message" ];
-		channels = "";
 		if ( isDefined( result[ "channels" ] ) )
 		{
-			channels = result[ "channels" ];
-			COM_PRINTF( channels, result[ "filter" ], message, self );
+			COM_PRINTF( result[ "channels" ], result[ "filter" ], message, self );
 		}
 		else 
 		{
@@ -771,168 +1027,6 @@ CMD_TEAM_ADD_f( arg_list )
 								}
 								level notify( "grief_votekick", args[ 0 ], player );
 								break;
-							case "mag":
-							case "magic":
-							case "nomagic":
-								if ( !isDefined( args[ 0 ] ) )
-								{
-									say( "Magic is disabled for this round only" );
-									no_magic();
-									break;
-								}
-								if ( args[ 0 ] == "0" )
-								{	
-									cmd_outcome_log = "CMD:" + player.name + ";TOGMAG" + "\n";
-									say( "Magic is disabled on the server" );
-									setDvar( "grief_gamerule_magic", 0 );
-									no_magic();
-								}
-								if ( args[ 0 ] == "1" )
-								{
-									say( "Magic will be enabled on the server starting next match" );
-									setDvar( "grief_gamerule_magic", 1 );
-								}
-								break;
-							case "np":
-							case "drops":
-							case "powerups":
-								if ( !isDefined( args[ 0 ] ) )
-								{
-									say( "Powerups are disabled for this match only" );
-									no_drops();
-									break;
-								}
-								cmd_outcome_log = "CMD:" + player.name + ";TOGDROPS:" + args[ 0 ] + "\n";
-								if ( args[ 0 ] == "0" )
-								{
-									say( "Powerups are disabled on the server" );
-									no_drops();
-									setDvar( "grief_gamerule_powerup_restrictions", "all" );
-								}
-								else if ( args[ 0 ] == "1" )
-								{
-									say( "Powerups will be enabled on the server starting next match" );
-									setDvar( "grief_gamerule_powerup_restrictions", "" );
-								}
-								break;
-							case "rn":
-							case "roundnumber":
-								if ( !isDefined( args[ 0 ] ) )
-								{
-									player tell( "You need to specify a round number" );
-									break;
-								}
-								cmd_outcome_log = "CMD:" + player.name + ";ROUND:" + args[ 0 ] + "\n";
-								say( "The round is set to " + args[ 0 ] );
-								set_round( int( args[ 0 ] ) );
-								break;
-							case "kl":
-							case "knifelunge":
-								cmd_outcome_log = "CMD:" + player.name + ";KNIFE:" + args[ 0 ] + "\n";
-								set_knife_lunge( int( args[ 0 ] ) );
-								break;
-							// case "im":
-							// case "intermission":
-							// 	level.grief_gamerules[ "intermission_time" ] = args[ 0 ];
-							// 	say( "Intermission will take place after next round and last " + args[ 0 ] );
-							// 	cmd_outcome_log = "CMD:" + player.name + ";IM" + ";TIME:" + args[ 0 ] + "\n";
-							// 	break;
-							case "mobjug":
-							case "celljug":
-							case "cellblockjug":
-								if ( !isDefined( args[ 0 ] ) )
-								{
-									player tell( "You need to specify 1 or 0" );
-									break;
-								}
-								if ( args[ 0 ] == "1" )
-								{	
-									say( "Jug is enabled on Cellblock" );
-									setDvar( "grief_gamerule_cellblock_jug", 1 );
-								}
-								else if ( args[ 0 ] == "0" )
-								{	
-									say( "Jug is disabled on Cellblock" );
-									setDvar( "grief_gamerule_cellblock_jug", 0 );
-								}
-								cmd_outcome_log = "CMD:" + player.name + ";MOBJUG:" + args[ 0 ] + "\n";
-								break;
-							case "depotjug":
-								if ( !isDefined( args[ 0 ] ) )
-								{
-									player tell( "You need to specify 1 or 0" );
-									break;
-								}
-								if ( args[ 0 ] == "1" )
-								{	
-									say( "Jug is enabled on Bus Depot" );
-									setDvar("grief_gamerule_depot_jug", 1 );
-								}
-								else if ( args[ 0 ] == "0" )
-								{	
-									say( "Jug is disabled on Bus Depot" );
-									setDvar("grief_gamerule_depot_jug", 0 );
-								}
-								cmd_outcome_log = "CMD:" + player.name + ";DEPOTJUG:" + args[ 0 ] + "\n";
-								break;
-							case "rsa":
-							case "reducedammo":
-								cmd_outcome_log = "CMD:" + player.name + ";AMMO:" + args[ 0 ] + "\n";
-								if ( !isDefined( args[ 0 ] ) )
-								{
-									player tell( "You need to specify 1 or 0" );
-									break;
-								}
-								if( int( args[ 0 ] ) == 1 )
-								{
-									level.grief_gamerules[ "reduced_pistol_ammo" ] = 1;
-									say( "Reduced pistol starting ammo is enabled" );
-								}
-								else if( int( args[ 0 ] ) == 0 )
-								{
-									level.grief_gamerules[ "reduced_pistol_ammo" ] = 0;
-									say( "Reduced pistol starting ammo is disabled" );
-								}
-								break;
-							case "build":
-							case "buildables":
-								cmd_outcome_log = "CMD:" + player.name + ";BUILD:" + args[ 0 ] + "\n";
-								if ( !isDefined( args[ 0 ] ) )
-								{
-									player tell( "You need to specify 1 or 0" );
-									break;
-								}
-								if( int( args[ 0 ] ) == 1 )
-								{
-									level.grief_gamerules[ "buildables" ] = 1;
-									say( "Buildables are enabled" );
-								}
-								else if( int( args[ 0 ] ) == 0 )
-								{
-									level.grief_gamerules[ "buildables" ] = 0;
-									say( "Buildables are disabled" );
-								}
-								break;
-							case "zombies":
-							case "maxzombies":
-								cmd_outcome_log = "CMD:" + player.name + ";MAXZM:" + args[ 0 ] + "\n";
-								if ( !isDefined( args[ 0 ] ) )
-								{
-									player tell( "You need to specify a number" );
-									break;
-								}
-								int_args = int( args[ 0 ] );
-								if( int_args <= 32 )
-								{
-									level.zombie_ai_limit = int_args;
-									level.zombie_actor_limit = int_args;
-									say( "The max amount of zombies on the map is set to " + int_args );
-								}
-								else 
-								{
-									player tell( "The max amount of zombies you can set is 32" );
-								}
-								break;
 							default:
 								success = false;
 								break;
@@ -1082,6 +1176,8 @@ CMD_TEAM_ADD_f( arg_list )
 
 /*private*/ CMD_UTILITY_CMDLIST_f( arg_list )
 {	
+	self notify( "cmdlist_f" );
+	self endon( "cmdlist_f" );
 	namespace_filter = arg_list[ 0 ];
 	self.printing_commands = 1;
 	cmds_to_display = [];

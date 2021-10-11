@@ -291,7 +291,14 @@ round_time_hud() //checked matches cerberus output
 		timelimit_in_seconds--;
 		if ( timelimit_in_seconds % 20 )
 		{
-			play_sound_2d( "evt_nomans_warning" );
+			if ( level.script == "zm_transit" )
+			{
+				play_sound_2d( "evt_nomans_warning" );
+			}
+			else 
+			{
+				level thread maps/mp/zombies/_zm_audio::change_zombie_music( "round_start" );
+			}
 			level.round_time_elem clearalltextafterhudelem();
 			level.round_time_elem settext( "" );
 			level.round_time_elem destroy();

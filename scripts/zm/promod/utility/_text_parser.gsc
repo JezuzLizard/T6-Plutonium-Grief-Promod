@@ -428,9 +428,9 @@ cast_str_to_bool( str )
 	key_list = "allies:B:false:0|axis:A:false:0"; //|team3:C:false:0|team4:D:false:0|team5:E:false:0|team6:F:false:0|team7:G:false:0|team8:H:false:0
 	key_names = "team|e_team|alive|score";
 	generate_map( "encounters_teams", key_list, key_names );
-	key_list = "admins:player_names:player_guids:cmds:|moderators:player_names:player_guids:cmds|trusted:player_names:player_guids:cmds";
-	key_names = "tier|names|guids|cmds|privileges";
-	generate_map( "server_ranks", key_list, key_names );
+	// key_list = "admins:player_names:player_guids:cmds:|moderators:player_names:player_guids:cmds|trusted:player_names:player_guids:cmds";
+	// key_names = "tier|names|guids|cmds|privileges";
+	// generate_map( "server_ranks", key_list, key_names );
 }
 
 /*private*/ generate_map( map_name, arg_list, name_list )
@@ -534,4 +534,23 @@ cast_str_to_bool( str )
 		return keys[ 1 ];
 	}
 	return name;
+}
+
+cast_bool_to_str( bool, type )
+{
+	if ( get_type( bool ) == "bool" )
+	{
+		switch ( type )
+		{
+			case "toggle":
+				return bool ? "on" : "off";
+			case "answer":
+				return bool ? "yes" : "no";
+			case "abled":
+				return bool ? "enabled" : "disabled";
+			case "set":
+				return bool ? "set" : "unset";
+		}
+	}
+	return bool;
 }

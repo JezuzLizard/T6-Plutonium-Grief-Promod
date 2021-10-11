@@ -41,6 +41,9 @@ main()
 	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::main, scripts/zm/promod/zgriefp_overrides::_zm_gametype_main_o );
 	replaceFunc( maps/mp/zombies/_zm::onallplayersready, scripts/zm/promod/zgriefp_overrides::onallplayersready_o );
 	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::menu_onmenuresponse, scripts/zm/promod/_teams::menu_onmenuresponse_o );
+	replaceFunc( maps/mp/zombies/_zm_powerups::randomize_powerups, scripts/zm/promod/zgriefp_overrides::randomize_powerups_o );
+	replaceFunc( maps/mp/zombies/_zm_powerups::get_next_powerup, scripts/zm/promod/zgriefp_overrides::get_next_powerup_o );
+	replaceFunc( maps/mp/zombies/_zm_powerups::get_valid_powerup, scripts/zm/promod/zgriefp_overrides::get_valid_powerup_o );
 }
 
 struct_class_init_o()
