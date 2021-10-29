@@ -1,9 +1,0 @@
-rank:add(restricted,none,none);
-rank:add(default,noneex(mv,vk),none);
-rank:add(trusted,inheritall(default),none);
-rank:add(moderator,inheritall(trusted) ,none);
-rank:add(admin,all,none);
-rank:add(owner,all,all);
-
-
-
