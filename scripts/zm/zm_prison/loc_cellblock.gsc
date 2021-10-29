@@ -11,6 +11,7 @@
 #include maps/mp/zombies/_zm_utility;
 #include common_scripts/utility;
 #include maps/mp/_utility;
+#include scripts/zm/promod/_gametype_setup;
 
 struct_init()
 {

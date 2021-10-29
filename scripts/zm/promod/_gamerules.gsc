@@ -77,6 +77,7 @@ init_gamerules()
 	//setdvar( "ui_timelimit", level.grief_gamerules[ "timelimit" ] );
 	makeDvarServerInfo( "ui_scorelimit" );
 	//makeDvarServerInfo( "ui_timelimit" );
+	init_restrictions();
 }
 
 init_restrictions()

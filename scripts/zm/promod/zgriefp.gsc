@@ -27,8 +27,7 @@
 
 zgriefp_init()
 {
-	add_player_death_sounds();
-	damage_feedback_init();
+	//add_player_death_sounds();
 	level thread monitor_players_connecting_status();
 	level thread emptyLobbyRestart();
 	scripts/zm/promod/plugin/commands::setup_permissions();
@@ -37,9 +36,9 @@ zgriefp_init()
 	level._game_module_player_damage_callback = ::game_module_player_damage_callback;
 	level._game_module_player_damage_grief_callback = ::game_module_player_damage_grief_callback;
 	level.meat_bounce_override = ::meat_bounce_override;
+	level.onspawnplayerunified = scripts/zm/promod/_player_spawning::onspawnplayerunified; 
 	level.noroundnumber = 1;
 	setDvar( "g_friendlyfireDist", 0 );
-	//promod custom overrides
 	teams_init();
 	level.game_module_onplayerconnect = ::grief_onplayerconnect;
 	level.game_mode_custom_onplayerdisconnect = ::grief_onplayerdisconnect;
@@ -47,15 +46,13 @@ zgriefp_init()
 	level.grief_round_intermission_countdown = ::intermission_hud;
 	level.grief_loadout_save = ::grief_loadout_save;
 	level.onplayerspawned_restore_previous_weapons = ::grief_laststand_weapons_return;
-	level.custom_spawnplayer = ::grief_spectator_respawn;
-	scripts/zm/promod/_gamerules::parse_restrictions();
+	level.custom_spawnplayer = scripts/zm/promod/_player_spawning::grief_spectator_respawn;
 	level thread on_player_connect();
 	level thread scripts/zm/promod/_hud::draw_hud();
 }
 
 monitor_players_connecting_status()
 {
-	level.num_players_connecting = 0;
 	while ( true )
 	{
 		level waittill( "connecting", player );
@@ -69,9 +66,9 @@ monitor_players_connecting_status()
 
 set_clan_tag()
 {
-	for ( i = 0; i < level.server_users[ "Admins" ].guids.size; i++ )
+	for ( i = 0; i < level.server_users[ "admins" ].guids.size; i++ )
 	{
-		if ( self getGUID() == level.server_users[ "Admins" ].guids[ i ] )
+		if ( self getGUID() == level.server_users[ "admins" ].guids[ i ] )
 		{
 			self setClanTag( "Admin" );
 			self.grief_is_admin = 1;
@@ -83,8 +80,6 @@ kick_player_if_dont_spawn_in_time()
 {
 	self endon( "begin" );
 	wait 45;
-	logline1 = "LOAD:" + self.name + ";K " + "\n";
-	logprint( logline1 );
 	kick( self getEntityNumber() );
 }
 
@@ -112,7 +107,6 @@ on_player_connect()
 		}
 		player thread give_points_on_restart_and_round_change();
 		player scripts/zm/promod/utility/_grief_util::init_player_session_data();
-		player scripts/zm/promod/_teams::player_team_setup();
 		//player scripts/zm/promod/plugin/commands::player_command_setup();
 		player.killsconfirmed = 0;
 		player.stabs = 0;
@@ -517,8 +511,12 @@ game_module_player_damage_grief_callback( einflictor, eattacker, idamage, idflag
 /*public*/ wait_for_players()
 {
 	level endon( "end_game" );
-	while ( ( getPlayers( "axis" ).size < 1 ) && ( getPlayers( "allies" ).size < 1 ) )
+	teamplayersallies = getPlayers( "allies");
+	teamplayersaxis = getPlayers( "axis");
+	while ( ( teamplayersaxis.size < 1 ) || ( teamplayersallies.size < 1 ) )
 	{
+		teamplayersallies = getPlayers( "allies");
+		teamplayersaxis = getPlayers( "axis");
 		players = getPlayers();
 		for ( i = 0; i < players.size; i++ )
 		{
@@ -526,19 +524,19 @@ game_module_player_damage_grief_callback( einflictor, eattacker, idamage, idflag
 		}
 		wait 1;
 	}
-	if ( getDvarInt( "grief_tournament_mode" ) == 1 )
-	{
-		players = getPlayers();
-		while ( getDvarInt( "zombies_minplayers" ) > players.size )
-		{
-			players = getPlayers();
-			for ( i = 0; i < players.size; i++ )
-			{
-				players[ i ] iPrintLn( "Waiting for all players to connect" );
-			}
-			wait 1;
-		}
-	}
+	// if ( getDvarInt( "grief_tournament_mode" ) == 1 )
+	// {
+	// 	players = getPlayers();
+	// 	while ( getDvarInt( "zombies_minplayers" ) > players.size )
+	// 	{
+	// 		players = getPlayers();
+	// 		for ( i = 0; i < players.size; i++ )
+	// 		{
+	// 			players[ i ] iPrintLn( "Waiting for all players to connect" );
+	// 		}
+	// 		wait 1;
+	// 	}
+	// }
 }
 
 team_suicide_check()
@@ -575,8 +573,6 @@ grief_team_forfeit()
 	}
 	if ( ( getPlayers( "axis" ).size == 0 ) || ( getPlayers( "allies" ).size == 0 ) )
 	{
-		logline1 = "other team forfeited" + "\n";
-		logprint( logline1 );
 		return true;
 	}
 	return false;
@@ -600,11 +596,11 @@ in_grief_intermission()
 		return false;
 	}
 	team_scores = [];
-	team_scores[ "A" ] = level.grief_teams[ "A" ].score;
-	team_scores[ "B" ] = level.grief_teams[ "B" ].score;
+	team_scores[ "axis" ] = level.grief_teams[ "axis" ].score;
+	team_scores[ "allies" ] = level.grief_teams[ "allies" ].score;
 	score_limit = level.grief_gamerules[ "scorelimit" ];
 	intermission_score = score_limit / 2;
-	if ( team_scores[ "A" ] == int( intermission_score ) || team_scores[ "B" ] == int( intermission_score ) )
+	if ( team_scores[ "axis" ] == int( intermission_score ) || team_scores[ "allies" ] == int( intermission_score ) )
 	{
 		level.grief_intermission_done = true;
 		return true;

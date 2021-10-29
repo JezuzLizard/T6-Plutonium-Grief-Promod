@@ -289,7 +289,7 @@ round_time_hud() //checked matches cerberus output
 		}
 		wait 1;
 		timelimit_in_seconds--;
-		if ( timelimit_in_seconds % 20 )
+		if ( isInt( timelimit_in_seconds / 20 ) )
 		{
 			if ( level.script == "zm_transit" )
 			{
@@ -340,7 +340,7 @@ parse_minutes( start_time )
 
 game_start_timer() //checked matches bo3 _globallogic.gsc within reason
 {	
-	visionSetNaked( "mpIntro", 0 );
+	visionSetNaked( "mpOutro", 0 );
 	matchStartText = createServerFontString( "objective", 1.5 );
 	matchStartText setPoint( "CENTER", "CENTER", 0, -40 );
 	matchStartText.sort = 1001;

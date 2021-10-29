@@ -61,7 +61,7 @@
 
 /*private*/ COM_CAPS_MSG_TITLE( filter )
 {
-	return filter != "notitle" ? toUpper( filter ) + ":" : "";
+	return filter != "notitle" ? va( "%s:", toUpper( filter ) ) : "";
 }
 
 /*private*/ COM_PRINT( channel, message, players )
@@ -171,7 +171,7 @@
 	{
 		if ( COM_IS_CHANNEL_ACTIVE( channel ) && COM_IS_FILTER_ACTIVE( filter ) )
 		{
-			message = COM_CAPS_MSG_TITLE( filter ) + message;
+			message = va( "%s%s", COM_CAPS_MSG_TITLE( filter ), message );
 			[[ level.com_channels[ channel ] ]]( channel, message, players );
 		}
 		else 

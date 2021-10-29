@@ -238,26 +238,10 @@ teams_init()
 
 default_menu_autoassign( assignment )
 {
-	teamkeys = getarraykeys( level.teams );
-	assignment = teamkeys[ randomint( teamkeys.size ) ];
 	self closemenus();
-	self.pers[ "team" ] = assignment;
-	self.team = assignment;
+	self player_team_setup();
 	self.class = undefined;
 	self updateobjectivetext();
-	if ( level.teambased )
-	{
-		self.sessionteam = assignment;
-	}
-	else
-	{
-		self.sessionteam = "none";
-		self.ffateam = assignment;
-	}
-	if ( !isalive( self ) )
-	{
-		self.statusicon = "hud_status_dead";
-	}
 	self notify( "joined_team" );
 	level notify( "joined_team" );
 	self notify( "end_respawn" );

@@ -1048,7 +1048,7 @@ CMD_TEAM_ADD_f( arg_list )
 	while ( true )
 	{
 		level waittill( "say", message, player );
-		if ( isDefined( player ) && !isSubStr( message, "/" ) )
+		if ( isDefined( player ) && !isSubStr( message, ":" ) )
 		{
 			continue;
 		}
@@ -1056,7 +1056,7 @@ CMD_TEAM_ADD_f( arg_list )
 		{
 			player = level.server;
 		}
-		clean_str( message, "/" );
+		channel = is_true( player.is_server ) ? "con" : "tell";
 		multi_cmds = parse_cmd_message( message );
 		if ( !array_validate( multi_cmds ) )
 		{
@@ -1064,7 +1064,7 @@ CMD_TEAM_ADD_f( arg_list )
 		}
 		if ( level.players_in_session[ player.name ].command_cooldown == 0 && !player.is_server )
 		{
-			for ( cmd_index = 0; cmd_index < multi_cmds.size; i++ )
+			for ( cmd_index = 0; cmd_index < multi_cmds.size; cmd_index++ )
 			{
 				namespace = toLower( multi_cmds[ cmd_index ][ "namespace" ] );
 				cmdname = toLower( multi_cmds[ cmd_index ][ "cmdname" ] );
@@ -1075,6 +1075,7 @@ CMD_TEAM_ADD_f( arg_list )
 				}
 				else 
 				{
+					COM_PRINTF( channel, "cmdinfo", va( "Used namespace %s cmd %s", namespace, cmdname ), player );
 					player CMD_EXECUTE( namespace, cmdname, args );
 					player thread COMMAND_COOLDOWN();
 				}
@@ -1259,43 +1260,15 @@ temporary_command_listener_timelimit( listener_name, timelimit )
 	// level.server_users[ "trusted" ].cmd_rate_limit = 2;
 	// level.server_users[ "default" ] = spawnStruct();
 	// level.server_users[ "default" ].cmd_rate_limit = 5;
-	level.server_users[ "admins" ].guids = strTok( getDvar( "server_admin_guids" ), ";" );
+	str_keys = strTok( getDvar( "server_admin_guids" ), ";" );
+	int_keys = [];
+	foreach ( key in str_keys )
+	{
+		int_keys[ int_keys.size ] = int( key );
+	}
+	level.server_users[ "admins" ].guids = int_keys;
 	level.grief_no_permissions_required_namespaces = [];
 	level.grief_no_permissions_required_namespaces[ 0 ] = "vote v";
-
-	level.mapvote_array = [];
-	level.mapvote_array[ 0 ] = spawnStruct();
-	level.mapvote_array[ 0 ].mapname = "cellblock";
-	level.mapvote_array[ 0 ].aliases = array( "c", "cell", "block", "cellblock", "mob" );
-	level.mapvote_array[ 0 ].votes = 0;
-	level.mapvote_array[ 1 ] = spawnStruct();
-	level.mapvote_array[ 1 ].mapname = "borough";
-	level.mapvote_array[ 1 ].aliases = array( "s", "street", "borough", "buried" );
-	level.mapvote_array[ 1 ].votes = 0;
-	level.mapvote_array[ 2 ] = spawnStruct();
-	level.mapvote_array[ 2 ].mapname = "farm";
-	level.mapvote_array[ 2 ].aliases = array( "f", "farm" );
-	level.mapvote_array[ 2 ].votes = 0;
-	level.mapvote_array[ 3 ] = spawnStruct();
-	level.mapvote_array[ 3 ].mapname = "town";
-	level.mapvote_array[ 3 ].aliases = array( "t", "town" );
-	level.mapvote_array[ 3 ].votes = 0;
-	level.mapvote_array[ 4 ] = spawnStruct();
-	level.mapvote_array[ 4 ].mapname = "depot";
-	level.mapvote_array[ 4 ].aliases = array( "b", "bus", "depot" );
-	level.mapvote_array[ 4 ].votes = 0;
-	level.mapvote_array[ 5 ] = spawnStruct();
-	level.mapvote_array[ 5 ].mapname = "diner";
-	level.mapvote_array[ 5 ].aliases = array( "d", "din", "diner" );
-	level.mapvote_array[ 5 ].votes = 0;
-	level.mapvote_array[ 6 ] = spawnStruct();
-	level.mapvote_array[ 6 ].mapname = "tunnel";
-	level.mapvote_array[ 6 ].aliases = array( "t", "tunnel" );
-	level.mapvote_array[ 6 ].votes = 0;
-	level.mapvote_array[ 7 ] = spawnStruct();
-	level.mapvote_array[ 7 ].mapname = "power";
-	level.mapvote_array[ 7 ].aliases = array( "p", "pow", "power" );
-	level.mapvote_array[ 7 ].votes = 0;
 }
 
 /*private*/ find_map_data_from_alias( alias )

@@ -190,11 +190,11 @@
 	{
 		if ( player.sessionstate == "spectator" || player player_is_in_laststand() )
 		{
+			player [[ level.spawnplayer ]]();
 			if ( !flag( "game_start" ) )
 			{
 				player freezeControls( 1 );
 			}
-			player [[ level.spawnplayer ]]();
 		}
 	}
 }
@@ -298,7 +298,7 @@ unfreeze_all_players_controls()
 			dvar_value = getDvar( dvar );
 			if ( dvar_value != "" )
 			{
-				level notify( "say", undefined, dvar_value );
+				level notify( "say", dvar_value, undefined );
 				setDvar( dvar, "" );
 			}
 		}
@@ -327,9 +327,9 @@ unfreeze_all_players_controls()
 		level.players_in_session[ self.name ].team_change_timer = 0;
 		level.players_in_session[ self.name ].team_changed_times = 0;
 		level.players_in_session[ self.name ].team_change_ban = false;
-		level.players_in_session[ self.name ].server_rank_system = [];
+		//level.players_in_session[ self.name ].server_rank_system = [];
 		// level.players_in_session[ self.name ].server_rank_system[ "rank" ] = self get_server_privileges_rank();
-		level.players_in_session[ self.name ].server_rank_system[ "cmds" ] = self get_server_privileges_cmds();
+		//level.players_in_session[ self.name ].server_rank_system[ "cmds" ] = self get_server_privileges_cmds();
 		// level.players_in_session[ self.name ].server_rank_system[ "privileges" ] = [];
 		// level.players_in_session[ self.name ].server_rank_system[ "privileges" ][ "cmd_cooldown" ] = 0;
 		level.players_in_session[ self.name ].command_cooldown = 0;
@@ -368,7 +368,7 @@ unfreeze_all_players_controls()
 		namespace_aliases = strTok( namespace_keys[ i ], " " );
 		for ( j = 0; j < namespace_aliases.size; j++ )
 		{
-			if ( message_token[ 0 ] == namespace_aliases[ j ] )
+			if ( message_tokens[ 0 ] == namespace_aliases[ j ] )
 			{
 				return namespace_keys[ i ];
 			}

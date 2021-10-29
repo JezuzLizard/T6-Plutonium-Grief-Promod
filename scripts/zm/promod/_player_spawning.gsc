@@ -5,6 +5,11 @@
 #include maps/mp/gametypes_zm/_spectating;
 #include maps/mp/zombies/_zm_perks;
 
+onspawnplayerunified()
+{
+	onspawnplayer( 0 );
+}
+
 /*private*/ onspawnplayer( predictedspawn )
 {
 	if ( !isDefined( predictedspawn ) )
@@ -91,7 +96,7 @@
 }
 
 
-/*private*/ get_player_spawns_for_gametype()
+/*private*/ get_player_spawns_for_gametype_o()
 {
 	match_string = "";
 	location = level.scr_zm_map_start_location;

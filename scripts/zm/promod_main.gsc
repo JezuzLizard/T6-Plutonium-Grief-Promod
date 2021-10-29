@@ -20,6 +20,7 @@
 #include scripts/zm/promod/_hud;
 #include scripts/zm/promod/_player_spawning;
 #include scripts/zm/promod/_teams;
+#include scripts/zm/promod/utility/_com;
 
 //Function that sets up all the overrides automatically.
 main()
@@ -39,13 +40,15 @@ main()
 	replaceFunc( maps/mp/zombies/_zm_audio_announcer::playleaderdialogonplayer, scripts/zm/promod/zgriefp_overrides::playleaderdialogonplayer_o );
 	replaceFunc( maps/mp/zombies/_zm::round_start, scripts/zm/promod/zgriefp_overrides::game_start );
 	replaceFunc( maps/mp/zombies/_zm_spawner::zombie_head_gib, scripts/zm/promod/zgriefp_overrides::zombie_head_gib_o );
-	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::main, scripts/zm/promod/zgriefp_overrides::_zm_gametype_main_o );
 	replaceFunc( maps/mp/zombies/_zm::onallplayersready, scripts/zm/promod/zgriefp_overrides::onallplayersready_o );
 	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::menu_onmenuresponse, scripts/zm/promod/_teams::menu_onmenuresponse_o );
 	replaceFunc( maps/mp/zombies/_zm_powerups::randomize_powerups, scripts/zm/promod/zgriefp_overrides::randomize_powerups_o );
 	replaceFunc( maps/mp/zombies/_zm_powerups::get_next_powerup, scripts/zm/promod/zgriefp_overrides::get_next_powerup_o );
 	replaceFunc( maps/mp/zombies/_zm_powerups::get_valid_powerup, scripts/zm/promod/zgriefp_overrides::get_valid_powerup_o );
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::get_player_spawns_for_gametype, scripts/zm/promod/_player_spawning::get_player_spawns_for_gametype_o );
+	COM_INIT();
 	CMD_INIT();
+	damage_feedback_init();
 }
 
 struct_class_init_o()

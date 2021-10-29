@@ -7,6 +7,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
+#include scripts/zm/promod/_gametype_setup;
 #include scripts/zm/zm_prison/loc_cellblock;
 
 init_o()
