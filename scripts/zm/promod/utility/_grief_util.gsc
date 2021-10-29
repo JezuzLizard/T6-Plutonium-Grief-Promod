@@ -6,6 +6,7 @@
 #include maps/mp/zombies/_zm;
 #include scripts/zm/promod/_teams;
 #include maps/mp/zombies/_zm_perks;
+#include scripts/zm/promod/utility/_text_parser;
 
 /*public*/ array_validate( array )
 {
@@ -326,9 +327,9 @@ unfreeze_all_players_controls()
 		level.players_in_session[ self.name ].team_change_timer = 0;
 		level.players_in_session[ self.name ].team_changed_times = 0;
 		level.players_in_session[ self.name ].team_change_ban = false;
-		// level.players_in_session[ self.name ].server_rank_system = [];
+		level.players_in_session[ self.name ].server_rank_system = [];
 		// level.players_in_session[ self.name ].server_rank_system[ "rank" ] = self get_server_privileges_rank();
-		// level.players_in_session[ self.name ].server_rank_system[ "cmds" ] = self get_server_privileges_cmds();
+		level.players_in_session[ self.name ].server_rank_system[ "cmds" ] = self get_server_privileges_cmds();
 		// level.players_in_session[ self.name ].server_rank_system[ "privileges" ] = [];
 		// level.players_in_session[ self.name ].server_rank_system[ "privileges" ][ "cmd_cooldown" ] = 0;
 		level.players_in_session[ self.name ].command_cooldown = 0;
@@ -350,6 +351,7 @@ unfreeze_all_players_controls()
 
 /*public*/ get_server_privileges_cmds()
 {
+	
 	//"all", "allex", "none", "noneex", "inheritall", "inheritex"
 }
 
@@ -453,4 +455,57 @@ unfreeze_all_players_controls()
 	{
 		level.zombie_move_speed = level.grief_gamerules[ "zombie_round" ] * level.zombie_vars[ "zombie_move_speed_multiplier" ];
 	}
+}
+
+/*public*/ toggle_perk_power( new_power_state )
+{
+	if ( new_power_state )
+	{
+		for ( i = 0; i < level.data_maps[ "perks" ][ "power_notifies" ].size; i++ )
+		{
+			level notify( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_on" );
+		}
+	}
+	else 
+	{
+		for ( i = 0; i < level.data_maps[ "perks" ][ "power_notifies" ].size; i++ )
+		{
+			level notify( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_off" );
+		}
+	}
+}
+
+server_safe_notify_thread( notify_name, index )
+{
+	wait( level.SERVER_FRAME * index );
+	level notify( notify_name );
+}
+
+find_player_in_server( clientnum_guid_or_name )
+{
+	max_players_str = getDvarInt( "sv_maxclients" ) + "";
+	if ( is_str_int( clientnum_guid_or_name ) && int( clientnum_guid_or_name ) < getDvarInt( "sv_maxclients" ) )
+	{
+		client_num = int( clientnum_guid_or_name );
+	}
+	else if ( is_str_int( clientnum_guid_or_name ) && clientnum_guid_or_name.size > max_players_str.size )
+	{
+		GUID = int( clientnum_guid_or_name );
+	}
+	else 
+	{
+		name = clientnum_guid_or_name;
+	}
+	player_data = [];
+	foreach ( player in level.players )
+	{
+		if ( isDefined( name ) && clean_player_name_of_clantag( player.name ) == clean_player_name_of_clantag( name ) || isDefined( name ) && isSubStr( player.name, name ) || isDefined( client_num ) && player getEntityNumber() == client_num || player getGUID() == GUID )
+		{
+			player_data[ "name" ] = player.name;
+			player_data[ "guid" ] = player getGUID();
+			player_data[ "clientnum" ] = player getEntityNumber();
+			return player_data;
+		}
+	}
+	return undefined;
 }

@@ -1,3 +1,7 @@
+#include maps/mp/zombies/_zm_utility;
+#include maps/mp/_utility;
+#include common_scripts/utility;
+
 /*private*/ FS_init()
 {
 	level.FS_basepath = getDvar( "fs_basepath" ) + "/" + getDvar( "fs_basegame" ) + "/" + "scriptdata" + "/";

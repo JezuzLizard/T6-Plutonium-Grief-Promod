@@ -26,7 +26,7 @@ onplayerconnect() //checked matches cerberus output
 
 updatedamagefeedback( mod ) //checked matches cerberus output
 {
-	if ( mod == "gun" || mod == "grenade" || mod == "impact" )
+	if ( mod == "gun" || mod == "grenade" || mod == "impact" || mod == "meat" )
 	{
 		self playlocalsound( "spl_hit_alert" );
 		self.hud_damagefeedback setshader( "damage_feedback", 24, 48 );

@@ -3,21 +3,22 @@
 #include common_scripts/utility;
 #include maps/mp/zombies/_zm_perks;
 #include scripts/zm/promod/utility/_grief_util;
+#include scripts/zm/promod/utility/_text_parser;
 
 parse_restrictions()
 {
-	turn_restricted_perks_off();
+	//turn_restricted_perks_off();
 	powerup_restrictions();
 }
 
 //doesn't work yet
 grief_restrict_wallbuy( weapon )
 {
-	if ( level.grief_gamerules[ "wall_weapon_restrictions" ] == "" )
+	if ( level.grief_restrictions[ "weapons" ] == "" )
 	{
 		return false;
 	}
-	weapon_keys = strTok( level.grief_gamerules[ "wall_weapon_restrictions" ], " " );
+	weapon_keys = strTok( level.grief_restrictions[ "weapons" ], " " );
 	foreach ( key in weapon_keys )
 	{
 		if ( key == weapon )
@@ -30,12 +31,12 @@ grief_restrict_wallbuy( weapon )
 
 powerup_restrictions()
 {	
-	powerup_restrictions = strTok( level.grief_gamerules[ "powerup_restrictions" ], " " );
+	powerup_restrictions = strTok( level.grief_restrictions[ "powerups" ], " " );
 	for ( i = 0; i < level.data_maps[ "powerups" ][ "default_allowed_powerups" ].size; i++ )
 	{
 		for ( j = 0; j < powerup_restrictions.size; j++ )
 		{
-			if ( level.data_maps[ "powerups" ][ "is_active" ][ i ] == "1" && level.data_maps[ "powerups" ][ "default_allowed_powerups" ][ i ] == powerup_restrictions[ j ] || level.grief_gamerules[ "powerup_restrictions" ] == "all" )
+			if ( level.data_maps[ "powerups" ][ "is_active" ][ i ] == "1" && level.data_maps[ "powerups" ][ "default_allowed_powerups" ][ i ] == powerup_restrictions[ j ] || level.grief_restrictions[ "powerups" ] == "all" )
 			{
 				level.data_maps[ "powerups" ][ "is_active" ][ i ] = "0";
 				break;
@@ -68,6 +69,7 @@ init_gamerules()
 	level.grief_gamerules[ "buildables" ] = getDvarIntDefault( "grief_gamerule_buildables", 1 );
 	level.grief_gamerules[ "disable_doors" ] = getDvarIntDefault( "grief_gamerule_disable_doors", 1 );
 	level.grief_gamerules[ "zombie_round" ] = getDvarIntDefault( "grief_gamerules_zombie_round", 20 );
+	level.grief_gamerules[ "power_start_state" ] = getDvarIntDefault( "grief_gamerules_power_start_state", 1 );
 	level.round_number = level.grief_gamerules[ "zombie_round" ];
 	level.grief_gamerules[ "round_zombie_spawn_delay" ] = getDvarIntDefault( "grief_gamerule_round_zombie_spawn_delay", 15 );
 	level.grief_gamerules[ "pregame_time" ] = getDvarIntDefault( "grief_gamerule_pregame_time", 15 );
@@ -89,13 +91,13 @@ init_restrictions()
 	}
 	if ( level.script != "zm_transit" && level.script != "zm_highrise" )
 	{
-		key_list += "|fire_sale:1 ";
+		key_list += "|fire_sale:1";
 	}
 	key_names = "default_allowed_powerups|is_active";
 	generate_map( "powerups", key_list, key_names );
-	level.grief_gamerules[ "perk_restrictions" ] = getDvar( "grief_gamerule_perk_restrictions" );
-	level.grief_gamerules[ "wall_weapon_restrictions" ] = getDvar( "grief_gamerule_wall_weapon_restrictions" );
-	level.grief_gamerules[ "powerup_restrictions" ] = getDvar( "grief_gamerule_powerup_restrictions" );
-	level.grief_gamerules[ "door_restrictions" ] = getDvar( "grief_gamerule_door_restrictions" );
+	level.grief_restrictions[ "perks" ] = getDvar( "grief_restrictions_perks" );
+	level.grief_restrictions[ "weapons" ] = getDvar( "grief_restrictions_weapons" );
+	level.grief_restrictions[ "powerups" ] = getDvar( "grief_restrictions_powerups" );
+	level.grief_restrictions[ "restrictions" ] = getDvar( "grief_restrictions_doors" );
 	parse_restrictions();
 }

@@ -35,6 +35,7 @@
 #include scripts/zm/promod/utility/_grief_util;
 #include scripts/zm/promod/zgriefp;
 #include scripts/zm/promod/_hud;
+#include scripts/zm/promod/utility/_com;
 
 _zm_gametype_main_o() //checked matches cerberus output
 {
@@ -1269,7 +1270,7 @@ get_valid_powerup_o() //checked partially matches cerberus output did not change
 		return level.zombie_powerup_array[ i ];
 	}
 	powerup = get_next_powerup_o();
-	disable_powerups = strTok( level.grief_gamerules[ "powerup_restrictions" ], " " );
+	disable_powerups = strTok( level.grief_restrictions[ "powerups" ], " " );
 	while ( 1 )
 	{
 		for ( i = 0; i < level.data_maps[ "powerups" ][ "default_allowed_powerups" ].size; i++ )

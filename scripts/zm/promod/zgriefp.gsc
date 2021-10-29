@@ -23,6 +23,7 @@
 #include scripts\zm\promod\zgriefp_overrides;
 #include scripts\zm\promod\_gamerules;
 #include scripts\zm\promod\utility\_damagefeedback;
+#include scripts\zm\promod\utility\_com;
 
 zgriefp_init()
 {
@@ -31,7 +32,6 @@ zgriefp_init()
 	level thread monitor_players_connecting_status();
 	level thread emptyLobbyRestart();
 	scripts/zm/promod/plugin/commands::setup_permissions();
-	level thread scripts/zm/promod/plugin/commands::command_watcher();
 	scripts/zm/promod/utility/_grief_util::add_dvar_commands();
 	init_gamerules();
 	level._game_module_player_damage_callback = ::game_module_player_damage_callback;

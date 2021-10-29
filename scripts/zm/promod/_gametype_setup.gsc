@@ -316,3 +316,58 @@ manage_zones_o( initial_zone )
 		wait 1;
 	}
 }
+
+set_power_state( state )
+{
+	if ( state )
+	{
+		flag_set( "power_on" );
+		level setclientfield( "zombie_power_on", 1 );
+		zombie_doors = getentarray( "zombie_door", "targetname" );
+		foreach ( door in zombie_doors )
+		{
+			if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "electric_door" )
+			{
+				door notify( "power_on" );
+			}
+			if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "local_electric_door" )
+			{
+				door notify( "local_power_on" );
+			}
+		}
+		for ( i = 0; i < level.data_maps[ "perks" ][ "power_notifies" ].size; i++ )
+		{
+			if ( !isSubStr( level.grief_restrictions[ "perks" ], level.data_maps[ "perks" ][ "specialties" ][ i ] ) )
+			{
+				level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_on", i );
+				trigger = getent( level.data_maps[ "perks" ][ "specialties" ][ i ], "script_noteworthy" );
+				trigger.machine show();
+				trigger.clip solid();
+			}
+		}
+	}
+	else 
+	{
+		flag_set( "power_on" );
+		level setclientfield( "zombie_power_on", 0 );
+		zombie_doors = getentarray( "zombie_door", "targetname" );
+		foreach ( door in zombie_doors )
+		{
+			if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "electric_door" )
+			{
+				door notify( "power_off" );
+			}
+			if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "local_electric_door" )
+			{
+				door notify( "local_power_off" );
+			}
+		}
+		for ( i = 0; i < level.data_maps[ "perks" ][ "power_notifies" ].size; i++ )
+		{
+			level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_off", i );
+			trigger = getent( level.data_maps[ "perks" ][ "specialties" ][ i ], "script_noteworthy" );
+			trigger.machine ghost();
+			trigger.clip notSolid();
+		}
+	}
+}

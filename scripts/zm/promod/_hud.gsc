@@ -155,11 +155,11 @@ destroy_hud_on_game_end()
 	{
 		level.round_countdown_text destroy();
 	}
-	if ( isDefined( level.grief_score_hud[ "A" ] ) )
+	if ( isDefined( level.grief_score_hud[ "axis" ] ) )
 	{
 		//level.grief_score_hud[ "A" ] destroy();
 	}
-	if ( isDefined( level.grief_score_hud[ "B" ] ) )
+	if ( isDefined( level.grief_score_hud[ "allies" ] ) )
 	{
 		//level.grief_score_hud[ "B" ] destroy();
 	}

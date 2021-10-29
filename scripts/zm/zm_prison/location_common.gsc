@@ -3,33 +3,17 @@
 #include common_scripts/utility;
 #include maps/mp/zombies/_zm_weapons;
 #include maps/mp/zm_alcatraz_traps;
+#include scripts/zm/promod/_gametype_setup;
 
 common_init()
 {
 	level.enemy_location_override_func = ::enemy_location_override;
 	level._effect[ "butterflies" ] = loadfx( "maps/zombie_alcatraz/fx_alcatraz_skull_elec" );
 	flag_wait( "initial_blackscreen_passed" );
-	maps/mp/zombies/_zm_game_module::turn_power_on_and_open_doors();
 	flag_wait( "start_zombie_round_logic" );
+	set_power_state( level.grief_gamerules[ "power_start_state" ] );
 	level thread maps/mp/zm_alcatraz_traps::init_fan_trap_trigs();
 	level thread maps/mp/zm_alcatraz_traps::init_acid_trap_trigs();
-	wait 1;
-	level notify( "sleight_on" );
-	wait_network_frame();
-	level notify( "doubletap_on" );
-	wait_network_frame();
-	level notify( "juggernog_on" );
-	wait_network_frame();
-	level notify( "electric_cherry_on" );
-	wait_network_frame();
-	level notify( "deadshot_on" );
-	wait_network_frame();
-	level notify( "divetonuke_on" );
-	wait_network_frame();
-	level notify( "additionalprimaryweapon_on" );
-	wait_network_frame();
-	level notify( "Pack_A_Punch_on" );
-	wait_network_frame();
 	if ( getDvarInt( "grief_brutus_enabled") == 1 )
 	{
 		level thread grief_brutus_logic();

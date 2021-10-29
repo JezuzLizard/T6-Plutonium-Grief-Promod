@@ -14,11 +14,7 @@
 
 struct_init()
 {
-	mob_jug = getDvarIntDefault( "grief_gamerule_cellblock_jug", 1 );
-	if( mob_jug )
-	{
-		register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, 86, 0 ), ( 1403, 9662, 1336 ) );
-	}
+	register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, 86, 0 ), ( 1403, 9662, 1336 ) );
 }
 
 precache()

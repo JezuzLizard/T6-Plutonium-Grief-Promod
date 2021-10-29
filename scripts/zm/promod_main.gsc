@@ -24,6 +24,7 @@
 //Function that sets up all the overrides automatically.
 main()
 {
+	level.SERVER_FRAME = 0.05;
 	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
 	replaceFunc( maps/mp/zombies/_zm_magicbox::treasure_chest_init, scripts/zm/promod/zgriefp_overrides::treasure_chest_init_o );
 	replaceFunc( maps/mp/zombies/_zm_utility::track_players_intersection_tracker, scripts/zm/promod/zgriefp_overrides::track_players_intersection_tracker_o );
@@ -44,6 +45,7 @@ main()
 	replaceFunc( maps/mp/zombies/_zm_powerups::randomize_powerups, scripts/zm/promod/zgriefp_overrides::randomize_powerups_o );
 	replaceFunc( maps/mp/zombies/_zm_powerups::get_next_powerup, scripts/zm/promod/zgriefp_overrides::get_next_powerup_o );
 	replaceFunc( maps/mp/zombies/_zm_powerups::get_valid_powerup, scripts/zm/promod/zgriefp_overrides::get_valid_powerup_o );
+	CMD_INIT();
 }
 
 struct_class_init_o()

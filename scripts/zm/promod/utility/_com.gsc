@@ -1,3 +1,8 @@
+#include maps/mp/zombies/_zm_utility;
+#include maps/mp/_utility;
+#include common_scripts/utility;
+#include scripts/zm/promod/utility/_grief_util;
+
 /*private*/ COM_INIT()
 {
 	COM_ADDFILTER( "info", 1 );

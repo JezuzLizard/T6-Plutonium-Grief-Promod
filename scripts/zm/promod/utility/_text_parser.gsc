@@ -1,3 +1,7 @@
+#include maps/mp/zombies/_zm_utility;
+#include maps/mp/_utility;
+#include common_scripts/utility;
+#include scripts/zm/promod/utility/_grief_util;
 
 /*public*/ parse_cmd_message( message )
 {
@@ -18,23 +22,23 @@
 		for ( ; command_keys[ "namespace" ] != "" && buffer_index < command_keys[ "namespace" ].size + 2; buffer_index++ )
 		{
 		}
-		for ( ; message[ buffer_index ] != "("; buffer_index++ )
+		for ( ; message[ buffer_index ] != " " && message[ buffer_index ] != ""; buffer_index++ )
 		{
 			command_keys[ "cmdname" ] = command_keys[ "cmdname" ] + message[ buffer_index ];
 		}
 		for ( ; isDefined( message[ buffer_index ] ); buffer_index++ )
 		{
-			if ( message[ buffer_index ] == "," )
+			if ( message[ buffer_index ] == " " )
 			{
 				command_keys[ "args" ][ command_keys[ "args" ].size ] = "";
 			}
 			else 
 			{
-				for ( ; isDefined( message[ buffer_index ] ) && message[ buffer_index ] != ","; buffer_index++ )
+				for ( ; isDefined( message[ buffer_index ] ) && message[ buffer_index ] != " "; buffer_index++ )
 				{
 					command_keys[ "args" ][ command_keys[ "args" ].size - 1 ] += message[ buffer_index ];
 				}
-				if ( isSubStr( command_keys[ "args" ][ command_keys[ "args" ].size - 1 ], "(" ) );
+				if ( isSubStr( command_keys[ "args" ][ command_keys[ "args" ].size - 1 ], "(" ) )
 				{
 					// result = execute_nested_command( command_keys[ "args" ][ command_keys[ "args" ].size - 1 ] );
 					// if ( is_true( result[ "success" ] ) )
@@ -180,7 +184,7 @@
 				}
 				if ( !is_valid_key )
 				{
-					result[ "error_msg" ] = "invalid %s key.", key );
+					result[ "error_msg" ] = va( "invalid %s key.", key );
 					return result;
 				}
 			}
@@ -237,7 +241,7 @@
 				}
 				if ( !is_valid_key || !is_valid_new_value )
 				{
-					result[ "error_msg" ] = va( "invalid %s key %s new_value pair.", key, new_value )''
+					result[ "error_msg" ] = va( "invalid %s key %s new_value pair.", key, new_value );
 					return result;
 				}
 			}
@@ -297,7 +301,7 @@ is_str_int( str )
 
 is_str_bool( str )
 {
-	if ( str == "0" || str == "1" || str == "false" || str == "true" )
+	if ( str == "false" || str == "true" )
 	{
 		return true;
 	}
@@ -347,12 +351,7 @@ is_str_vec( str )
 	{
 		return false;
 	}
-	if ( str[ 0 ] == "(" && str[ str.size - 1 ] == ")" )
-	{
-		str[ str.size - 1 ] = "";
-		str[ 0 ] = "";
-	}
-	else 
+	if ( str[ 0 ] != "(" && str[ str.size - 1 ] != ")" )
 	{
 		return false;
 	}
@@ -361,6 +360,8 @@ is_str_vec( str )
 	{
 		return false;
 	}
+	keys[ 2 ][ str.size - 1 ] = "";
+	keys[ 0 ][ 0 ] = "";
 	vec_checks_passed = 0;
 	for ( i = 0; i < keys.size; i++ )
 	{
@@ -382,15 +383,7 @@ cast_str_to_vec( str )
 
 cast_str_to_bool( str )
 {
-	if ( str == "0" || str == "false" )
-	{
-		return false;
-	}
-	if ( str == "1" || str == "true" )
-	{
-		return true;
-	}
-	return false;
+	return str == "true" ? true : false;
 }
 
 /*public*/ get_type( var )
@@ -433,7 +426,7 @@ cast_str_to_bool( str )
 	// generate_map( "server_ranks", key_list, key_names );
 }
 
-/*private*/ generate_map( map_name, arg_list, name_list )
+/*public*/ generate_map( map_name, arg_list, name_list )
 {
 	if ( !isDefined( level.data_maps ) )
 	{
@@ -536,21 +529,12 @@ cast_str_to_bool( str )
 	return name;
 }
 
-cast_bool_to_str( bool, type )
+cast_bool_to_str( bool, binary_string_options )
 {
-	if ( get_type( bool ) == "bool" )
+	options = strTok( binary_string_options, " " );
+	if ( options.size == 2 )
 	{
-		switch ( type )
-		{
-			case "toggle":
-				return bool ? "on" : "off";
-			case "answer":
-				return bool ? "yes" : "no";
-			case "abled":
-				return bool ? "enabled" : "disabled";
-			case "set":
-				return bool ? "set" : "unset";
-		}
+		return bool ? options[ 0 ] : options[ 1 ];
 	}
 	return bool;
 }

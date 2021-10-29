@@ -5,6 +5,10 @@
 #include maps/mp/zombies/_zm_perks;
 #include scripts/zm/promod/zgriefp;
 #include scripts/zm/promod/zgriefp_overrides;
+#include scripts/zm/promod/utility/_vote;
+#include scripts/zm/promod/utility/_com;
+#include scripts/zm/promod/_gametype_setup;
+#include scripts/zm/promod/utility/_text_parser;
 
 CMD_INIT()
 {
@@ -16,9 +20,6 @@ CMD_INIT()
 	level.server.name = getDvar( "sv_hostname" );
 	level.server.is_server = true;
 	level.custom_commands_restart_countdown = 5;
-	level.custom_commands_magic_state_toggled = false;
-	level.custom_commands_powerups_state_toggled = false;
-	level.custom_commands_perks_state_toggled = false;
 	CMD_ADDCOMMAND( "team t", "add a", ::CMD_TEAM_ADD_f );
 	CMD_ADDCOMMAND( "team t", "remove r", ::CMD_TEAM_REMOVE_f );
 	CMD_ADDCOMMAND( "team t", "set s", ::CMD_TEAM_SET_f );
@@ -41,131 +42,378 @@ CMD_INIT()
 	CMD_ADDCOMMAND( "admin a", "resetrotation rr", ::CMD_RESETROTATION_f );
 	CMD_ADDCOMMAND( "admin a", "randomnextmap rnm", ::CMD_RANDOMNEXTMAP_f );
 	CMD_ADDCOMMAND( "gamerule g", "togmagic tm", ::CMD_TOGGLEMAGIC_f );
-	CMD_ADDCOMMAND( "gamerule g", "togpowerups tp", ::CMD_TOGGLEPOWERUPS_f );
-	CMD_ADDCOMMAND( "gamerule g", "togperks tperks", ::CMD_TOGGLEPERKS_f );
-	CMD_ADDCOMMAND( "gamerule g", "addrestriction ar", ::CMD_ADDRESTRICTION_f );
-	CMD_ADDCOMMAND( "gamerule g", "togperkrestrictions tperksr", ::CMD_TOGGLEPERKRESTRICTIONS_f );
+	CMD_ADDCOMMAND( "gamerule g", "togallpowerups togallpups", ::CMD_TOGGLEALLPOWERUPS_f );
+	CMD_ADDCOMMAND( "gamerule g", "togallperks togallpks", ::CMD_TOGGLEALLPERKS_f );
+	CMD_ADDCOMMAND( "gamerule g", "togpower togpow", ::CMD_TOGGLEPOWER_f );
+	CMD_ADDCOMMAND( "gamerule g", "togperkrestrictions togpkr", ::CMD_TOGGLEPERKRESTRICTIONS_f );
+	CMD_ADDCOMMAND( "gamerule g", "togperk togpk", ::CMD_TOGGLEPERK_f );
+	CMD_ADDCOMMAND( "vote v", "start s", ::CMD_VOTESTART_f, true );
+	VOTE_INIT();
 
 	CMD_ADDCOMMANDLISTENER( "listener_cmdlist", "showmore" );
 	CMD_ADDCOMMANDLISTENER( "listener_cmdlist", "page" );
 	CMD_ADDCOMMANDLISTENER( "listener_playerlist", "showmore" );
 	CMD_ADDCOMMANDLISTENER( "listener_playerlist", "page" );
+	CMD_ADDCOMMANDLISTENER( "listener_vote", "yes" );
+	CMD_ADDCOMMANDLISTENER( "listener_vote", "no" );
 
 	level thread COMMAND_BUFFER();
-
-	self tell( "magic(bool" );
-	self tell( "powerups(bool" );
-	self tell( "knifelunge(bool)" );
-	self tell( "roundnumber(int)" );
-	wait 12;
-	self tell( "buildables(bool)" );
-	self tell( "reduceammo(bool)" );
-	self tell( "maxzombies(int)" );
-	self tell( "depotjug(bool)" );
-	self tell( "cellblockjug(bool)" );
 }
 
-CMD_ADDRESTRICTION_f( arg_list )
+CMD_VOTESTART_f( arg_list )
 {
-	if ( array_validate( arg_list ) && arg_list.size > 1 )
+	channel = is_true( self.is_server ) ? "con" : "tell";
+	if ( !is_true( self.is_server ) && !is_true( self.is_admin ) )
 	{
-		category = arg_list[ 0 ];
-		item = arg_list[ 1 ];
-
+		if ( is_true( self.vote_started ) )
+		{
+			COM_PRINTF( channel, "cmderror", "vote:start: You cannot start a new vote for the remainder of this match.", self );
+			return;
+		}
 	}
+	if ( is_true( level.vote_in_progress ) )
+	{
+		COM_PRINTF( channel, "cmderror", va( "vote:start: You cannot start a new vote until the current vote is finished in %s seconds.", level.vote_in_progress_timeleft ), self );
+		return;
+	}
+	key_type = arg_list[ 0 ];
+	key_value_or_cmd_arg_0 = arg_list[ 1 ];
+	if ( key_value_or_cmd_arg_0 == "start" || key_value_or_cmd_arg_0 == "s" )
+	{
+		COM_PRINTF( channel, "cmderror", "vote:start: Nice try.", self );
+		return;
+	}
+	cmd_arg_1 = arg_list[ 2 ];
+	cmd_arg_2 = arg_list[ 3 ];
+	cmd_arg_3 = arg_list[ 4 ];
+	if ( !isDefined( key_type ) || !isDefined( key_value_or_cmd_arg_0 ) )
+	{
+		COM_PRINTF( channel, "cmderror", "vote:start: Missing params, 2 args required <key_type>, <key_value>.", self );
+		return;
+	}
+	if ( level.vote_start_anonymous )
+	{
+		name = "Anon";
+	}
+	else 
+	{
+		name = self.name;
+	}
+	switch ( key_type )
+	{
+		// case "d":
+		// case "dvar":
+		// 	if ( isDefined( cmd_arg_1 ) )
+		// 	{
+		// 		COM_PRINTF( "con say g_log", "cmdinfo", va( "vote:start: %s would like to set %s to %s", name, key_value_or_cmd_arg_0, cmd_arg_1 ), self );
+		// 	}
+		// 	else 
+		// 	{
+		// 		COM_PRINTF( channel, "cmderror", "vote:start: Dvar set requires <dvar name>, and <dvar value>.", self );
+		// 		return;
+		// 	}
+		// 	break;
+		case "ca":
+		case "cvarall":
+			if ( isDefined( cmd_arg_1 ) && getDvar( key_value_or_cmd_arg_0 ) != "" )
+			{
+				COM_PRINTF( "con say g_log", "cmdinfo", va( "vote:start: %s would like to set %s to %s", name, key_value_or_cmd_arg_0, cmd_arg_1 ), self );
+			}
+			else 
+			{
+				COM_PRINTF( channel, "cmderror", "vote:start: Cvar set requires a valid <dvar name>, and <dvar value>.", self );
+				return;
+			}
+			break;
+		case "k":
+		case "kick":
+			player_data = find_player_in_server( key_value_or_cmd_arg_0 );
+			if ( isDefined( key_value_or_cmd_arg_0 ) && isDefined( player_data ) )
+			{
+				COM_PRINTF( "con say g_log", "cmdinfo", va( "vote:start: %s would like to kick %s.", name, player_data[ "name" ] ), self );
+			}
+			else 
+			{
+				COM_PRINTF( channel, "cmderror", "vote:start: Could not find player.", self );
+				return;
+			}
+			break;
+		case "nm":
+		case "nextmap":
+			rotation_data = find_map_data_from_alias( alias );
+			if ( rotation_data[ "mapname" ] != "" )
+			{
+				COM_PRINTF( "con say g_log", "cmdinfo", va( "vote:start: %s would like to set the next map to %s.", name, get_map_display_name_from_location( rotation_data[ "location" ] ) ), self );
+			}
+			else 
+			{
+				COM_PRINTF( channel, "cmderror", "vote:start: Could not find map from alias.", self );
+				return;
+			}
+			break;
+		case "g":
+		case "gamerule":
+			is_threaded_cmd = false;
+			indexable_cmdname = "";
+			screen_name = "";
+			cmd_keys = getArrayKeys( level.custom_commands[ "gamerule g" ] );
+			for ( i = 0; ( i < cmd_keys.size ) && indexable_cmdname == ""; i++ )
+			{
+				cmd_aliases = strTok( cmd_keys[ i ], " " );
+				for ( j = 0; j < cmd_aliases.size; j++ )
+				{
+					if ( key_value_or_cmd_arg_0 == cmd_aliases[ j ] )
+					{
+						indexable_cmdname = cmd_keys[ i ];
+						screen_name = cmd_aliases[ 0 ];
+						if ( isDefined( level.custom_threaded_commands[ cmd_aliases[ j ] ] ) )
+						{
+							is_threaded_cmd = true;
+						}
+						break;
+					}
+				}
+			}
+			if ( indexable_cmdname != "" )
+			{
+				COM_PRINTF( "con say g_log", "cmdinfo", va( "vote:start: %s would like to execute gamerule cmd %s.", name, screen_name ), self );
+			}
+			else 
+			{
+				COM_PRINTF( channel, "cmderror", "vote:start: Could not find gamerule cmd from alias.", self );
+				return;
+			}
+			break;
+		default:
+			COM_PRINTF( channel, "cmderror", va( "vote:start: Unsupported key_type %s recevied." ), self );
+			return;
+	}
+	COM_PRINTF( "con say", "notitle", va( "You have %s seconds to cast your vote.", level.vote_timeout ), self );
+	COM_PRINTF( "con say", "notitle", "Do /yes or /no to vote.", self );
+	COM_PRINTF( "con say", "notitle", "Outcome is determined from players who cast a vote, not from the total players.", self );
+	level thread vote_timeout_countdown();
+	level.vote_in_progress_votes = [];
+	foreach ( player in level.players )
+	{
+		player thread player_track_vote();
+	}
+	level thread count_votes();
+	level.vote_in_progress = true;
+	self.vote_started = true;
+	level waittill( "vote_ended", result );
+	level.vote_in_progress = false;
+	if ( !result )
+	{
+		return;
+	}
+	switch ( key_type )
+	{
+		// case "c":
+		// case "command":
+		// 	CMD_EXECUTE( namespace, cmdname, arg_list )
+		// 	break;
+		// case "d":
+		// case "dvar":
+		// 	setDvar( key_value_or_cmd_arg_0, cmd_arg_1 );
+		// 	break;
+		case "cv":
+		case "cvar":
+			args = [];
+			args[ 0 ] = key_value_or_cmd_arg_0;
+			args[ 1 ] = cmd_arg_1;
+			CMD_CLIENT_CVARALL_f( args );
+			break;
+		case "k":
+		case "kick":
+			args = [];
+			args[ 0 ] = player_data[ "guid" ];
+			CMD_ADMIN_KICK_f( args );
+			break;
+		case "nm":
+		case "nextmap":
+			args = [];
+			args[ 0 ] = key_value_or_cmd_arg_0;
+			CMD_NEXTMAP_f( arg_list );
+			break;
+		case "g":
+		case "gamerule":
+			CMD_EXECUTE( "gamerule", screen_name, undefined );
+			break;
+	}
+}
+
+CMD_TOGGLEPOWER_f( arg_list )
+{
+	new_power_state = !level.grief_gamerules[ "power_start_state" ] ? true: false;
+	set_power_state( new_power_state );
+	result[ "message" ] = va( "gamerule:power_state: Power is now %s", cast_bool_to_str( new_power_state, "on off" ) );
+	result[ "channels" ] = "con say g_log";
+	result[ "filter" ] = "cmdinfo";
+	return result;
 }
 
 CMD_TOGGLEPERKRESTRICTIONS_f( args_list )
 {
-	new_power_state = !level.custom_commands_perks_state_toggled ? true : false;
-	new_perk_restrictions_value = new_power_state ? "" : "all";
-	perk_restriction_keys = strTok( level.grief_gamerules[ "perk_restrictions" ], " " );
-	perks = level.data_maps[ "perks" ][ "specialties" ];
-	if ( new_power_state )
+	original_restrictions = getDvar( "grief_restrictions_perks" );
+	new_perk_restrictions_value = original_restrictions == level.grief_restrictions[ "perks" ] ? "" : original_restrictions;
+	new_perks_restrictions_state = new_perk_restrictions_value == "" ? true : false;
+	level.grief_restrictions[ "perks" ] = new_perk_restrictions_value;
+	perk_speciality_names = level.data_maps[ "perks" ][ "specialties" ];
+	perk_power_notify_names = level.data_maps[ "perks" ][ "power_notifies" ];
+	if ( new_perk_restrictions_value == "" )
 	{
-		for ( i = 0; i < perks.size; i++ )
+		for ( i = 0; i < perk_speciality_names.size; i++ )
 		{
-			if ( level.grief_gamerules[ "perk_restrictions" ] == "" || !isInArray( perk_restriction_keys, "specialty_" + perks[ i ] ) )
-			{
-				level notify( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_on" );
-			}
+			level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_on", i );
+			level.data_maps[ "perks" ][ "is_active" ][ i ] = "1";
+			trigger = getent( level.data_maps[ "perks" ][ "specialties" ][ i ], "script_noteworthy" );
+			trigger.machine show();
+			trigger.clip solid();
 		}
 	}
 	else 
 	{
-		for ( i = 0; i < perks.size; i++ )
+		for ( i = 0; i < perk_speciality_names.size; i++ )
 		{
-			if ( level.grief_gamerules[ "perk_restrictions" ] == "all" || isInArray( perk_restriction_keys, "specialty_" + perks[ i ] ) )
+			if ( isSubStr( level.grief_restrictions[ "perks" ], perk_speciality_names[ i ] ) || isSubStr( level.grief_restrictions[ "perks" ], perk_power_notify_names[ i ] ) )
 			{
-				level notify( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_off" );
+				level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_off", i );
+				level.data_maps[ "perks" ][ "is_active" ][ i ] = "0";
+				trigger = getent( level.data_maps[ "perks" ][ "specialties" ][ i ], "script_noteworthy" );
+				trigger.machine ghost();
+				trigger.clip notSolid();
 			}
 		}
 	}
-	result[ "message" ] = va( "gamerule:perks: Perks are powered %s", cast_bool_to_str( new_powerup_restrictions_state, "toggle" ) );
+	result[ "message" ] = va( "gamerule:perksrestrictions: Perk restrictions are %s restricted perks are powered %s", cast_bool_to_str( new_perks_restrictions_state, "disabled enabled" ), cast_bool_to_str( new_perks_restrictions_state, "on off" ) );
 	result[ "channels" ] = "con say g_log";
 	result[ "filter" ] = "cmdinfo";
 	return result;
 }
 
-CMD_TOGGLEPERKS_f( args_list )
+CMD_TOGGLEALLPERKS_f( args_list )
 {
-	new_power_state = !level.custom_commands_perks_state_toggled ? true : false;
-	new_perk_restrictions_value = new_power_state ? "" : "all";
-	if ( new_power_state )
+	forced_perks_state = arg_list[ 0 ];
+	if ( isDefined( forced_perks_state ) )
 	{
-		for ( i = 0; i < perks.size; i++ )
+		new_perk_restrictions_state = forced_perks_state;
+		level.grief_restrictions[ "perks" ] = !forced_perks_state ? "all" : "";
+	}
+	else 
+	{
+		level.grief_restrictions[ "perks" ] = level.grief_restrictions[ "perks" ] != "all" ? "all" : "";
+		new_perk_restrictions_state = level.grief_restrictions[ "perks" ] ? "" : "all";
+	}
+	if ( new_perk_restrictions_state )
+	{
+		for ( i = 0; i < level.data_maps[ "perks" ][ "power_notifies" ].size; i++ )
 		{
-			level notify( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_on" );
+			level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_on", i );
+			level.data_maps[ "perks" ][ "is_active" ][ i ] = "1";
+			trigger = getent( level.data_maps[ "perks" ][ "specialties" ][ i ], "script_noteworthy" );
+			trigger.machine show();
+			trigger.clip solid();
 		}
 	}
 	else 
 	{
-		for ( i = 0; i < perks.size; i++ )
+		for ( i = 0; i < level.data_maps[ "perks" ][ "power_notifies" ].size; i++ )
 		{
-			level notify( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_off" );
+			level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_off", i );
+			level.data_maps[ "perks" ][ "is_active" ][ i ] = "0";
+			trigger = getent( level.data_maps[ "perks" ][ "specialties" ][ i ], "script_noteworthy" );
+			trigger.machine ghost();
+			trigger.clip notSolid();
 		}
 	}
-	result[ "message" ] = va( "gamerule:perks: Perks are powered %s", cast_bool_to_str( new_powerup_restrictions_state, "toggle" ) );
+	result[ "message" ] = va( "gamerule:perks: Perks are powered %s", cast_bool_to_str( new_powerup_restrictions_state, "on off" ) );
 	result[ "channels" ] = "con say g_log";
 	result[ "filter" ] = "cmdinfo";
 	return result;
 }
 
+//togperk(<perk_specialty_name|perk_power_notify_name>)
 CMD_TOGGLEPERK_f( arg_list )
 {
-	new_powerup_restrictions_state = level.grief_gamerules[ "powerup_restrictions" ] == "all" ? true : false;
-	new_powerup_restrictions_value = new_powerup_restrictions_state ? "" : "all";
-	setDvar( "grief_gamerule_powerup_restrictions", new_powerup_restrictions_value );
-	level.grief_gamerules[ "powerup_restrictions" ] = new_powerup_restrictions_value;
-	if ( !level.custom_commands_powerups_state_toggled )
+	if ( array_validate( arg_list ) )
 	{
-		level.custom_commands_powerups_state_toggled = true;
-		result[ "message" ] = va( "gamerule:powerups: Powerups are %s", cast_bool_to_str( new_powerup_restrictions_state, "abled" ) );
+		perk_arg = arg_list[ 0 ];
+		perk_speciality_names = level.data_maps[ "perks" ][ "specialties" ];
+		perk_power_notify_names = level.data_maps[ "perks" ][ "power_notifies" ];
+		for ( i = 0; i < perk_speciality_names.size; i++ )
+		{
+			if ( isSubStr( perk_speciality_names[ i ], perk_arg ) || isSubStr( perk_power_notify_names[ i ], perk_arg ) )
+			{
+				perk = perk_speciality_names[ i ];
+				cur_state = isSubStr( level.grief_restrictions[ "perks" ], perk ) ? true : false;
+				cur_keys = strTok( level.grief_restrictions[ "perks" ], " " );
+				trigger = getent( va( "specialty_%s", level.data_maps[ "perks" ][ "specialties" ][ i ] ), "script_noteworthy" );
+				if ( !cur_state )
+				{
+					level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_off", i );
+					level.data_maps[ "perks" ][ "is_active" ][ i ] = "0";
+					cur_keys[ cur_keys.size ] = perk;
+					level.grief_restrictions[ "perks" ] = concatenate_array( cur_keys, " " );
+					trigger.machine ghost();
+					trigger.clip notSolid();
+				}
+				else 
+				{
+					level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_on", i );
+					level.data_maps[ "perks" ][ "is_active" ][ i ] = "1";
+					level.grief_restrictions[ "perks" ] = concatenate_array( remove_tokens_from_array( cur_keys, perk ), " " );
+					trigger.machine show();
+					trigger.clip solid();
+				}
+				break;
+			}
+		}
+		if ( !isDefined( perk ) )
+		{
+			result[ "message" ] = va( "gamerule:perks: Invalid %s perk name", perk_arg );
+			result[ "filter" ] = "cmderror";
+		}
+		else 
+		{
+			result[ "message" ] = va( "gamerule:perks: Perk %s is now powered %s", perk, cast_bool_to_str( new_powerup_restrictions_state, "on off" ) );
+			result[ "channels" ] = "con say g_log";
+			result[ "filter" ] = "cmdinfo";
+		}
 	}
 	else 
 	{
-		result[ "message" ] = va( "gamerule:powerups: Powerups will be %s next match", cast_bool_to_str( new_powerup_restrictions_state, "abled" ) );
+		result[ "message" ] = "gamerule:perks: Missing perk arg";
+		result[ "filter" ] = "cmderror";
 	}
-	result[ "channels" ] = "con say g_log";
-	result[ "filter" ] = "cmdinfo";
+	new_powerup_restrictions_state = level.grief_restrictions[ "perks" ] == "all" ? true : false;
+	new_powerup_restrictions_value = new_powerup_restrictions_state ? "" : "all";
+	setDvar( "grief_restrictions_powerups", new_powerup_restrictions_value );
 	return result;
 }
 
-CMD_TOGGLEPOWERUPS_f( arg_list )
+CMD_TOGGLEALLPOWERUPS_f( arg_list )
 {
-	new_powerup_restrictions_state = level.grief_gamerules[ "powerup_restrictions" ] == "all" ? true : false;
-	new_powerup_restrictions_value = new_powerup_restrictions_state ? "" : "all";
-	// setDvar( "grief_gamerule_powerup_restrictions", new_powerup_restrictions_value );
-	level.grief_gamerules[ "powerup_restrictions" ] = new_powerup_restrictions_value;
-	if ( !new_powerup_restrictions_state || !is_true( args_list[ 0 ] ) )
+	forced_powerups_state = arg_list[ 0 ];
+	if ( isDefined( forced_powerups_state ) )
 	{
-		flag_clear( "zombie_drop_powerups" );
+		level.grief_restrictions[ "powerups" ] = !forced_powerups_state ? "all" : "";
+		if ( !forced_powerups_state )
+		{
+			flag_clear( "zombie_drop_powerups" );
+		}
+		else 
+		{
+			flag_set( "zombie_drop_powerups" );
+		}
+		result[ "message" ] = va( "gamerule:powerups: Powerups are %s", cast_bool_to_str( forced_powerups_state, "enabled disabled" ) );
 	}
-	else 
+	else
 	{
-		flag_set( "zombie_drop_powerups" );
+		new_powerup_restrictions_state = level.grief_restrictions[ "powerups" ] != "all" ? true : false;
+		level.grief_restrictions[ "powerups" ] = new_powerup_restrictions_state ? "all" : "";
+		flag_toggle( "zombie_drop_powerups" );
+		result[ "message" ] = va( "gamerule:powerups: Powerups are %s", cast_bool_to_str( new_powerup_restrictions_state, "enabled disabled" ) );
 	}
-	result[ "message" ] = va( "gamerule:powerups: Powerups are %s", cast_bool_to_str( new_powerup_restrictions_state, "abled" ) );
 	result[ "channels" ] = "con say g_log";
 	result[ "filter" ] = "cmdinfo";
 	return result;
@@ -173,150 +421,20 @@ CMD_TOGGLEPOWERUPS_f( arg_list )
 
 CMD_TOGGLEMAGIC_f( arg_list )
 {
-	new_magic_state = !level.grief_gamerules[ "magic" ] ? 1 : 0;
-	setDvar( "grief_gamerule_magic", new_magic_state );
+	new_magic_state = !level.grief_gamerules[ "magic" ];
 	level.grief_gamerules[ "magic" ] = new_magic_state;
-	args = [];
-	args[ 0 ] = false;
-	self CMD_EXECUTE( "gamerule", "togpowerups", args );
-	self CMD_EXECUTE( "gamerule", "togperks", args );
-	result[ "message" ] = va( "gamerule:magic: Magic is %s", cast_bool_to_str( new_magic_state, "abled" ) );
+	self CMD_EXECUTE( "gamerule", "togallpowerups", new_magic_state );
+	self CMD_EXECUTE( "gamerule", "togallperks", new_magic_state );
+	//self CMD_EXECUTE( "gamerule", "togbox" );
+	result[ "message" ] = va( "gamerule:magic: Magic is %s", cast_bool_to_str( new_magic_state, "enabled disabled" ) );
 	result[ "channels" ] = "con say g_log";
 	result[ "filter" ] = "cmdinfo";
 	return result;
 }
-	case "rn":
-	case "roundnumber":
-		if ( !isDefined( args[ 0 ] ) )
-		{
-			player tell( "You need to specify a round number" );
-			break;
-		}
-		cmd_outcome_log = "CMD:" + player.name + ";ROUND:" + args[ 0 ] + "\n";
-		say( "The round is set to " + args[ 0 ] );
-		set_round( int( args[ 0 ] ) );
-		break;
-	case "kl":
-	case "knifelunge":
-		cmd_outcome_log = "CMD:" + player.name + ";KNIFE:" + args[ 0 ] + "\n";
-		set_knife_lunge( int( args[ 0 ] ) );
-		break;
-	case "mobjug":
-	case "celljug":
-	case "cellblockjug":
-		if ( !isDefined( args[ 0 ] ) )
-		{
-			player tell( "You need to specify 1 or 0" );
-			break;
-		}
-		if ( args[ 0 ] == "1" )
-		{	
-			say( "Jug is enabled on Cellblock" );
-			setDvar( "grief_gamerule_cellblock_jug", 1 );
-		}
-		else if ( args[ 0 ] == "0" )
-		{	
-			say( "Jug is disabled on Cellblock" );
-			setDvar( "grief_gamerule_cellblock_jug", 0 );
-		}
-		cmd_outcome_log = "CMD:" + player.name + ";MOBJUG:" + args[ 0 ] + "\n";
-		break;
-	case "depotjug":
-		if ( !isDefined( args[ 0 ] ) )
-		{
-			player tell( "You need to specify 1 or 0" );
-			break;
-		}
-		if ( args[ 0 ] == "1" )
-		{	
-			say( "Jug is enabled on Bus Depot" );
-			setDvar("grief_gamerule_depot_jug", 1 );
-		}
-		else if ( args[ 0 ] == "0" )
-		{	
-			say( "Jug is disabled on Bus Depot" );
-			setDvar("grief_gamerule_depot_jug", 0 );
-		}
-		cmd_outcome_log = "CMD:" + player.name + ";DEPOTJUG:" + args[ 0 ] + "\n";
-		break;
-	case "rsa":
-	case "reducedammo":
-		cmd_outcome_log = "CMD:" + player.name + ";AMMO:" + args[ 0 ] + "\n";
-		if ( !isDefined( args[ 0 ] ) )
-		{
-			player tell( "You need to specify 1 or 0" );
-			break;
-		}
-		if( int( args[ 0 ] ) == 1 )
-		{
-			level.grief_gamerules[ "reduced_pistol_ammo" ] = 1;
-			say( "Reduced pistol starting ammo is enabled" );
-		}
-		else if( int( args[ 0 ] ) == 0 )
-		{
-			level.grief_gamerules[ "reduced_pistol_ammo" ] = 0;
-			say( "Reduced pistol starting ammo is disabled" );
-		}
-		break;
-	case "build":
-	case "buildables":
-		cmd_outcome_log = "CMD:" + player.name + ";BUILD:" + args[ 0 ] + "\n";
-		if ( !isDefined( args[ 0 ] ) )
-		{
-			player tell( "You need to specify 1 or 0" );
-			break;
-		}
-		if( int( args[ 0 ] ) == 1 )
-		{
-			level.grief_gamerules[ "buildables" ] = 1;
-			say( "Buildables are enabled" );
-		}
-		else if( int( args[ 0 ] ) == 0 )
-		{
-			level.grief_gamerules[ "buildables" ] = 0;
-			say( "Buildables are disabled" );
-		}
-		break;
-	case "zombies":
-	case "maxzombies":
-		cmd_outcome_log = "CMD:" + player.name + ";MAXZM:" + args[ 0 ] + "\n";
-		if ( !isDefined( args[ 0 ] ) )
-		{
-			player tell( "You need to specify a number" );
-			break;
-		}
-		int_args = int( args[ 0 ] );
-		if( int_args <= 32 )
-		{
-			level.zombie_ai_limit = int_args;
-			level.zombie_actor_limit = int_args;
-			say( "The max amount of zombies on the map is set to " + int_args );
-		}
-		else 
-		{
-			player tell( "The max amount of zombies you can set is 32" );
-		}
-		break;
-
-	if ( map_rotate && !set_map )
-	{
-		setDvar( "grief_new_map_kept", 1 );
-		level thread change_level();
-	}
-	else if ( is_true( set_map ) )
-	{	
-		setDvar( "grief_new_map_kept", 0 );
-		level thread change_level();
-	}
-	else
-	{
-		say( "Next map set to " + mapname + " " + location );
-		setDvar( "grief_new_map_kept", 1 );
-	}
 
 CMD_RANDOMNEXTMAP_f( arg_list )
 {
-	channel = self.is_server ? "con" : "tell";
+	channel = is_true( self.is_server ) ? "con" : "tell";
 	string = "c s f t b d tu p";
 	alias_keys = strTok( string, " " );
 	random_alias = random( alias_keys );
@@ -342,29 +460,30 @@ CMD_CHANGEMAP_f( arg_list )
 {
 	self notify( "changemap_f" );
 	self endon( "changemap_f" );
-	channel = self.is_server ? "con" : "tell";
+	channel = is_true( self.is_server ) ? "con" : "tell";
 	if ( array_validate( arg_list ) )
 	{
 		alias = toLower( arg_list[ 0 ] );
 		rotation_data = find_map_data_from_alias( alias );
-		rotation_string = va( "exec zm_%s_%s.cfg map %s", rotation_data[ "gamemode" ], rotation_data[ "location" ], rotation_data[ "mapname" ] );
-		message = va( "admin:changemap: %s second rotate to map %s countdown started", level.custom_commands_restart_countdown, get_map_display_name_from_location( rotation_data[ "location" ] ) );
-		COM_PRINTF( "g_log " + channel, "cmdinfo", self.name + " executed " + message );
-		setDvar( "sv_maprotation", rotation_string );
-		setDvar( "sv_maprotationCurrent", rotation_string );
-		for ( i = level.custom_commands_restart_countdown; i > 0; i-- )
+		if ( rotation_data[ "mapname" ] != "" )
 		{
-			wait 1;
-			COM_PRINTF( "con say", "cmdinfo", va( "%s seconds", i ) );
+			rotation_string = va( "exec zm_%s_%s.cfg map %s", rotation_data[ "gamemode" ], rotation_data[ "location" ], rotation_data[ "mapname" ] );
+			message = va( "admin:changemap: %s second rotate to map %s countdown started", level.custom_commands_restart_countdown, get_map_display_name_from_location( rotation_data[ "location" ] ) );
+			COM_PRINTF( "g_log " + channel, "cmdinfo", self.name + " executed " + message );
+			setDvar( "sv_maprotation", rotation_string );
+			setDvar( "sv_maprotationCurrent", rotation_string );
+			for ( i = level.custom_commands_restart_countdown; i > 0; i-- )
+			{
+				COM_PRINTF( "con say", "cmdinfo", va( "%s seconds", i ) );
+				wait 1;
+			}
+			level notify( "end_commands" );
+			wait 0.5;
+			exitLevel( false );
+			return;
 		}
-		level notify( "end_commands" );
-		wait 0.5;
-		exitLevel( false );
 	}
-	else 
-	{
-		COM_PRINTF( channel, "cmderror", va( "admin:changemap: alias %s is invalid", alias ), self );
-	}
+	COM_PRINTF( channel, "cmderror", va( "admin:changemap: alias %s is invalid", alias ), self );
 }
 
 CMD_NEXTMAP_f( arg_list )
@@ -373,13 +492,13 @@ CMD_NEXTMAP_f( arg_list )
 	{
 		alias = toLower( arg_list[ 0 ] );
 		rotation_data = find_map_data_from_alias( alias );
-		if ( rotation_data[ "mapname" ] != 0)
+		if ( rotation_data[ "mapname" ] != "" )
 		{
 			rotation_string = va( "exec zm_%s_%s.cfg map %s", rotation_data[ "gamemode" ], rotation_data[ "location" ], rotation_data[ "mapname" ] );
 			setDvar( "sv_maprotation", rotation_string );
 			setDvar( "sv_maprotationCurrent", rotation_string );
 			result[ "filter" ] = "cmdinfo";
-			result[ "message" ] = va( "admin:nextmap: Successfully set next map to %s", get_map_display_name_from_location( rotation_data[ "location" ] );
+			result[ "message" ] = va( "admin:nextmap: Successfully set next map to %s", get_map_display_name_from_location( rotation_data[ "location" ] ) );
 		}
 		else 
 		{
@@ -399,7 +518,7 @@ CMD_ROTATE_f( arg_list )
 {
 	self notify( "rotate_f" );
 	self endon( "rotate_f" );
-	channel = self.is_server ? "con" : "tell";
+	channel = is_true( self.is_server ) ? "con" : "tell";
 	message = va( "admin:rotate: %s second rotate countdown started", level.custom_commands_restart_countdown );
 	COM_PRINTF( "g_log " + channel, "cmdinfo", self.name + " executed " + message );
 	for ( i = level.custom_commands_restart_countdown; i > 0; i-- )
@@ -416,7 +535,7 @@ CMD_RESTART_f( arg_list )
 {
 	self notify( "restart_f" );
 	self endon( "restart_f" );
-	channel = self.is_server ? "con" : "tell";
+	channel = is_true( self.is_server ) ? "con" : "tell";
 	message = va( "admin:restart: %s second restart countdown started", level.custom_commands_restart_countdown );
 	COM_PRINTF( "g_log " + channel, "cmdinfo", self.name + " executed " + message );
 	for ( i = level.custom_commands_restart_countdown; i > 0; i-- )
@@ -443,7 +562,7 @@ CMD_PLAYERLIST_f( arg_list )
 {
 	self notify( "playerlist_f" );
 	self endon( "playerlist_f" );
-	channel = self.is_server ? "con" : "tell";
+	channel = is_true( self.is_server ) ? "con" : "tell";
 	current_page = 1;
 	user_defined_page = 1;
 	if ( array_validate( arg_list ) )
@@ -452,13 +571,14 @@ CMD_PLAYERLIST_f( arg_list )
 	}
 	if ( isDefined( team_name ) && isDefined( level.teams[ team_name ] ) )
 	{
-		players = getPlayers( team_name )
+		players = getPlayers( team_name );
 	}
 	else 
 	{
 		players = getPlayers();
 	}
 	remaining_players = players.size;
+	remaining_pages = ceil( remaining_players / level.custom_commands_page_max );
 	for ( j = 0; j < players.size; j++ )
 	{
 		message = va( "%s %s %s", players[ i ].name, players[ i ] getGUID(), players[ i ] getEntityNumber() ); //remember to add rank as a listing option
@@ -471,7 +591,7 @@ CMD_PLAYERLIST_f( arg_list )
 			cmds_to_display[ cmds_to_display.size ] = message;
 		}
 		remaining_players--;
-		if ( ( cmds_to_display.size > level.custom_commands_page_max ) && channel == "tell" && remaining_players != 0 )
+		if ( ( cmds_to_display.size > remaining_pages ) && channel == "tell" && remaining_players != 0 )
 		{
 			if ( current_page == user_defined_page )
 			{
@@ -479,8 +599,8 @@ CMD_PLAYERLIST_f( arg_list )
 				{
 					COM_PRINTF( channel, "cmdinfo", message, self );
 				}
-				COM_PRINTF( channel, "cmdinfo", va( "Displaying page %s out of %s do /showmore or /page(num) to display more players.", current_page, level.custom_commands_page_count ), self );
-				setup_temporary_command_listener( "listener_playerlist", 12, self );
+				COM_PRINTF( channel, "cmdinfo", va( "Displaying page %s out of %s do /showmore or /page(num) to display more players.", current_page, remaining_pages ), self );
+				setup_temporary_command_listener( "listener_playerlist", level.custom_commands_listener_timeout, self );
 				self waittill( "listener_playerlist", result, args );
 				clear_temporary_command_listener( "listener_playerlist", self );
 				if ( result == "timeout" )
@@ -492,12 +612,12 @@ CMD_PLAYERLIST_f( arg_list )
 					user_defined_page = int( args[ 0 ] );
 					if ( !isDefined( user_defined_page ) )
 					{
-						COM_PRINTF( channel, "cmderror", va( "Page number arg sent to utility:cmdlist is undefined. Valid inputs are 1 thru %s.", level.custom_commands_page_count ), self );
+						COM_PRINTF( channel, "cmderror", va( "Page number arg sent to utility:cmdlist is undefined. Valid inputs are 1 thru %s.", remaining_pages ), self );
 						return;
 					}
-					if ( user_defined_page > level.custom_commands_page_count || user_defined_page == 0 )
+					if ( user_defined_page > remaining_pages || user_defined_page == 0 )
 					{
-						COM_PRINTF( channel, "cmderror", va( "Page number %s sent to utility:cmdlist is invalid. Valid inputs are 1 thru %s.", args[ 0 ], level.custom_commands_page_count ), self );
+						COM_PRINTF( channel, "cmderror", va( "Page number %s sent to utility:cmdlist is invalid. Valid inputs are 1 thru %s.", args[ 0 ], remaining_pages ), self );
 						return;
 					}
 				}
@@ -546,7 +666,7 @@ CMD_UNLOCK_SERVER_f( arg_list )
 
 CMD_SERVER_DVAR_f( arg_list )
 {
-	result = []
+	result = [];
 	if ( array_validate( arg_list ) && arg_list.size == 2 )
 	{
 		dvar_name = arg_list[ 0 ];
@@ -565,50 +685,15 @@ CMD_SERVER_DVAR_f( arg_list )
 
 CMD_ADMIN_KICK_f( arg_list )
 {
-	clientnum_guid_or_name = arg_list[ 0 ];
-	max_players_str = getDvarInt( "sv_maxclients" ) + "";
-	if ( str_is_int( clientnum_guid_or_name ) && clientnum_guid_or_name.size < max_players_str.size )
-	{
-		client_num = int( clientnum_guid_or_name );
-	}
-	else if ( str_is_int( clientnum_guid_or_name ) && clientnum_guid_or_name.size > max_players_str.size )
-	{
-		GUID = int( clientnum_guid_or_name );
-	}
-	else 
-	{
-		name = clientnum_guid_or_name;
-	}
 	result = [];
 	kicked = false;
-	foreach ( player in level.players )
+	if ( array_validate( arg_list ) )
 	{
-		if ( isDefined( name ) )
+		player_data = find_player_in_server( arg_list[ 0 ] );
+		if ( isDefined( player_data ) )
 		{
-			if ( clean_player_name_of_clantag( player.name ) == clean_player_name_of_clantag( name ) || isSubStr( player.name, name ) )
-			{
-				kick( player getEntityNumber() );
-				kicked = true;
-				break;
-			}
-		}
-		else if ( isDefined( client_num ) )
-		{
-			if ( player getEntityNumber() == client_num )
-			{
-				kick( player getEntityNumber() );
-				kicked = true;
-				break;
-			}
-		}
-		else 
-		{
-			if ( player getGUID() == GUID )
-			{
-				kick( player getEntityNumber() );
-				kicked = true;
-				break;
-			}
+			kick( player_data[ "clientnum" ] );
+			kicked = true;
 		}
 	}
 	if ( kicked )
@@ -626,7 +711,7 @@ CMD_ADMIN_KICK_f( arg_list )
 
 CMD_CLIENT_CVAR_f( arg_list )
 {
-	result = []
+	result = [];
 	if ( array_validate( arg_list ) && arg_list.size == 2 )
 	{
 		dvar_name = arg_list[ 0 ];
@@ -645,7 +730,7 @@ CMD_CLIENT_CVAR_f( arg_list )
 
 CMD_CLIENT_CVARALL_f( arg_list )
 {
-	result = []
+	result = [];
 	if ( array_validate( arg_list ) && arg_list.size == 2 )
 	{
 		dvar_name = arg_list[ 0 ];
@@ -700,6 +785,7 @@ CMD_ADDCOMMAND( namespace_aliases, cmdaliases, cmdfunc, is_thread_cmd )
 		level.custom_commands_total = 0;
 		level.custom_commands_page_count = 0;
 		level.custom_commands_page_max = 5;
+		level.custom_commands_listener_timeout = 12;
 	}
 	if ( !isDefined( level.custom_commands[ namespace_aliases ] ) )
 	{
@@ -727,14 +813,14 @@ CMD_ADDCOMMAND( namespace_aliases, cmdaliases, cmdfunc, is_thread_cmd )
 
 CMD_EXECUTE( namespace, cmdname, arg_list )
 {
-	if ( array_validate( self.temp_listeners )
+	if ( array_validate( self.temp_listeners ) )
 	{
 		listener_keys = getArrayKeys( self.temp_listeners );
 		foreach ( listener in listener_keys )
 		{
 			if ( CMD_ISCOMMANDLISTENER( listener, cmdname ) )
 			{
-				self CMD_EXECUTELISTENER( listener, cmdname, arg_list )
+				self CMD_EXECUTELISTENER( listener, cmdname, arg_list );
 				return;
 			}
 		}
@@ -744,7 +830,7 @@ CMD_EXECUTE( namespace, cmdname, arg_list )
 	if ( namespace != "" )
 	{
 		cmd_keys = getArrayKeys( level.custom_commands[ namespace ] );
-		for ( i = 0; i < cmd_keys.size; i++ )
+		for ( i = 0; ( i < cmd_keys.size ) && indexable_cmdname == ""; i++ )
 		{
 			cmd_aliases = strTok( cmd_keys[ i ], " " );
 			for ( j = 0; j < cmd_aliases.size; j++ )
@@ -773,7 +859,7 @@ CMD_EXECUTE( namespace, cmdname, arg_list )
 			result = self [[ level.custom_commands[ namespace ][ indexable_cmdname ] ]]( arg_list );
 		}
 	}
-	channel = self.is_server ? "con" : "tell";
+	channel = is_true( self.is_server ) ? "con" : "tell";
 	if ( isDefined( result ) && result[ "filter" ] != "cmderror" )
 	{
 		message = self.name + " executed " + result[ "message" ];
@@ -817,7 +903,7 @@ CMD_TEAM_UNPERM_f( arg_list )
 	else 
 	{
 		result[ "filter" ] = "cmderror";
-		result[ "message" ] = va( "team:unperm: Failed to set entry for %s to be temporary " + outcome[ "error_msg" ], player_name );
+		result[ "message" ] = va( "team:unperm: Failed to set entry for %s to be temporary %s", player_name, outcome[ "error_msg" ] );
 	}
 	return result;
 }
@@ -834,7 +920,7 @@ CMD_TEAM_PERM_f( arg_list )
 	else 
 	{
 		result[ "filter" ] = "cmderror";
-		result[ "message" ] = va( "team:unban: Failed to set entry for %s to be permanent " + outcome[ "error_msg" ], player_name );
+		result[ "message" ] = va( "team:unban: Failed to set entry for %s to be permanent %s", player_name, outcome[ "error_msg" ] );
 	}
 	return result;
 }
@@ -851,7 +937,7 @@ CMD_TEAM_UNBAN_f( arg_list )
 	else 
 	{
 		result[ "filter" ] = "cmderror";
-		result[ "message" ] = va( "team:unban: Failed to unban %s from changing teams " + outcome[ "error_msg" ], player_name );
+		result[ "message" ] = va( "team:unban: Failed to unban %s from changing teams %s", player_name, outcome[ "error_msg" ] );
 	}
 	return result;
 }
@@ -869,7 +955,7 @@ CMD_TEAM_BAN_f( arg_list )
 	else 
 	{
 		result[ "filter" ] = "cmderror";
-		result[ "message" ] = va( "team:ban: Failed to ban %s from changing teams " + outcome1[ "error_msg" ] + " " + outcome2[ "error_msg" ], player_name );
+		result[ "message" ] = va( "team:ban: Failed to ban %s from changing teams %s %s", player_name, outcome2[ "error_msg" ], outcome1[ "error_msg" ] );
 	}
 	return result;
 }
@@ -890,7 +976,7 @@ CMD_TEAM_SET_f( arg_list )
 		else 
 		{
 			result[ "filter" ] = "cmderror";
-			result[ "message" ] = va( "team:set: Failed to change %s to team %s " + outcome[ "error_msg" ], player_name, team_name );
+			result[ "message" ] = va( "team:set: Failed to change %s to team %s %s", player_name, team_name, outcome[ "error_msg" ] );
 		}
 	}
 	else 
@@ -961,7 +1047,7 @@ CMD_TEAM_ADD_f( arg_list )
 	level thread end_commands_on_end_game();
 	while ( true )
 	{
-		level waittill( "say", player, message );
+		level waittill( "say", message, player );
 		if ( isDefined( player ) && !isSubStr( message, "/" ) )
 		{
 			continue;
@@ -976,63 +1062,27 @@ CMD_TEAM_ADD_f( arg_list )
 		{
 			continue;
 		}
-		for ( cmd_index = 0; cmd_index < multi_cmds.size; i++ )
+		if ( level.players_in_session[ player.name ].command_cooldown == 0 && !player.is_server )
 		{
-			namespace = toLower( multi_cmds[ cmd_index ][ "namespace" ] );
-			cmdname = toLower( multi_cmds[ cmd_index ][ "cmdname" ] );
-			args = multi_cmds[ cmd_index ][ "args" ];
-			if ( level.players_in_session[ player.name ].command_cooldown == 0 && !player.is_server )
+			for ( cmd_index = 0; cmd_index < multi_cmds.size; i++ )
 			{
-				player CMD_EXECUTE( namespace, cmdname, args );
-				player thread COMMAND_COOLDOWN();
-			}
-			else 
-			{
-				COM_PRINTF( "tell", "cmderror", va( "You cannot use another command for %s seconds", level.players_in_session[ player.name ].command_cooldown ), player );
-			}
-					case "r":
-					case "rank":
-						success = execute_rank_cmd( cmd, args );
-						break;
-					default:
-						switch ( cmdname )
-						{
-							case "mv":
-							case "mapvote":
-								if ( !is_true( level.mapvote_in_progress ) )
-								{
-									cmd_outcome_log = "CMD:" + player.name + ";MVS:" + args[ 0 ] + "\n";
-									level thread mapvote_started();
-									level thread mapvote_count_votes();
-									level thread mapvote_end();
-									level.mapvote_in_progress = 1;
-									say( "Mapvote started!" );
-								}
-								level notify( "grief_mapvote", args[ 0 ], player );
-								break;
-							case "vk":
-							case "votekick":
-								if ( level.players.size < 3 )
-								{
-									player tell( "Not enough players to initiate a votekick" );
-									break;
-								}
-								if ( !is_true( level.votekick_in_progress ) )
-								{
-									cmd_outcome_log = "CMD:" + player.name + ";VKS:" + args[ 0 ] + "\n";
-									level thread vote_kick_started();
-									level thread votekick_count_votes();
-									level.votekick_in_progress = 1;
-									say( "Votekick started!" );
-								}
-								level notify( "grief_votekick", args[ 0 ], player );
-								break;
-							default:
-								success = false;
-								break;
-						}
+				namespace = toLower( multi_cmds[ cmd_index ][ "namespace" ] );
+				cmdname = toLower( multi_cmds[ cmd_index ][ "cmdname" ] );
+				args = multi_cmds[ cmd_index ][ "args" ];
+				if ( !player has_permission_for_cmd( namespace, cmdname ) )
+				{
+					COM_PRINTF( "tell", "cmderror", va( "You do not have permission to use %s command.", cmdname ), player );
+				}
+				else 
+				{
+					player CMD_EXECUTE( namespace, cmdname, args );
+					player thread COMMAND_COOLDOWN();
 				}
 			}
+		}
+		else 
+		{
+			COM_PRINTF( "tell", "cmderror", va( "You cannot use another command for %s seconds", level.players_in_session[ player.name ].command_cooldown ), player );
 		}
 	}
 }
@@ -1042,134 +1092,31 @@ CMD_TEAM_ADD_f( arg_list )
 	start_new_round( true, round_number );
 }
 
-/*private*/ mapvote_started()
+/*public*/ has_permission_for_cmd( namespace, cmd )
 {
-	level endon( "end_game" );
-	level endon( "grief_mapvote_ended" );
-	while ( true )
-	{
-		level waittill( "grief_mapvote", vote, player );
-		if ( !isDefined( vote ) )
-		{
-			continue;
-		}
-		if ( !isDefined( player.previous_votes ) )
-		{
-			player.previous_votes = [];
-		}
-		mapname = "NULL";
-		for ( i = 0; i < level.mapvote_array.size; i++ )
-		{
-			if ( mapname != "NULL" )
-			{
-				player.has_mapvoted_previously = 1;
-				break;
-			}
-			for ( j = 0; j < level.mapvote_array[ i ].aliases.size; j++ )
-			{
-				if ( level.mapvote_array[ i ].aliases[ j ] == vote )
-				{
-					mapname = level.mapvote_array[ i ].mapname;
-					player.previous_votes[ player.previous_votes.size ] = mapname;
-					if ( is_true( player.has_mapvoted_previously ) )
-					{
-						for ( k = 0; k < player.previous_votes.size; k++ )
-						{
-							if ( player.previous_votes[ k ] != mapname )
-							{
-								level.mapvote_array[ i ].votes++;
-								player tell( "You voted for " + mapname + " which has " + level.mapvote_array[ i ].votes + "/" + get_vote_threshold() + " votes" );
-								cmd_outcome_log = "MV:" + player.name + ";V:" + mapname + "\n";
-								logprint( cmd_outcome_log );
-								break;
-							}
-						}
-					}
-					else 
-					{
-						level.mapvote_array[ i ].votes++;
-						player tell( "You voted for " + mapname + " which has " + level.mapvote_array[ i ].votes + "/" + get_vote_threshold() + " votes" );
-						cmd_outcome_log = "MV:" + player.name + ";V:" + mapname + "\n";
-						logprint( cmd_outcome_log );
-						break;
-					}
-				}
-			}
-		}
-		if ( mapname == "NULL" )
-		{
-			player tell( "Invalid map" );
-		}
-	}
-}
-
-/*private*/ mapvote_count_votes()
-{
-	level endon( "end_game" );
-	level endon( "grief_mapvote_ended" );
-	start_time = getTime() / 1000;
-	current_time = start_time;
-	while ( true )
-	{
-		for ( i = 0; i < level.mapvote_array.size; i++ )
-		{
-			if ( level.mapvote_array[ i ].votes >= get_vote_threshold() )
-			{
-				map = level.mapvote_array[ i ].mapname;
-				break;
-			}
-		}
-		if ( isDefined( map ) )
-		{
-			break;
-		}
-		if ( ( getTime() / 1000 ) > ( start_time + 600 ) )
-		{	
-			level notify( "grief_mapvote_ended" );
-		}
-		wait 0.05;
-	}
-	level notify( "grief_mapvote_ended", map );
-}
-
-/*private*/ mapvote_end()
-{
-	level waittill( "grief_mapvote_ended", result );
-	if ( isDefined( result ) )
-	{
-		mapvote_outcome_log = "MV;" + "MAP:" + result + "\n";
-		find_map_data_from_alias( toLower( result ), undefined, 0 );
-	}
-	else 
-	{
-		cmd_outcome_log = "MV:TIMEOUT;" + "\n";
-		say( "Mapvote timed out!" );
-	}
-	logprint( mapvote_outcome_log );
-	level.mapvote_in_progress = 0;
-	foreach ( player in level.players )
-	{
-		player.previous_votes = [];
-	}
-	for ( i = 0; i < level.mapvote_array.size; i++ )
-	{
-		level.mapvote_array[ i ].votes = 0;
-	}
-}
-
-/*public*/ has_permission_for_cmd( cmd )
-{
-	if ( self.is_server )
+	if ( is_true( self.is_server ) || is_true( self.is_admin ) )
 	{
 		return true;
 	}
-	if ( isSubStr( level.players_in_session[ self.name ].server_rank_system[ "cmds" ], "all" ) )
+	player_guid = self getGUID();
+	foreach ( guid in level.server_users[ "admins" ].guids )
 	{
-		return true;
+		if ( player_guid == guid )
+		{
+			self.is_admin = true;
+			return true;
+		}
 	}
-	if ( isSubStr( level.players_in_session[ self.name ].server_rank_system[ "cmds" ], cmd ) )
+	foreach ( namespace in level.grief_no_permissions_required_namespaces )
 	{
-		return true;
+		namespace_keys = strTok( namespace, " " );
+		for ( i = 0; i < namespace_keys.size; i++ )
+		{
+			if ( namespace == namespace_keys[ i ] )
+			{
+				return true;
+			}
+		}
 	}
 	return false;
 }
@@ -1181,7 +1128,7 @@ CMD_TEAM_ADD_f( arg_list )
 	namespace_filter = arg_list[ 0 ];
 	self.printing_commands = 1;
 	cmds_to_display = [];
-	channel = self.is_server ? "con" : "tell";
+	channel = is_true( self.is_server ) ? "con" : "tell";
 	namespace_keys = getArrayKeys( level.custom_commands );
 	current_page = 1;
 	user_defined_page = 1;
@@ -1195,7 +1142,7 @@ CMD_TEAM_ADD_f( arg_list )
 			for ( j = 0; j < cmdnames.size; j++ )
 			{
 				cmd_aliases = strTok( cmdnames[ j ], " " );
-				if ( self has_permission_for_cmd( cmd_aliases[ 0 ] ) )
+				if ( self has_permission_for_cmd( namespace_aliases[ 0 ], cmd_aliases[ 0 ] ) )
 				{
 					message = va( "/%s:%s", namespace_aliases[ 0 ], cmd_aliases[ 0 ] );
 					if ( channel == "con" )
@@ -1217,7 +1164,7 @@ CMD_TEAM_ADD_f( arg_list )
 							COM_PRINTF( channel, "cmdinfo", message, self );
 						}
 						COM_PRINTF( channel, "cmdinfo", va( "Displaying page %s out of %s do /showmore or /page(num) to display more commands.", current_page, level.custom_commands_page_count ), self );
-						setup_temporary_command_listener( "listener_cmdlist", 12, self );
+						setup_temporary_command_listener( "listener_cmdlist", level.custom_commands_listener_timeout, self );
 						self waittill( "listener_cmdlist", result, args );
 						clear_temporary_command_listener( "listener_cmdlist", self );
 						if ( result == "timeout" )
@@ -1295,98 +1242,6 @@ temporary_command_listener_timelimit( listener_name, timelimit )
 	level notify( "end_commands" );
 }
 
-/*private*/ vote_kick_started()
-{
-	level endon( "end_game" );
-	level endon( "grief_votekick_ended" );
-
-	for ( i = 0; i < level.players.size; i++ )
-	{
-		level.players[ i ].kick_votes = 0;
-	}
-	while ( true )
-	{
-		level waittill( "grief_votekick", player_name, player );
-		if ( !isDefined( player_name ) )
-		{
-			continue;
-		}
-		if ( is_true( player.vk_voted ) )
-		{
-			continue;
-		}
-		for( i = 0; i < level.players.size; i++ )
-		{
-			if ( clean_player_name_of_clantag( player_name ) == clean_player_name_of_clantag( level.players[ i ].name ) )
-			{	
-				level.players[ i ].kick_votes++;
-				player tell( level.players[ i ].name + " has " + level.players[ i ].kick_votes + "/" + get_vote_threshold() + " votes needed to be kicked" );
-				player.vk_voted = 1;
-			}
-		}
-	}
-}
-
-/*private*/ votekick_count_votes()
-{
-	level endon( "end_game" );
-	level endon( "grief_votekick_ended" );
-	start_time = getTime() / 1000;
-	while ( true )
-	{
-		for ( i = 0; i < level.players.size; i++ )
-		{
-			if ( level.players[ i ].kick_votes >= get_vote_threshold() )
-			{
-				kick( level.players[ i ] getEntityNumber() );
-				say( level.players[ i ].name + " was kicked!" );
-				level.votekick_in_progress = 0;
-				cmd_outcome_log = "VK;" + level.players[ i ].name + ":K" + "\n";
-				logprint( cmd_outcome_log );
-				for ( i = 0; i < level.players.size; i++ )
-				{
-					level.players[ i ].vk_voted = 0;
-				}
-				level notify( "grief_votekick_ended" );
-			}
-		}
-		if ( ( getTime() / 1000 ) > ( start_time + 600 ) )
-		{	
-			say( "Vote kick timed out!" );
-			level.votekick_in_progress = 0;
-			cmd_outcome_log = "VK;TIMEOUT" + "\n";
-			logprint( cmd_outcome_log );
-			for ( i = 0; i < level.players.size; i++ )
-			{
-				level.players[ i ].vk_voted = 0;
-			}
-			level notify( "grief_votekick_ended" );
-		}
-		wait 0.05;
-	}
-}
-
-/*private*/ get_vote_threshold()
-{
-	switch ( level.players.size )
-	{
-		case 3:
-			return 2;
-		case 4:
-			return 3;
-		case 5:
-			return 4;
-		case 6:
-			return 4;
-		case 7:
-			return 5;
-		case 8:
-			return 5;
-		default:
-			return 99;
-	}
-}
-
 /*public*/ setup_permissions()
 {
 	level.server_users = [];
@@ -1394,55 +1249,19 @@ temporary_command_listener_timelimit( listener_name, timelimit )
 	level.server_users[ "admins" ].names = [];
 	level.server_users[ "admins" ].guids = [];
 	level.server_users[ "admins" ].cmd_rate_limit = -1;
-	level.server_users[ "moderators" ] = spawnStruct();
-	level.server_users[ "moderators" ].names = [];
-	level.server_users[ "moderators" ].guids = [];
-	level.server_users[ "moderators" ].cmd_rate_limit = -1;
-	level.server_users[ "trusted" ] = spawnStruct();
-	level.server_users[ "trusted" ].names = [];
-	level.server_users[ "trusted" ].guids = [];
-	level.server_users[ "trusted" ].cmd_rate_limit = 2;
-	level.server_users[ "default" ] = spawnStruct();
-	level.server_users[ "default" ].cmd_rate_limit = 5;
-	path = level.basepath + "startup_commands.txt";
-	file = fopen( path, "r+" );
-	if ( file == -1 )
-	{
-		print( "Promod FS Error: Failed to open startup_commands.txt" );
-		return;
-	}
-	buffer = fread( file );
-	fclose( file );
-	multi_cmds = parse_cmd_message( buffer );
-	if ( multi_cmds.size == 0 )
-	{
-		print( "Promod FS Error: Found startup_commands but it was empty" );
-		return;
-	}
-	for ( i = 0; i < multi_cmds.size; i++ )
-	{
-		args = multi_cmds[ i ][ "args" ];
-		namespace = multi_cmds[ i ][ "namespace" ];
-		cmdname = multi_cmds[ i ][ "cmdname" ];
-	}
-	rank_type = strTok( buffer, ":" );
-	names_and_guids = strTok( rank_type[ 1 ], "," );
-	rank = rank_type[ 0 ];
-	for ( j = 0; j < names_and_guids.size; j++ )
-	{
-		names_keys = strTok( names_and_guids[ j ], "<" );
-		level.server_users[ rank ].names[ j ] = names_keys[ 0 ];
-	}
-	for ( j = 0; j < names_and_guids.size; j++ )
-	{
-		guids_keys = strTok( names_and_guids[ j ], "<" );
-		level.server_users[ rank ].guids[ j ] = int( guids_keys[ 1 ] );
-	}
-	level.grief_no_permissions_required_commands = [];
-	level.grief_no_permissions_required_commands[ 0 ] = "mv";
-	level.grief_no_permissions_required_commands[ 1 ] = "mapvote";
-	level.grief_no_permissions_required_commands[ 2 ] = "vk";
-	level.grief_no_permissions_required_commands[ 3 ] = "votekick";
+	// level.server_users[ "moderators" ] = spawnStruct();
+	// level.server_users[ "moderators" ].names = [];
+	// level.server_users[ "moderators" ].guids = [];
+	// level.server_users[ "moderators" ].cmd_rate_limit = -1;
+	// level.server_users[ "trusted" ] = spawnStruct();
+	// level.server_users[ "trusted" ].names = [];
+	// level.server_users[ "trusted" ].guids = [];
+	// level.server_users[ "trusted" ].cmd_rate_limit = 2;
+	// level.server_users[ "default" ] = spawnStruct();
+	// level.server_users[ "default" ].cmd_rate_limit = 5;
+	level.server_users[ "admins" ].guids = strTok( getDvar( "server_admin_guids" ), ";" );
+	level.grief_no_permissions_required_namespaces = [];
+	level.grief_no_permissions_required_namespaces[ 0 ] = "vote v";
 
 	level.mapvote_array = [];
 	level.mapvote_array[ 0 ] = spawnStruct();
@@ -1477,18 +1296,6 @@ temporary_command_listener_timelimit( listener_name, timelimit )
 	level.mapvote_array[ 7 ].mapname = "power";
 	level.mapvote_array[ 7 ].aliases = array( "p", "pow", "power" );
 	level.mapvote_array[ 7 ].votes = 0;
-
-	level.command_references = "";
-	path = level.basepath + "command_references.txt";
-	file = fopen( path, "r+" );
-	if ( file == -1 )
-	{
-		print( "Promod FS: Failed to open file " + "command_references.txt" );
-		print( "Place the scriptdata folder in storage\\t6 and try again." )
-		return;
-	}
-	level.command_references = fread( file );
-	fclose( file );
 }
 
 /*private*/ find_map_data_from_alias( alias )
@@ -1500,7 +1307,6 @@ temporary_command_listener_timelimit( listener_name, timelimit )
 		case "cell":
 		case "block":
 		case "cellblock":
-		case "mob":
 			gamemode = "grief";
 			location = "cellblock";
 			mapname = "zm_prison";
@@ -1553,9 +1359,9 @@ temporary_command_listener_timelimit( listener_name, timelimit )
 			mapname = "zm_transit";
 			break;
 		default:
-			result[ "gamemode" ] = 0;
-			result[ "location" ] = 0;
-			result[ "mapname" ] = 0;
+			result[ "gamemode" ] = "";
+			result[ "location" ] = "";
+			result[ "mapname" ] = "";
 			return result;
 	}
 	result[ "gamemode" ] = gamemode;

@@ -1,29 +1,16 @@
 #include maps/mp/_utility;
 #include maps/mp/zombies/_zm_utility;
 #include common_scripts/utility;
-
+#include scripts/zm/promod/utility/_grief_util;
+#include scripts/zm/promod/_gametype_setup;
 
 common_init()
 {
 	level.create_spawner_list_func = ::create_spawner_list;
 	level.enemy_location_override_func = ::enemy_location_override;
 	flag_wait( "initial_blackscreen_passed" );
-	turn_power_on_and_open_doors();
 	flag_wait( "start_zombie_round_logic" );
-	wait 1;
-	level notify( "revive_on" );
-	wait_network_frame();
-	level notify( "doubletap_on" );
-	wait_network_frame();
-	level notify( "marathon_on" );
-	wait_network_frame();
-	level notify( "juggernog_on" );
-	wait_network_frame();
-	level notify( "sleight_on" );
-	wait_network_frame();
-	level notify( "tombstone_on" );
-	wait_network_frame();
-	level notify( "Pack_A_Punch_on" );
+	set_power_state( level.grief_gamerules[ "power_start_state" ] );
 }
 
 enemy_location_override( zombie, enemy )
@@ -172,29 +159,6 @@ create_spawner_list( zkeys ) //modified function
 				}
 				level.zombie_spawn_locations[ level.zombie_spawn_locations.size ] = zone.spawn_locations[ i ];
 				i++;
-			}
-		}
-	}
-}
-
-turn_power_on_and_open_doors() //checked changed at own discretion
-{
-	level.local_doors_stay_open = 1;
-	level.power_local_doors_globally = 1;
-	flag_set( "power_on" );
-	level setclientfield( "zombie_power_on", 1 );
-	zombie_doors = getentarray( "zombie_door", "targetname" );
-	foreach ( door in zombie_doors )
-	{
-		if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "electric_door" )
-		{
-			door notify( "power_on" );
-		}
-		if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "local_electric_door" )
-		{
-			if ( getDvar( "ui_zm_mapstartlocation" ) != "power" )
-			{
-				door notify( "local_power_on" );
 			}
 		}
 	}

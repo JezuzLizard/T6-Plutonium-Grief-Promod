@@ -11,11 +11,7 @@
 
 struct_init()
 {
-	depot_jug = getDvarIntDefault( "grief_gamerule_depot_jug", 0 );
-	if( depot_jug )
-	{
-		register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, -5, 0), ( -6136, 5590, -63.85 ) );
-	}
+	register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, -5, 0), ( -6136, 5590, -63.85 ) );
 }
 
 precache() //checked matches cerberus output

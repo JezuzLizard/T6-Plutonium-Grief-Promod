@@ -3,6 +3,7 @@
 #include common_scripts/utility;
 #include scripts/zm/promod/utility/_grief_util;
 #include maps/mp/gametypes_zm/_globallogic_ui;
+#include scripts/zm/promod/utility/_text_parser;
 
 teams_init()
 {
