@@ -222,11 +222,11 @@ teams_init()
 	}
 }
 
-//set grief_preset_teams "player_name(team_name,is_perm) player_name(team_name,is_perm) etc"
+//set grief_preset_teams "player_name{team_name,is_perm} player_name{team_name,is_perm} etc"
 
 /*public*/ check_for_predefined_team()
 {
-	team = get_key_value_from_value( "grief_preset_teams", getDvar( "grief_preset_teams" ), self.name, "team_name" );
+	//team = get_key_value_from_value( "grief_preset_teams", getDvar( "grief_preset_teams" ), self.name, "team_name" );
 	if ( team != "" && isDefined( level.teams[ team ] ) && countPlayers( team ) < 4 )
 	{
 		self.team = team;

@@ -340,7 +340,7 @@ parse_minutes( start_time )
 
 game_start_timer() //checked matches bo3 _globallogic.gsc within reason
 {	
-	visionSetNaked( "mpOutro", 0 );
+	visionSetNaked( "cheat_bw", 0 );
 	matchStartText = createServerFontString( "objective", 1.5 );
 	matchStartText setPoint( "CENTER", "CENTER", 0, -40 );
 	matchStartText.sort = 1001;

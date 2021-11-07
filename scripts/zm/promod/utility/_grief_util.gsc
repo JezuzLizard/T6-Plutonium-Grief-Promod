@@ -2,7 +2,6 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 #include maps/mp/zombies/_zm_laststand;
-#include scripts/zm/promod/plugin/commands;
 #include maps/mp/zombies/_zm;
 #include scripts/zm/promod/_teams;
 #include maps/mp/zombies/_zm_perks;
@@ -115,7 +114,7 @@
 		}
 		if( time == 3600 ) //3mins
 		{
-			say( clean_player_name_of_clantag( self.name ) + " has been kicked for inactivity!" );
+			//say( clean_player_name_of_clantag( self.name ) + " has been kicked for inactivity!" );
 			kick( self getEntityNumber() );
 		}
 
@@ -268,44 +267,6 @@ unfreeze_all_players_controls()
 	return vector;
 }
 
-/*private*/ add_new_dvar_command( dvar_name )
-{
-	if ( !isDefined( level.dvar_commands ) ) 
-	{
-		level.dvar_commands = [];
-	}
-	if ( !isDefined( level.dvar_commands[ dvar_name ] ) )
-	{
-		level.dvar_commands[ dvar_name ] = true;
-		setDvar( dvar_name, "" );
-	}
-}
-
-/*public*/ add_dvar_commands()
-{
-	add_new_dvar_command( "dcmd" );
-	level thread dvar_command_watcher();
-}
-
-/*private*/ dvar_command_watcher()
-{
-	level endon( "end_commands" );
-	while ( true )
-	{
-		dvar_keys = getArrayKeys( level.dvar_commands );
-		foreach ( dvar in dvar_keys )
-		{
-			dvar_value = getDvar( dvar );
-			if ( dvar_value != "" )
-			{
-				level notify( "say", dvar_value, undefined );
-				setDvar( dvar, "" );
-			}
-		}
-		wait 0.05;
-	}
-}
-
 /*public*/ init_player_session_data()
 {
 	if ( !isDefined( level.players_in_session ) )
@@ -343,39 +304,6 @@ unfreeze_all_players_controls()
 //(moderator,...,...);
 //(trusted,...,...);
 //(default,...,...);
-
-/*public*/ get_server_privileges_rank()
-{
-
-}
-
-/*public*/ get_server_privileges_cmds()
-{
-	
-	//"all", "allex", "none", "noneex", "inheritall", "inheritex"
-}
-
-/*private*/ get_cmd_namespace( message )
-{
-	if ( !isSubStr( message, ":" ) )
-	{
-		return "";
-	}
-	message_tokens = strTok( message, ":" );
-	for ( i = 0; i < level.custom_commands_namespaces_total; i++ )
-	{
-		namespace_keys = getArrayKeys( level.custom_commands );
-		namespace_aliases = strTok( namespace_keys[ i ], " " );
-		for ( j = 0; j < namespace_aliases.size; j++ )
-		{
-			if ( message_tokens[ 0 ] == namespace_aliases[ j ] )
-			{
-				return namespace_keys[ i ];
-			}
-		}
-	}
-	return "";
-}
 
 /*public*/ add_random_sound( group, sound, percent_chance )
 {
@@ -479,33 +407,4 @@ server_safe_notify_thread( notify_name, index )
 {
 	wait( level.SERVER_FRAME * index );
 	level notify( notify_name );
-}
-
-find_player_in_server( clientnum_guid_or_name )
-{
-	max_players_str = getDvarInt( "sv_maxclients" ) + "";
-	if ( is_str_int( clientnum_guid_or_name ) && int( clientnum_guid_or_name ) < getDvarInt( "sv_maxclients" ) )
-	{
-		client_num = int( clientnum_guid_or_name );
-	}
-	else if ( is_str_int( clientnum_guid_or_name ) && clientnum_guid_or_name.size > max_players_str.size )
-	{
-		GUID = int( clientnum_guid_or_name );
-	}
-	else 
-	{
-		name = clientnum_guid_or_name;
-	}
-	player_data = [];
-	foreach ( player in level.players )
-	{
-		if ( isDefined( name ) && clean_player_name_of_clantag( player.name ) == clean_player_name_of_clantag( name ) || isDefined( name ) && isSubStr( player.name, name ) || isDefined( client_num ) && player getEntityNumber() == client_num || player getGUID() == GUID )
-		{
-			player_data[ "name" ] = player.name;
-			player_data[ "guid" ] = player getGUID();
-			player_data[ "clientnum" ] = player getEntityNumber();
-			return player_data;
-		}
-	}
-	return undefined;
 }

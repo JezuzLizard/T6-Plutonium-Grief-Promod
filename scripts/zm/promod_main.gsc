@@ -14,13 +14,11 @@
 #include scripts/zm/promod/zgriefp_overrides;
 #include scripts/zm/promod/_gametype_setup;
 #include scripts/zm/promod/utility/_grief_util;
-#include scripts/zm/promod/plugin/commands;
 #include scripts/zm/promod/_gamerules;
 #include scripts/zm/promod/_gametype_setup;
 #include scripts/zm/promod/_hud;
 #include scripts/zm/promod/_player_spawning;
 #include scripts/zm/promod/_teams;
-#include scripts/zm/promod/utility/_com;
 
 //Function that sets up all the overrides automatically.
 main()
@@ -46,8 +44,6 @@ main()
 	replaceFunc( maps/mp/zombies/_zm_powerups::get_next_powerup, scripts/zm/promod/zgriefp_overrides::get_next_powerup_o );
 	replaceFunc( maps/mp/zombies/_zm_powerups::get_valid_powerup, scripts/zm/promod/zgriefp_overrides::get_valid_powerup_o );
 	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::get_player_spawns_for_gametype, scripts/zm/promod/_player_spawning::get_player_spawns_for_gametype_o );
-	COM_INIT();
-	CMD_INIT();
 	damage_feedback_init();
 }
 

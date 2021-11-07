@@ -30,8 +30,6 @@ zgriefp_init()
 	//add_player_death_sounds();
 	level thread monitor_players_connecting_status();
 	level thread emptyLobbyRestart();
-	scripts/zm/promod/plugin/commands::setup_permissions();
-	scripts/zm/promod/utility/_grief_util::add_dvar_commands();
 	init_gamerules();
 	level._game_module_player_damage_callback = ::game_module_player_damage_callback;
 	level._game_module_player_damage_grief_callback = ::game_module_player_damage_grief_callback;
@@ -107,7 +105,6 @@ on_player_connect()
 		}
 		player thread give_points_on_restart_and_round_change();
 		player scripts/zm/promod/utility/_grief_util::init_player_session_data();
-		//player scripts/zm/promod/plugin/commands::player_command_setup();
 		player.killsconfirmed = 0;
 		player.stabs = 0;
 		player.assists = 0;
@@ -320,7 +317,7 @@ watch_for_down( attacker )
 				{
 					obituary_message = create_griefed_obituary_msg( self, self.last_griefed_by.attacker, self.last_griefed_by.weapon, self.last_griefed_by.meansofdeath );
 					players = array( self, self.last_griefed_by.attacker );
-					COM_PRINTF( "obituary g_log", "obituary", obituary_message, players );
+					//COM_PRINTF( "obituary g_log", "obituary", obituary_message, players );
 				}
 				attacker.killsconfirmed++;
 				attacker.pers[ "killsconfirmed" ]++;

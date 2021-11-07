@@ -3,49 +3,6 @@
 #include common_scripts/utility;
 #include scripts/zm/promod/utility/_grief_util;
 
-/*public*/ parse_cmd_message( message )
-{
-	if ( message == "" )
-	{
-		return [];
-	}
-	multi_cmds = [];
-	command_keys = [];
-	multiple_cmds_keys = strTok( message, ";" );
-	print( va( "message %s", multiple_cmds_keys[ 0 ] ) );
-	for ( i = 0; i < multiple_cmds_keys.size; i++ )
-	{
-		message = multiple_cmds_keys[ i ];
-		command_keys[ "cmdname" ] = "";
-		command_keys[ "args" ] = [];
-		command_keys[ "namespace" ] = get_cmd_namespace( message );
-		buffer_index = 0;
-		for ( ; command_keys[ "namespace" ] != "" && buffer_index < ( command_keys[ "namespace" ].size + 2 ); buffer_index++ )
-		{
-		}
-		for ( ; isDefined( message[ buffer_index ] ) && message[ buffer_index ] != " " && message[ buffer_index ] != ""; buffer_index++ )
-		{
-			command_keys[ "cmdname" ] += message[ buffer_index ];
-		}
-		for ( ; isDefined( message[ buffer_index ] ); buffer_index++ )
-		{
-			if ( message[ buffer_index ] == " " )
-			{
-				command_keys[ "args" ][ command_keys[ "args" ].size ] = "";
-			}
-			else 
-			{
-				for ( ; isDefined( message[ buffer_index ] ) && message[ buffer_index ] != "" && message[ buffer_index ] != " "; buffer_index++ )
-				{
-					command_keys[ "args" ][ command_keys[ "args" ].size - 1 ] += message[ buffer_index ];
-				}
-			}
-		}
-		multi_cmds[ multi_cmds.size ] = command_keys;
-	}
-	return multi_cmds;
-}
-
 /*public*/ remove_tokens_from_array( array, token )
 {
 	new_tokens = [];
@@ -97,7 +54,7 @@
 		result[ "error_msg" ] = "index is out of bounds.";
 		return result;
 	}
-	sub_keys = strTok( clean_str( string_keys[ index ], "()" ), "," );
+	sub_keys = strTok( clean_str( string_keys[ index ], "{}" ), "," );
 	if ( sub_index >= sub_keys.size )
 	{
 		result[ "error_msg" ] = "sub_index is out of bounds.";
@@ -117,7 +74,7 @@
 		result[ "error_msg" ] = "index is out of bounds.";
 		return result;
 	}
-	sub_keys = strTok( clean_str( string_keys[ index ], "()" ), "," );
+	sub_keys = strTok( clean_str( string_keys[ index ], "{}" ), "," );
 	if ( sub_index >= sub_keys.size )
 	{
 		result[ "error_msg" ] = "sub_index is out of bounds.";
@@ -191,7 +148,7 @@
 			result[ "key_value" ] = sub_keys[ key_index ];
 		}
 	}
-	result[ "key_value" ] = clean_str( result[ "key_value" ], "()" );
+	result[ "key_value" ] = clean_str( result[ "key_value" ], "{}" );
 	return result;
 }
 
@@ -239,7 +196,7 @@
 				result[ "error_msg" ] = va( "no map found for %s.", string_name );
 				return result;
 			}
-			sub_keys = strTok( clean_str( string_keys[ i ], "()" ), "," );
+			sub_keys = strTok( clean_str( string_keys[ i ], "{}" ), "," );
 			if ( key_index >= sub_keys.size )
 			{
 				result[ "error_msg" ] = "key_index is out of bounds.";
