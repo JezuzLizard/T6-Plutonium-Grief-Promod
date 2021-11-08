@@ -18,7 +18,7 @@ precache()
 	chest1 = getstruct( "farm_chest", "script_noteworthy" );
 	level.chests = [];
 	level.chests[ level.chests.size ] = chest1;
-	add_farm_ambiance();
+	// add_farm_ambiance();
 }
 
 farm_main()
@@ -63,10 +63,10 @@ init_standard_farm()
 	}
 }
 
-add_farm_ambiance()
-{
-	for ( i = 0; i < 5; i++ )
-	{
-		add_random_sound( "ambiance", "crow_0" + i, 10 );
-	}
-}
+// add_farm_ambiance()
+// {
+// 	for ( i = 0; i < 5; i++ )
+// 	{
+// 		add_random_sound( "ambiance", "crow_0" + i, 10 );
+// 	}
+// }

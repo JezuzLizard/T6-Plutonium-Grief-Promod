@@ -107,7 +107,7 @@
 	result[ "key_value" ] = "";
 	if ( !isSubStr( string_contents, value ) )
 	{
-		result[ "error_msg" ] = va( "string %s does not contain %s value in its contents.", string_name, value );
+		result[ "error_msg" ] = /*va( "string %s does not contain %s value in its contents.", string_name, value )*/"";
 		return result;
 	}
 	string_keys = strTok( string_contents, ";" );
@@ -130,13 +130,13 @@
 				}
 				if ( !is_valid_key )
 				{
-					result[ "error_msg" ] = va( "invalid %s key.", key );
+					result[ "error_msg" ] = /*va( "invalid %s key.", key )*/"";
 					return result;
 				}
 			}
 			else 
 			{
-				result[ "error_msg" ] = va( "no map found for %s.", string_name );
+				result[ "error_msg" ] = /*va( "no map found for %s.", string_name )*/"";
 				return result;
 			}
 			sub_keys = strTok( string_keys[ i ], "," );
@@ -159,7 +159,7 @@
 	set_value = false;
 	if ( !isSubStr( string_contents, value ) )
 	{
-		result[ "error_msg" ] = va( "string %s does not contain %s value in its contents.", string_name, value );
+		result[ "error_msg" ] = /*va( "string %s does not contain %s value in its contents.", string_name, value )*/"";
 		return result;
 	}
 	string_keys = strTok( string_contents, ";" );
@@ -187,13 +187,13 @@
 				}
 				if ( !is_valid_key || !is_valid_new_value )
 				{
-					result[ "error_msg" ] = va( "invalid %s key %s new_value pair.", key, new_value );
+					result[ "error_msg" ] = /*va( "invalid %s key %s new_value pair.", key, new_value )*/"";
 					return result;
 				}
 			}
 			else 
 			{
-				result[ "error_msg" ] = va( "no map found for %s.", string_name );
+				result[ "error_msg" ] = /*va( "no map found for %s.", string_name )*/"";
 				return result;
 			}
 			sub_keys = strTok( clean_str( string_keys[ i ], "{}" ), "," );
@@ -218,7 +218,7 @@
 	}
 	else 
 	{
-		result[ "error_message" ] = va( "couldn't find key/value pair in %s to set.", string_name );
+		result[ "error_message" ] = /*va( "couldn't find key/value pair in %s to set.", string_name )*/"";
 		return result;
 	}
 }
@@ -329,7 +329,7 @@ cast_str_to_vec( str )
 
 cast_str_to_bool( str )
 {
-	return str == "true" ? true : false;
+	return str == "true";
 }
 
 /*public*/ get_type( var )

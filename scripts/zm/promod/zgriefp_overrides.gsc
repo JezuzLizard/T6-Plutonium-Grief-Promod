@@ -35,7 +35,6 @@
 #include scripts/zm/promod/utility/_grief_util;
 #include scripts/zm/promod/zgriefp;
 #include scripts/zm/promod/_hud;
-#include scripts/zm/promod/utility/_com;
 
 treasure_chest_init_o( start_chest_name ) //checked changed to match cerberus output
 {
@@ -1046,7 +1045,7 @@ zombie_head_gib_o( attacker, means_of_death ) //checked changed to match cerberu
 	{
 		return;
 	}
-	//play_head_gib_sound();
+	play_head_gib_sound();
 	self.head_gibbed = 1;
 	self zombie_eye_glow_stop();
 	size = self getattachsize();
@@ -1088,17 +1087,17 @@ play_head_gib_sound()
 	if ( random == 0 )
 	{
 		variant = randomInt( 2 );
-		playsoundatposition( "zombie_head_0" + variant, self.origin );
+		playsoundatposition( "chr_zombie_head_gib_0" + variant, self.origin );
 	}
 	else if ( random == 1 )
 	{
 		variant = randomInt( 1 );
-		playsoundatposition( "head_0" + variant, self.origin );
+		playsoundatposition( "zmb_zombie_head_gib_0" + variant, self.origin );
 	}
 	else 
 	{
 		variant = randomInt( 1 );
-		playsoundatposition( "helmet_nd_0" + variant, self.origin );
+		playsoundatposition( "prj_bullet_impact_headshot_helmet_nodie", self.origin ); //prj_bullet_impact_headshot_2d
 	}
 }
 

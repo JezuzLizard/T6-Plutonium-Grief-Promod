@@ -16,14 +16,12 @@
 #include maps\mp\zombies\_zm_unitrigger;
 #include maps\mp\zombies\_zm_game_module;
 #include scripts\zm\promod\utility\_grief_util;
-#include scripts\zm\promod\plugin\commands;
 #include scripts\zm\promod\_hud;
 #include scripts\zm\promod\_player_spawning;
 #include scripts\zm\promod\_teams;
 #include scripts\zm\promod\zgriefp_overrides;
 #include scripts\zm\promod\_gamerules;
 #include scripts\zm\promod\utility\_damagefeedback;
-#include scripts\zm\promod\utility\_com;
 
 zgriefp_init()
 {
@@ -31,22 +29,22 @@ zgriefp_init()
 	level thread monitor_players_connecting_status();
 	level thread emptyLobbyRestart();
 	init_gamerules();
-	level._game_module_player_damage_callback = ::game_module_player_damage_callback;
-	level._game_module_player_damage_grief_callback = ::game_module_player_damage_grief_callback;
-	level.meat_bounce_override = ::meat_bounce_override;
-	level.onspawnplayerunified = scripts/zm/promod/_player_spawning::onspawnplayerunified; 
+	// level._game_module_player_damage_callback = ::game_module_player_damage_callback;
+	// level._game_module_player_damage_grief_callback = ::game_module_player_damage_grief_callback;
+	// level.meat_bounce_override = ::meat_bounce_override;
+	// level.onspawnplayerunified = scripts/zm/promod/_player_spawning::onspawnplayerunified; 
 	level.noroundnumber = 1;
 	setDvar( "g_friendlyfireDist", 0 );
 	teams_init();
-	level.game_module_onplayerconnect = ::grief_onplayerconnect;
-	level.game_mode_custom_onplayerdisconnect = ::grief_onplayerdisconnect;
-	level.grief_round_win_next_round_countdown = ::round_change_hud;
-	level.grief_round_intermission_countdown = ::intermission_hud;
-	level.grief_loadout_save = ::grief_loadout_save;
-	level.onplayerspawned_restore_previous_weapons = ::grief_laststand_weapons_return;
-	level.custom_spawnplayer = scripts/zm/promod/_player_spawning::grief_spectator_respawn;
+	// level.game_module_onplayerconnect = ::grief_onplayerconnect;
+	// level.game_mode_custom_onplayerdisconnect = ::grief_onplayerdisconnect;
+	// level.grief_round_win_next_round_countdown = ::round_change_hud;
+	// level.grief_round_intermission_countdown = ::intermission_hud;
+	// level.grief_loadout_save = ::grief_loadout_save;
+	// level.onplayerspawned_restore_previous_weapons = ::grief_laststand_weapons_return;
+	// level.custom_spawnplayer = scripts/zm/promod/_player_spawning::grief_spectator_respawn;
 	level thread on_player_connect();
-	level thread scripts/zm/promod/_hud::draw_hud();
+	//level thread scripts/zm/promod/_hud::draw_hud();
 }
 
 monitor_players_connecting_status()
@@ -68,7 +66,7 @@ set_clan_tag()
 	{
 		if ( self getGUID() == level.server_users[ "admins" ].guids[ i ] )
 		{
-			self setClanTag( "Admin" );
+			//self setClanTag( "Admin" );
 			self.grief_is_admin = 1;
 		}
 	}
@@ -294,7 +292,7 @@ do_game_mode_shellshock( attacker, meansofdeath, weapon )
 
 create_griefed_obituary_msg( victim, attacker, weapon, mod )
 {
-	return va( "OBITUARY;%s;%s;%s;%s;%s;%s", victim.team, victim.name, attacker.team, attacker.name, weapon, mod );
+	//return va( "OBITUARY;%s;%s;%s;%s;%s;%s", victim.team, victim.name, attacker.team, attacker.name, weapon, mod );
 }
 
 watch_for_down( attacker )
@@ -792,14 +790,14 @@ play_random_player_downed_sound( downed_player )
 
 }
 
-add_player_death_sounds()
-{
-	for ( i = 0; i < 6; i++ )
-	{
-		add_random_sound( "player_death", "vox_us_death_0" + i, 5 );
-	}
+// add_player_death_sounds()
+// {
+// 	for ( i = 0; i < 6; i++ )
+// 	{
+// 		add_random_sound( "player_death", "vox_us_death_0" + i, 5 );
+// 	}
 	
-}
+// }
 
 
 /*

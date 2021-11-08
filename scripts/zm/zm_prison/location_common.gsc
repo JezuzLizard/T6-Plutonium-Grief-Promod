@@ -188,3 +188,9 @@ grief_brutus_logic()
 		level thread sndforcewait();
 	}
 }
+
+sndforcewait() //checked matches cerberus output
+{
+	wait 10;
+	level.music_round_override = 0;
+}

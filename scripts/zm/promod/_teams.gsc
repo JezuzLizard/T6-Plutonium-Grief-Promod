@@ -227,12 +227,37 @@ teams_init()
 /*public*/ check_for_predefined_team()
 {
 	//team = get_key_value_from_value( "grief_preset_teams", getDvar( "grief_preset_teams" ), self.name, "team_name" );
+	axis_guids = strTok( getDvar( "grief_teams_axis_guids" ), ";" );
+	team = "";
+	if ( axis_guids.size > 0 )
+	{
+		foreach ( guid in axis_guids )
+		{
+			if ( self getGUID() == int( guid ) )
+			{
+				team = "axis";
+				break;
+			}
+		}
+	}
+	allies_guids = strTok( getDvar( "grief_teams_allies_guids" ), ";" );
+	if ( allies_guids.size > 0 && team == "" )
+	{
+		foreach ( guid in allies_guids )
+		{
+			if ( self getGUID() == int( guid ) )
+			{
+				team = "allies";
+				break;
+			}
+		}
+	}
 	if ( team != "" && isDefined( level.teams[ team ] ) && countPlayers( team ) < 4 )
 	{
 		self.team = team;
 		self.sessionteam = team;
 		self.pers[ "team" ] = team;
-		self._encounters_team = level.data_maps[ "encounters_teams" ][ "e_team" ][ level.teamIndex[ team ] ];
+		self._encounters_team = level.data_maps[ "encounters_teams" ][ "e_team" ][ level.teamIndex[ team ] - 1 ];
 	}
 }
 

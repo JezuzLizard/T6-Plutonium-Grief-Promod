@@ -284,18 +284,10 @@ unfreeze_all_players_controls()
 		{
 			level.players_in_session[ self.name ].sessionteam = undefined;
 		}
-		key_names = "tier|names|guids|cmds|privileges";
 		level.players_in_session[ self.name ].team_change_timer = 0;
 		level.players_in_session[ self.name ].team_changed_times = 0;
 		level.players_in_session[ self.name ].team_change_ban = false;
-		//level.players_in_session[ self.name ].server_rank_system = [];
-		// level.players_in_session[ self.name ].server_rank_system[ "rank" ] = self get_server_privileges_rank();
-		//level.players_in_session[ self.name ].server_rank_system[ "cmds" ] = self get_server_privileges_cmds();
-		// level.players_in_session[ self.name ].server_rank_system[ "privileges" ] = [];
-		// level.players_in_session[ self.name ].server_rank_system[ "privileges" ][ "cmd_cooldown" ] = 0;
 		level.players_in_session[ self.name ].command_cooldown = 0;
-		// level.players_in_session[ self.name ].entity_num = self getEntityNumber();
-		// level.players_in_session[ self.name ].GUID = self getGUID();
 	}
 }
 
@@ -305,18 +297,18 @@ unfreeze_all_players_controls()
 //(trusted,...,...);
 //(default,...,...);
 
-/*public*/ add_random_sound( group, sound, percent_chance )
-{
-	if ( !isDefined( level.random_sounds ) )
-	{
-		level.random_sounds = [];
-	}
-	if ( !isDefined( level.random_sounds[ group ] ) )
-	{
-		level.random_sounds[ group ] = [];
-	}
-	level.random_sounds[ group ][ sound ] = percent_chance;
-}
+// /*public*/ add_random_sound( group, sound, percent_chance )
+// {
+// 	if ( !isDefined( level.random_sounds ) )
+// 	{
+// 		level.random_sounds = [];
+// 	}
+// 	if ( !isDefined( level.random_sounds[ group ] ) )
+// 	{
+// 		level.random_sounds[ group ] = [];
+// 	}
+// 	level.random_sounds[ group ][ sound ] = percent_chance;
+// }
 
 /*public*/ play_random_sound_from_group( group, origin )
 {
