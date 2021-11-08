@@ -25,26 +25,26 @@
 main()
 {
 	level.SERVER_FRAME = 0.05;
-	// replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
-	// replaceFunc( maps/mp/zombies/_zm_magicbox::treasure_chest_init, scripts/zm/promod/zgriefp_overrides::treasure_chest_init_o );
-	// replaceFunc( maps/mp/zombies/_zm_utility::track_players_intersection_tracker, scripts/zm/promod/zgriefp_overrides::track_players_intersection_tracker_o );
-	// replaceFunc( maps/mp/zombies/_zm_utility::init_zombie_run_cycle, scripts/zm/promod/zgriefp_overrides::init_zombie_run_cycle_o );
-	// replaceFunc( maps/mp/zombies/_zm_utility::change_zombie_run_cycle, scripts/zm/promod/zgriefp_overrides::change_zombie_run_cycle_o );
-	// replaceFunc( maps/mp/gametypes_zm/_zm_gametype::rungametypeprecache, scripts/zm/promod/zgriefp_overrides::rungametypeprecache_o );
-	// replaceFunc( maps/mp/gametypes_zm/_zm_gametype::rungametypemain, scripts/zm/promod/zgriefp_overrides::rungametypemain_o );
-	// replaceFunc( maps/mp/gametypes_zm/_zm_gametype::game_objects_allowed, scripts/zm/promod/zgriefp_overrides::game_objects_allowed_o );
-	// replaceFunc( maps/mp/gametypes_zm/_zm_gametype::setup_standard_objects, scripts/zm/promod/zgriefp_overrides::setup_standard_objects_o );
-	// replaceFunc( maps/mp/gametypes_zm/_zm_gametype::setup_classic_gametype, scripts/zm/promod/zgriefp_overrides::setup_classic_gametype_o );
-	// replaceFunc( maps/mp/gametypes_zm/_zm_gametype::init, scripts/zm/promod/zgriefp_overrides::game_module_init_o );
-	// replaceFunc( maps/mp/zombies/_zm_audio_announcer::playleaderdialogonplayer, scripts/zm/promod/zgriefp_overrides::playleaderdialogonplayer_o );
-	// replaceFunc( maps/mp/zombies/_zm::round_start, scripts/zm/promod/zgriefp_overrides::game_start );
+	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
+	replaceFunc( maps/mp/zombies/_zm_magicbox::treasure_chest_init, scripts/zm/promod/zgriefp_overrides::treasure_chest_init_o );
+	replaceFunc( maps/mp/zombies/_zm_utility::track_players_intersection_tracker, scripts/zm/promod/zgriefp_overrides::track_players_intersection_tracker_o );
+	replaceFunc( maps/mp/zombies/_zm_utility::init_zombie_run_cycle, scripts/zm/promod/zgriefp_overrides::init_zombie_run_cycle_o );
+	replaceFunc( maps/mp/zombies/_zm_utility::change_zombie_run_cycle, scripts/zm/promod/zgriefp_overrides::change_zombie_run_cycle_o );
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::rungametypeprecache, scripts/zm/promod/zgriefp_overrides::rungametypeprecache_o );
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::rungametypemain, scripts/zm/promod/zgriefp_overrides::rungametypemain_o );
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::game_objects_allowed, scripts/zm/promod/zgriefp_overrides::game_objects_allowed_o );
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::setup_standard_objects, scripts/zm/promod/zgriefp_overrides::setup_standard_objects_o );
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::setup_classic_gametype, scripts/zm/promod/zgriefp_overrides::setup_classic_gametype_o );
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::init, scripts/zm/promod/zgriefp_overrides::game_module_init_o );
+	replaceFunc( maps/mp/zombies/_zm_audio_announcer::playleaderdialogonplayer, scripts/zm/promod/zgriefp_overrides::playleaderdialogonplayer_o );
+	replaceFunc( maps/mp/zombies/_zm::round_start, scripts/zm/promod/zgriefp_overrides::game_start );
 	replaceFunc( maps/mp/zombies/_zm_spawner::zombie_head_gib, scripts/zm/promod/zgriefp_overrides::zombie_head_gib_o );
-	// replaceFunc( maps/mp/zombies/_zm::onallplayersready, scripts/zm/promod/zgriefp_overrides::onallplayersready_o );
-	// replaceFunc( maps/mp/gametypes_zm/_zm_gametype::menu_onmenuresponse, scripts/zm/promod/_teams::menu_onmenuresponse_o );
-	// replaceFunc( maps/mp/zombies/_zm_powerups::randomize_powerups, scripts/zm/promod/zgriefp_overrides::randomize_powerups_o );
-	// replaceFunc( maps/mp/zombies/_zm_powerups::get_next_powerup, scripts/zm/promod/zgriefp_overrides::get_next_powerup_o );
-	// replaceFunc( maps/mp/zombies/_zm_powerups::get_valid_powerup, scripts/zm/promod/zgriefp_overrides::get_valid_powerup_o );
-	// replaceFunc( maps/mp/gametypes_zm/_zm_gametype::get_player_spawns_for_gametype, scripts/zm/promod/_player_spawning::get_player_spawns_for_gametype_o );
+	replaceFunc( maps/mp/zombies/_zm::onallplayersready, scripts/zm/promod/zgriefp_overrides::onallplayersready_o );
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::menu_onmenuresponse, scripts/zm/promod/_teams::menu_onmenuresponse_o );
+	replaceFunc( maps/mp/zombies/_zm_powerups::randomize_powerups, scripts/zm/promod/zgriefp_overrides::randomize_powerups_o );
+	replaceFunc( maps/mp/zombies/_zm_powerups::get_next_powerup, scripts/zm/promod/zgriefp_overrides::get_next_powerup_o );
+	replaceFunc( maps/mp/zombies/_zm_powerups::get_valid_powerup, scripts/zm/promod/zgriefp_overrides::get_valid_powerup_o );
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::get_player_spawns_for_gametype, scripts/zm/promod/_player_spawning::get_player_spawns_for_gametype_o );
 	damage_feedback_init();
 }
 
@@ -99,13 +99,6 @@ struct_class_init_o()
 			level.struct_class_names[ "script_unitrigger_type" ][ s_struct.script_unitrigger_type ][ size ] = s_struct;
 		}
 	}
-	// if ( array_validate( level.struct_add_funcs ) )
-	// {
-	// 	foreach ( func in level.struct_add_funcs )
-	// 	{
-	// 		[[ func ]]();
-	// 	}
-	// }
 	gametype = getDvar( "g_gametype" );
 	location = getDvar( "ui_zm_mapstartlocation" );
 	if ( array_validate( level.add_struct_gamemode_location_funcs ) )
