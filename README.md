@@ -3,7 +3,7 @@ A Plutonium mod for the Grief gamemode in zombies.
 
 ## Created by: JezuzLizard and 5and5
 
-![Screenshot](Grief_on_all_maps.png)
+[![IMAGE ALT TEXT HERE](Grief_on_all_maps.png)](https://www.youtube.com/watch?v=vuwAIZxHpWM&ab_channel=Lanevader)
 
 ## Change Notes
 
