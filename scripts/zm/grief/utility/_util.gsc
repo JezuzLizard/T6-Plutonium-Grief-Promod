@@ -149,15 +149,6 @@
 	return "NULL";
 }
 
-/*public*/ get_loser( winner )
-{
-	if ( winner == "axis" )
-	{
-		return "allies";
-	}
-	return "axis";
-} 
-
 /*public*/ all_surviving_players_invulnerable()
 {
 	players = getPlayers();
@@ -205,10 +196,6 @@ get_other_team( team )
 		return "axis";
 	}
 	else if ( team == "axis" )
-	{
-		return "allies";
-	}
-	else
 	{
 		return "allies";
 	}
@@ -288,59 +275,6 @@ unfreeze_all_players_controls()
 		level.players_in_session[ self.name ].team_changed_times = 0;
 		level.players_in_session[ self.name ].team_change_ban = false;
 		level.players_in_session[ self.name ].command_cooldown = 0;
-	}
-}
-
-//(owner,all,all);
-//(admin,...,...);
-//(moderator,...,...);
-//(trusted,...,...);
-//(default,...,...);
-
-// /*public*/ add_random_sound( group, sound, percent_chance )
-// {
-// 	if ( !isDefined( level.random_sounds ) )
-// 	{
-// 		level.random_sounds = [];
-// 	}
-// 	if ( !isDefined( level.random_sounds[ group ] ) )
-// 	{
-// 		level.random_sounds[ group ] = [];
-// 	}
-// 	level.random_sounds[ group ][ sound ] = percent_chance;
-// }
-
-/*public*/ play_random_sound_from_group( group, origin )
-{
-	if ( !isDefined( level.random_sounds[ group ] ) )
-	{
-		return;
-	}
-	sounds = getArrayKeys( level.random_sounds[ group ] );
-	random_int = randomInt( 100 );
-	sounds_can_play = [];
-	foreach ( sound in sounds )
-	{
-		if ( level.random_sounds[ group ][ sound ] >= random_int )
-		{
-			sounds_can_play[ sounds_can_play.size ] = sound;
-		}
-	}
-	if ( sounds_can_play.size > 0 )
-	{
-		sound_to_play = random( sounds_can_play );
-	}
-	else 
-	{
-		return;
-	}
-	if ( isDefined( origin ) )
-	{
-		playSoundAtPosition( sound_to_play, origin );
-	}
-	else if ( isDefined( self ) && isPlayer( self ) )
-	{
-		self playLocalSound( sound_to_play );
 	}
 }
 
