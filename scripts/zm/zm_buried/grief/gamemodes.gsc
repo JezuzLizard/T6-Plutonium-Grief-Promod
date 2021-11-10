@@ -12,14 +12,14 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-#include scripts/zm/zm_buried/loc_street;
+#include scripts/zm/zm_buried/locs/loc_street;
 
-init_o()
+init_override()
 {
 	add_map_gamemode( "zclassic", maps/mp/zm_buried::zclassic_preinit, undefined, undefined );
 	add_map_gamemode( "zcleansed", maps/mp/zm_buried::zcleansed_preinit, undefined, undefined );
 	add_map_gamemode( "zgrief", maps/mp/zm_buried::zgrief_preinit, undefined, undefined );
 	add_map_location_gamemode( "zclassic", "processing", maps/mp/zm_buried_classic::precache, maps/mp/zm_buried_classic::main );
 	add_map_location_gamemode( "zcleansed", "street", maps/mp/zm_buried_turned_street::precache, maps/mp/zm_buried_turned_street::main );
-	add_map_location_gamemode( "zgrief", "street", scripts/zm/zm_buried/loc_street::precache, scripts/zm/zm_buried/loc_street::main );
+	add_map_location_gamemode( "zgrief", "street", scripts/zm/zm_buried/locs/loc_street::precache, scripts/zm/zm_buried/locs/loc_street::main );
 }

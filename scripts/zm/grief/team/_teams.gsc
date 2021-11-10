@@ -1,13 +1,11 @@
 #include maps/mp/zombies/_zm_utility;
 #include maps/mp/_utility;
 #include common_scripts/utility;
-#include scripts/zm/promod/utility/_grief_util;
 #include maps/mp/gametypes_zm/_globallogic_ui;
-#include scripts/zm/promod/utility/_text_parser;
 
-teams_init()
+init_replacements()
 {
-	level.autoassign = ::default_menu_autoassign;
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::menu_onmenuresponse, ::menu_onmenuresponse_override );
 }
 
 player_team_setup()
@@ -53,7 +51,7 @@ player_team_setup()
 	self [[ level.givecustomcharacters ]]();
 }
 
-menu_onmenuresponse_o()
+menu_onmenuresponse_override()
 {
 	self endon( "disconnect" );
 	for ( ;; )
@@ -222,8 +220,6 @@ team_change_timer()
 	}
 }
 
-//set grief_preset_teams "player_name{team_name,is_perm} player_name{team_name,is_perm} etc"
-
 check_for_predefined_team()
 {
 	//team = get_key_value_from_value( "grief_preset_teams", getDvar( "grief_preset_teams" ), self.name, "team_name" );
@@ -258,7 +254,9 @@ check_for_predefined_team()
 		self.sessionteam = team;
 		self.pers[ "team" ] = team;
 		self._encounters_team = level.data_maps[ "encounters_teams" ][ "e_team" ][ level.teamIndex[ team ] - 1 ];
+		return true;
 	}
+	return false;
 }
 
 default_menu_autoassign( assignment )

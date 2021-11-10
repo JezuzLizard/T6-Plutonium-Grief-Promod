@@ -11,11 +11,11 @@
 #include maps/mp/zombies/_zm_utility;
 #include common_scripts/utility;
 #include maps/mp/_utility;
-#include scripts/zm/promod/_gametype_setup;
+#include scripts/zm/zm_prison/locs/location_common;
 
 struct_init()
 {
-	register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, 86, 0 ), ( 1403, 9662, 1336 ) );
+	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, 86, 0 ), ( 1403, 9662, 1336 ) );
 }
 
 precache()
@@ -241,7 +241,7 @@ main()
 		model turn_afterlife_interact_on();
 		wait 0.1;
 	}
-	scripts/zm/zm_prison/location_common::common_init();
+	scripts/zm/zm_prison/locs/location_common::common_init();
 }
 
 remove_zombie_hats_for_grief()

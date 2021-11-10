@@ -22,6 +22,8 @@ common_init()
 	//deleteslothbarricades();
 	flag_wait( "initial_blackscreen_passed" );
 	flag_wait( "start_zombie_round_logic" );
+	scripts/zm/grief/gametype_modules/_gamerules::set_power_state( level.grief_gamerules[ "power_state" ] );
+	scripts/zm/grief/gametype_modules/_gamerules::perk_restrictions();
 	wait 1;
 	builddynamicwallbuys();
 	buildbuildables();

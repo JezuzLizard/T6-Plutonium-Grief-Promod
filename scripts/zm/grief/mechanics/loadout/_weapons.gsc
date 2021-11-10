@@ -1,3 +1,4 @@
+#include maps/mp/zombies/_zm_utility;
 
 grief_loadout_save( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration )
 {
@@ -35,7 +36,7 @@ grief_laststand_weapons_return() //checked changed to match cerberus output
 {
 	if ( !isDefined( self.grief_savedweapon_weapons ) )
 	{
-		return 0;
+		return false;
 	}
 	primary_weapons_returned = 0;
 	i = 0;
@@ -110,15 +111,15 @@ grief_laststand_weapons_return() //checked changed to match cerberus output
 		if ( isDefined( self.grief_savedweapon_currentweapon ) && self.grief_savedweapon_currentweapon == weapon )
 		{
 			self switchtoweapon( weapon );
-			return 1;
+			return true;
 		}
 	}
 	if ( primaries.size > 0 )
 	{
 		self switchtoweapon( primaries[ 0 ] );
-		return 1;
+		return true;
 	}
-	return 0;
+	return false;
 }
 
 reduce_starting_ammo()

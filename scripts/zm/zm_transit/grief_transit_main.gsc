@@ -1,12 +1,7 @@
 #include scripts/zm/promod/_utility;
-#include scripts/zm/zm_transit/gamemodes;
-
-/*
-	This script handles map specific code relating to Tranzit locations. 
-	Map specific overrides and includes only.
-*/
+#include scripts/zm/zm_transit/grief/gamemodes;
 
 main()
 {
-	replaceFunc( maps/mp/zm_transit_gamemodes::init, scripts/zm/zm_transit/gamemodes::init_o );
+	replaceFunc( maps/mp/zm_transit_gamemodes::init, scripts/zm/zm_transit/grief/gamemodes::init_override );
 }

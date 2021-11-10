@@ -5,6 +5,11 @@
 #include maps/mp/gametypes_zm/_spectating;
 #include maps/mp/zombies/_zm_perks;
 
+init_replacements()
+{
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::get_player_spawns_for_gametype, ::get_player_spawns_for_gametype_override );
+}
+
 onspawnplayerunified()
 {
 	onspawnplayer( 0 );
@@ -81,7 +86,7 @@ onspawnplayer( predictedspawn )
 	self thread maps/mp/zombies/_zm_blockers::rebuild_barrier_reward_reset();
 	if ( !is_true( level.host_ended_game ) )
 	{
-		self freeze_player_controls( 0 );
+		self freezecontrols( 0 );
 		self enableweapons();
 	}
 	if ( isDefined( level.game_mode_spawn_player_logic ) )
@@ -96,7 +101,7 @@ onspawnplayer( predictedspawn )
 }
 
 
-get_player_spawns_for_gametype_o()
+get_player_spawns_for_gametype_override()
 {
 	match_string = "";
 	location = level.scr_zm_map_start_location;
@@ -220,4 +225,13 @@ remove_disconnected_players_spawnpoint_property( spawnpoints )
 			spawnpoints[ i ].player_property = "";
 		}
 	}
+}
+
+mayspawn()
+{
+	if ( !flag( "spawn_players" ) )
+	{
+		return false;
+	}
+	return true;
 }

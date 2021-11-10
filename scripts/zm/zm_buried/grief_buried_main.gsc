@@ -1,8 +1,7 @@
 
-#include scripts/zm/promod/_grief_util;
-#include scripts/zm/zm_buried/gamemodes;
+#include scripts/zm/zm_buried/grief/gamemodes;
 
 main()
 {
-	replaceFunc( maps/mp/zm_buried_gamemodes::init, scripts/zm/zm_buried/gamemodes::init_o );
+	replaceFunc( maps/mp/zm_buried_gamemodes::init, scripts/zm/zm_buried/grief/gamemodes::init_override );
 }

@@ -6,7 +6,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init_o()
+init_override()
 {
 	add_map_gamemode( "zclassic", maps/mp/zm_tomb::zstandard_preinit, undefined, undefined );
 	add_map_location_gamemode( "zclassic", "tomb", maps/mp/zm_tomb_classic::precache, maps/mp/zm_tomb_classic::main );

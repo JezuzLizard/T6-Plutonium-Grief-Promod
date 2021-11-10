@@ -1,5 +1,12 @@
+#include maps/mp/zombies/_zm_audio;
+#include maps/mp/zombies/_zm_audio_announcer;
 
-playleaderdialogonplayer_o( dialog, team, waittime )
+init_replacements()
+{
+	replaceFunc( maps/mp/zombies/_zm_audio_announcer::playleaderdialogonplayer, ::playleaderdialogonplayer_override );
+}
+
+playleaderdialogonplayer_override( dialog, team, waittime )
 {
 	self endon( "disconnect" );
 

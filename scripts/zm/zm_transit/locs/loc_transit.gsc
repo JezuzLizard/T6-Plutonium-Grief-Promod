@@ -11,7 +11,7 @@
 
 struct_init()
 {
-	register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, -5, 0), ( -6136, 5590, -63.85 ) );
+	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, -5, 0), ( -6136, 5590, -63.85 ) );
 }
 
 precache() //checked matches cerberus output
@@ -29,7 +29,7 @@ transit_main() //checked changed to match cerberus output
 	collision = spawn( "script_model", ( -6896, 4744, 0 ), 1 );
 	collision setmodel( "zm_collision_transit_busdepot_survival" );
 	collision disconnectpaths();
-	scripts/zm/zm_transit/location_common::common_init();
+	scripts/zm/zm_transit/locs/location_common::common_init();
 	nodes = getnodearray( "classic_only_traversal", "targetname" );
 	foreach ( node in nodes )
 	{

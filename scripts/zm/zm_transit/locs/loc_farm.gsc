@@ -28,7 +28,7 @@ farm_main()
 	flag_wait( "initial_blackscreen_passed" );
 	level thread maps/mp/zombies/_zm_zonemgr::enable_zone( "zone_far_ext" );
 	level thread maps/mp/zombies/_zm_zonemgr::enable_zone( "zone_brn" );
-	scripts/zm/zm_transit/location_common::common_init();
+	scripts/zm/zm_transit/locs/location_common::common_init();
 }
 
 init_standard_farm()

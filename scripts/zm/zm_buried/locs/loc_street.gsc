@@ -15,7 +15,7 @@
 #include maps/mp/zombies/_zm_weap_claymore;
 #include maps/mp/zombies/_zm_melee_weapon;
 #include maps/mp/zombies/_zm;
-#include scripts/zm/zm_buried/location_common;
+#include scripts/zm/zm_buried/locs/location_common;
 
 precache() //checked matches cerberus output
 {

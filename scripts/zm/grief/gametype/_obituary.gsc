@@ -1,7 +1,14 @@
+#include maps/mp/zombies/_zm_utility;
+#include common_scripts/utility;
 
-create_griefed_obituary_msg( victim, attacker, weapon, mod )
+// create_griefed_obituary_msg( victim, attacker, weapon, mod )
+// {
+// 	//return va( "OBITUARY;%s;%s;%s;%s;%s;%s", victim.team, victim.name, attacker.team, attacker.name, weapon, mod );
+// }
+
+init_replacements()
 {
-	//return va( "OBITUARY;%s;%s;%s;%s;%s;%s", victim.team, victim.name, attacker.team, attacker.name, weapon, mod );
+	replaceFunc( maps/mp/zombies/_zm_utility::track_players_intersection_tracker, ::track_players_intersection_tracker_override );
 }
 
 watch_for_down( attacker )
@@ -12,19 +19,19 @@ watch_for_down( attacker )
 	}
 	self.grief_already_checking_for_down = 1;
 	self waittill_notify_or_timeout( "player_downed", 4 );
-	if ( self player_is_in_laststand() )
+	if ( self maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
 	{
 		if ( isDefined( self.last_griefed_by.attacker ) )
 		{
-			self player_steal_points( self.last_griefed_by.attacker, "down_player" );
-			play_random_sound_from_group( "player_death", self.origin );
+			self scripts/zm/grief/mechanics/_point_steal::player_steal_points( self.last_griefed_by.attacker, "down_player" );
 			if ( isDefined( self.last_griefed_by.attacker ) && isDefined( self.last_griefed_by.meansofdeath ) )
 			{
 				if ( getDvarInt( "grief_killfeed_enable" ) == 1 )
 				{
-					obituary_message = create_griefed_obituary_msg( self, self.last_griefed_by.attacker, self.last_griefed_by.weapon, self.last_griefed_by.meansofdeath );
-					players = array( self, self.last_griefed_by.attacker );
+					//obituary_message = create_griefed_obituary_msg( self, self.last_griefed_by.attacker, self.last_griefed_by.weapon, self.last_griefed_by.meansofdeath );
+					//players = array( self, self.last_griefed_by.attacker );
 					//COM_PRINTF( "obituary g_log", "obituary", obituary_message, players );
+					obituary( self, self.last_griefed_by.attacker, self.last_griefed_by.weapon, self.last_griefed_by.meansofdeath );
 				}
 				attacker.killsconfirmed++;
 				attacker.pers[ "killsconfirmed" ]++;
@@ -34,7 +41,7 @@ watch_for_down( attacker )
 	self.grief_already_checking_for_down = 0;
 }
 
-track_players_intersection_tracker_o() //checked partially changed to match cerberus output //did not change while loop to for loop because continues in for loops go infinite
+track_players_intersection_tracker_override() //checked partially changed to match cerberus output //did not change while loop to for loop because continues in for loops go infinite
 {
 	self endon( "disconnect" );
 	self endon( "death" );
@@ -59,14 +66,6 @@ track_players_intersection_tracker_o() //checked partially changed to match cerb
 				{
 					j++;
 					continue;
-				}
-				if ( isDefined( level.player_intersection_tracker_override ) )
-				{
-					if ( players[ i ] [[ level.player_intersection_tracker_override ]]( players[ j ] ) )
-					{
-						j++;
-						continue;
-					}
 				}
 				playeri_origin = players[ i ].origin;
 				playerj_origin = players[ j ].origin;
@@ -97,17 +96,19 @@ track_players_intersection_tracker_o() //checked partially changed to match cerb
 				}
 				if ( is_true( players[ j ].is_grief_jumped_on ) )
 				{
-					obituary_message = create_griefed_obituary_msg( players[ i ], players[ j ], "none", "MOD_IMPACT" );
-					players = array( players[ i ], players[ j ] );
+					// obituary_message = create_griefed_obituary_msg( players[ i ], players[ j ], "none", "MOD_IMPACT" );
+					// players = array( players[ i ], players[ j ] );
 					//COM_PRINTF( "obituary g_log", "obituary", obituary_message, players );
 					players[ i ].is_grief_jumped_on = undefined;
+					obituary( players[ j ], players[ i ], "none", "MOD_IMPACT" );
 				}
 				else if ( is_true( players[ i ].is_grief_jumped_on ) )
 				{
-					obituary_message = create_griefed_obituary_msg( players[ j ], players[ i ], "none", "MOD_IMPACT" );
-					players = array( players[ j ], players[ i ] );
+					// obituary_message = create_griefed_obituary_msg( players[ j ], players[ i ], "none", "MOD_IMPACT" );
+					// players = array( players[ j ], players[ i ] );
 					//COM_PRINTF( "obituary g_log", "obituary", obituary_message, players );
 					players[ j ].is_grief_jumped_on = undefined;
+					obituary( players[ i ], players[ j ], "none", "MOD_IMPACT" );
 				}
 				killed_players = 1;
 				j++;

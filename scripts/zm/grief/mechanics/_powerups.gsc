@@ -1,22 +1,30 @@
+#include common_scripts/utility;
 
-randomize_powerups_o() //checked matches cerberus output
+init_replacements()
+{
+	replaceFunc( maps/mp/zombies/_zm_powerups::randomize_powerups, ::randomize_powerups_override );
+	replaceFunc( maps/mp/zombies/_zm_powerups::get_next_powerup, ::get_next_powerup_override );
+	replaceFunc( maps/mp/zombies/_zm_powerups::get_valid_powerup, ::get_valid_powerup_override );
+}
+
+randomize_powerups_override() //checked matches cerberus output
 {
 	level.zombie_powerup_array = array_randomize( level.zombie_powerup_array );
 }
 
-get_next_powerup_o() //checked matches cerberus output
+get_next_powerup_override() //checked matches cerberus output
 {
 	powerup = level.zombie_powerup_array[ level.zombie_powerup_index ];
 	level.zombie_powerup_index++;
 	if ( level.zombie_powerup_index >= level.zombie_powerup_array.size )
 	{
 		level.zombie_powerup_index = 0;
-		randomize_powerups_o();
+		randomize_powerups_override();
 	}
 	return powerup;
 }
 
-get_valid_powerup_o() //checked partially matches cerberus output did not change
+get_valid_powerup_override() //checked partially matches cerberus output did not change
 {
 	if ( isDefined( level.zombie_powerup_boss ) )
 	{
@@ -24,7 +32,7 @@ get_valid_powerup_o() //checked partially matches cerberus output did not change
 		level.zombie_powerup_boss = undefined;
 		return level.zombie_powerup_array[ i ];
 	}
-	powerup = get_next_powerup_o();
+	powerup = get_next_powerup_override();
 	disable_powerups = strTok( level.grief_restrictions[ "powerups" ], " " );
 	while ( 1 )
 	{
@@ -38,6 +46,6 @@ get_valid_powerup_o() //checked partially matches cerberus output did not change
 				}
 			}
 		}
-		powerup = get_next_powerup_o();	
+		powerup = get_next_powerup_override();	
 	}
 }

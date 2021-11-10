@@ -10,7 +10,8 @@ common_init()
 	level.enemy_location_override_func = ::enemy_location_override;
 	flag_wait( "initial_blackscreen_passed" );
 	flag_wait( "start_zombie_round_logic" );
-	set_power_state( level.grief_gamerules[ "power_state" ] );
+	scripts/zm/grief/gametype_modules/_gamerules::set_power_state( level.grief_gamerules[ "power_state" ] );
+	scripts/zm/grief/gametype_modules/_gamerules::perk_restrictions();
 }
 
 enemy_location_override( zombie, enemy )

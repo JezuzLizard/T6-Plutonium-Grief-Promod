@@ -1,6 +1,7 @@
+#include common_scripts/utility;
 
 //Extended Grief Mechanics
-game_module_player_damage_callback( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime ) //checked partially changed output to cerberus output
+game_module_player_damage_callback( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime )
 {
 	self.last_damage_from_zombie_or_player = 0;
 	if ( isDefined( eattacker ) )
@@ -22,13 +23,16 @@ game_module_player_damage_callback( einflictor, eattacker, idamage, idflags, sme
 			eattacker.stabs++;
 		}
 	}
-	if ( is_true( self._being_shellshocked ) || self maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
-	{
-		return;
-	}
 	if ( isplayer( eattacker ) && isDefined( eattacker._encounters_team ) && eattacker._encounters_team != self._encounters_team )
 	{
-		self player_steal_points( eattacker, smeansofdeath );
+		if ( !self maps/mp/zombies/_zm_laststand::player_is_in_laststand() && !eattacker maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
+		{
+			self scripts/zm/grief/mechanics/_point_steal::player_steal_points( eattacker, smeansofdeath );
+		}
+	}
+	if ( is_true( self._being_shellshocked ) )
+	{
+		return;
 	}
 	if ( isplayer( eattacker ) && isDefined( eattacker._encounters_team ) && eattacker._encounters_team != self._encounters_team )
 	{
@@ -52,22 +56,19 @@ game_module_player_damage_callback( einflictor, eattacker, idamage, idflags, sme
 				}
 			}
 		}
-		if ( isDefined( level._game_module_player_damage_grief_callback ) )
-		{
-			self [[ level._game_module_player_damage_grief_callback ]]( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime );
-		}
+		self game_module_player_damage_grief_callback( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime );
 		if ( isDefined( level._effect[ "butterflies" ] ) )
 		{
 			if ( isDefined( sweapon ) && weapontype( sweapon ) == "grenade" )
 			{
-				playfx( level._effect[ "butterflies" ], self.origin + vectorScale( ( 1, 1, 1 ), 40 ) );
+				playfx( level._effect[ "butterflies" ], self.origin + ( 40, 40, 40 ) );
 			}
 			else
 			{
 				playfx( level._effect[ "butterflies" ], vpoint, vdir );
 			}
 		}
-		self thread watch_for_down( eattacker );
+		self thread scripts/zm/grief/gametype/_obituary::watch_for_down( eattacker );
 		self thread do_game_mode_shellshock( eattacker, smeansofdeath, sweapon );
 		self playsound( "zmb_player_hit_ding" );
 	}
@@ -97,7 +98,7 @@ game_module_player_damage_grief_callback( einflictor, eattacker, idamage, idflag
 		if ( smeansofdeath == "MOD_MELEE" )
 		{
 			//check if player is reviving before knockback
-			if ( self is_reviving_any() )
+			if ( self maps/mp/zombies/_zm_laststand::is_reviving_any() )
 			{
 				self.is_reviving_grief = 1;
 			}
@@ -105,7 +106,7 @@ game_module_player_damage_grief_callback( einflictor, eattacker, idamage, idflag
 		}
 		else if ( is_weapon_shotgun( sweapon ) )
 		{
-			if ( self is_reviving_any() )
+			if ( self maps/mp/zombies/_zm_laststand::is_reviving_any() )
 			{
 				self.is_reviving_grief = 1;
 			}
@@ -116,7 +117,7 @@ game_module_player_damage_grief_callback( einflictor, eattacker, idamage, idflag
 	{
 		if ( self.revives == old_revives )
 		{
-			if ( !self is_reviving_any() )
+			if ( !self maps/mp/zombies/_zm_laststand::is_reviving_any() )
 			{
 				knocked_off_revive = 1;
 			}
@@ -124,7 +125,38 @@ game_module_player_damage_grief_callback( einflictor, eattacker, idamage, idflag
 	}
 	if ( is_true( knocked_off_revive ) )
 	{
-		self player_steal_points( eattacker, "deny_revive" );
+		self scripts/zm/grief/mechanics/_point_steal::player_steal_points( eattacker, "deny_revive" );
 	}
 	self.is_reviving_grief = false;
+}
+
+reset_players_last_griefed_by()
+{
+	players = getPlayers();
+	foreach ( player in players )
+	{
+		player.last_griefed_by.attacker = undefined;
+		player.last_griefed_by.meansofdeath = undefined;
+		player.last_griefed_by.weapon = undefined;
+	}
+}
+
+is_weapon_shotgun( sweapon )
+{
+	switch ( sweapon )
+	{
+		case "saiga12_zm":
+		case "saiga12_upgraded_zm":
+		case "srm1216_zm":
+		case "srm1216_upgraded_zm":
+		case "rottweil72_zm":
+		case "rottweil72_upgraded_zm":
+		case "ksg_zm":
+		case "ksg_upgraded_zm":
+		case "870mcs_zm":
+		case "870mcs_upgraded_zm":
+			return true;
+		default:
+			return false;
+	}
 }

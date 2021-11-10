@@ -31,5 +31,5 @@ town_main()
 	collision = spawn( "script_model", ( 1363, 471, 0 ), 1 );
 	collision setmodel( "zm_collision_transit_town_survival" );
 	collision disconnectpaths();
-	scripts/zm/zm_transit/location_common::common_init();
+	scripts/zm/zm_transit/locs/location_common::common_init();
 }

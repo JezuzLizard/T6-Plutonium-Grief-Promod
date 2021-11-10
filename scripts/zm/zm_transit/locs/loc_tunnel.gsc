@@ -7,19 +7,19 @@
 
 struct_init()
 {
-	register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, -180, 0 ), ( -11541, -2630, 194 ) );
-	register_perk_struct( "specialty_rof", "zombie_vending_doubletap2", ( 0, -10, 0 ), ( -11170, -590, 196 ) );
-	register_perk_struct( "specialty_longersprint", "zombie_vending_marathon", ( 0, -19, 0 ), ( -11681, -734, 228 ) );
-	register_perk_struct( "specialty_scavenger", "zombie_vending_tombstone", ( 0, -98, 0 ), ( -10664, -757, 196 ) );
-	register_perk_struct( "specialty_weapupgrade", "p6_anim_zm_buildable_pap_on", ( 0, 115, 0 ), ( -11301, -2096, 184 ) );
-	register_perk_struct( "specialty_quickrevive", "zombie_vending_quickrevive", ( 0, 270, 0 ), ( -10780, -2565, 224 ) );
-	register_perk_struct( "specialty_fastreload", "zombie_vending_sleight", ( 0, -89, 0 ), ( -11373, -1674, 192 ) );
+	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, -180, 0 ), ( -11541, -2630, 194 ) );
+	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_rof", "zombie_vending_doubletap2", ( 0, -10, 0 ), ( -11170, -590, 196 ) );
+	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_longersprint", "zombie_vending_marathon", ( 0, -19, 0 ), ( -11681, -734, 228 ) );
+	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_scavenger", "zombie_vending_tombstone", ( 0, -98, 0 ), ( -10664, -757, 196 ) );
+	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_weapupgrade", "p6_anim_zm_buildable_pap_on", ( 0, 115, 0 ), ( -11301, -2096, 184 ) );
+	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_quickrevive", "zombie_vending_quickrevive", ( 0, 270, 0 ), ( -10780, -2565, 224 ) );
+	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_fastreload", "zombie_vending_sleight", ( 0, -89, 0 ), ( -11373, -1674, 192 ) );
 	coordinates = array( ( -11196, -837, 192 ), ( -11386, -863, 192 ), ( -11405, -1000, 192 ), ( -11498, -1151, 192 ),
 							( -11398, -1326, 191 ), ( -11222, -1345, 192 ), ( -10934, -1380, 192 ), ( -10999, -1072, 192 ) );
 	angles = array( ( 0, -94, 0 ), ( 0, -44, 0 ), ( 0, -32, 0 ), ( 0, 4, 0 ), ( 0, 50, 0 ), ( 0, 157, 0 ), ( 0, -144, 0 ) );		
 	for ( i = 0; i < coordinates.size; i++ )
 	{
-		_register_map_initial_spawnpoint( coordinates[ i ], angles[ i ] );
+		scripts/zm/grief/gametype_modules/_gametype_setup::register_map_initial_spawnpoint( coordinates[ i ], angles[ i ] );
 	}
 	level.location_zones = [];
 	level.location_zones[ 0 ] = "zone_amb_tunnel";
@@ -77,23 +77,23 @@ tunnel_main()
 	init_wallbuys();
 	init_barriers();
 	maps/mp/zombies/_zm_magicbox::treasure_chest_init( random( array( "farm_chest", "start_chest" ) ) );
-	scripts/zm/zm_transit/location_common::common_init();
+	scripts/zm/zm_transit/locs/location_common::common_init();
 }
 
 init_wallbuys()
 {
-	wallbuy( ( 0, -86, 0 ), ( -11166, -2844, 247 ), "m14_zm_fx", "m14_zm", "t6_wpn_ar_m14_world", "m14", "weapon_upgrade" );
-	wallbuy( ( 0, 83, 0 ), ( -10790, -1430, 247 ), "rottweil72_zm_fx", "rottweil72_zm", "t6_wpn_shotty_olympia_world", "olympia", "weapon_upgrade" );
-	wallbuy( ( 0, 270, 0 ), ( -11839, -1695.1, 287 ), "m16_zm_fx", "m16_zm", "t6_wpn_ar_m16a2_world", "m16", "weapon_upgrade" );
-	wallbuy( ( 0, 83, 0 ), ( -10625, -545, 247 ), "mp5k_zm_fx", "mp5k_zm", "t6_wpn_smg_mp5_world", "mp5", "weapon_upgrade" );
+	scripts/zm/grief/gametype_modules/_gametype_setup::wallbuy( ( 0, -86, 0 ), ( -11166, -2844, 247 ), "m14_zm_fx", "m14_zm", "t6_wpn_ar_m14_world", "m14", "weapon_upgrade" );
+	scripts/zm/grief/gametype_modules/_gametype_setup::wallbuy( ( 0, 83, 0 ), ( -10790, -1430, 247 ), "rottweil72_zm_fx", "rottweil72_zm", "t6_wpn_shotty_olympia_world", "olympia", "weapon_upgrade" );
+	scripts/zm/grief/gametype_modules/_gametype_setup::wallbuy( ( 0, 270, 0 ), ( -11839, -1695.1, 287 ), "m16_zm_fx", "m16_zm", "t6_wpn_ar_m16a2_world", "m16", "weapon_upgrade" );
+	scripts/zm/grief/gametype_modules/_gametype_setup::wallbuy( ( 0, 83, 0 ), ( -10625, -545, 247 ), "mp5k_zm_fx", "mp5k_zm", "t6_wpn_smg_mp5_world", "mp5", "weapon_upgrade" );
 	//wallbuy( ( 0, -93, 0 ), ( -11839, -2406, 283 ), "tazer_knuckles_zm_fx", "tazer_knuckles_zm", "t6_wpn_taser_knuckles_world", "tazer_knuckles", "tazer_upgrade" );
 }
 
 init_barriers() //custom function
 {
-	barrier( ( -11250, -520, 255 ), "veh_t6_civ_movingtrk_cab_dead", ( 0, 172, 0 ) );
-	barrier( ( -11250, -580, 255 ), "collision_player_wall_256x256x10", ( 0, 180, 0 ) );
-	barrier( ( -11506, -580, 255 ), "collision_player_wall_256x256x10", ( 0, 180, 0 ) );
-	barrier( ( -10770, -3240, 255 ), "veh_t6_civ_movingtrk_cab_dead", ( 0, 214, 0 ) );
-	barrier( ( -10840, -3190, 255 ), "collision_player_wall_256x256x10", ( 0, 214, 0 ) );
+	scripts/zm/grief/gametype_modules/_gametype_setup::barrier( ( -11250, -520, 255 ), "veh_t6_civ_movingtrk_cab_dead", ( 0, 172, 0 ) );
+	scripts/zm/grief/gametype_modules/_gametype_setup::barrier( ( -11250, -580, 255 ), "collision_player_wall_256x256x10", ( 0, 180, 0 ) );
+	scripts/zm/grief/gametype_modules/_gametype_setup::barrier( ( -11506, -580, 255 ), "collision_player_wall_256x256x10", ( 0, 180, 0 ) );
+	scripts/zm/grief/gametype_modules/_gametype_setup::barrier( ( -10770, -3240, 255 ), "veh_t6_civ_movingtrk_cab_dead", ( 0, 214, 0 ) );
+	scripts/zm/grief/gametype_modules/_gametype_setup::barrier( ( -10840, -3190, 255 ), "collision_player_wall_256x256x10", ( 0, 214, 0 ) );
 }

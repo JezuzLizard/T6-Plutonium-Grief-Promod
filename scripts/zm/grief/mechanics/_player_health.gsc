@@ -1,30 +1,42 @@
+#include maps/mp/_utility;
+
+init_replacements()
+{
+	replaceFunc( maps/mp/zombies/_zm_playerhealth::onplayerspawned, ::onplayerspawned_override );
+}
+
+onplayerspawned_override()
+{
+	for ( ;; )
+	{
+		self waittill( "spawned_player" );
+		self scripts/zm/grief/mechanics/loadout/_perks::perk_set_max_health_if_jugg_override( "health_reboot", 1, 0 );
+		self notify( "noHealthOverlay" );
+		self thread playerhealthregen();
+	}
+}
+
 playerhealthregen()
 {
-	self notify( "noHealthOverlay" );
 	self notify( "playerHealthRegen" );
 	self endon( "playerHealthRegen" );
 	self endon( "death" );
 	self endon( "disconnect" );
-
 	if ( !isDefined( self.flag ) )
 	{
 		self.flag = [];
 		self.flags_lock = [];
 	}
-
 	if ( !isDefined( self.flag[ "player_has_red_flashing_overlay" ] ) )
 	{
 		self player_flag_init( "player_has_red_flashing_overlay" );
 		self player_flag_init( "player_is_invulnerable" );
 	}
-
 	self player_flag_clear( "player_has_red_flashing_overlay" );
 	self player_flag_clear( "player_is_invulnerable" );
 	self thread maps/mp/zombies/_zm_playerhealth::healthoverlay();
-
 	level.playerhealth_regularregendelay = 2000;
 	level.longregentime = 4000;
-
 	oldratio = 1;
 	veryhurt = 0;
 	playerjustgotredflashing = 0;
@@ -33,54 +45,37 @@ playerhealthregen()
 	newhealth = 0;
 	lastinvulratio = 1;
 	healthoverlaycutoff = 0.2;
-
 	self thread maps/mp/zombies/_zm_playerhealth::playerhurtcheck();
 	if ( !isDefined( self.veryhurt ) )
 	{
 		self.veryhurt = 0;
 	}
 	self.bolthit = 0;
-	
 	if ( getDvar( "scr_playerInvulTimeScale" ) == "" )
 	{
 		setdvar( "scr_playerInvulTimeScale", 1 );
 	}
 	playerinvultimescale = getDvarFloat( "scr_playerInvulTimeScale" );
-
 	for ( ;; )
 	{
 		wait 0.05;
 		waittillframeend;
-
 		health_ratio = self.health / self.maxhealth;
 		maxhealthratio = self.maxhealth / 100;
 		regenrate = 0.05 / maxhealthratio;
 		regularregendelay = 2000;
 		longregendelay = 4000;
-
 		has_revive = 0;
-		if (flag("solo_game"))
+		if ( self hasPerk("specialty_quickrevive" ) )
 		{
-			if (isDefined(self.bought_solo_revive) && self.bought_solo_revive)
-			{
-				has_revive = 1;
-			}
+			has_revive = 1;
 		}
-		else
-		{
-			if (self hasPerk("specialty_quickrevive"))
-			{
-				has_revive = 1;
-			}
-		}
-
-		if (has_revive)
+		if ( has_revive )
 		{
 			regenrate *= 1.25;
 			regularregendelay *= 0.75;
 			longregendelay *= 0.75;
 		}
-
 		if ( health_ratio > healthoverlaycutoff )
 		{
 			if ( self player_flag( "player_has_red_flashing_overlay" ) )
@@ -100,9 +95,7 @@ playerhealthregen()
 		{
 			return;
 		}
-
 		wasveryhurt = veryhurt;
-
 		if ( health_ratio <= healthoverlaycutoff )
 		{
 			veryhurt = 1;
@@ -113,13 +106,11 @@ playerhealthregen()
 				playerjustgotredflashing = 1;
 			}
 		}
-
 		if ( self.hurtagain )
 		{
 			hurttime = getTime();
 			self.hurtagain = 0;
 		}
-
 		if ( health_ratio >= oldratio )
 		{
 			if ( ( getTime() - hurttime ) < regularregendelay )
@@ -142,7 +133,6 @@ playerhealthregen()
 					newhealth += regenrate;
 				}
 			}
-
 			if ( newhealth > 1 )
 			{
 				newhealth = 1;
@@ -161,17 +151,14 @@ playerhealthregen()
 		{
 			invulworthyhealthdrop = ( lastinvulratio - health_ratio ) > level.worthydamageratio;
 		}
-
 		if ( self.health <= 1 )
 		{
 			self setnormalhealth( 1 / self.maxhealth );
 			invulworthyhealthdrop = 1;
 		}
-
 		oldratio = self.health / self.maxhealth;
 		self notify( "hit_again" );
 		hurttime = getTime();
-		
 		if ( !invulworthyhealthdrop || playerinvultimescale <= 0 )
 		{
 			continue;

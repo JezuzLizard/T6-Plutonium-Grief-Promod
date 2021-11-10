@@ -4,13 +4,66 @@
 #include maps/mp/zombies/_zm_zonemgr;
 #include maps/mp/gametypes_zm/_zm_gametype;
 #include maps/mp/zombies/_zm_utility;
-#include scripts/zm/promod/utility/_grief_util;
 #include maps/mp/zombies/_zm_weapons;
 #include maps/mp/zombies/_zm_melee_weapon;
 #include maps/mp/zombies/_zm_weap_claymore;
 #include maps/mp/zombies/_zm_weap_ballistic_knife;
 #include maps/mp/zombies/_zm_equipment;
 #include maps/mp/zombies/_zm_magicbox;
+
+init_replacements()
+{
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::rungametypeprecache, ::rungametypeprecache_override );
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::rungametypemain, ::rungametypemain_override );
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::game_objects_allowed, ::game_objects_allowed_override );
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::setup_standard_objects, ::setup_standard_objects_override );
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::setup_classic_gametype, ::setup_classic_gametype_override );
+	replaceFunc( maps/mp/zombies/_zm_zonemgr::manage_zones, ::manage_zones_override );
+}
+
+add_struct( s_struct )
+{
+	if ( isDefined( s_struct.targetname ) )
+	{
+		if ( !isDefined( level.struct_class_names[ "targetname" ][ s_struct.targetname ] ) )
+		{
+			level.struct_class_names[ "targetname" ][ s_struct.targetname ] = [];
+		}
+		size = level.struct_class_names[ "targetname" ][ s_struct.targetname ].size;
+		level.struct_class_names[ "targetname" ][ s_struct.targetname ][ size ] = s_struct;
+	}
+	if ( isDefined( s_struct.script_noteworthy ) )
+	{
+		if ( !isDefined( level.struct_class_names[ "script_noteworthy" ][ s_struct.script_noteworthy ] ) )
+		{
+			level.struct_class_names[ "script_noteworthy" ][ s_struct.script_noteworthy ] = [];
+		}
+		size = level.struct_class_names[ "script_noteworthy" ][ s_struct.script_noteworthy ].size;
+		level.struct_class_names[ "script_noteworthy" ][ s_struct.script_noteworthy ][ size ] = s_struct;
+	}
+	if ( isDefined( s_struct.target ) )
+	{
+		if ( !isDefined( level.struct_class_names[ "target" ][ s_struct.target ] ) )
+		{
+			level.struct_class_names[ "target" ][ s_struct.target ] = [];
+		}
+		size = level.struct_class_names[ "target" ][ s_struct.target ].size;
+		level.struct_class_names[ "target" ][ s_struct.target ][ size ] = s_struct;
+	}
+	if ( isDefined( s_struct.script_linkname ) )
+	{
+		level.struct_class_names[ "script_linkname" ][ s_struct.script_linkname ][ 0 ] = s_struct;
+	}
+	if ( isDefined( s_struct.script_unitrigger_type ) )
+	{
+		if ( !isDefined( level.struct_class_names[ "script_unitrigger_type" ][ s_struct.script_unitrigger_type ] ) )
+		{
+			level.struct_class_names[ "script_unitrigger_type" ][ s_struct.script_unitrigger_type ] = [];
+		}
+		size = level.struct_class_names[ "script_unitrigger_type" ][ s_struct.script_unitrigger_type ].size;
+		level.struct_class_names[ "script_unitrigger_type" ][ s_struct.script_unitrigger_type ][ size ] = s_struct;
+	}
+}
 
 register_perk_struct( perk_name, perk_model, perk_angles, perk_coordinates )
 {
@@ -27,13 +80,7 @@ register_perk_struct( perk_name, perk_model, perk_angles, perk_coordinates )
 	add_struct( perk_struct );
 }
 
-_get_perk_script_string_for_location( location, gametype )
-{ 
-	string = gametype + "_" + "perks" + "_" + location;
-	return string;
-}
-
-_register_map_initial_spawnpoint( spawnpoint_coordinates, spawnpoint_angles ) //custom function
+register_map_initial_spawnpoint( spawnpoint_coordinates, spawnpoint_angles ) //custom function
 {
 	spawnpoint_struct = spawnStruct();
 	spawnpoint_struct.origin = spawnpoint_coordinates;
@@ -48,18 +95,12 @@ _register_map_initial_spawnpoint( spawnpoint_coordinates, spawnpoint_angles ) //
 	spawnpoint_struct.radius = 32;
 	spawnpoint_struct.script_noteworthy = "initial_spawn";
 	spawnpoint_struct.script_int = 2048;
-	spawnpoint_struct.script_string = _get_spawnpoint_script_string_for_location( getDvar( "ui_zm_mapstartlocation" ), getDvar( "g_gametype" ) );
+	spawnpoint_struct.script_string = getDvar( "g_gametype" ) + "_" + getDvar( "ui_zm_mapstartlocation" );
 	spawnpoint_struct.locked = 0;
 	player_respawn_point_size = level.struct_class_names[ "targetname" ][ "player_respawn_point" ].size;
 	player_initial_spawnpoint_size = level.struct_class_names[ "script_noteworthy" ][ "initial_spawn" ].size;
 	level.struct_class_names[ "targetname" ][ "player_respawn_point" ][ player_respawn_point_size ] = spawnpoint_struct;
 	level.struct_class_names[ "script_noteworthy" ][ "initial_spawn" ][ player_initial_spawnpoint_size ] = spawnpoint_struct;
-}
-
-_get_spawnpoint_script_string_for_location( location, gametype )
-{
-	string = gametype + "_" + location;
-	return string;
 }
 
 wallbuy( weapon_angles, weapon_coordinates, chalk_fx, weapon_name, weapon_model, target, targetname )
@@ -182,7 +223,7 @@ add_struct_location_gamemode_func( gametype, location, func )
 	level.add_struct_gamemode_location_funcs[ gametype ][ location ][ level.add_struct_gamemode_location_funcs[ gametype ][ location ].size ] = func;
 }
 
-manage_zones_o( initial_zone )
+manage_zones_override( initial_zone )
 {
 	map = getDvar( "mapname" );
 	location = getDvar( "ui_zm_mapstartlocation" ); 
@@ -317,7 +358,7 @@ manage_zones_o( initial_zone )
 	}
 }
 
-rungametypeprecache_o( gamemode )
+rungametypeprecache_override( gamemode )
 {
 	if ( !isDefined( level.gamemode_map_location_main ) || !isDefined( level.gamemode_map_location_main[ gamemode ] ) )
 	{
@@ -351,13 +392,13 @@ rungametypeprecache_o( gamemode )
 	}
 }
 
-rungametypemain_o( gamemode, mode_main_func, use_round_logic )
+rungametypemain_override( gamemode, mode_main_func, use_round_logic )
 {
 	if ( !isDefined( level.gamemode_map_location_main ) || !isDefined( level.gamemode_map_location_main[ gamemode ] ) )
 	{
 		return;
 	}
-	level thread game_objects_allowed_o( getDvar( "g_gametype" ), getDvar( "ui_zm_mapstartlocation" ) );
+	level thread game_objects_allowed_override( getDvar( "g_gametype" ), getDvar( "ui_zm_mapstartlocation" ) );
 	if ( isDefined( level.gamemode_map_main ) )
 	{
 		if ( isDefined( level.gamemode_map_main[ gamemode ] ) )
@@ -382,16 +423,15 @@ rungametypemain_o( gamemode, mode_main_func, use_round_logic )
 	}
 	if ( isDefined( mode_main_func ) )
 	{
-		level thread non_round_logic_o( gamemode, mode_main_func );
+		level thread non_round_logic_override( gamemode, mode_main_func );
 	}
-	level thread game_end_func();
 }
 
-non_round_logic_o( gamemode, mode_logic_func )
+non_round_logic_override( gamemode, mode_logic_func )
 {
 	if ( gamemode == "zgrief" )
 	{
-		level thread zgrief_main_o();
+		level thread scripts/zm/grief/mechanics/_round_system::zgrief_main_override();
 	}
 	else 
 	{
@@ -399,7 +439,7 @@ non_round_logic_o( gamemode, mode_logic_func )
 	}
 }
 
-game_objects_allowed_o( mode, location )
+game_objects_allowed_override( mode, location )
 {
 	if ( location == "transit" )
 	{
@@ -451,7 +491,7 @@ game_objects_allowed_o( mode, location )
 	}
 }
 
-setup_standard_objects_o( location )
+setup_standard_objects_override( location )
 {
 	structs = getstructarray( "game_mode_object" );
 	i = 0;
@@ -511,7 +551,7 @@ setup_standard_objects_o( location )
 	}
 }
 
-setup_classic_gametype_o()
+setup_classic_gametype_override()
 {
 	ents = getentarray();
 	i = 0;
