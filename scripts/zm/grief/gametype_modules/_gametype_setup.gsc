@@ -317,57 +317,251 @@ manage_zones_o( initial_zone )
 	}
 }
 
-set_power_state( state )
+rungametypeprecache_o( gamemode )
 {
-	if ( state )
+	if ( !isDefined( level.gamemode_map_location_main ) || !isDefined( level.gamemode_map_location_main[ gamemode ] ) )
 	{
-		flag_set( "power_on" );
-		level setclientfield( "zombie_power_on", 1 );
-		zombie_doors = getentarray( "zombie_door", "targetname" );
-		foreach ( door in zombie_doors )
+		return;
+	}
+	if ( isDefined( level.gamemode_map_precache ) )
+	{
+		if ( isDefined( level.gamemode_map_precache[ gamemode ] ) )
 		{
-			if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "electric_door" )
+			[[ level.gamemode_map_precache[ gamemode ] ]]();
+		}
+	}
+	if ( isDefined( level.gamemode_map_location_precache ) )
+	{
+		if ( isDefined( level.gamemode_map_location_precache[ gamemode ] ) )
+		{
+			loc = getDvar( "ui_zm_mapstartlocation" );
+			if ( loc == "" && isDefined( level.default_start_location ) )
 			{
-				door notify( "power_on" );
+				loc = level.default_start_location;
 			}
-			if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "local_electric_door" )
+			if ( isDefined( level.gamemode_map_location_precache[ gamemode ][ loc ] ) )
 			{
-				door notify( "local_power_on" );
+				[[ level.gamemode_map_location_precache[ gamemode ][ loc ] ]]();
 			}
 		}
-		for ( i = 0; i < level.data_maps[ "perks" ][ "power_notifies" ].size; i++ )
+	}
+	if ( isDefined( level.precachecustomcharacters ) )
+	{
+		self [[ level.precachecustomcharacters ]]();
+	}
+}
+
+rungametypemain_o( gamemode, mode_main_func, use_round_logic )
+{
+	if ( !isDefined( level.gamemode_map_location_main ) || !isDefined( level.gamemode_map_location_main[ gamemode ] ) )
+	{
+		return;
+	}
+	level thread game_objects_allowed_o( getDvar( "g_gametype" ), getDvar( "ui_zm_mapstartlocation" ) );
+	if ( isDefined( level.gamemode_map_main ) )
+	{
+		if ( isDefined( level.gamemode_map_main[ gamemode ] ) )
 		{
-			if ( !isSubStr( level.grief_restrictions[ "perks" ], level.data_maps[ "perks" ][ "specialties" ][ i ] ) )
+			level thread [[ level.gamemode_map_main[ gamemode ] ]]();
+		}
+	}
+	if ( isDefined( level.gamemode_map_location_main ) )
+	{
+		if ( isDefined( level.gamemode_map_location_main[ gamemode ] ) )
+		{
+			loc = getDvar( "ui_zm_mapstartlocation" );
+			if ( loc == "" && isDefined( level.default_start_location ) )
 			{
-				level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_on", i );
-				trigger = getent( level.data_maps[ "perks" ][ "specialties" ][ i ], "script_noteworthy" );
-				trigger.machine show();
-				trigger.clip solid();
+				loc = level.default_start_location;
+			}
+			if ( isDefined( level.gamemode_map_location_main[ gamemode ][ loc ] ) )
+			{
+				level thread [[ level.gamemode_map_location_main[ gamemode ][ loc ] ]]();
 			}
 		}
+	}
+	if ( isDefined( mode_main_func ) )
+	{
+		level thread non_round_logic_o( gamemode, mode_main_func );
+	}
+	level thread game_end_func();
+}
+
+non_round_logic_o( gamemode, mode_logic_func )
+{
+	if ( gamemode == "zgrief" )
+	{
+		level thread zgrief_main_o();
 	}
 	else 
 	{
-		flag_set( "power_on" );
-		level setclientfield( "zombie_power_on", 0 );
-		zombie_doors = getentarray( "zombie_door", "targetname" );
-		foreach ( door in zombie_doors )
-		{
-			if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "electric_door" )
-			{
-				door notify( "power_off" );
-			}
-			if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "local_electric_door" )
-			{
-				door notify( "local_power_off" );
-			}
-		}
-		for ( i = 0; i < level.data_maps[ "perks" ][ "power_notifies" ].size; i++ )
-		{
-			level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_off", i );
-			trigger = getent( level.data_maps[ "perks" ][ "specialties" ][ i ], "script_noteworthy" );
-			trigger.machine ghost();
-			trigger.clip notSolid();
-		}
+		level thread [[ mode_logic_func ]]();
 	}
+}
+
+game_objects_allowed_o( mode, location )
+{
+	if ( location == "transit" )
+	{
+		location = "station";
+	}
+	allowed = [];
+	allowed[ 0 ] = mode;
+	entities = getentarray();
+	i = 0;
+	while ( i < entities.size )
+	{
+		if ( isDefined( entities[ i ].script_gameobjectname ) )
+		{
+			isallowed = maps/mp/gametypes_zm/_gameobjects::entity_is_allowed( entities[ i ], allowed );
+			isvalidlocation = maps/mp/gametypes_zm/_gameobjects::location_is_allowed( entities[ i ], location );
+			if ( !isallowed || !isvalidlocation && !is_classic() )
+			{
+				if ( isDefined( entities[ i ].spawnflags ) && entities[ i ].spawnflags == 1 )
+				{
+					if ( isDefined( entities[ i ].classname ) && entities[ i ].classname != "trigger_multiple" )
+					{
+						entities[ i ] connectpaths();
+					}
+				}
+				entities[ i ] delete();
+				i++;
+				continue;
+			}
+			if ( isDefined( entities[ i ].script_vector ) )
+			{
+				entities[ i ] moveto( entities[ i ].origin + entities[ i ].script_vector, 0.05 );
+				entities[ i ] waittill( "movedone" );
+				if ( isDefined( entities[ i ].spawnflags ) && entities[ i ].spawnflags == 1 )
+				{
+					entities[ i ] disconnectpaths();
+				}
+				i++;
+				continue;
+			}
+			if ( isDefined( entities[ i ].spawnflags ) && entities[ i ].spawnflags == 1 )
+			{
+				if ( isDefined( entities[ i ].classname ) && entities[ i ].classname != "trigger_multiple" )
+				{
+					entities[ i ] connectpaths();
+				}
+			}
+		}
+		i++;
+	}
+}
+
+setup_standard_objects_o( location )
+{
+	structs = getstructarray( "game_mode_object" );
+	i = 0;
+	while ( i < structs.size )
+	{
+		if ( isdefined( structs[ i ].script_noteworthy ) && structs[ i ].script_noteworthy != location )
+		{
+			i++;
+			continue;
+		}
+		if ( isdefined( structs[ i ].script_string ) )
+		{
+			keep = 0;
+			tokens = strtok( structs[ i ].script_string, " " );
+			foreach ( token in tokens )
+			{
+				if ( token == level.scr_zm_ui_gametype && token != "zstandard" )
+				{
+					keep = 1;
+					continue;
+				}
+				else if ( token == "zstandard" )
+				{
+					keep = 1;
+				}
+			}
+			if ( !keep )
+			{
+				i++;
+				continue;
+			}
+		}
+		barricade = spawn( "script_model", structs[ i ].origin );
+		barricade.angles = structs[ i ].angles;
+		barricade setmodel( structs[ i ].script_parameters );
+		i++;
+	}
+	objects = getentarray();
+	i = 0;
+	while ( i < objects.size )
+	{
+		if ( !objects[ i ] is_survival_object() )
+		{
+			i++;
+			continue;
+		}
+		if ( isdefined( objects[ i ].spawnflags ) && objects[ i ].spawnflags == 1 && objects[ i ].classname != "trigger_multiple" )
+		{
+			objects[ i ] connectpaths();
+		}
+		objects[ i ] delete();
+		i++;
+	}
+	if ( isdefined( level._classic_setup_func ) )
+	{
+		[[ level._classic_setup_func ]]();
+	}
+}
+
+setup_classic_gametype_o()
+{
+	ents = getentarray();
+	i = 0;
+	while ( i < ents.size )
+	{
+		if ( isDefined( ents[ i ].script_parameters ) )
+		{
+			parameters = strtok( ents[ i ].script_parameters, " " );
+			should_remove = 0;
+			foreach ( parm in parameters )
+			{
+				if ( parm == "survival_remove" )
+				{
+					should_remove = 1;
+				}
+			}
+			if ( should_remove )
+			{
+				ents[ i ] delete();
+			}
+		}
+		i++;
+	}
+	structs = getstructarray( "game_mode_object" );
+	i = 0;
+	while ( i < structs.size )
+	{
+		if ( !isdefined( structs[ i ].script_string ) )
+		{
+			i++;
+			continue;
+		}
+		tokens = strtok( structs[ i ].script_string, " " );
+		spawn_object = 0;
+		foreach ( parm in tokens )
+		{
+			if ( parm == "survival" )
+			{
+				spawn_object = 1;
+			}
+		}
+		if ( !spawn_object )
+		{
+			i++;
+			continue;
+		}
+		barricade = spawn( "script_model", structs[ i ].origin );
+		barricade.angles = structs[ i ].angles;
+		barricade setmodel( structs[ i ].script_parameters );
+		i++;
+	}
+	unlink_meat_traversal_nodes();
 }

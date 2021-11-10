@@ -69,7 +69,7 @@ init_gamerules()
 	level.grief_gamerules[ "buildables" ] = getDvarIntDefault( "grief_gamerule_buildables", 1 );
 	level.grief_gamerules[ "disable_doors" ] = getDvarIntDefault( "grief_gamerule_disable_doors", 1 );
 	level.grief_gamerules[ "zombie_round" ] = getDvarIntDefault( "grief_gamerules_zombie_round", 20 );
-	level.grief_gamerules[ "power_start_state" ] = getDvarIntDefault( "grief_gamerules_power_start_state", 1 );
+	level.grief_gamerules[ "power_state" ] = getDvarIntDefault( "grief_gamerules_power_start_state", 1 );
 	level.round_number = level.grief_gamerules[ "zombie_round" ];
 	level.grief_gamerules[ "round_zombie_spawn_delay" ] = getDvarIntDefault( "grief_gamerule_round_zombie_spawn_delay", 15 );
 	level.grief_gamerules[ "pregame_time" ] = getDvarIntDefault( "grief_gamerule_pregame_time", 15 );
@@ -101,4 +101,131 @@ init_restrictions()
 	level.grief_restrictions[ "powerups" ] = getDvar( "grief_restrictions_powerups" );
 	level.grief_restrictions[ "restrictions" ] = getDvar( "grief_restrictions_doors" );
 	parse_restrictions();
+}
+
+set_power_state( state )
+{
+	if ( state )
+	{
+		flag_set( "power_on" );
+		level setclientfield( "zombie_power_on", 1 );
+		zombie_doors = getentarray( "zombie_door", "targetname" );
+		foreach ( door in zombie_doors )
+		{
+			if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "electric_door" )
+			{
+				door notify( "power_on" );
+			}
+			if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "local_electric_door" )
+			{
+				door notify( "local_power_on" );
+			}
+		}
+		for ( i = 0; i < level.data_maps[ "perks" ][ "power_notifies" ].size; i++ )
+		{
+			if ( !isSubStr( level.grief_restrictions[ "perks" ], level.data_maps[ "perks" ][ "specialties" ][ i ] ) )
+			{
+				level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_on", i );
+				trigger = getent( level.data_maps[ "perks" ][ "specialties" ][ i ], "script_noteworthy" );
+				trigger.machine show();
+				trigger.clip solid();
+			}
+		}
+	}
+	else 
+	{
+		flag_set( "power_on" );
+		level setclientfield( "zombie_power_on", 0 );
+		zombie_doors = getentarray( "zombie_door", "targetname" );
+		foreach ( door in zombie_doors )
+		{
+			if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "electric_door" )
+			{
+				door notify( "power_off" );
+			}
+			if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "local_electric_door" )
+			{
+				door notify( "local_power_off" );
+			}
+		}
+		for ( i = 0; i < level.data_maps[ "perks" ][ "power_notifies" ].size; i++ )
+		{
+			level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_off", i );
+			trigger = getent( level.data_maps[ "perks" ][ "specialties" ][ i ], "script_noteworthy" );
+			trigger.machine ghost();
+			trigger.clip notSolid();
+		}
+	}
+}
+
+toggle_perk_power( new_power_state )
+{
+	if ( new_power_state )
+	{
+		for ( i = 0; i < level.data_maps[ "perks" ][ "power_notifies" ].size; i++ )
+		{
+			level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_on", i );
+		}
+	}
+	else 
+	{
+		for ( i = 0; i < level.data_maps[ "perks" ][ "power_notifies" ].size; i++ )
+		{
+			level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_off", i );
+		}
+	}
+}
+
+server_safe_notify_thread( notify_name, index )
+{
+	wait( index * 0.05 );
+	level notify( notify_name );
+}
+
+treasure_chest_init_o( start_chest_name ) //checked changed to match cerberus output
+{
+	flag_init( "moving_chest_enabled" );
+	flag_init( "moving_chest_now" );
+	flag_init( "chest_has_been_used" );
+	level.chest_moves = 0;
+	level.chest_level = 0;
+	if ( level.chests.size == 0 )
+	{
+		return;
+	}
+	for ( i = 0; i < level.chests.size; i++ )
+	{
+		level.chests[ i ].box_hacks = [];
+		level.chests[ i ].orig_origin = level.chests[ i ].origin;
+		level.chests[ i ] get_chest_pieces();
+		if ( isDefined( level.chests[ i ].zombie_cost ) )
+		{
+			level.chests[ i ].old_cost = level.chests[ i ].zombie_cost;
+		}
+		else 
+		{
+			level.chests[ i ].old_cost = 950;
+		}
+	}
+	if ( !level.enable_magic || !level.grief_gamerules[ "mystery_box_enabled" ] )
+	{
+		foreach( chest in level.chests )
+		{
+			chest hide_chest();
+		}
+		return;
+	}
+	level.chest_accessed = 0;
+	if ( level.chests.size > 1 )
+	{
+		flag_set( "moving_chest_enabled" );
+		level.chests = array_randomize( level.chests );
+	}
+	else
+	{
+		level.chest_index = 0;
+		level.chests[ 0 ].no_fly_away = 1;
+	}
+	init_starting_chest_location( start_chest_name );
+	array_thread( level.chests, ::treasure_chest_think );
 }

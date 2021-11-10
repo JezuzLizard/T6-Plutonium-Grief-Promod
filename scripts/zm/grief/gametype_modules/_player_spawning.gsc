@@ -10,7 +10,7 @@ onspawnplayerunified()
 	onspawnplayer( 0 );
 }
 
-/*private*/ onspawnplayer( predictedspawn )
+onspawnplayer( predictedspawn )
 {
 	if ( !isDefined( predictedspawn ) )
 	{
@@ -96,7 +96,7 @@ onspawnplayerunified()
 }
 
 
-/*private*/ get_player_spawns_for_gametype_o()
+get_player_spawns_for_gametype_o()
 {
 	match_string = "";
 	location = level.scr_zm_map_start_location;
@@ -129,7 +129,7 @@ onspawnplayerunified()
 	return player_spawns;
 }
 
-/*private*/ grief_spectator_respawn()
+grief_spectator_respawn()
 {
 	origin = self.spectator_respawn.origin;
 	angles = self.spectator_respawn.angles;
@@ -167,7 +167,7 @@ onspawnplayerunified()
 	return 1;
 }
 
-/*private*/ getfreespawnpoint( spawnpoints, player )
+getfreespawnpoint( spawnpoints, player )
 {
 	assign_spawnpoints_player_data( spawnpoints, player );
 	for ( j = 0; j < spawnpoints.size; j++ )
@@ -179,7 +179,7 @@ onspawnplayerunified()
 	}
 }
 
-/*private*/ assign_spawnpoints_player_data( spawnpoints, player )
+assign_spawnpoints_player_data( spawnpoints, player )
 {
 	remove_disconnected_players_spawnpoint_property( spawnpoints );
 	for ( i = 0; i < spawnpoints.size; i++ )
@@ -192,7 +192,7 @@ onspawnplayerunified()
 	}
 }
 
-/*private*/ remove_disconnected_players_spawnpoint_property( spawnpoints )
+remove_disconnected_players_spawnpoint_property( spawnpoints )
 {
 	for ( i = 0; i < spawnpoints.size; i++ )
 	{

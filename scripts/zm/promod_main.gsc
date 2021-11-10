@@ -24,7 +24,6 @@
 //Function that sets up all the overrides automatically.
 main()
 {
-	level.SERVER_FRAME = 0.05;
 	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_o );
 	replaceFunc( maps/mp/zombies/_zm_magicbox::treasure_chest_init, scripts/zm/promod/zgriefp_overrides::treasure_chest_init_o );
 	replaceFunc( maps/mp/zombies/_zm_utility::track_players_intersection_tracker, scripts/zm/promod/zgriefp_overrides::track_players_intersection_tracker_o );
@@ -38,7 +37,7 @@ main()
 	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::init, scripts/zm/promod/zgriefp_overrides::game_module_init_o );
 	replaceFunc( maps/mp/zombies/_zm_audio_announcer::playleaderdialogonplayer, scripts/zm/promod/zgriefp_overrides::playleaderdialogonplayer_o );
 	replaceFunc( maps/mp/zombies/_zm::round_start, scripts/zm/promod/zgriefp_overrides::game_start );
-	replaceFunc( maps/mp/zombies/_zm_spawner::zombie_head_gib, scripts/zm/promod/zgriefp_overrides::zombie_head_gib_o );
+	//replaceFunc( maps/mp/zombies/_zm_spawner::zombie_head_gib, scripts/zm/promod/zgriefp_overrides::zombie_head_gib_o );
 	replaceFunc( maps/mp/zombies/_zm::onallplayersready, scripts/zm/promod/zgriefp_overrides::onallplayersready_o );
 	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::menu_onmenuresponse, scripts/zm/promod/_teams::menu_onmenuresponse_o );
 	replaceFunc( maps/mp/zombies/_zm_powerups::randomize_powerups, scripts/zm/promod/zgriefp_overrides::randomize_powerups_o );

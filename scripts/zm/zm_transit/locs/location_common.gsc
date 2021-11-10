@@ -10,7 +10,7 @@ common_init()
 	level.enemy_location_override_func = ::enemy_location_override;
 	flag_wait( "initial_blackscreen_passed" );
 	flag_wait( "start_zombie_round_logic" );
-	set_power_state( level.grief_gamerules[ "power_start_state" ] );
+	set_power_state( level.grief_gamerules[ "power_state" ] );
 }
 
 enemy_location_override( zombie, enemy )

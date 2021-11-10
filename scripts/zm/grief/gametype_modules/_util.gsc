@@ -7,12 +7,12 @@
 #include maps/mp/zombies/_zm_perks;
 #include scripts/zm/promod/utility/_text_parser;
 
-/*public*/ array_validate( array )
+array_validate( array )
 {
 	return isDefined( array ) && isArray( array ) && array.size > 0;
 }
 
-/*public*/ add_struct( s_struct )
+add_struct( s_struct )
 {
 	if ( isDefined( s_struct.targetname ) )
 	{
@@ -56,7 +56,7 @@
 	}
 }
 
-/*public*/ emptyLobbyRestart()
+emptyLobbyRestart()
 {
 	level endon( "end_game" );
 	while ( 1 )
@@ -78,7 +78,7 @@
 	}
 }
 
-/*public*/ kill_all_zombies()
+kill_all_zombies()
 {
 	zombies = getaispeciesarray( level.zombie_team, "all" );
 	for ( i = 0; i < zombies.size; i++ )
@@ -92,7 +92,7 @@
 	}
 }
 
-/*public*/ afk_kick()
+afk_kick()
 {   
 	level endon( "game_ended" );
 	self endon("disconnect");
@@ -101,7 +101,7 @@
 		return;
 	}
 	time = 0;
-	while( 1 )
+	while( true )
 	{   
 		if ( self.sessionstate == "spectator" || level.players.size <= 2 )
 		{	
@@ -114,42 +114,14 @@
 		}
 		if( time == 3600 ) //3mins
 		{
-			//say( clean_player_name_of_clantag( self.name ) + " has been kicked for inactivity!" );
 			kick( self getEntityNumber() );
 		}
-
 		wait 0.05;
 		time++;
 	}
 }
 
-/*public*/ get_map_display_name_from_location( location )
-{
-	switch ( location )
-	{
-		case "transit":
-			return "Bus Depot";
-		case "town":
-			return "Town";
-		case "farm":
-			return "Farm";
-		case "diner":
-			return "Diner";
-		case "Power":
-			return "Power";
-		case "cornfield":
-			return "Cornfield";
-		case "Tunnel":
-			return "Tunnel";
-		case "cellblock":
-			return "Cellblock";
-		case "street":
-			return "Buried";
-	}
-	return "NULL";
-}
-
-/*public*/ all_surviving_players_invulnerable()
+all_surviving_players_invulnerable()
 {
 	players = getPlayers();
 	foreach ( player in players )
@@ -161,7 +133,7 @@
 	}
 }
 
-/*public*/ all_surviving_players_vulnerable()
+all_surviving_players_vulnerable()
 {
 	players = getPlayers();
 	foreach ( player in players )
@@ -173,7 +145,7 @@
 	}
 }
 
-/*public*/ respawn_players()
+respawn_players()
 {
 	players = getPlayers();
 	foreach ( player in players )
@@ -210,7 +182,7 @@ unfreeze_all_players_controls()
 	}
 }
 
-/*public*/ respawn_spectators_and_freeze_players()
+respawn_spectators_and_freeze_players()
 {
 	players = getPlayers();
 	foreach ( player in players )
@@ -227,22 +199,7 @@ unfreeze_all_players_controls()
 	}
 }
 
-/*public*/ make_super_sprinter( special_movespeed )
-{
-	self.zombie_move_speed = "sprint";
-	while ( 1 )
-	{
-		if ( self in_enabled_playable_area() )
-		{
-			self.zombie_move_speed = special_movespeed;
-			self notify( "zombie_movespeed_set" );
-			break;
-		}
-		wait 0.05;
-	}
-}
-
-/*public*/ cast_to_vector( vector_string )
+cast_to_vector( vector_string )
 {
 	keys = strTok( vector_string, "," );
 	vector_array = [];
@@ -254,83 +211,22 @@ unfreeze_all_players_controls()
 	return vector;
 }
 
-/*public*/ init_player_session_data()
+is_weapon_shotgun( sweapon )
 {
-	if ( !isDefined( level.players_in_session ) )
+	switch ( sweapon )
 	{
-		level.players_in_session = [];
+		case "saiga12_zm":
+		case "saiga12_upgraded_zm":
+		case "srm1216_zm":
+		case "srm1216_upgraded_zm":
+		case "rottweil72_zm":
+		case "rottweil72_upgraded_zm":
+		case "ksg_zm":
+		case "ksg_upgraded_zm":
+		case "870mcs_zm":
+		case "870mcs_upgraded_zm":
+			return true;
+		default:
+			return false;
 	}
-	if ( !isDefined( level.players_in_session[ self.name ] ) )
-	{
-		level.players_in_session[ self.name ] = spawnStruct();
-		if ( level.grief_gamerules[ "use_preset_teams" ] )
-		{
-			level.players_in_session[ self.name ].sessionteam = self check_for_predefined_team();
-		}
-		else 
-		{
-			level.players_in_session[ self.name ].sessionteam = undefined;
-		}
-		level.players_in_session[ self.name ].team_change_timer = 0;
-		level.players_in_session[ self.name ].team_changed_times = 0;
-		level.players_in_session[ self.name ].team_change_ban = false;
-		level.players_in_session[ self.name ].command_cooldown = 0;
-	}
-}
-
-/*public*/ zombie_spawn_delay_fix()
-{
-	i = 1;
-	while ( i <= level.grief_gamerules[ "zombie_round" ] )
-	{
-		timer = level.zombie_vars[ "zombie_spawn_delay" ];
-		if ( timer > 0.08 )
-		{
-			level.zombie_vars[ "zombie_spawn_delay" ] = timer * 0.95;
-			i++;
-			continue;
-		}
-		if ( timer < 0.08 )
-		{
-			level.zombie_vars[ "zombie_spawn_delay" ] = 0.08;
-			break;
-		}
-		i++;
-	}
-}
-
-/*public*/ zombie_speed_fix()
-{
-	if ( level.gamedifficulty == 0 )
-	{
-		level.zombie_move_speed = level.grief_gamerules[ "zombie_round" ] * level.zombie_vars[ "zombie_move_speed_multiplier_easy" ];
-	}
-	else
-	{
-		level.zombie_move_speed = level.grief_gamerules[ "zombie_round" ] * level.zombie_vars[ "zombie_move_speed_multiplier" ];
-	}
-}
-
-/*public*/ toggle_perk_power( new_power_state )
-{
-	if ( new_power_state )
-	{
-		for ( i = 0; i < level.data_maps[ "perks" ][ "power_notifies" ].size; i++ )
-		{
-			level notify( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_on" );
-		}
-	}
-	else 
-	{
-		for ( i = 0; i < level.data_maps[ "perks" ][ "power_notifies" ].size; i++ )
-		{
-			level notify( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_off" );
-		}
-	}
-}
-
-server_safe_notify_thread( notify_name, index )
-{
-	wait( level.SERVER_FRAME * index );
-	level notify( notify_name );
 }

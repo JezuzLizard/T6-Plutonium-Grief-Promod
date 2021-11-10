@@ -10,7 +10,7 @@ teams_init()
 	level.autoassign = ::default_menu_autoassign;
 }
 
-/*public*/ player_team_setup()
+player_team_setup()
 {
 	session_team = level.players_in_session[ self.name ].sessionteam;
 	if ( isDefined( session_team ) )
@@ -53,7 +53,7 @@ teams_init()
 	self [[ level.givecustomcharacters ]]();
 }
 
-/*private*/ menu_onmenuresponse_o()
+menu_onmenuresponse_o()
 {
 	self endon( "disconnect" );
 	for ( ;; )
@@ -121,14 +121,14 @@ teams_init()
 	}
 }
 
-/*private*/ menuteam( team )
+menuteam( team )
 {
 	self closemenus();
 	self thread change_team_next_round( team );
 	return true;
 }
 
-/*private*/ change_team_next_round( team )
+change_team_next_round( team )
 {
 	level notify( "team_change_set" );
 	level endon( "team_change_set" );
@@ -154,7 +154,7 @@ teams_init()
 	}
 }
 
-/*private*/ menuautoassign( comingfrommenu )
+menuautoassign( comingfrommenu )
 {
 	teamkeys = getarraykeys( level.teams );
 	assignment = teamkeys[ randomint( teamkeys.size ) ];
@@ -163,7 +163,7 @@ teams_init()
 	return true;
 }
 
-/*private*/ player_can_change_teams()
+player_can_change_teams()
 {
 	if ( !isDefined( level.team_change_cooldown ) )
 	{
@@ -207,12 +207,12 @@ teams_init()
 	return can_change_teams;
 }
 
-/*private*/ player_banned_from_changing_teams()
+player_banned_from_changing_teams()
 {
 	return level.players_in_session[ self.name ].team_change_ban;
 }
 
-/*private*/ team_change_timer()
+team_change_timer()
 {
 	level.players_in_session[ self.name ].team_change_timer = level.team_change_cooldown;
 	while ( level.players_in_session[ self.name ].team_change_timer > 0 )
@@ -224,7 +224,7 @@ teams_init()
 
 //set grief_preset_teams "player_name{team_name,is_perm} player_name{team_name,is_perm} etc"
 
-/*public*/ check_for_predefined_team()
+check_for_predefined_team()
 {
 	//team = get_key_value_from_value( "grief_preset_teams", getDvar( "grief_preset_teams" ), self.name, "team_name" );
 	axis_guids = strTok( getDvar( "grief_teams_axis_guids" ), ";" );

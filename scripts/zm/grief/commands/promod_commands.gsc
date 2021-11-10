@@ -30,7 +30,7 @@ main()
 
 CMD_TOGGLEPOWER_f( arg_list )
 {
-	new_power_state = !level.grief_gamerules[ "power_start_state" ];
+	new_power_state = !level.grief_gamerules[ "power_state" ];
 	set_power_state( new_power_state );
 	result[ "message" ] = va( "gamerule:power_state: Power is now %s", cast_bool_to_str( new_power_state, "on off" ) );
 	result[ "channels" ] = "con say g_log";
