@@ -1,5 +1,6 @@
 
 #include scripts/zm/zm_tomb/gamemodes;
+#include scripts/zm/grief/gametype_modules/_gametype_setup;
 
 main()
 {

@@ -1,15 +1,11 @@
 #include maps/mp/zombies/_zm_utility;
 #include maps/mp/zombies/_zm;
 #include common_scripts/utility;
+#include scripts/zm/grief/gametype/_pregame;
 
 init_replacements()
 {
-	replaceFunc( maps/mp/zombies/_zm::round_start, ::round_start_override );
-}
-
-round_start_override()
-{
-	return;
+	//replaceFunc( maps/mp/zombies/_zm::round_start, ::round_start_override );
 }
 
 generate_storage_maps()
@@ -101,7 +97,7 @@ round_winner( winner )
 	flag_set( "timer_pause" );
 	level thread all_surviving_players_invulnerable();
 	level thread kill_all_zombies();
-	level thread freeze_all_players_controls( true );
+	level thread freeze_all_players_controls();
 	level thread maps/mp/zombies/_zm_audio::change_zombie_music( "round_end" );
 	level thread round_change_hud();
 	wait level.grief_gamerules[ "next_round_time" ];
@@ -187,20 +183,19 @@ match_start()
 {
 	level.pause_timer = false;
 	scripts/zm/grief/gametype/_pregame::pregame();
-	freeze_all_players_controls( false );
-	flag_set( "start_zombie_round_logic" );
+	unfreeze_all_players_controls();
 	level thread maps/mp/zombies/_zm_audio::change_zombie_music( "round_start" );
 	level thread scripts/zm/grief/mechanics/_zombies::zombie_spawning();
-	level thread check_for_surviving_team();
+	// level thread check_for_surviving_team();
 	flag_set( "first_round" );
 	level.rounds_played = 1;
-	start_new_round( false, level.grief_gamerules[ "zombie_round" ] );
+	// start_new_round( false, level.grief_gamerules[ "zombie_round" ] );
 	flag_clear( "first_round" );
 	flag_set( "match_start" );
-	scripts/zm/grief/gametype/_hud::hud_init();
-	scripts/zm/grief/gametype/_hud::fadein_grief_hud();
-	level thread update_grief_score();
-	level thread timed_rounds();
+	// scripts/zm/grief/gametype/_hud::hud_init();
+	// scripts/zm/grief/gametype/_hud::fadein_grief_hud();
+	// level thread update_grief_score();
+	// level thread timed_rounds();
 }
 
 start_new_round( is_restart, round_number )
@@ -214,10 +209,7 @@ start_new_round( is_restart, round_number )
 	{
 		flag_clear( "spawn_zombies" );
 		level thread kill_all_zombies();
-		if ( isDefined( level._grief_reset_message ) )
-		{
-			level thread [[ level._grief_reset_message ]]();
-		}
+		level thread grief_reset_message();
 	}
 	else 
 	{
@@ -230,7 +222,7 @@ start_new_round( is_restart, round_number )
 		flag_set( "spawn_players" );
 		respawn_players();
 	}
-	freeze_all_players_controls( false );
+	unfreeze_all_players_controls();
 	level thread maps/mp/zombies/_zm_audio::change_zombie_music( "round_start" );
 	level notify( "grief_new_round" );
 	wait level.grief_gamerules[ "round_zombie_spawn_delay" ];
@@ -369,10 +361,6 @@ create_round_timer()
 	seconds_display.hidewheninmenu = 1;
 	seconds_display.horzalign = "user_left";
 	seconds_display.vertalign = "user_bottom";
-	seconds_display.alignx = "bottom";
-	seconds_display.aligny = "left";
-	seconds_display.x = 0;
-	seconds_display.y = 0;
 	seconds_display.foreground = 1;
 	seconds_display.font = "default";
 	seconds_display.fontscale = 1.5;
@@ -439,12 +427,21 @@ respawn_players()
 	}
 }
 
-freeze_all_players_controls( freeze )
+freeze_all_players_controls()
 {
 	players = getPlayers();
 	foreach ( player in players )
 	{
-		player freezeControls( freeze );
+		player freezeControls( 1 );
+	}
+}
+
+unfreeze_all_players_controls()
+{
+	players = getPlayers();
+	foreach ( player in players )
+	{
+		player freezeControls( 0 );
 	}
 }
 
@@ -456,4 +453,23 @@ update_grief_score()
 		level waittill( "grief_point", team );
 		level.grief_score_hud[ team ] SetValue( level.data_maps[ "encounters_teams" ][ "score" ][ level.teamIndex[ team ] ] );
 	}	
+}
+
+grief_reset_message()
+{
+	msg = &"ZOMBIE_GRIEF_RESET";
+	players = getPlayers();
+	if ( isDefined( level.hostmigrationtimer ) )
+	{
+		while ( isDefined( level.hostmigrationtimer ) )
+		{
+			wait 0.05;
+		}
+		wait 4;
+	}
+	foreach ( player in players )
+	{
+		player thread scripts/zm/grief/gametype/_grief_hud::show_grief_hud_msg( msg );
+	}
+	level thread maps/mp/zombies/_zm_audio_announcer::leaderdialog( "grief_restarted" );
 }

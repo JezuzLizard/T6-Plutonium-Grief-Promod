@@ -110,16 +110,19 @@ set_power_state( state )
 	{
 		flag_set( "power_on" );
 		level setclientfield( "zombie_power_on", 1 );
-		zombie_doors = getentarray( "zombie_door", "targetname" );
-		foreach ( door in zombie_doors )
+		if ( level.script == "zm_transit" )
 		{
-			if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "electric_door" )
+			zombie_doors = getentarray( "zombie_door", "targetname" );
+			foreach ( door in zombie_doors )
 			{
-				door notify( "power_on" );
-			}
-			if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "local_electric_door" )
-			{
-				door notify( "local_power_on" );
+				if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "electric_door" )
+				{
+					door notify( "power_on" );
+				}
+				else if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "local_electric_door" )
+				{
+					door notify( "local_power_on" );
+				}
 			}
 		}
 		for ( i = 0; i < level.data_maps[ "perks" ][ "power_notifies" ].size; i++ )
@@ -137,16 +140,19 @@ set_power_state( state )
 	{
 		flag_set( "power_on" );
 		level setclientfield( "zombie_power_on", 0 );
-		zombie_doors = getentarray( "zombie_door", "targetname" );
-		foreach ( door in zombie_doors )
+		if ( level.script == "zm_transit" )
 		{
-			if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "electric_door" )
+			zombie_doors = getentarray( "zombie_door", "targetname" );
+			foreach ( door in zombie_doors )
 			{
-				door notify( "power_off" );
-			}
-			if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "local_electric_door" )
-			{
-				door notify( "local_power_off" );
+				if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "electric_door" )
+				{
+					door notify( "power_off" );
+				}
+				if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "local_electric_door" )
+				{
+					door notify( "local_power_off" );
+				}
 			}
 		}
 		for ( i = 0; i < level.data_maps[ "perks" ][ "power_notifies" ].size; i++ )

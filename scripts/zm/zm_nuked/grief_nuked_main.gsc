@@ -1,5 +1,6 @@
 
 #include scripts/zm/zm_nuked/grief/gamemodes;
+#include scripts/zm/grief/gametype_modules/_gametype_setup;
 
 main()
 {

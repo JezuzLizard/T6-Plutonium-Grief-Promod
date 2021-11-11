@@ -89,13 +89,9 @@ onspawnplayer( predictedspawn )
 		self freezecontrols( 0 );
 		self enableweapons();
 	}
-	if ( isDefined( level.game_mode_spawn_player_logic ) )
+	if ( should_spawn_as_spectator() )
 	{
-		spawn_in_spectate = [[ level.game_mode_spawn_player_logic ]]();
-		if ( spawn_in_spectate )
-		{
-			self delay_thread( 0.05, maps/mp/zombies/_zm::spawnspectator );
-		}
+		self delay_thread( 0.05, maps/mp/zombies/_zm::spawnspectator );
 	}
 	pixendevent();
 }
@@ -227,11 +223,11 @@ remove_disconnected_players_spawnpoint_property( spawnpoints )
 	}
 }
 
-mayspawn()
+should_spawn_as_spectator()
 {
 	if ( !flag( "spawn_players" ) )
 	{
-		return false;
+		return true;
 	}
-	return true;
+	return false;
 }

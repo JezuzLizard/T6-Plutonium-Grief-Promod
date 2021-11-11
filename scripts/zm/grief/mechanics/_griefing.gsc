@@ -27,7 +27,7 @@ game_module_player_damage_callback( einflictor, eattacker, idamage, idflags, sme
 	{
 		if ( !self maps/mp/zombies/_zm_laststand::player_is_in_laststand() && !eattacker maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
 		{
-			self scripts/zm/grief/mechanics/_point_steal::player_steal_points( eattacker, smeansofdeath );
+			self scripts/zm/grief/mechanics/_point_steal::attacker_steal_points( eattacker, smeansofdeath );
 		}
 	}
 	if ( is_true( self._being_shellshocked ) )
@@ -125,7 +125,7 @@ game_module_player_damage_grief_callback( einflictor, eattacker, idamage, idflag
 	}
 	if ( is_true( knocked_off_revive ) )
 	{
-		self scripts/zm/grief/mechanics/_point_steal::player_steal_points( eattacker, "deny_revive" );
+		self scripts/zm/grief/mechanics/_point_steal::attacker_steal_points( eattacker, "deny_revive" );
 	}
 	self.is_reviving_grief = false;
 }

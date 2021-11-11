@@ -227,11 +227,21 @@ manage_zones_override( initial_zone )
 {
 	map = getDvar( "mapname" );
 	location = getDvar( "ui_zm_mapstartlocation" ); 
+	og_initial_zone = initial_zone;
+	initial_zone = [];
+	if ( isArray( og_inital_zone ) )
+	{
+		initial_zone = og_initial_zone;
+	}
+	else 
+	{
+		initial_zone[ 0 ] = og_initial_zone;
+	}
 	if ( array_validate( level.location_zones ) )
 	{
 		for ( i = 0; i < level.location_zones.size; i++ )
 		{
-			add_to_array( initial_zone, level.location_zones[ i ], false );
+			initial_zone[ initial_zone.size ] = level.location_zones[ i ];
 		}
 	}
 	deactivate_initial_barrier_goals();
@@ -251,6 +261,7 @@ manage_zones_override( initial_zone )
 		{
 			zone_init( initial_zone[ i ] );
 			enable_zone( initial_zone[ i ] );
+			logprint( initial_zone[ i ] + "\n" );
 		}
 	}
 	else

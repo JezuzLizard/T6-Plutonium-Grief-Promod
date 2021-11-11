@@ -19,5 +19,6 @@ init_player_session_data()
 		level.players_in_session[ self.name ].team_change_timer = 0;
 		level.players_in_session[ self.name ].team_changed_times = 0;
 		level.players_in_session[ self.name ].team_change_ban = false;
+		level.players_in_session[ self.name ].time = getTime();
 	}
 }

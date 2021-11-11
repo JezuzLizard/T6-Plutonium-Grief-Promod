@@ -6,12 +6,16 @@
 init_replacements()
 {
 	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::menu_onmenuresponse, ::menu_onmenuresponse_override );
+	level.team_change_cooldown = 60;
+	level.team_change_max = 2;
 }
 
 player_team_setup()
 {
+	teamplayersallies = countplayers( "allies" );
+	teamplayersaxis = countplayers( "axis" );
 	session_team = level.players_in_session[ self.name ].sessionteam;
-	if ( isDefined( session_team ) )
+	if ( isDefined( session_team ) && countplayers( session_team ) < 4 )
 	{
 		self.team = session_team;
 		self.sessionteam = session_team;
@@ -20,8 +24,6 @@ player_team_setup()
 	}
 	else 
 	{
-		teamplayersallies = countplayers( "allies");
-		teamplayersaxis = countplayers( "axis");
 		if ( teamplayersallies > teamplayersaxis )
 		{
 			self.team = "axis";
@@ -43,10 +45,7 @@ player_team_setup()
 			self.pers[ "team" ] = "allies";
 			self._encounters_team = "B";
 		}
-		if ( isDefined( self.team ) )
-		{
-			level.players_in_session[ self.name ].sessionteam = self.team;
-		}
+		level.players_in_session[ self.name ].sessionteam = self.team;
 	}
 	self [[ level.givecustomcharacters ]]();
 }
@@ -163,14 +162,6 @@ menuautoassign( comingfrommenu )
 
 player_can_change_teams()
 {
-	if ( !isDefined( level.team_change_cooldown ) )
-	{
-		level.team_change_cooldown = 60;
-	}
-	if ( !isDefined( level.team_change_max ) )
-	{
-		level.team_change_max = 2;
-	}
 	if ( !isDefined( self.team_num_times_changed_teams ) )
 	{
 		self.num_times_changed_teams = 0;

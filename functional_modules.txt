@@ -1,31 +1,29 @@
 //SETUP
 scripts/zm/grief/audio/_announcer_fix //VERIFIED
-//scripts/zm/grief/audio/_zombie_headshot_sfx
 //scripts/zm/grief/commands/promod_commands
 scripts/zm/grief/gametype/_grief_hud
-scripts/zm/grief/gametype/_health_bar
+scripts/zm/grief/gametype/_health_bar //VERIFIED
 scripts/zm/grief/gametype/_hud
-//scripts/zm/grief/gametype/_intermission
-scripts/zm/grief/gametype/_obituary
+scripts/zm/grief/gametype/_obituary //VERIFIED
 scripts/zm/grief/gametype/_pregame
 
-scripts/zm/grief/gametype_modules/_gamerules
+scripts/zm/grief/gametype_modules/_gamerules //VERIFIED
 scripts/zm/grief/gametype_modules/_gametype_setup
-scripts/zm/grief/gametype_modules/_player_spawning
-//scripts/zm/grief/gametype_modules/_util
+scripts/zm/grief/gametype_modules/_player_spawning //VERIFIED
+scripts/zm/grief/gametype_modules/_power //VERIFIED
 
 scripts/zm/grief/mechanics/loadout/_perks
 scripts/zm/grief/mechanics/loadout/_weapons
 
 scripts/zm/grief/mechanics/_griefing
-scripts/zm/grief/mechanics/_player_health
-scripts/zm/grief/mechanics/_point_steal
-scripts/zm/grief/mechanics/_powerups
+scripts/zm/grief/mechanics/_player_health //VERIFIED
+scripts/zm/grief/mechanics/_point_steal //VERIFIED
+//scripts/zm/grief/mechanics/_powerups
 scripts/zm/grief/mechanics/_round_system
 scripts/zm/grief/mechanics/_zombies
 
-scripts/zm/grief/persistence/_session_data
+scripts/zm/grief/persistence/_session_data //VERIFIED
 
-scripts/zm/grief/team/_teams
+scripts/zm/grief/team/_teams //VERIFIED
 
-scripts/zm/zgrief/grief_only
+scripts/zm/zgrief/grief_only //VERIFIED

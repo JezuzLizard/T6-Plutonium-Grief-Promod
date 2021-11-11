@@ -1,6 +1,6 @@
 #include maps/mp/zombies/_zm_score;
 
-player_steal_points( attacker, event )
+attacker_steal_points( attacker, event )
 {
 	if ( level.intermission )
 	{
@@ -43,10 +43,10 @@ player_steal_points( attacker, event )
 				points_to_steal = 50;
 				break;
 			case "down_player":
-				points_to_steal = 200;
+				points_to_steal = 500;
 				break;
 			case "deny_revive":
-				points_to_steal = 200;
+				points_to_steal = 300;
 				break;
 			case "deny_box_weapon_pickup":
 				points_to_steal = 100;

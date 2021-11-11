@@ -11,19 +11,18 @@
 #include maps/mp/zombies/_zm_audio_announcer;
 
 
-#include scripts/zm/grief/audio/_announcer_fix; //VERIFIED
-//scripts/zm/grief/audio/_zombie_headshot_sfx;
+#include scripts/zm/grief/audio/_announcer_fix;
 //scripts/zm/grief/commands/promod_commands;
 #include scripts/zm/grief/gametype/_grief_hud;
 #include scripts/zm/grief/gametype/_health_bar;
 #include scripts/zm/grief/gametype/_hud;
-//scripts/zm/grief/gametype/_intermission;
 #include scripts/zm/grief/gametype/_obituary;
 #include scripts/zm/grief/gametype/_pregame;
 
 #include scripts/zm/grief/gametype_modules/_gamerules;
 #include scripts/zm/grief/gametype_modules/_gametype_setup;
 #include scripts/zm/grief/gametype_modules/_player_spawning;
+#include scripts/zm/grief/gametype_modules/_power;
 
 #include scripts/zm/grief/mechanics/loadout/_perks;
 #include scripts/zm/grief/mechanics/loadout/_weapons;
@@ -41,27 +40,28 @@
 
 main()
 {
-	scripts/zm/grief/gametype_modules/_gamerules::init_gamerules();
-	scripts/zm/grief/gametype_modules/_gamerules::init_replacements();
-	scripts/zm/grief/audio/_announcer_fix::init_replacements();
-	scripts/zm/grief/mechanics/loadout/_perks::init_replacements();
-	scripts/zm/grief/gametype/_obituary::init_replacements();
-	scripts/zm/grief/gametype_modules/_gametype_setup::init_replacements();
-	scripts/zm/grief/gametype_modules/_player_spawning::init_replacements();
-	scripts/zm/grief/mechanics/_player_health::init_replacements();
-	//scripts/zm/grief/mechanics/_powerups::init_replacements();
-	scripts/zm/grief/mechanics/_round_system::init_replacements();
-	scripts/zm/grief/mechanics/_round_system::generate_storage_maps();
-	scripts/zm/grief/team/_teams::init_replacements();
-	scripts/zm/grief/mechanics/_zombies::init_replacements();
-	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_override );
-	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::init, ::game_module_init_override );
-	replaceFunc( maps/mp/zombies/_zm::onallplayersready, ::onallplayersready_override );
-	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::onplayerconnect_check_for_hotjoin, ::onplayerconnect_check_for_hotjoin_override );
-	level.crash_delay = 20;
-	level thread on_player_connect();
-	level thread emptyLobbyRestart();
-	scripts/zm/grief/gametype/_hud::hud_init();
+	scripts/zm/grief/gametype_modules/_gamerules::init_gamerules(); //part of _gamerules module
+	scripts/zm/grief/gametype_modules/_gamerules::init_replacements(); //part of _gamerules module
+	scripts/zm/grief/audio/_announcer_fix::init_replacements(); //part of _announcer_fix module
+	scripts/zm/grief/mechanics/loadout/_perks::init_replacements(); //part of _perks module
+	scripts/zm/grief/gametype/_obituary::init_replacements(); //part of _obituary module
+	// scripts/zm/grief/gametype_modules/_gametype_setup::init_replacements(); //part of _gametype_setup module
+	scripts/zm/grief/gametype_modules/_player_spawning::init_replacements(); //part of _player_spawning module
+	scripts/zm/grief/gametype_modules/_power::init_replacements(); //part of _power module
+	scripts/zm/grief/mechanics/_player_health::init_replacements(); //part of _player_health module
+	// //scripts/zm/grief/mechanics/_powerups::init_replacements(); //part of _powerups module
+	// scripts/zm/grief/mechanics/_round_system::init_replacements(); //part of _round_system module
+	scripts/zm/grief/mechanics/_round_system::generate_storage_maps(); //part of _round_system module
+	scripts/zm/grief/team/_teams::init_replacements(); //part of _teams module
+	scripts/zm/grief/mechanics/_zombies::init_replacements(); //part of _zombies module
+	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_override ); //part of _main module
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::init, ::game_module_init_override ); //part of _main module
+	replaceFunc( maps/mp/zombies/_zm::onallplayersready, ::onallplayersready_override ); //part of _main module
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::hide_gump_loading_for_hotjoiners, ::hide_gump_loading_for_hotjoiners_override ); //part of _main module
+	level.crash_delay = 20; //part of _main module
+	level thread on_player_connect(); //part of _main module
+	level thread emptyLobbyRestart(); //part of _main module
+	scripts/zm/grief/gametype/_hud::hud_init(); //part of _main module
 
 	flag_init( "match_start", 0 );
 	flag_init( "timer_pause", 0 );
@@ -71,15 +71,15 @@ main()
 
 init()
 {
+	level.playerSuicideAllowed = false;
 	level.noroundnumber = 1;
 	setDvar( "g_friendlyfireDist", 0 );
-	level.game_module_onplayerconnect = scripts/zm/grief/gametype/_grief_hud::grief_onplayerconnect;
-	level.game_mode_custom_onplayerdisconnect = scripts/zm/grief/gametype/_grief_hud::grief_onplayerdisconnect;
-	level.custom_spawnplayer = scripts/zm/grief/gametype_modules/_player_spawning::grief_spectator_respawn;
-	level._game_module_player_damage_callback = scripts/zm/grief/mechanics/_griefing::game_module_player_damage_callback;
-	level.onspawnplayerunified = scripts/zm/grief/gametype_modules/_player_spawning::onspawnplayerunified; 
-	level.custommayspawnlogic = scripts/zm/grief/gametype_modules/_player_spawning::mayspawn;
-	level.autoassign = scripts/zm/grief/team/_teams::default_menu_autoassign;
+	level.game_mode_custom_onplayerdisconnect = scripts/zm/grief/gametype/_grief_hud::grief_onplayerdisconnect; //part of _grief_hud module
+	level._game_module_player_damage_callback = scripts/zm/grief/mechanics/_griefing::game_module_player_damage_callback; //part of _griefing module
+	level.custom_spawnplayer = scripts/zm/grief/gametype_modules/_player_spawning::grief_spectator_respawn; //part of _player_spawning module
+	level.onspawnplayerunified = scripts/zm/grief/gametype_modules/_player_spawning::onspawnplayerunified; //part of _player_spawning module
+	//level.custommayspawnlogic = scripts/zm/grief/gametype_modules/_player_spawning::mayspawn; //part of _player_spawning module
+	level.autoassign = scripts/zm/grief/team/_teams::default_menu_autoassign; //part of _teams module
 }
 
 emptyLobbyRestart()
@@ -118,7 +118,7 @@ on_player_connect()
 		{
 			player setClientDvar( "aim_automelee_range", 0 );
 		}
-		player thread health_bar_hud();
+		player thread health_bar_hud(); //part of _health_bar
 		player thread on_player_spawned();
 		player thread afk_kick();
 		if ( !isDefined( player.last_griefed_by ) )
@@ -194,10 +194,7 @@ game_module_on_player_connect() //checked matches cerberus output
 	{
 		level waittill( "connected", player );
 		player thread game_module_on_player_spawned();
-		if ( isDefined( level.game_module_onplayerconnect ) )
-		{
-			player [[ level.game_module_onplayerconnect ]]();
-		}
+		player scripts/zm/grief/gametype/_grief_hud::grief_onplayerconnect();
 	}
 }
 
@@ -245,7 +242,7 @@ game_module_on_player_spawned() //checked partially changed to cerberus output
 	}
 }
 
-onplayerconnect_check_for_hotjoin_override()
+hide_gump_loading_for_hotjoiners_override()
 {
 	return;
 }
@@ -264,6 +261,7 @@ onallplayersready_override()
 	{
 		wait 0.05;
 	}
+	thread maps/mp/zombies/_zm::start_zombie_logic_in_x_sec( 3 );
 	maps/mp/zombies/_zm::fade_out_intro_screen_zm( 5, 1.5, 1 );
 }
 

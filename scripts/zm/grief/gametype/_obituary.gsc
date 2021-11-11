@@ -23,16 +23,13 @@ watch_for_down( attacker )
 	{
 		if ( isDefined( self.last_griefed_by.attacker ) )
 		{
-			self scripts/zm/grief/mechanics/_point_steal::player_steal_points( self.last_griefed_by.attacker, "down_player" );
+			self scripts/zm/grief/mechanics/_point_steal::attacker_steal_points( self.last_griefed_by.attacker, "down_player" );
 			if ( isDefined( self.last_griefed_by.attacker ) && isDefined( self.last_griefed_by.meansofdeath ) )
 			{
-				if ( getDvarInt( "grief_killfeed_enable" ) == 1 )
-				{
-					//obituary_message = create_griefed_obituary_msg( self, self.last_griefed_by.attacker, self.last_griefed_by.weapon, self.last_griefed_by.meansofdeath );
-					//players = array( self, self.last_griefed_by.attacker );
-					//COM_PRINTF( "obituary g_log", "obituary", obituary_message, players );
-					obituary( self, self.last_griefed_by.attacker, self.last_griefed_by.weapon, self.last_griefed_by.meansofdeath );
-				}
+				//obituary_message = create_griefed_obituary_msg( self, self.last_griefed_by.attacker, self.last_griefed_by.weapon, self.last_griefed_by.meansofdeath );
+				//players = array( self, self.last_griefed_by.attacker );
+				//COM_PRINTF( "obituary g_log", "obituary", obituary_message, players );
+				obituary( self, self.last_griefed_by.attacker, self.last_griefed_by.weapon, self.last_griefed_by.meansofdeath );
 				attacker.killsconfirmed++;
 				attacker.pers[ "killsconfirmed" ]++;
 			}

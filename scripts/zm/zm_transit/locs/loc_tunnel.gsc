@@ -3,7 +3,8 @@
 #include common_scripts/utility;
 #include maps/mp/_utility;
 #include maps/mp/zombies/_zm;
-#include scripts/zm/promod/_gametype_setup;
+
+#include scripts/zm/grief/gametype_modules/_gametype_setup;
 
 struct_init()
 {
