@@ -2,11 +2,6 @@
 #include common_scripts/utility;
 #include maps/mp/zombies/_zm;
 
-init_replacements()
-{
-	replaceFunc( maps/mp/zombies/_zm_utility::init_zombie_run_cycle, ::init_zombie_run_cycle_override );
-}
-
 init_zombie_run_cycle_override()
 {
 	self set_zombie_run_cycle();

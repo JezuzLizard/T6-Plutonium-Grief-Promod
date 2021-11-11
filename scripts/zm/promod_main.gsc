@@ -40,33 +40,77 @@
 
 main()
 {
-	scripts/zm/grief/gametype_modules/_gamerules::init_gamerules(); //part of _gamerules module
-	scripts/zm/grief/gametype_modules/_gamerules::init_replacements(); //part of _gamerules module
-	scripts/zm/grief/audio/_announcer_fix::init_replacements(); //part of _announcer_fix module
-	scripts/zm/grief/mechanics/loadout/_perks::init_replacements(); //part of _perks module
-	scripts/zm/grief/gametype/_obituary::init_replacements(); //part of _obituary module
-	// scripts/zm/grief/gametype_modules/_gametype_setup::init_replacements(); //part of _gametype_setup module
-	scripts/zm/grief/gametype_modules/_player_spawning::init_replacements(); //part of _player_spawning module
-	scripts/zm/grief/gametype_modules/_power::init_replacements(); //part of _power module
-	scripts/zm/grief/mechanics/_player_health::init_replacements(); //part of _player_health module
-	// //scripts/zm/grief/mechanics/_powerups::init_replacements(); //part of _powerups module
-	// scripts/zm/grief/mechanics/_round_system::init_replacements(); //part of _round_system module
-	scripts/zm/grief/mechanics/_round_system::generate_storage_maps(); //part of _round_system module
-	scripts/zm/grief/team/_teams::init_replacements(); //part of _teams module
-	scripts/zm/grief/mechanics/_zombies::init_replacements(); //part of _zombies module
-	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_override ); //part of _main module
-	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::init, ::game_module_init_override ); //part of _main module
-	replaceFunc( maps/mp/zombies/_zm::onallplayersready, ::onallplayersready_override ); //part of _main module
-	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::hide_gump_loading_for_hotjoiners, ::hide_gump_loading_for_hotjoiners_override ); //part of _main module
-	level.crash_delay = 20; //part of _main module
-	level thread on_player_connect(); //part of _main module
-	level thread emptyLobbyRestart(); //part of _main module
-	scripts/zm/grief/gametype/_hud::hud_init(); //part of _main module
+	//BEG _gametype_setup module 
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::rungametypeprecache, scripts/zm/grief/gametype_modules/_gametype_setup::rungametypeprecache_override );
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::rungametypemain, scripts/zm/grief/gametype_modules/_gametype_setup::rungametypemain_override );
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::game_objects_allowed, scripts/zm/grief/gametype_modules/_gametype_setup::game_objects_allowed_override );
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::setup_standard_objects, scripts/zm/grief/gametype_modules/_gametype_setup::setup_standard_objects_override );
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::setup_classic_gametype, scripts/zm/grief/gametype_modules/_gametype_setup::setup_classic_gametype_override );
+	replaceFunc( maps/mp/zombies/_zm_zonemgr::manage_zones, scripts/zm/grief/gametype_modules/_gametype_setup::manage_zones_override );
+	//END _gametype_setup module 
+	
+	//BEG _announcer_fix module
+	replaceFunc( maps/mp/zombies/_zm_audio_announcer::playleaderdialogonplayer, scripts/zm/grief/audio/_announcer_fix::playleaderdialogonplayer_override );
+	//END _announcer_fix module
 
+	//BEG _player_spawning module
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::get_player_spawns_for_gametype, scripts/zm/grief/gametype_modules/_player_spawning::get_player_spawns_for_gametype_override );
+	//END _player_spawning module
+
+	//BEG _gamerules module
+	scripts/zm/grief/gametype_modules/_gamerules::init_gamerules();
+	replaceFunc( maps/mp/zombies/_zm_magicbox::treasure_chest_init, scripts/zm/grief/gametype_modules/_gamerules::treasure_chest_init_override );
+	//END _gamerules module
+
+	//BEG _perks module
+	replaceFunc( maps/mp/zombies/_zm_perks::perk_set_max_health_if_jugg, scripts/zm/grief/mechanics/loadout/_perks::perk_set_max_health_if_jugg_override );
+	//END _perks module
+
+	//BEG _power module
+	replaceFunc( maps/mp/zombies/_zm_blockers::waittill_door_can_close, scripts/zm/grief/gametype_modules/_power::waittill_door_can_close_override );
+	//END _power module
+
+	//BEG _player_health module
+	replaceFunc( maps/mp/zombies/_zm_playerhealth::onplayerspawned, scripts/zm/grief/mechanics/_player_health::onplayerspawned_override );
+	//END _player_health module
+
+	//BEG _obituary module
+	replaceFunc( maps/mp/zombies/_zm_utility::track_players_intersection_tracker, scripts/zm/grief/gametype/_obituary::track_players_intersection_tracker_override );
+	//END _obituary module
+	
+	//BEG promod_main module
+	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_override );
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::init, ::game_module_init_override );
+	replaceFunc( maps/mp/zombies/_zm::onallplayersready, ::onallplayersready_override );
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::hide_gump_loading_for_hotjoiners, ::hide_gump_loading_for_hotjoiners_override );
+	level.crash_delay = 20;
+	level thread on_player_connect();
+	level thread emptyLobbyRestart();
+	//END promod_main module
+
+	//BEG _powerups module
+	// replaceFunc( maps/mp/zombies/_zm_powerups::randomize_powerups, scripts/zm/grief/mechanics/_powerups::randomize_powerups_override );
+	// replaceFunc( maps/mp/zombies/_zm_powerups::get_next_powerup, scripts/zm/grief/mechanics/_powerups::get_next_powerup_override );
+	// replaceFunc( maps/mp/zombies/_zm_powerups::get_valid_powerup, scripts/zm/grief/mechanics/_powerups::get_valid_powerup_override );
+	//END _powerups module
+
+	//BEG _round_system module
+	scripts/zm/grief/mechanics/_round_system::generate_storage_maps();
 	flag_init( "match_start", 0 );
 	flag_init( "timer_pause", 0 );
 	flag_init( "first_round", 0 );
 	flag_init( "spawn_players", 1 );
+	//END _round_system module
+
+	//BEG _teams module
+	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::menu_onmenuresponse, scripts/zm/grief/team/_teams::menu_onmenuresponse_override );
+	level.team_change_cooldown = 60;
+	level.team_change_max = 2;
+	//END _teams module
+
+	//BEG _zombies module
+	replaceFunc( maps/mp/zombies/_zm_utility::init_zombie_run_cycle, scripts/zm/grief/mechanics/_zombies::init_zombie_run_cycle_override );
+	//END _zombies module
 }
 
 init()

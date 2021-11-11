@@ -1,7 +1,3 @@
-init_replacements()
-{
-	replaceFunc( maps/mp/zombies/_zm_perks::perk_set_max_health_if_jugg, ::perk_set_max_health_if_jugg_override );
-}
 
 perk_set_max_health_if_jugg_override( perk, set_premaxhealth, clamp_health_to_max_health ) //checked matches cerberus output
 {

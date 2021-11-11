@@ -5,11 +5,6 @@
 #include maps/mp/gametypes_zm/_spectating;
 #include maps/mp/zombies/_zm_perks;
 
-init_replacements()
-{
-	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::get_player_spawns_for_gametype, ::get_player_spawns_for_gametype_override );
-}
-
 onspawnplayerunified()
 {
 	onspawnplayer( 0 );

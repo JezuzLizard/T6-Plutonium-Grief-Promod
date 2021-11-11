@@ -3,11 +3,6 @@
 #include common_scripts/utility;
 #include scripts/zm/grief/gametype/_pregame;
 
-init_replacements()
-{
-	//replaceFunc( maps/mp/zombies/_zm::round_start, ::round_start_override );
-}
-
 generate_storage_maps()
 {
 	key_list = "str:player_name|str:team_name|bool:is_perm|bool:is_banned";
@@ -192,9 +187,9 @@ match_start()
 	// start_new_round( false, level.grief_gamerules[ "zombie_round" ] );
 	flag_clear( "first_round" );
 	flag_set( "match_start" );
-	// scripts/zm/grief/gametype/_hud::hud_init();
-	// scripts/zm/grief/gametype/_hud::fadein_grief_hud();
-	// level thread update_grief_score();
+	scripts/zm/grief/gametype/_hud::hud_init(); //part of _hud module
+	scripts/zm/grief/gametype/_hud::fadein_grief_hud(); //part of _hud module
+	level thread update_grief_score();
 	// level thread timed_rounds();
 }
 

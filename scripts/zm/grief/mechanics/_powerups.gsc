@@ -1,12 +1,5 @@
 #include common_scripts/utility;
 
-init_replacements()
-{
-	replaceFunc( maps/mp/zombies/_zm_powerups::randomize_powerups, ::randomize_powerups_override );
-	replaceFunc( maps/mp/zombies/_zm_powerups::get_next_powerup, ::get_next_powerup_override );
-	replaceFunc( maps/mp/zombies/_zm_powerups::get_valid_powerup, ::get_valid_powerup_override );
-}
-
 randomize_powerups_override() //checked matches cerberus output
 {
 	level.zombie_powerup_array = array_randomize( level.zombie_powerup_array );

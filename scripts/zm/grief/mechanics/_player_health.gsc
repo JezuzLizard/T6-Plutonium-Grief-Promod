@@ -1,10 +1,5 @@
 #include maps/mp/_utility;
 
-init_replacements()
-{
-	replaceFunc( maps/mp/zombies/_zm_playerhealth::onplayerspawned, ::onplayerspawned_override );
-}
-
 onplayerspawned_override()
 {
 	for ( ;; )

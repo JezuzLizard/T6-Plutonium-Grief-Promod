@@ -4,18 +4,13 @@
 #include maps/mp/zombies/_zm_perks;
 #include maps/mp/zombies/_zm_magicbox;
 
-init_replacements()
-{
-	replaceFunc( maps/mp/zombies/_zm_magicbox::treasure_chest_init, ::treasure_chest_init_override );
-}
-
 init_gamerules()
 {
 	//level.default_solo_laststandpistol = "m1911_zm";
 	level.grief_gamerules = [];
 	level.grief_gamerules[ "scorelimit" ] = getDvarIntDefault( "grief_gamerule_scorelimit", 3 );
 	level.grief_gamerules[ "timelimit" ] = getGametypeSetting( "timelimit" );
-	level.grief_gamerules[ "mystery_box_enabled" ] = getDvarIntDefault( "grief_gamerule_mystery_box_enabled", 0 );
+	level.grief_gamerules[ "mystery_box_enabled" ] = getDvarIntDefault( "grief_gamerule_mystery_box_enabled", 1 );
 	level.grief_gamerules[ "next_round_time" ] = getDvarIntDefault( "grief_gamerule_next_round_timer", 5 );
 	level.grief_gamerules[ "round_restart_points" ] = getDvarIntDefault( "grief_gamerule_round_restart_points", 8000 );
 	level.grief_gamerules[ "use_preset_teams" ] = getDvarIntDefault( "grief_gamerule_use_preset_teams", 0 );

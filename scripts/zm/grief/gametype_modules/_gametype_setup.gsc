@@ -11,16 +11,6 @@
 #include maps/mp/zombies/_zm_equipment;
 #include maps/mp/zombies/_zm_magicbox;
 
-init_replacements()
-{
-	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::rungametypeprecache, ::rungametypeprecache_override );
-	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::rungametypemain, ::rungametypemain_override );
-	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::game_objects_allowed, ::game_objects_allowed_override );
-	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::setup_standard_objects, ::setup_standard_objects_override );
-	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::setup_classic_gametype, ::setup_classic_gametype_override );
-	replaceFunc( maps/mp/zombies/_zm_zonemgr::manage_zones, ::manage_zones_override );
-}
-
 add_struct( s_struct )
 {
 	if ( isDefined( s_struct.targetname ) )
@@ -225,8 +215,8 @@ add_struct_location_gamemode_func( gametype, location, func )
 
 manage_zones_override( initial_zone )
 {
-	map = getDvar( "mapname" );
-	location = getDvar( "ui_zm_mapstartlocation" ); 
+	print( "entering replaced manage_zones" );
+	logprint( "entering replaced manage_zones\n" )
 	og_initial_zone = initial_zone;
 	initial_zone = [];
 	if ( isArray( og_inital_zone ) )
@@ -261,7 +251,7 @@ manage_zones_override( initial_zone )
 		{
 			zone_init( initial_zone[ i ] );
 			enable_zone( initial_zone[ i ] );
-			logprint( initial_zone[ i ] + "\n" );
+			print( initial_zone[ i ] );
 		}
 	}
 	else
@@ -279,8 +269,8 @@ manage_zones_override( initial_zone )
 	}
 	oldzone = undefined;
 	flag_set( "zones_initialized" );
-	flag_wait( "begin_spawning" );
-	while ( getDvarInt( "noclip" ) == 0 || getDvarInt( "notarget" ) != 0 )
+	flag_wait( "match_start" );
+	while ( true )
 	{	
 		for( z = 0; z < zkeys.size; z++ )
 		{
@@ -300,7 +290,7 @@ manage_zones_override( initial_zone )
 				z++;
 				continue;
 			}
-			if ( isdefined(level.zone_occupied_func ) )
+			if ( isdefined( level.zone_occupied_func ) )
 			{
 				newzone.is_occupied = [[ level.zone_occupied_func ]]( zkeys[ z ] );
 			}
@@ -316,7 +306,7 @@ manage_zones_override( initial_zone )
 				{
 					a_zone_is_spawning_allowed = 1;
 				}
-				if ( !isdefined(oldzone) || oldzone != newzone )
+				if ( !isdefined( oldzone ) || oldzone != newzone )
 				{
 					level notify( "newzoneActive", zkeys[ z ] );
 					oldzone = newzone;

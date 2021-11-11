@@ -3,13 +3,6 @@
 #include common_scripts/utility;
 #include maps/mp/gametypes_zm/_globallogic_ui;
 
-init_replacements()
-{
-	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::menu_onmenuresponse, ::menu_onmenuresponse_override );
-	level.team_change_cooldown = 60;
-	level.team_change_max = 2;
-}
-
 player_team_setup()
 {
 	teamplayersallies = countplayers( "allies" );

@@ -6,11 +6,6 @@
 // 	//return va( "OBITUARY;%s;%s;%s;%s;%s;%s", victim.team, victim.name, attacker.team, attacker.name, weapon, mod );
 // }
 
-init_replacements()
-{
-	replaceFunc( maps/mp/zombies/_zm_utility::track_players_intersection_tracker, ::track_players_intersection_tracker_override );
-}
-
 watch_for_down( attacker )
 {
 	if ( is_true( self.grief_already_checking_for_down ) )
