@@ -16,7 +16,7 @@ health_bar_hud()
 	health_bar.bar.horzalign = "user_left";
 	health_bar.bar.vertalign = "user_bottom";
 	health_bar.bar.x += 65;
-	health_bar.bar.y -= 36;
+	health_bar.bar.y -= 35;
 	health_bar.barframe.hidewheninmenu = 1;
 	health_bar.barframe.horzalign = "user_left";
 	health_bar.barframe.vertalign = "user_bottom";
@@ -27,7 +27,7 @@ health_bar_hud()
 	health_bar_text.vertalign = "user_bottom";
 	health_bar_text.hidewheninmenu = 1;
 	health_bar_text.x += 65;
-	health_bar_text.y -= 27;
+	health_bar_text.y -= 24;
 	health_bar_r = ceil( ( 255/360 ) * 100 ) / 100;
 	health_bar_text.color = ( health_bar_r, 0, 0 );
 	health_bar thread cleanup_health_bar_on_disconnect( self );

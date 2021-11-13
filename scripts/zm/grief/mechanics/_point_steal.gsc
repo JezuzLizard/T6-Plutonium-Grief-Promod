@@ -63,10 +63,6 @@ attacker_steal_points( attacker, event )
 		{
 			return;
 		}
-		if ( ( self.score - points_to_steal ) < 0 )
-		{
-			return;
-		}
 		attacker add_to_player_score( points_to_steal );
 		self minus_to_player_score( points_to_steal, true );
 	}

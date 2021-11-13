@@ -66,7 +66,7 @@ onspawnplayer( predictedspawn )
 		self spawn( spawnpoint.origin, spawnpoint.angles, "zsurvival" );
 	}
 	self.entity_num = self getentitynumber();
-	self thread maps/mp/zombies/_zm::onplayerspawned();
+	self thread onplayerspawned();
 	self thread maps/mp/zombies/_zm::player_revive_monitor();
 	self freezecontrols( 1 );
 	self.spectator_respawn = spawnpoint;
@@ -79,14 +79,17 @@ onspawnplayer( predictedspawn )
 	self.zombification_time = 0;
 	self.enabletext = 1;
 	self thread maps/mp/zombies/_zm_blockers::rebuild_barrier_reward_reset();
-	if ( !is_true( level.host_ended_game ) )
-	{
-		self freezecontrols( 0 );
-		self enableweapons();
-	}
 	if ( should_spawn_as_spectator() )
 	{
 		self delay_thread( 0.05, maps/mp/zombies/_zm::spawnspectator );
+	}
+	else 
+	{
+		if ( flag( "in_pregame" ) )
+		{
+			self freezecontrols( 1 );
+		}
+		self enableweapons();
 	}
 	pixendevent();
 }
@@ -225,4 +228,87 @@ should_spawn_as_spectator()
 		return true;
 	}
 	return false;
+}
+
+onplayerspawned() //checked matches cerberus output
+{
+	self endon( "disconnect" );
+	self notify( "stop_onPlayerSpawned" );
+	self endon( "stop_onPlayerSpawned" );
+	for ( ;; )
+	{
+		self waittill( "spawned_player" );
+		self.hits = 0;
+		self init_player_offhand_weapons();
+		lethal_grenade = self get_player_lethal_grenade();
+		if ( !self hasweapon( lethal_grenade ) )
+		{
+			self giveweapon( lethal_grenade );
+			self setweaponammoclip( lethal_grenade, 0 );
+		}
+		self recordplayerrevivezombies( self );
+		self setactionslot( 3, "altMode" );
+		self playerknockback( 0 );
+		self setclientthirdperson( 0 );
+		self resetfov();
+		self setclientthirdpersonangle( 0 );
+		self setdepthoffield( 0, 0, 512, 4000, 4, 0 );
+		self cameraactivate( 0 );
+		self.num_perks = 0;
+		self.on_lander_last_stand = undefined;
+		self setblur( 0, 0.1 );
+		self.zmbdialogqueue = [];
+		self.zmbdialogactive = 0;
+		self.zmbdialoggroups = [];
+		self.zmbdialoggroup = "";
+
+		if ( is_true( level.player_out_of_playable_area_monitor ) )
+		{
+			self thread player_out_of_playable_area_monitor();
+		}
+		if ( is_true( level.player_too_many_weapons_monitor ) )
+		{
+			self thread [[ level.player_too_many_weapons_monitor_func ]]();
+		}
+		if ( is_true( level.player_too_many_players_check ) )
+		{
+			level thread [[ level.player_too_many_players_check_func ]]();
+		}
+		self.disabled_perks = [];
+		if ( isDefined( self.player_initialized ) )
+		{
+			if ( self.player_initialized == 0 )
+			{
+				self.player_initialized = 1;
+				self giveweapon( self get_player_lethal_grenade() );
+				self setweaponammoclip( self get_player_lethal_grenade(), 0 );
+				self setclientammocounterhide( 0 );
+				self setclientminiscoreboardhide( 0 );
+				self.is_drinking = 0;
+				self thread player_zombie_breadcrumb();
+				self thread player_monitor_travel_dist();
+				self thread player_monitor_time_played();
+				if ( isDefined( level.custom_player_track_ammo_count ) )
+				{
+					self thread [[ level.custom_player_track_ammo_count ]]();
+				}
+				else
+				{
+					self thread player_track_ammo_count();
+				}
+				self thread shock_onpain();
+				self thread player_grenade_watcher();
+				self maps/mp/zombies/_zm_laststand::revive_hud_create();
+				if ( isDefined( level.zm_gamemodule_spawn_func ) )
+				{
+					self thread [[ level.zm_gamemodule_spawn_func ]]();
+				}
+				self thread player_spawn_protection();
+				if ( !isDefined( self.lives ) )
+				{
+					self.lives = 0;
+				}
+			}
+		}
+	}
 }

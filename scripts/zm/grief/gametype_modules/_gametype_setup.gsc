@@ -215,25 +215,6 @@ add_struct_location_gamemode_func( gametype, location, func )
 
 manage_zones_override( initial_zone )
 {
-	print( "entering replaced manage_zones" );
-	logprint( "entering replaced manage_zones\n" )
-	og_initial_zone = initial_zone;
-	initial_zone = [];
-	if ( isArray( og_inital_zone ) )
-	{
-		initial_zone = og_initial_zone;
-	}
-	else 
-	{
-		initial_zone[ 0 ] = og_initial_zone;
-	}
-	if ( array_validate( level.location_zones ) )
-	{
-		for ( i = 0; i < level.location_zones.size; i++ )
-		{
-			initial_zone[ initial_zone.size ] = level.location_zones[ i ];
-		}
-	}
 	deactivate_initial_barrier_goals();
 	zone_choke = 0;
 	spawn_points = maps/mp/gametypes_zm/_zm_gametype::get_player_spawns_for_gametype();
@@ -245,19 +226,18 @@ manage_zones_override( initial_zone )
 	{
 		[[ level.zone_manager_init_func ]]();
 	}
-	if ( isarray( initial_zone ) )
+	for ( i = 0; i < initial_zone.size; i++ )
 	{
-		for ( i = 0; i < initial_zone.size; i++ )
-		{
-			zone_init( initial_zone[ i ] );
-			enable_zone( initial_zone[ i ] );
-			print( initial_zone[ i ] );
-		}
+		zone_init( initial_zone[ i ] );
+		enable_zone( initial_zone[ i ] );
 	}
-	else
+	if ( array_validate( level.location_zones ) )
 	{
-		zone_init( initial_zone );
-		enable_zone( initial_zone );
+		for ( i = 0; i < level.location_zones.size; i++ )
+		{
+			zone_init( level.location_zones[ i ] );
+			enable_zone( level.location_zones[ i ] );
+		}
 	}
 	setup_zone_flag_waits();
 	zkeys = getarraykeys( level.zones );
@@ -340,18 +320,9 @@ manage_zones_override( initial_zone )
 		}
 		if ( !a_zone_is_active || !a_zone_is_spawning_allowed )
 		{
-			if ( isarray( initial_zone ) )
-			{
-				level.zones[ initial_zone[ 0 ] ].is_active = 1;
-				level.zones[ initial_zone[ 0 ] ].is_occupied = 1;
-				level.zones[ initial_zone[ 0 ] ].is_spawning_allowed = 1;
-			}
-			else
-			{
-				level.zones[ initial_zone ].is_active = 1;
-				level.zones[ initial_zone ].is_occupied = 1;
-				level.zones[ initial_zone ].is_spawning_allowed = 1;
-			}
+			level.zones[ initial_zone[ 0 ] ].is_active = 1;
+			level.zones[ initial_zone[ 0 ] ].is_occupied = 1;
+			level.zones[ initial_zone[ 0 ] ].is_spawning_allowed = 1;
 		}
 		[[ level.create_spawner_list_func ]]( zkeys );
 		level.active_zone_names = maps/mp/zombies/_zm_zonemgr::get_active_zone_names();

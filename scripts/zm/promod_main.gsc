@@ -9,6 +9,7 @@
 #include maps/mp/gametypes_zm/_zm_gametype;
 #include maps/mp/zombies/_zm_game_module;
 #include maps/mp/zombies/_zm_audio_announcer;
+#include maps/mp/gametypes_zm/_hud_util;
 
 
 #include scripts/zm/grief/audio/_announcer_fix;
@@ -40,6 +41,19 @@
 
 main()
 {
+	//BEG _announcer_fix module
+	replaceFunc( maps/mp/zombies/_zm_audio_announcer::playleaderdialogonplayer, scripts/zm/grief/audio/_announcer_fix::playleaderdialogonplayer_override );
+	//END _announcer_fix module
+
+	//BEG _obituary module
+	replaceFunc( maps/mp/zombies/_zm_utility::track_players_intersection_tracker, scripts/zm/grief/gametype/_obituary::track_players_intersection_tracker_override );
+	//END _obituary module
+
+	//BEG _gamerules module
+	scripts/zm/grief/gametype_modules/_gamerules::init_gamerules();
+	replaceFunc( maps/mp/zombies/_zm_magicbox::treasure_chest_init, scripts/zm/grief/gametype_modules/_gamerules::treasure_chest_init_override );
+	//END _gamerules module
+
 	//BEG _gametype_setup module 
 	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::rungametypeprecache, scripts/zm/grief/gametype_modules/_gametype_setup::rungametypeprecache_override );
 	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::rungametypemain, scripts/zm/grief/gametype_modules/_gametype_setup::rungametypemain_override );
@@ -48,36 +62,30 @@ main()
 	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::setup_classic_gametype, scripts/zm/grief/gametype_modules/_gametype_setup::setup_classic_gametype_override );
 	replaceFunc( maps/mp/zombies/_zm_zonemgr::manage_zones, scripts/zm/grief/gametype_modules/_gametype_setup::manage_zones_override );
 	//END _gametype_setup module 
-	
-	//BEG _announcer_fix module
-	replaceFunc( maps/mp/zombies/_zm_audio_announcer::playleaderdialogonplayer, scripts/zm/grief/audio/_announcer_fix::playleaderdialogonplayer_override );
-	//END _announcer_fix module
 
 	//BEG _player_spawning module
 	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::get_player_spawns_for_gametype, scripts/zm/grief/gametype_modules/_player_spawning::get_player_spawns_for_gametype_override );
 	//END _player_spawning module
 
-	//BEG _gamerules module
-	scripts/zm/grief/gametype_modules/_gamerules::init_gamerules();
-	replaceFunc( maps/mp/zombies/_zm_magicbox::treasure_chest_init, scripts/zm/grief/gametype_modules/_gamerules::treasure_chest_init_override );
-	//END _gamerules module
+	//BEG _power module
+	replaceFunc( maps/mp/zombies/_zm_blockers::waittill_door_can_close, scripts/zm/grief/gametype_modules/_power::waittill_door_can_close_override );
+	//END _power module
 
 	//BEG _perks module
 	replaceFunc( maps/mp/zombies/_zm_perks::perk_set_max_health_if_jugg, scripts/zm/grief/mechanics/loadout/_perks::perk_set_max_health_if_jugg_override );
 	//END _perks module
 
-	//BEG _power module
-	replaceFunc( maps/mp/zombies/_zm_blockers::waittill_door_can_close, scripts/zm/grief/gametype_modules/_power::waittill_door_can_close_override );
-	//END _power module
-
 	//BEG _player_health module
 	replaceFunc( maps/mp/zombies/_zm_playerhealth::onplayerspawned, scripts/zm/grief/mechanics/_player_health::onplayerspawned_override );
 	//END _player_health module
-
-	//BEG _obituary module
-	replaceFunc( maps/mp/zombies/_zm_utility::track_players_intersection_tracker, scripts/zm/grief/gametype/_obituary::track_players_intersection_tracker_override );
-	//END _obituary module
 	
+	//BEG _pregame module
+	level.player_movement_suppressed = true;
+	flag_init( "in_pregame", 0 );
+	flag_init( "player_quota", 0 );
+	level thread scripts/zm/grief/gametype/_pregame::pregame();
+	//END _pregame module
+
 	//BEG promod_main module
 	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_override );
 	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::init, ::game_module_init_override );
@@ -110,6 +118,8 @@ main()
 
 	//BEG _zombies module
 	replaceFunc( maps/mp/zombies/_zm_utility::init_zombie_run_cycle, scripts/zm/grief/mechanics/_zombies::init_zombie_run_cycle_override );
+	level.zombies_power_level = 1;
+	level.zombies_powerup_time = 20;
 	//END _zombies module
 }
 
@@ -122,7 +132,6 @@ init()
 	level._game_module_player_damage_callback = scripts/zm/grief/mechanics/_griefing::game_module_player_damage_callback; //part of _griefing module
 	level.custom_spawnplayer = scripts/zm/grief/gametype_modules/_player_spawning::grief_spectator_respawn; //part of _player_spawning module
 	level.onspawnplayerunified = scripts/zm/grief/gametype_modules/_player_spawning::onspawnplayerunified; //part of _player_spawning module
-	//level.custommayspawnlogic = scripts/zm/grief/gametype_modules/_player_spawning::mayspawn; //part of _player_spawning module
 	level.autoassign = scripts/zm/grief/team/_teams::default_menu_autoassign; //part of _teams module
 }
 
@@ -171,6 +180,7 @@ on_player_connect()
 			player.last_griefed_by.attacker = undefined;
 			player.last_griefed_by.meansofdeath = undefined;
 			player.last_griefed_by.weapon = undefined;
+			player.last_griefed_by.time = 0;
 		}
 		player thread scripts/zm/grief/mechanics/_round_system::give_points_on_restart_and_round_change();
 		player scripts/zm/grief/persistence/_session_data::init_player_session_data();

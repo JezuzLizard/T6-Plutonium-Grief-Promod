@@ -45,10 +45,6 @@ zgrief_init()
 {
 	encounter_init();
 	flag_wait( "start_zombie_round_logic" );
-	if ( level.grief_gamerules[ "zombie_round" ] < 4 && level.gamedifficulty != 0 )
-	{
-		level.zombie_move_speed = 35;
-	}
 }
 
 encounter_init()

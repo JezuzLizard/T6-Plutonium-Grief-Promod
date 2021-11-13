@@ -21,20 +21,33 @@ set_zombie_run_cycle( new_move_speed )
 
 powerup_zombies()
 {
-	if ( !isDefined( level.zombie_power_level ) )
-	{
-		level.zombie_power_level = 1;
-	}
-	level.zombie_vars[ "zombie_spawn_delay" ] = level.zombie_power_level * 0.95;
-	maps/mp/zombies/_zm::ai_calculate_health( level.zombie_power_level );
 	level.zombie_power_level++;
+	set_zombie_spawn_speed();
+	maps/mp/zombies/_zm::ai_calculate_health( level.zombie_power_level );
+}
+
+set_zombie_spawn_speed()
+{
+	for ( i = 1; i <= level.zombie_power_level; i++ )
+	{
+		timer = level.zombie_vars[ "zombie_spawn_delay" ];
+		if ( timer > 0.08)
+		{
+			level.zombie_vars[ "zombie_spawn_delay" ] = timer * 0.95;
+		}
+		else if ( timer < 0.08 )
+		{
+			level.zombie_vars[ "zombie_spawn_delay" ] = 0.08;
+			return;
+		}
+	}
 }
 
 set_zombie_power_level( round )
 {
-	zombie_spawn_delay_fix( round );
-	maps/mp/zombies/_zm::ai_calculate_health( round );
 	level.zombie_power_level = round;
+	set_zombie_spawn_speed();
+	maps/mp/zombies/_zm::ai_calculate_health( round );
 }
 
 set_run_speed()

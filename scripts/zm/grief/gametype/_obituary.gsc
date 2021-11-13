@@ -6,7 +6,7 @@
 // 	//return va( "OBITUARY;%s;%s;%s;%s;%s;%s", victim.team, victim.name, attacker.team, attacker.name, weapon, mod );
 // }
 
-watch_for_down( attacker )
+watch_for_down()
 {
 	if ( is_true( self.grief_already_checking_for_down ) )
 	{
@@ -25,8 +25,8 @@ watch_for_down( attacker )
 				//players = array( self, self.last_griefed_by.attacker );
 				//COM_PRINTF( "obituary g_log", "obituary", obituary_message, players );
 				obituary( self, self.last_griefed_by.attacker, self.last_griefed_by.weapon, self.last_griefed_by.meansofdeath );
-				attacker.killsconfirmed++;
-				attacker.pers[ "killsconfirmed" ]++;
+				self.last_griefed_by.attacker.killsconfirmed++;
+				self.last_griefed_by.attacker.pers[ "killsconfirmed" ]++;
 			}
 		}
 	}

@@ -11,7 +11,7 @@ grief_onplayerdisconnect( disconnecting_player ) //checked matches cerberus outp
 {
 	if ( flag( "match_start" ) )
 	{
-		level thread update_players_on_bleedout_or_disconnect( disconnecting_player );
+		//level thread update_players_on_bleedout_or_disconnect( disconnecting_player );
 	}
 }
 
@@ -95,7 +95,7 @@ zgrief_player_bled_out_msg() //checked matches cerberus output
 	while ( 1 )
 	{
 		self waittill( "bled_out" );
-		level thread update_players_on_bleedout_or_disconnect( self );
+		//level thread update_players_on_bleedout_or_disconnect( self );
 	}
 }
 

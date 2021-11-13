@@ -3,6 +3,11 @@
 //Extended Grief Mechanics
 game_module_player_damage_callback( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime )
 {
+	if ( !isDefined( self.last_griefed_by.watcher ) )
+	{
+		self.last_grief_by_watcher = scripts/zm/grief/gametype/_obituary::watch_for_down;
+		self thread [[ self.last_griefed_by.watcher ]]();
+	}
 	self.last_damage_from_zombie_or_player = 0;
 	if ( isDefined( eattacker ) )
 	{
@@ -39,6 +44,7 @@ game_module_player_damage_callback( einflictor, eattacker, idamage, idflags, sme
 		self.last_griefed_by.attacker = eattacker;
 		self.last_griefed_by.meansofdeath = smeansofdeath;
 		self.last_griefed_by.weapon = sweapon;
+		self.last_griefed_by.time = getTime();
 		if ( is_true( self.hasriotshield ) && isDefined( vdir ) )
 		{
 			if ( is_true( self.hasriotshieldequipped ) )
@@ -68,7 +74,6 @@ game_module_player_damage_callback( einflictor, eattacker, idamage, idflags, sme
 				playfx( level._effect[ "butterflies" ], vpoint, vdir );
 			}
 		}
-		self thread scripts/zm/grief/gametype/_obituary::watch_for_down( eattacker );
 		self thread do_game_mode_shellshock( eattacker, smeansofdeath, sweapon );
 		self playsound( "zmb_player_hit_ding" );
 	}
@@ -78,13 +83,27 @@ do_game_mode_shellshock( attacker, meansofdeath, weapon )
 {
 	self endon( "disconnect" );
 	self._being_shellshocked = 1;
-	if ( meansofdeath == "MOD_MELEE" )
+	if ( self.score < 0 )
 	{
-		self shellshock( "grief_stab_zm", 0.75 );
+		if ( meansofdeath == "MOD_MELEE" )
+		{
+			self shellshock( "grief_stab_zm", 1 );
+		}
+		else 
+		{
+			self shellshock( "grief_stab_zm", 0.4 );
+		}
 	}
 	else 
 	{
-		self shellshock( "grief_stab_zm", 0.25 );
+		if ( meansofdeath == "MOD_MELEE" )
+		{
+			self shellshock( "grief_stab_zm", 0.75 );
+		}
+		else 
+		{
+			self shellshock( "grief_stab_zm", 0.25 );
+		}
 	}
 	wait 0.75;
 	self._being_shellshocked = 0;
@@ -138,6 +157,7 @@ reset_players_last_griefed_by()
 		player.last_griefed_by.attacker = undefined;
 		player.last_griefed_by.meansofdeath = undefined;
 		player.last_griefed_by.weapon = undefined;
+		player.last_griefed_by.time = 0;
 	}
 }
 

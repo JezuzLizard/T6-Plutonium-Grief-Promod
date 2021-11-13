@@ -26,7 +26,6 @@ main() //checked matches cerberus output
 	level.custom_spectate_permissions = ::setspectatepermissionsgrief;
 	level._game_module_custom_spawn_init_func = maps/mp/gametypes_zm/_zm_gametype::custom_spawn_init_func;
 	level._game_module_stat_update_func = maps/mp/zombies/_zm_stats::grief_custom_stat_update;
-	level._game_module_player_damage_callback = maps/mp/gametypes_zm/_zm_gametype::game_module_player_damage_callback;
 	level.custom_end_screen = ::custom_end_screen;
 	level.gamemode_map_postinit[ "zgrief" ] = ::postinit_func;
 	level._supress_survived_screen = 1;

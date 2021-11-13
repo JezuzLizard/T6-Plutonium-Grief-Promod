@@ -13,7 +13,7 @@ player_team_setup()
 		self.team = session_team;
 		self.sessionteam = session_team;
 		self.pers[ "team" ] = session_team;
-		self._encounters_team = level.data_maps[ "encounters_teams" ][ "e_team" ][ level.teamIndex[ session_team ] ]; 
+		self._encounters_team = level.data_maps[ "encounters_teams" ][ "e_team" ][ level.team_index_grief[ session_team ] ]; 
 	}
 	else 
 	{
@@ -139,7 +139,7 @@ change_team_next_round( team )
 			self.sessionteam = "none";
 			self.ffateam = team;
 		}
-		self._encounters_team = level.data_maps[ "encounters_teams" ][ "e_team" ][ level.teamIndex[ team ] ];
+		self._encounters_team = level.data_maps[ "encounters_teams" ][ "e_team" ][ level.team_index_grief[ team ] ];
 		level.players_in_session[ self.name ].sessionteam = team;
 	}
 }
@@ -237,7 +237,7 @@ check_for_predefined_team()
 		self.team = team;
 		self.sessionteam = team;
 		self.pers[ "team" ] = team;
-		self._encounters_team = level.data_maps[ "encounters_teams" ][ "e_team" ][ level.teamIndex[ team ] - 1 ];
+		self._encounters_team = level.data_maps[ "encounters_teams" ][ "e_team" ][ level.team_index_grief[ team ] ];
 		return true;
 	}
 	return false;
