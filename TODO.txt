@@ -1,3 +1,12 @@
 Destroy round hud properly every round.
-Increase zombie spawn rate.
-Fix winner checks.
+Increase zombie spawn rate. //done
+Fix winner checks. //done
+Make all zombies speedup at the siren. //Roughly half speedup now.
+Pause timer on round restart, do not reset timer or zombie power level. //done
+Fix loadout returning full ammo instead of returning the ammo they actually had.
+Destroy timer on end_game. //done using scuffed as hell fix
+Destroy grief score elems on end_game. //done
+Fix old watch for down obituary code //done
+
+Issues found in coop testing:
+Points not granted on round changes/restarts //done
