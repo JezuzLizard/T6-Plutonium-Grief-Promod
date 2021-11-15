@@ -3,11 +3,6 @@
 //Extended Grief Mechanics
 game_module_player_damage_callback( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime )
 {
-	if ( !isDefined( self.last_griefed_by.watcher ) )
-	{
-		self.last_grief_by_watcher = scripts/zm/grief/gametype/_obituary::watch_for_down;
-		self thread [[ self.last_griefed_by.watcher ]]();
-	}
 	self.last_damage_from_zombie_or_player = 0;
 	if ( isDefined( eattacker ) )
 	{
@@ -62,7 +57,7 @@ game_module_player_damage_callback( einflictor, eattacker, idamage, idflags, sme
 				}
 			}
 		}
-		self game_module_player_damage_grief_callback( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime );
+		self do_player_knockback( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime );
 		if ( isDefined( level._effect[ "butterflies" ] ) )
 		{
 			if ( isDefined( sweapon ) && weapontype( sweapon ) == "grenade" )
@@ -109,7 +104,7 @@ do_game_mode_shellshock( attacker, meansofdeath, weapon )
 	self._being_shellshocked = 0;
 }
 
-game_module_player_damage_grief_callback( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime )
+do_player_knockback( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime )
 {
 	old_revives = self.revives;
 	if ( isDefined( eattacker ) && isplayer( eattacker ) && eattacker != self && eattacker.team != self.team )

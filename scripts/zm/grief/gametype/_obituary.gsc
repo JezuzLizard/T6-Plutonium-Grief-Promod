@@ -8,29 +8,27 @@
 
 watch_for_down()
 {
-	if ( is_true( self.grief_already_checking_for_down ) )
+	level endon( "end_game" );
+	self endon( "disconnect" );
+	while ( true )
 	{
-		return;
-	}
-	self.grief_already_checking_for_down = 1;
-	self waittill_notify_or_timeout( "player_downed", 4 );
-	if ( self maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
-	{
-		if ( isDefined( self.last_griefed_by.attacker ) )
+		flag_wait( "spawn_zombies" );
+		if ( self maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
 		{
-			self scripts/zm/grief/mechanics/_point_steal::attacker_steal_points( self.last_griefed_by.attacker, "down_player" );
-			if ( isDefined( self.last_griefed_by.attacker ) && isDefined( self.last_griefed_by.meansofdeath ) )
+			if ( isDefined( self.last_griefed_by.attacker ) )
 			{
-				//obituary_message = create_griefed_obituary_msg( self, self.last_griefed_by.attacker, self.last_griefed_by.weapon, self.last_griefed_by.meansofdeath );
-				//players = array( self, self.last_griefed_by.attacker );
-				//COM_PRINTF( "obituary g_log", "obituary", obituary_message, players );
-				obituary( self, self.last_griefed_by.attacker, self.last_griefed_by.weapon, self.last_griefed_by.meansofdeath );
-				self.last_griefed_by.attacker.killsconfirmed++;
-				self.last_griefed_by.attacker.pers[ "killsconfirmed" ]++;
+				self scripts/zm/grief/mechanics/_point_steal::attacker_steal_points( self.last_griefed_by.attacker, "down_player" );
+				if ( isDefined( self.last_griefed_by.weapon ) && isDefined( self.last_griefed_by.meansofdeath ) && ( ceil( ( getTime() - self.last_griefed_by.time ) / 1000 ) < 4 ) )
+				{
+					obituary( self, self.last_griefed_by.attacker, self.last_griefed_by.weapon, self.last_griefed_by.meansofdeath );
+					self.last_griefed_by.attacker.killsconfirmed++;
+					self.last_griefed_by.attacker.pers[ "killsconfirmed" ]++;
+					self waittill_either( "player_revived", "spawned" );
+				}
 			}
 		}
+		wait 0.05;
 	}
-	self.grief_already_checking_for_down = 0;
 }
 
 track_players_intersection_tracker_override() //checked partially changed to match cerberus output //did not change while loop to for loop because continues in for loops go infinite
