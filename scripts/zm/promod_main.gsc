@@ -133,6 +133,8 @@ init()
 	level.custom_spawnplayer = scripts/zm/grief/gametype_modules/_player_spawning::grief_spectator_respawn; //part of _player_spawning module
 	level.onspawnplayerunified = scripts/zm/grief/gametype_modules/_player_spawning::onspawnplayerunified; //part of _player_spawning module
 	level.autoassign = scripts/zm/grief/team/_teams::default_menu_autoassign; //part of _teams module
+	level.onplayerdisconnect = ::onplayerdisconnect;
+	check_quickrevive_for_hotjoin();
 }
 
 emptyLobbyRestart()
@@ -181,6 +183,7 @@ on_player_connect()
 			player.last_griefed_by.meansofdeath = undefined;
 			player.last_griefed_by.weapon = undefined;
 			player.last_griefed_by.time = 0;
+			player thread scripts/zm/grief/gametype/_obituary::watch_for_down();
 		}
 		player thread scripts/zm/grief/mechanics/_round_system::give_points_on_restart_and_round_change();
 		player scripts/zm/grief/persistence/_session_data::init_player_session_data();
@@ -484,6 +487,23 @@ cast_to_vector( vector_string )
 	}
 	vector = ( vector_array[ 0 ], vector_array[ 1 ], vector_array[ 2 ] );
 	return vector;
+}
+
+onplayerdisconnect() //checked matches cerberus output
+{
+	level [[ level.game_mode_custom_onplayerdisconnect ]]( self );
+}
+
+check_quickrevive_for_hotjoin() //checked changed to match cerberus output
+{
+	flag_clear( "solo_game" );
+	level.using_solo_revive = false;
+	level.revive_machine_is_solo = false;
+	maps/mp/zombies/_zm::set_default_laststand_pistol( false );
+	if ( isDefined( level.quick_revive_machine ) )
+	{
+		maps/mp/zombies/_zm::update_quick_revive( false );
+	}
 }
 
 // init_gamemodecommonvox( prefix )
