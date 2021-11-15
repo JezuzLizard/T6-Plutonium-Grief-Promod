@@ -5,6 +5,7 @@
 grief_onplayerconnect() //checked matches cerberus output
 {
 	self thread zgrief_player_bled_out_msg();
+	level.grief_team_members[ self.team ]--;
 }
 
 grief_onplayerdisconnect( disconnecting_player ) //checked matches cerberus output

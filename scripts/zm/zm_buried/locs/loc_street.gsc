@@ -17,6 +17,23 @@
 #include maps/mp/zombies/_zm;
 #include scripts/zm/zm_buried/locs/location_common;
 
+struct_init()
+{
+	coordinates = array( ( -832, -153, 132 ), ( -718, 73, -23 ), ( -1034, 210, -23 ), ( -1170, 425, 8 ),
+							( -356, 169, 10 ), ( 54, 156, 10 ), ( 40, 296, -28 ), ( -94, 573, -23 ) );
+	angles = array( ( 0, 68, 0 ), ( 0, 75, 0 ), ( 0, 40, 0 ), ( 0, -1, 0 ),
+					( 0, 142, 0 ), ( 0, 152, 0), ( 0, 179, 0 ), ( 0, -145, 0) );
+	if ( getDvar( "ui_zm_mapstartlocation" ) == "street" )
+	{
+		level.struct_class_names[ "targetname" ][ "player_respawn_point" ] = [];
+		level.struct_class_names[ "script_noteworthy" ][ "initial_spawn" ] = [];
+	} 
+	for ( i = 0; i < coordinates.size; i++ )
+	{
+		scripts/zm/grief/gametype_modules/_gametype_setup::register_map_initial_spawnpoint( coordinates[ i ], angles[ i ] );
+	}
+}
+
 precache() //checked matches cerberus output
 {
 	precachemodel( "zm_collision_buried_street_grief" );

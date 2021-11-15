@@ -40,6 +40,7 @@ player_team_setup()
 		}
 		level.players_in_session[ self.name ].sessionteam = self.team;
 	}
+	level.grief_team_members[ self.team ]++;
 	self [[ level.givecustomcharacters ]]();
 }
 
@@ -90,16 +91,16 @@ menu_onmenuresponse_override()
 			}
 			continue;
 		}
-		if ( menu == game[ "menu_team" ] && self player_can_change_teams() )
+		if ( menu == game[ "menu_team" ] && self player_can_change_teams() && self.new_team == self.team )
 		{
-			if ( response == "autoassign" )
+			if ( response == "autoassign" && self player_can_change_to_team( response ) )
 			{
 				if ( self menuautoassign( response ) )
 				{
 					self iPrintLn( "You will change to " + self.new_team + " next round." );
 				}
 			}
-			else 
+			else if ( self player_can_change_to_team( response ) )
 			{
 				if ( self menuteam( response ) )
 				{
@@ -150,6 +151,27 @@ menuautoassign( comingfrommenu )
 	assignment = teamkeys[ randomint( teamkeys.size ) ];
 	self closemenus();
 	self thread change_team_next_round( assignment );
+	return true;
+}
+
+player_can_change_to_team( new_team )
+{
+	if ( new_team == "autoassign" )
+	{
+		new_team = getOtherTeam( self.team );
+	}
+	if ( ( level.grief_team_members[ self.team ] - 1 ) < 1 )
+	{
+		self iPrintLn( "You cannot change teams when you are the only player left." );
+		return false;
+	}
+	else if ( ( level.grief_team_members[ new_team ] + 1 ) > 4 )
+	{
+		self iPrintLn( "You cannot change teams when the team you are changing to is at it's maximum." );
+		return false;
+	}
+	level.grief_team_members[ new_team ]++;
+	level.grief_team_members[ self.team ]--;
 	return true;
 }
 
@@ -255,3 +277,4 @@ default_menu_autoassign( assignment )
 	self beginclasschoice();
 	self setclientscriptmainmenu( game[ "menu_class" ] );
 }
+

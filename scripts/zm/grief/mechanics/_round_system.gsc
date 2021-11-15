@@ -243,7 +243,9 @@ start_new_round( is_restart )
 	{
 		flag_clear( "spawn_zombies" );
 	}
-	level thread kill_all_zombies();
+	all_surviving_players_invulnerable();
+	kill_all_zombies();
+	all_surviving_players_vulnerable();
 	if ( !is_restart )
 	{
 		scripts/zm/grief/mechanics/_zombies::set_zombie_power_level( level.grief_gamerules[ "zombie_power_level_start" ] );
@@ -257,6 +259,7 @@ start_new_round( is_restart )
 		level thread maps/mp/zombies/_zm_audio::change_zombie_music( "round_end" );
 		flag_set( "spawn_players" );
 		respawn_players();
+		visionSetNaked( GetDvar( "mapname" ) );
 	}
 	if ( is_true( is_restart ) )
 	{
@@ -274,6 +277,7 @@ start_new_round( is_restart )
 		}
 		round_countdown_text = round_change_hud_text();
 		round_countdown_timer = round_change_hud_timer_elem();
+		visionSetNaked( GetDvar( "mapname" ), level.grief_gamerules[ "next_round_time" ] );
 		wait level.grief_gamerules[ "next_round_time" ];
 		round_countdown_text destroy();
 		round_countdown_timer destroy();
@@ -318,6 +322,7 @@ timed_rounds() //checked matches cerberus output
 	level.overflow_elem.alpha = 0;
 	//END Overflow fix
 	cur_rounds_played = level.rounds_played;
+	level.server_hudelems[ "timer" ].hudelem.alpha = 0;
 	while ( true )
 	{
 		if ( flag( "timer_pause" ) )
@@ -369,8 +374,9 @@ timed_rounds() //checked matches cerberus output
 		}
 		if ( is_true( level.game_over ) )
 		{
-			level.server_hudelems[ "timer" ].hudelem destroy();
-			return;
+			//level.server_hudelems[ "timer" ].hudelem destroy();
+			level.server_hudelems[ "timer" ].hudelem.alpha = 0;
+			break;
 		}
 	}
 }

@@ -10,3 +10,26 @@ Fix old watch for down obituary code //done
 
 Issues found in coop testing:
 Points not granted on round changes/restarts //done
+Points are still being stolen from last stand players. //done
+Players aren't frozen on hotjoining during pregame.
+Health bar is trash use bandits instead.
+Add health indicators mod. //works will be separate download.
+Fix end game screen displaying "you suck" for everyone.
+Hide the timer for now.
+Fix last player on team able to change teams. //done
+Fix locations cellblock and street having no modified spawnpoints //done
+Fix players spawning at the end of a match if hotjoining.
+Fix players able to switch teams if their team after a team change would be less than 1. //done
+Fix players able to switch teams if the new team would have more than 4 players. //done
+Fix players dying to zombie explosions on round end. //done
+Fix vision set resetting on new round. //done
+
+
+Features:
+New maps:
+Docks. (zm_prison)
+Nuketown. (zm_nuked)
+Maze. (zm_buried)
+New modes:
+SOLOs.
+DUOs.

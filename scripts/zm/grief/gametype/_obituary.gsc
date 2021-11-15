@@ -1,5 +1,6 @@
 #include maps/mp/zombies/_zm_utility;
 #include common_scripts/utility;
+#include maps/mp/_utility;
 
 // create_griefed_obituary_msg( victim, attacker, weapon, mod )
 // {
@@ -23,9 +24,9 @@ watch_for_down()
 					obituary( self, self.last_griefed_by.attacker, self.last_griefed_by.weapon, self.last_griefed_by.meansofdeath );
 					self.last_griefed_by.attacker.killsconfirmed++;
 					self.last_griefed_by.attacker.pers[ "killsconfirmed" ]++;
-					self waittill_either( "player_revived", "spawned" );
 				}
 			}
+			self waittill_either( "player_revived", "spawned" );
 		}
 		wait 0.05;
 	}

@@ -261,7 +261,6 @@ onplayerspawned() //checked matches cerberus output
 		self.zmbdialogactive = 0;
 		self.zmbdialoggroups = [];
 		self.zmbdialoggroup = "";
-
 		if ( is_true( level.player_out_of_playable_area_monitor ) )
 		{
 			self thread player_out_of_playable_area_monitor();
@@ -269,10 +268,6 @@ onplayerspawned() //checked matches cerberus output
 		if ( is_true( level.player_too_many_weapons_monitor ) )
 		{
 			self thread [[ level.player_too_many_weapons_monitor_func ]]();
-		}
-		if ( is_true( level.player_too_many_players_check ) )
-		{
-			level thread [[ level.player_too_many_players_check_func ]]();
 		}
 		self.disabled_perks = [];
 		if ( isDefined( self.player_initialized ) )

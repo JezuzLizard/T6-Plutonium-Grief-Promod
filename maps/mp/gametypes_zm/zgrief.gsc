@@ -118,7 +118,7 @@ postinit_func() //checked matches cerberus output
 	level._effect[ "spawn_cloud" ] = loadfx( "maps/zombie/fx_zmb_race_zombie_spawn_cloud" );
 	level._effect[ "meat_stink_camera" ] = loadfx( "maps/zombie/fx_zmb_meat_stink_camera" );
 	level._effect[ "meat_stink_torso" ] = loadfx( "maps/zombie/fx_zmb_meat_stink_torso" );
-	include_powerup("meat_stink");
+	include_powerup( "meat_stink" );
 	maps/mp/zombies/_zm_powerups::add_zombie_powerup( "meat_stink", "t6_wpn_zmb_meat_world", &"ZOMBIE_POWERUP_MAX_AMMO", ::func_should_drop_meat, 0, 0, 0 );
 	setmatchtalkflag( "DeadChatWithDead", 1 );
 	setmatchtalkflag( "DeadChatWithTeam", 1 );
@@ -129,28 +129,19 @@ postinit_func() //checked matches cerberus output
 
 func_should_drop_meat() //checked matches cerberus output
 {
-	if ( minigun_no_drop() )
-	{
-		return 0;
-	}
-	return 1;
-}
-
-minigun_no_drop() //checked matches cerberus output
-{
 	players = get_players();
 	for ( i = 0; i < players.size; i++ )
 	{
 		if ( players[ i ].ignoreme == 1 )
 		{
-			return 1;
+			return false;
 		}
 	}
 	if ( is_true( level.meat_on_ground) )
 	{
-		return 1;
+		return false;
 	}
-	return 0;
+	return true;
 }
 
 grief_game_end_check_func() //checked matches cerberus output

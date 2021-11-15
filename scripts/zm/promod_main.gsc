@@ -114,6 +114,9 @@ main()
 	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::menu_onmenuresponse, scripts/zm/grief/team/_teams::menu_onmenuresponse_override );
 	level.team_change_cooldown = 60;
 	level.team_change_max = 2;
+	level.grief_team_members = [];
+	level.grief_team_members[ "allies" ] = 0;
+	level.grief_team_members[ "axis" ] = 0;
 	//END _teams module
 
 	//BEG _zombies module
@@ -190,6 +193,8 @@ on_player_connect()
 		player.killsconfirmed = 0;
 		player.stabs = 0;
 		player.assists = 0;
+
+		player.new_team = player.team;
 	}
 }
 
