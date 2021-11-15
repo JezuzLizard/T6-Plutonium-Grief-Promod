@@ -1,6 +1,6 @@
 #include maps/mp/zombies/_zm_utility;
 
-grief_loadout_save( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration )
+grief_loadout_save()
 {
 	self.grief_savedweapon_weapons = self getweaponslist();
 	self.grief_savedweapon_weaponsammo_stock = [];
@@ -62,13 +62,13 @@ grief_laststand_weapons_return() //checked changed to match cerberus output
 			continue;
 		}
 		self giveweapon( self.grief_savedweapon_weapons[ i ], 0, self maps/mp/zombies/_zm_weapons::get_pack_a_punch_weapon_options( self.grief_savedweapon_weapons[ i ] ) );
-		if ( isdefined( self.grief_savedweapon_weaponsammo_clip[ index ] ) )
+		if ( isdefined( self.grief_savedweapon_weaponsammo_clip[ i ] ) )
 		{
-			self setweaponammoclip( self.grief_savedweapon_weapons[ i ], self.grief_savedweapon_weaponsammo_clip[ index ] );
+			self setweaponammoclip( self.grief_savedweapon_weapons[ i ], self.grief_savedweapon_weaponsammo_clip[ i ] );
 		}
-		if ( isdefined( self.grief_savedweapon_weaponsammo_stock[ index ] ) )
+		if ( isdefined( self.grief_savedweapon_weaponsammo_stock[ i ] ) )
 		{
-			self setweaponammostock( self.grief_savedweapon_weapons[ i ], self.grief_savedweapon_weaponsammo_stock[ index ] );
+			self setweaponammostock( self.grief_savedweapon_weapons[ i ], self.grief_savedweapon_weaponsammo_stock[ i ] );
 		}
 		i++;
 	}
