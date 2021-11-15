@@ -53,8 +53,7 @@ set_zombie_power_level( round )
 set_run_speed()
 {
 	sprint = level.zombie_power_level > 1;
-	super_sprint = level.zombie_power_level >= 15;
-	if ( super_sprint )
+	if ( ( level.zombie_power_level - level.grief_gamerules[ "zombie_power_level_start" ] ) >= 15 )
 	{
 		self thread make_super_sprinter( "super_sprint" );
 	}
@@ -65,95 +64,29 @@ set_run_speed()
 	else 
 	{
 		self.zombie_move_speed = "walk";
+		self thread speedup_at_powerup();
 	}
-	// if ( !isDefined( level.bus_sprinters ) )
-	// {
-	// 	level.bus_sprinters = 0;
-	// 	level.bus_sprinter_max = 1;
-	// }
-	// if ( !isDefined( level.zombie_movespeed_type_array ) )
-	// {
-	// 	level.zombie_movespeed_type_array = [];
-	// 	level.zombie_movespeed_type_array[ 0 ] = "walk";
-	// 	level.zombie_movespeed_type_array[ 1 ] = "run";
-	// 	level.zombie_movespeed_type_array[ 2 ] = "sprint";
-	// 	level.zombie_movespeed_type_array[ 3 ] = "sprint";
-	// 	level.zombie_movespeed_type_array[ 4 ] = "sprint";
-	// 	level.zombie_movespeed_type_array[ 5 ] = "super_sprint";
-	// 	level.zombie_movespeed_type_array[ 6 ] = "super_sprint";
-	// 	level.zombie_movespeed_type_array[ 7 ] = "super_sprint";
-	// 	if ( level.script == "zm_transit" )
-	// 	{
-	// 		level.zombie_movespeed_type_array[ 8 ] = "chase_bus";
-	// 	}
-	// }
-	// rand = randomintrange( level.zombie_move_speed, level.zombie_move_speed + 35 );
-	// if ( rand <= 35 )
-	// {
-	// 	self.zombie_move_speed = "walk";
-	// }
-	// else if ( rand <= 70 )
-	// {
-	// 	self.zombie_move_speed = "run";
-	// }
-	// else if ( rand <= 200 )
-	// {
-	// 	self.zombie_move_speed = "sprint";
-	// }
-	// else if ( !level.grief_gamerules[ "disable_zombie_special_runspeeds" ] )
-	// {
-	// 	if ( rand <= 219 )
-	// 	{
-	// 		if ( !isDefined( level.grief_super_sprinter_zombies_start ) )
-	// 		{
-	// 			level.grief_super_sprinter_zombies_start = true;
-	// 		}
-	// 		self thread make_super_sprinter( "super_sprint" );
-	// 	}
-	// 	else
-	// 	{
-	// 		speed = random( level.zombie_movespeed_type_array );
-	// 		if ( speed == "chase_bus" && ( level.bus_sprinters < level.bus_sprinter_max ) )
-	// 		{
-	// 			self.is_bus_sprinter = true;
-	// 			level.bus_sprinters++;
-	// 		}
-	// 		else 
-	// 		{
-	// 			speed = "super_sprint";
-	// 		}
-	// 		if ( speed == "super_sprint" || speed == "chase_bus" )
-	// 		{
-	// 			self thread make_super_sprinter( speed );
-	// 			self thread zombie_watch_for_bus_sprinter();
-	// 		}
-	// 		else
-	// 		{
-	// 			self.zombie_move_speed = speed;
-	// 		}
-	// 	}
-	// }
-	// else
-	// {
-	// 	self.zombie_move_speed = "sprint";
-	// }
 }
 
-// zombie_watch_for_bus_sprinter()
-// {
-// 	self waittill( "zombie_movespeed_set" );
-// 	if ( is_true( self.is_bus_sprinter ) )
-// 	{
-// 		self waittill( "death" );
-// 		level.bus_sprinters--;
-// 	}
-// }
+speedup_at_powerup()
+{
+	self endon( "death" );
+	while ( true )
+	{
+		if ( level.zombie_power_level > 1 )
+		{
+			self.zombie_move_speed = "sprint";
+			break;
+		}
+		wait 0.05;
+	}
+}
 
 zombie_spawning() //checked changed to match cerberus output
 {
 	level endon( "end_game" );
 	old_spawn = undefined;
-	level.zombie_vars[ "zombie_spawn_delay" ] = 2;
+	level.zombie_vars[ "zombie_spawn_delay" ] = 0.5;
 	while ( 1 )
 	{
 		while ( get_current_zombie_count() >= level.zombie_ai_limit )
