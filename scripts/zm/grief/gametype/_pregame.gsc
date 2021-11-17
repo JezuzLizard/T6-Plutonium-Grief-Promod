@@ -47,11 +47,11 @@ pregame_hud() //checked matches bo3 _globallogic.gsc within reason
 
 wait_for_players()
 {
+	flag_wait( "initial_blackscreen_passed" );
 	while ( ( getPlayers( "allies" ).size < 1 ) || ( getPlayers( "axis" ).size < 1 ) )
 	{
 		wait 1;
 	}
-	flag_wait( "initial_blackscreen_passed" );
 	flag_set( "player_quota" );
 }
 

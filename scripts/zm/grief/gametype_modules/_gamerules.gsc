@@ -13,19 +13,16 @@ init_gamerules()
 	level.grief_gamerules[ "mystery_box_enabled" ] = getDvarIntDefault( "grief_gamerule_mystery_box_enabled", 1 );
 	level.grief_gamerules[ "next_round_time" ] = getDvarIntDefault( "grief_gamerule_next_round_timer", 5 );
 	level.grief_gamerules[ "round_restart_points" ] = getDvarIntDefault( "grief_gamerule_round_restart_points", 8000 );
-	level.grief_gamerules[ "use_preset_teams" ] = getDvarIntDefault( "grief_gamerule_use_preset_teams", 0 );
-	level.grief_gamerules[ "disable_zombie_special_runspeeds" ] = getDvarIntDefault( "grief_gamerules_disable_zombie_special_runspeeds", 1 );
 	level.grief_gamerules[ "suicide_check" ] = getDvarFloatDefault( "grief_gamerule_suicide_check_wait", 5 );
 	level.grief_gamerules[ "player_health" ] = getDvarIntDefault( "grief_gamerule_player_health", 100 );
-	level.grief_gamerules[ "perk_limit" ] = getDvarIntDefault( "grief_gamerule_perk_limit", 4 );
 	level.grief_gamerules[ "knife_lunge" ] = getDvarIntDefault( "grief_gamerule_knife_lunge", 1 );
 	level.grief_gamerules[ "magic" ] = getDvarIntDefault( "grief_gamerule_magic", 1 );
-	level.grief_gamerules[ "reduced_pistol_ammo" ] = getDvarIntDefault( "grief_gamerule_reduced_pistol_ammo", 1 );
+	level.grief_gamerules[ "reduced_pistol_ammo" ] = getDvarIntDefault( "grief_gamerule_reduced_pistol_ammo", 0 );
 	level.grief_gamerules[ "buildables" ] = getDvarIntDefault( "grief_gamerule_buildables", 0 );
 	level.grief_gamerules[ "disable_doors" ] = getDvarIntDefault( "grief_gamerule_disable_doors", 1 );
 	level.grief_gamerules[ "zombie_power_level_start" ] = getDvarIntDefault( "grief_gamerules_zombie_power_level_start", 1 );
 	level.grief_gamerules[ "power_state" ] = getDvarIntDefault( "grief_gamerules_power_start_state", 1 );
-	level.grief_gamerules[ "round_zombie_spawn_delay" ] = getDvarIntDefault( "grief_gamerule_round_zombie_spawn_delay", 5 );
+	level.grief_gamerules[ "round_zombie_spawn_delay" ] = getDvarIntDefault( "grief_gamerule_round_zombie_spawn_delay", 15 );
 	level.grief_gamerules[ "pregame_time" ] = getDvarIntDefault( "grief_gamerule_pregame_time", 15 );
 	setdvar( "ui_scorelimit", level.grief_gamerules[ "scorelimit" ] );
 	//setdvar( "ui_timelimit", level.grief_gamerules[ "timelimit" ] );
@@ -48,7 +45,7 @@ init_restrictions()
 	{
 		key_list += "|fire_sale:1";
 	}
-	key_names = "default_allowed_powerups|is_active";
+	key_names = "names|allowed";
 	generate_map( "powerups", key_list, key_names );
 	level.grief_restrictions = [];
 	level.grief_restrictions[ "perks" ] = getDvar( "grief_restrictions_perks" );
@@ -65,13 +62,13 @@ powerup_restrictions()
 		return;
 	}
 	powerup_restrictions = strTok( level.grief_restrictions[ "powerups" ], " " );
-	for ( i = 0; i < level.data_maps[ "powerups" ][ "default_allowed_powerups" ].size; i++ )
+	for ( i = 0; i < level.data_maps[ "powerups" ][ "names" ].size; i++ )
 	{
 		for ( j = 0; j < powerup_restrictions.size; j++ )
 		{
-			if ( level.data_maps[ "powerups" ][ "is_active" ][ i ] == "1" && level.data_maps[ "powerups" ][ "default_allowed_powerups" ][ i ] == powerup_restrictions[ j ] || level.grief_restrictions[ "powerups" ] == "all" )
+			if ( isSubStr( level.data_maps[ "powerups" ][ "names" ][ i ], powerup_restrictions[ j ] ) || level.grief_restrictions[ "powerups" ] == "all" )
 			{
-				level.data_maps[ "powerups" ][ "is_active" ][ i ] = "0";
+				level.data_maps[ "powerups" ][ "allowed" ][ i ] = "0";
 				break;
 			}
 		}
@@ -93,6 +90,7 @@ perk_restrictions()
 			level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_off", i );
 			level.data_maps[ "perks" ][ "is_active" ][ i ] = "0";
 			trigger = getent( level.data_maps[ "perks" ][ "specialties" ][ i ], "script_noteworthy" );
+			trigger trigger_off_proc();
 			trigger.machine ghost();
 			trigger.clip notSolid();
 		}
@@ -126,6 +124,7 @@ set_power_state( state )
 			{
 				level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_on", i );
 				trigger = getent( level.data_maps[ "perks" ][ "specialties" ][ i ], "script_noteworthy" );
+				trigger trigger_on_proc();
 				trigger.machine show();
 				trigger.clip solid();
 			}
@@ -154,6 +153,7 @@ set_power_state( state )
 		{
 			level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_off", i );
 			trigger = getent( level.data_maps[ "perks" ][ "specialties" ][ i ], "script_noteworthy" );
+			trigger trigger_on_proc();
 			trigger.machine ghost();
 			trigger.clip notSolid();
 		}

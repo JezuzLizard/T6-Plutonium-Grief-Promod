@@ -166,7 +166,7 @@ grief_score_allies_icon_prison()
 	team_shader2.alpha = 1;
 	team_shader2.hidewheninmenu = 1;
 	//HUDELEM_STORE_TEXT( "grief_score_allies_icon_prison" , "Guards " );
-	team_shader2.label HUDELEM_SET_TEXT( "Guards " ); 
+	team_shader2 HUDELEM_SET_TEXT( "Guards " ); 
 	return team_shader2;
 }
 
@@ -203,7 +203,7 @@ grief_score_axis_icon_prison()
 	team_shader1.alpha = 1;
 	team_shader1.hidewheninmenu = 1;
 	//HUDELEM_STORE_TEXT( "grief_score_axis_icon_normal", "Inmates " );
-	team_shader1.label HUDELEM_SET_TEXT( "Inmates " );
+	team_shader1 HUDELEM_SET_TEXT( "Inmates " );
 	return team_shader1;
 }
 
@@ -230,7 +230,7 @@ round_change_hud_timer_elem()
 	remaining.foreground = false;
 	remaining.alpha = 1;
 	remaining.color = ( 1, 1, 0 );
-	remaining.hidewheninmenu = 1;
+	remaining.hidewheninmenu = true;
 	remaining maps/mp/gametypes_zm/_hud::fontpulseinit();
 	remaining thread round_change_hud_timer();
 	return remaining;
@@ -263,4 +263,24 @@ round_change_hud_text()
 	//HUDELEM_STORE_TEXT( "round_change_hud_text", "Next Round In" );
 	countdown HUDELEM_SET_TEXT("Next Round In");
 	return countdown;
+}
+
+round_timer_hud_elem()
+{
+	timerdisplay = createservertimer( "objective", 1.4 );
+	timerdisplay setgamemodeinfopoint();
+	timerdisplay.font = "small";
+	timerdisplay.alpha = 0;
+	timerdisplay.archived = false;
+	timerdisplay.hidewheninmenu = true;
+	timerdisplay.hidewheninkillcam = true;
+	timerdisplay.showplayerteamhudelemtospectator = 1;
+	timerdisplay thread hidetimerdisplayongameend();
+	return timerdisplay;
+}
+
+hidetimerdisplayongameend() //checked matches cerberus output
+{
+	level waittill( "game_ended" );
+	self.alpha = 0;
 }

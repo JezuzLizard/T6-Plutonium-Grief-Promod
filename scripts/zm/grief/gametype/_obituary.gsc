@@ -14,7 +14,7 @@ watch_for_down()
 	while ( true )
 	{
 		flag_wait( "spawn_zombies" );
-		if ( self maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
+		if ( self maps/mp/zombies/_zm_laststand::player_is_in_laststand() || !isAlive( self ) )
 		{
 			if ( isDefined( self.last_griefed_by.attacker ) )
 			{
@@ -25,14 +25,17 @@ watch_for_down()
 					self.last_griefed_by.attacker.killsconfirmed++;
 					self.last_griefed_by.attacker.pers[ "killsconfirmed" ]++;
 				}
+				//self thread scripts/zm/grief/mechanics/_point_steal::steal_points_on_bleedout( self.last_griefed_by.attacker );
 			}
+			self.statusicon = "hud_status_dead";
 			self waittill_either( "player_revived", "spawned" );
+			self.statusicon = "";
 		}
 		wait 0.05;
 	}
 }
 
-track_players_intersection_tracker_override() //checked partially changed to match cerberus output //did not change while loop to for loop because continues in for loops go infinite
+track_players_intersection_tracker_override()
 {
 	self endon( "disconnect" );
 	self endon( "death" );

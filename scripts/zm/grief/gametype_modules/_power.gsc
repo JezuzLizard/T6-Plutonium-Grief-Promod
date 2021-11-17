@@ -11,5 +11,7 @@ waittill_door_can_close_override() //checked changed to match cerberus output
 		case "electric_door":
 			self waittill( "power_off" );
 			return;
+		default:
+			break;
 	}
 }

@@ -88,7 +88,7 @@ main()
 
 	//BEG promod_main module
 	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_override );
-	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::init, ::game_module_init_override );
+	//replaceFunc( maps/mp/gametypes_zm/_zm_gametype::init, ::game_module_init_override );
 	replaceFunc( maps/mp/zombies/_zm::onallplayersready, ::onallplayersready_override );
 	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::hide_gump_loading_for_hotjoiners, ::hide_gump_loading_for_hotjoiners_override );
 	level.crash_delay = 20;
@@ -100,6 +100,7 @@ main()
 	// replaceFunc( maps/mp/zombies/_zm_powerups::randomize_powerups, scripts/zm/grief/mechanics/_powerups::randomize_powerups_override );
 	// replaceFunc( maps/mp/zombies/_zm_powerups::get_next_powerup, scripts/zm/grief/mechanics/_powerups::get_next_powerup_override );
 	// replaceFunc( maps/mp/zombies/_zm_powerups::get_valid_powerup, scripts/zm/grief/mechanics/_powerups::get_valid_powerup_override );
+	//replaceFunc( maps/mp/zombies/_zm_powerups::powerup_drop, scripts/zm/grief/mechanics/_powerups::powerup_drop_override );
 	//END _powerups module
 
 	//BEG _round_system module
@@ -108,6 +109,7 @@ main()
 	flag_init( "timer_pause", 0 );
 	flag_init( "first_round", 0 );
 	flag_init( "spawn_players", 1 );
+	flag_init( "timer_reset", 0 );
 	//END _round_system module
 
 	//BEG _teams module
@@ -124,6 +126,10 @@ main()
 	level.zombies_power_level = 1;
 	level.zombies_powerup_time = 20;
 	//END _zombies module
+
+	//BEG _point_steal module
+	replaceFunc( maps/mp/zombies/_zm_score::player_reduce_points, scripts/zm/grief/mechanics/_point_steal::player_reduce_points_override );
+	//END _point_steal module
 }
 
 init()
@@ -133,7 +139,6 @@ init()
 	setDvar( "g_friendlyfireDist", 0 );
 	level.game_mode_custom_onplayerdisconnect = scripts/zm/grief/gametype/_grief_hud::grief_onplayerdisconnect; //part of _grief_hud module
 	level._game_module_player_damage_callback = scripts/zm/grief/mechanics/_griefing::game_module_player_damage_callback; //part of _griefing module
-	level.custom_spawnplayer = scripts/zm/grief/gametype_modules/_player_spawning::grief_spectator_respawn; //part of _player_spawning module
 	level.onspawnplayerunified = scripts/zm/grief/gametype_modules/_player_spawning::onspawnplayerunified; //part of _player_spawning module
 	level.autoassign = scripts/zm/grief/team/_teams::default_menu_autoassign; //part of _teams module
 	level.onplayerdisconnect = ::onplayerdisconnect;
@@ -257,6 +262,10 @@ game_module_on_player_connect() //checked matches cerberus output
 		level waittill( "connected", player );
 		player thread game_module_on_player_spawned();
 		player scripts/zm/grief/gametype/_grief_hud::grief_onplayerconnect();
+		if ( isDefined( level.grief_connected_callback ) )
+		{
+			self [[ level.grief_connected_callback ]]();
+		}
 	}
 }
 

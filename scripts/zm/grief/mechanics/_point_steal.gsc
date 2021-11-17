@@ -45,6 +45,9 @@ attacker_steal_points( attacker, event )
 			case "down_player":
 				points_to_steal = 500;
 				break;
+			case "kill_player":
+				points_to_steal = 500;
+				break;
 			case "deny_revive":
 				points_to_steal = 300;
 				break;
@@ -58,6 +61,8 @@ attacker_steal_points( attacker, event )
 			case "emp_player":
 				points_to_steal = 100;
 				break;
+			default:
+				break;
 		}
 		if ( points_to_steal == 0 )
 		{
@@ -65,5 +70,23 @@ attacker_steal_points( attacker, event )
 		}
 		attacker add_to_player_score( points_to_steal );
 		self minus_to_player_score( points_to_steal, true );
+	}
+}
+
+player_reduce_points_override( event, mod, hit_location ) //checked matches cerberus output
+{
+	return;
+}
+
+steal_points_on_bleedout( attacker )
+{
+	level endon( "end_game" );
+	self endon( "disconnect" );
+	self endon( "spawned" );
+	self endon( "revived" );
+	self waittill( "bled_out" );
+	if ( isDefined( attacker ) )
+	{
+		self attacker_steal_points( attacker, "kill_player" );
 	}
 }

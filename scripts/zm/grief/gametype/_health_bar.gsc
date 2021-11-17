@@ -6,32 +6,65 @@ health_bar_hud()
 {
 	level endon( "end_game" );
 	self endon("disconnect");
+	// health_bar = self createprimaryprogressbar();
+	// health_bar.hidewheninmenu = 1;
+	// health_bar.horzalign = "user_left";
+	// health_bar.vertalign = "user_bottom";
+	// health_bar.x += 65;
+	// health_bar.y -= 36;
+	// health_bar.bar.hidewheninmenu = 1;
+	// health_bar.bar.horzalign = "user_left";
+	// health_bar.bar.vertalign = "user_bottom";
+	// health_bar.bar.x += 65;
+	// health_bar.bar.y -= 35;
+	// health_bar.barframe.hidewheninmenu = 1;
+	// health_bar.barframe.horzalign = "user_left";
+	// health_bar.barframe.vertalign = "user_bottom";
+	// health_bar.barframe.x += 65;
+	// health_bar.barframe.y -= 36;
+	// health_bar_text = self createprimaryprogressbartext();
+	// health_bar_text.horzalign = "user_left";
+	// health_bar_text.vertalign = "user_bottom";
+	// health_bar_text.hidewheninmenu = 1;
+	// health_bar_text.x += 65;
+	// health_bar_text.y -= 24;
+	// health_bar_r = ceil( ( 255/360 ) * 100 ) / 100;
+	// health_bar_text.color = ( health_bar_r, 0, 0 );
 	health_bar = self createprimaryprogressbar();
+	if (level.script == "zm_buried")
+	{
+		health_bar setpoint(undefined, "BOTTOM", -335, -95);
+	}
+	else if (level.script == "zm_tomb")
+	{
+		health_bar setpoint(undefined, "BOTTOM", -335, -100);
+	}
+	else
+	{
+		health_bar setpoint(undefined, "BOTTOM", -335, -70);
+	}
 	health_bar.hidewheninmenu = 1;
-	health_bar.horzalign = "user_left";
-	health_bar.vertalign = "user_bottom";
-	health_bar.x += 65;
-	health_bar.y -= 36;
 	health_bar.bar.hidewheninmenu = 1;
-	health_bar.bar.horzalign = "user_left";
-	health_bar.bar.vertalign = "user_bottom";
-	health_bar.bar.x += 65;
-	health_bar.bar.y -= 35;
 	health_bar.barframe.hidewheninmenu = 1;
-	health_bar.barframe.horzalign = "user_left";
-	health_bar.barframe.vertalign = "user_bottom";
-	health_bar.barframe.x += 65;
-	health_bar.barframe.y -= 36;
+
 	health_bar_text = self createprimaryprogressbartext();
-	health_bar_text.horzalign = "user_left";
-	health_bar_text.vertalign = "user_bottom";
+	if (level.script == "zm_buried")
+	{
+		health_bar_text setpoint(undefined, "BOTTOM", -410, -95);
+	}
+	else if (level.script == "zm_tomb")
+	{
+		health_bar_text setpoint(undefined, "BOTTOM", -410, -100);
+	}
+	else
+	{
+		health_bar_text setpoint(undefined, "BOTTOM", -410, -70);
+	}
 	health_bar_text.hidewheninmenu = 1;
-	health_bar_text.x += 65;
-	health_bar_text.y -= 24;
-	health_bar_r = ceil( ( 255/360 ) * 100 ) / 100;
-	health_bar_text.color = ( health_bar_r, 0, 0 );
 	health_bar thread cleanup_health_bar_on_disconnect( self );
 	health_bar thread cleanup_health_bar_on_end_game();
+	health_bar_text thread cleanup_health_bar_on_disconnect( self );
+	health_bar_text thread cleanup_health_bar_on_end_game();
 	while ( true )
 	{
 		if ( isDefined( self.e_afterlife_corpse ) || !is_player_valid( self ) )
@@ -51,7 +84,7 @@ health_bar_hud()
 			wait 0.05;
 			continue;
 		}
-		if (health_bar.alpha != 0.8)
+		if ( health_bar.alpha != 0.8 )
 		{
 			health_bar fadeOverTime( 2.0 );
 			health_bar.alpha = 0.8;

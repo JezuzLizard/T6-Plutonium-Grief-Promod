@@ -27,13 +27,6 @@ common_init()
 	wait 1;
 	builddynamicwallbuys();
 	buildbuildables();
-	turnperkon( "revive" );
-	turnperkon( "doubletap" );
-	turnperkon( "marathon" );
-	turnperkon( "juggernog" );
-	turnperkon( "sleight" );
-	turnperkon( "additionalprimaryweapon" );
-	turnperkon( "Pack_A_Punch" );
 }
 
 enemy_location_override( zombie, enemy ) //checked matches cerberus output

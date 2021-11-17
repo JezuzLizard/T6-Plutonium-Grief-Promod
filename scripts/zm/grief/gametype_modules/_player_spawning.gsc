@@ -19,9 +19,9 @@ onspawnplayer( predictedspawn )
 	pixbeginevent( "ZSURVIVAL:onSpawnPlayer" );
 	self.usingobj = undefined;
 	self.is_zombie = 0;
-	if ( isDefined( level.custom_spawnplayer ) && is_true( self.player_initialized ) )
+	if ( is_true( self.player_initialized ) )
 	{
-		self [[ level.custom_spawnplayer ]]();
+		self grief_spectator_respawn();
 		return;
 	}
 	match_string = "";
@@ -72,7 +72,6 @@ onspawnplayer( predictedspawn )
 	self.spectator_respawn = spawnpoint;
 	self.score = self maps/mp/gametypes_zm/_globallogic_score::getpersstat( "score" );
 	self.pers[ "participation" ] = 0;
-	
 	self.score_total = self.score;
 	self.old_score = self.score;
 	self.player_initialized = 0;
@@ -85,10 +84,6 @@ onspawnplayer( predictedspawn )
 	}
 	else 
 	{
-		if ( flag( "in_pregame" ) )
-		{
-			self freezecontrols( 1 );
-		}
 		self enableweapons();
 	}
 	pixendevent();
@@ -238,6 +233,7 @@ onplayerspawned() //checked matches cerberus output
 	for ( ;; )
 	{
 		self waittill( "spawned_player" );
+		self freezecontrols( 1 );
 		self.hits = 0;
 		self init_player_offhand_weapons();
 		lethal_grenade = self get_player_lethal_grenade();
