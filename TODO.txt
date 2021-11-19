@@ -25,11 +25,12 @@ Fix players able to switch teams if the new team would have more than 4 players.
 Fix players dying to zombie explosions on round end. //done
 Fix vision set resetting on new round. //done
 Skip first round countdown after pregame. //done
-Change timer to use SetTimer() instead of SetText().
+Change timer to use SetTimer() instead of SetText(). //done
 Make the timer larger and fix its position so it is nicer looking.
 Fix powerup drops and enable restrictions system.
 Fix connection interrupted error that occurs on end_game.
 Fix crash on map_restart.
+Fix player points getting reset when a new play joins. //done
 
 Features:
 Add status icon to downed/dead players. //done
@@ -53,3 +54,8 @@ Meat
 Powerdowns:
 Steal Points from other team
 
+Gameplay:
+Fix players being able to run around the map not fighting.
+
+Commands:
+Readd commands and use voting system for various different voteables.

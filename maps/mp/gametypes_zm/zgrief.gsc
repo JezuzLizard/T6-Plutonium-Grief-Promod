@@ -20,7 +20,7 @@
 
 main()
 {
-	//replaceFunc( maps/mp/gametypes_zm/zmeat::waittill_thrown , ::waittill_thrown_override );
+	replaceFunc( maps/mp/gametypes_zm/zmeat::waittill_thrown , ::waittill_thrown_override );
 	maps/mp/gametypes_zm/_zm_gametype::main();
 	level.onprecachegametype = ::onprecachegametype;
 	level.onstartgametype = ::onstartgametype;

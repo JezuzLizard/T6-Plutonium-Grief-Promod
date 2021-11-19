@@ -222,6 +222,10 @@ should_spawn_as_spectator()
 	{
 		return true;
 	}
+	if ( is_true( level.intermission ) )
+	{
+		return true;
+	}
 	return false;
 }
 
