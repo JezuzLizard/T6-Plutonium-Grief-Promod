@@ -9,12 +9,12 @@ pregame_hud() //checked matches bo3 _globallogic.gsc within reason
 	matchStartText = createServerFontString( "objective", 1.5 );
 	matchStartText setPoint( "CENTER", "CENTER", 0, -40 );
 	matchStartText.sort = 1001;
-	matchStartText setText( game[ "strings" ][ "waiting_for_teams" ] );
+	matchStartText.label = game[ "strings" ][ "waiting_for_teams" ];
 	matchStartText.foreground = false;
 	matchStartText.hidewheninmenu = true;
 	matchStartText.alpha = 1;
 	flag_wait( "player_quota" );
-	matchStartText setText( game[ "strings" ][ "match_starting_in" ] );
+	matchStartText.label = game[ "strings" ][ "match_starting_in" ];
 	matchStartTimer = createServerFontString( "objective", 2.2 );
 	matchStartTimer setPoint( "CENTER", "CENTER", 0, 0 );
 	matchStartTimer.sort = 1001;
