@@ -4,6 +4,8 @@
 #include scripts/zm/grief/gametype/_pregame;
 #include scripts/zm/grief/gametype/_hud;
 
+#include scripts/debug/event_logger;
+
 generate_storage_maps()
 {
 	key_list = "str:player_name|str:team_name|bool:is_perm|bool:is_banned";
@@ -75,6 +77,7 @@ check_for_match_winner( winner )
 
 match_end( winner )
 {
+	EVENT_START( "match_end" );
 	keys = getArrayKeys( level.server_hudelems );
 	for ( i = 0; i < keys.size; i++ )
 	{
@@ -103,6 +106,13 @@ match_end( winner )
 	level._game_module_game_end_check = undefined;
 	maps/mp/gametypes_zm/_zm_gametype::track_encounters_win_stats( level.gamemodulewinningteam );
 	level notify( "end_game" );
+	wait 1;
+	players = getPlayers();
+	foreach ( player in players )
+	{
+		player.statusicon = "";
+	}
+	EVENT_END( "match_end" );
 }
 
 round_winner()
@@ -113,7 +123,7 @@ round_winner()
 	setTeamScore( winner, level.data_maps[ "encounters_teams" ][ "score" ][ level.team_index_grief[ winner ] ] );
 	if ( check_for_match_winner( winner ) )
 	{
-		match_end( level.data_maps[ "encounters_teams" ][ "team" ][ level.e_team_index_grief[ level.predicted_round_winner ] ] );
+		match_end( level.predicted_round_winner );
 		return;
 	}
 	start_new_round( false );
@@ -163,10 +173,6 @@ check_for_surviving_team()
 
 count_alive_teams()
 {
-	if ( !isDefined( level.times_called ) )
-	{
-		level.times_called = 0;
-	}
 	players = getPlayers();
 	teams = [];
 	alive_teams = 0;
@@ -196,7 +202,6 @@ count_alive_teams()
 			}
 		}
 	}
-	level.times_called++;
 	return alive_teams;
 }
 
@@ -239,6 +244,7 @@ match_start()
 
 start_new_round( is_restart )
 {
+	EVENT_START( "new_round" );
 	if ( flag( "spawn_zombies" ) )
 	{
 		flag_clear( "spawn_zombies" );
@@ -291,6 +297,7 @@ start_new_round( is_restart )
 		flag_set( "spawn_zombies" );
 	}
 	unfreeze_all_players_controls();
+	EVENT_END( "new_round" );
 }
 
 give_points_on_restart_and_round_change()
@@ -305,70 +312,6 @@ give_points_on_restart_and_round_change()
 	}
 }
 
-// timed_rounds()
-// {
-// 	timelimit_in_seconds = int( level.grief_gamerules[ "timelimit" ] * 60 );
-// 	time_left = parse_minutes( to_mins( timelimit_in_seconds ) );
-// 	//BEG Overflow fix
-// 	level.overflow_elem = maps/mp/gametypes_zm/_hud_util::createServerFontString( "default", 1.5 );
-// 	level.overflow_elem setText("xTUL"); //dont remove text here
-// 	level.overflow_elem.alpha = 0;
-// 	//END Overflow fix
-// 	cur_rounds_played = level.rounds_played;
-// 	level.server_hudelems[ "timer" ].hudelem.alpha = 0;
-// 	while ( true )
-// 	{
-// 		if ( flag( "timer_pause" ) )
-// 		{
-// 			level.server_hudelems[ "timer" ].hudelem.alpha = 0;
-// 			while ( flag( "timer_pause" ) )
-// 			{
-// 				wait 1;
-// 			}
-// 			zombie_spawn_delay = level.grief_gamerules[ "round_zombie_spawn_delay" ];
-// 			level.server_hudelems[ "timer" ].hudelem.alpha = 1;
-// 			while ( zombie_spawn_delay > 0 )
-// 			{
-// 				time_left = parse_minutes( to_mins( zombie_spawn_delay ) );
-// 				timeleft_text = time_left[ "minutes" ] + ":" + time_left[ "seconds" ];
-// 				level.server_hudelems[ "timer" ].hudelem HUDELEM_SET_TEXT( timeleft_text );
-// 				wait 1;
-// 				zombie_spawn_delay--;
-// 			}
-// 			waittillframeend;
-// 			if ( cur_rounds_played != level.rounds_played )
-// 			{
-// 				timelimit_in_seconds = int( level.grief_gamerules[ "timelimit" ] * 60 );
-// 				cur_rounds_played = level.rounds_played;
-// 			}
-// 		}
-// 		level.server_hudelems[ "timer" ].hudelem.alpha = 0; //hide the timer for now
-// 		time_left = parse_minutes( to_mins( timelimit_in_seconds ) );
-// 		timeleft_text = time_left[ "minutes" ] + ":" + time_left[ "seconds" ];
-// 		level.server_hudelems[ "timer" ].hudelem HUDELEM_SET_TEXT( timeleft_text );
-// 		wait 1;
-// 		timelimit_in_seconds--;
-// 		if ( ( timelimit_in_seconds % level.zombies_powerup_time ) == 0 )
-// 		{
-// 			if ( level.script == "zm_transit" )
-// 			{
-// 				play_sound_2d( "evt_nomans_warning" );
-// 			}
-// 			else 
-// 			{
-// 				level thread maps/mp/zombies/_zm_audio::change_zombie_music( "round_start" );
-// 			}
-// 			scripts/zm/grief/mechanics/_zombies::powerup_zombies();
-// 		}
-// 		if ( ( timelimit_in_seconds % 20 ) == 0 )
-// 		{
-// 			level.overflow_elem ClearAllTextAfterHudElem();
-// 			level.server_hudelems[ "timer" ].hudelem destroy();
-// 			level.server_hudelems[ "timer" ].hudelem = [[ level.server_hudelem_funcs[ "timer" ] ]]();
-// 		}
-// 	}
-// }
-
 timed_rounds()
 {
 	timer = scripts/zm/grief/gametype/_hud::round_timer_hud_elem();
@@ -380,6 +323,7 @@ timed_rounds()
 		time_round_end();
 		time_pre_round( timer );
 		flag_wait( "spawn_zombies" );
+		wait 1;
 		if ( level.timer_reset )
 		{
 			level.cur_round_time = int( level.grief_gamerules[ "timelimit" ] * 60 );
@@ -429,10 +373,6 @@ time_during_round()
 			if ( level.script == "zm_transit" )
 			{
 				play_sound_2d( "evt_nomans_warning" );
-			}
-			else 
-			{
-				level thread maps/mp/zombies/_zm_audio::change_zombie_music( "round_start" );
 			}
 			scripts/zm/grief/mechanics/_zombies::powerup_zombies();
 		}
