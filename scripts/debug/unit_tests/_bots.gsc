@@ -12,10 +12,10 @@ initialize_unit_test_bots()
 joining_leaving_test()
 {
 	type = getDvar( "scr_unit_tests_bot_join_leaving_type" ); //types are regular, all, stay, and random
-	min_bots = getDvarIntDefault( "scr_unit_tests_bot_join_leaving_min_time", 1 );
-	max_bots = getDvarIntDefault( "scr_unit_tests_bot_join_leaving_max_time", 8 );
-	min_time = getDvarIntDefault( "scr_unit_tests_bot_join_leaving_min_bots", 30 );
-	max_time = getDvarIntDefault( "scr_unit_tests_bot_join_leaving_min_bots", 60 );
+	min_bots = getDvarIntDefault( "scr_unit_tests_bot_join_leaving_min_bots", 1 );
+	max_bots = getDvarIntDefault( "scr_unit_tests_bot_join_leaving_max_bots", 8 );
+	min_time = getDvarIntDefault( "scr_unit_tests_bot_join_leaving_min_time", 30 );
+	max_time = getDvarIntDefault( "scr_unit_tests_bot_join_leaving_min_time", 60 );
 	switch ( type )
 	{
 		case "regular":
