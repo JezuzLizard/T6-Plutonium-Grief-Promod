@@ -45,6 +45,14 @@ main()
 	replaceFunc( maps/mp/zombies/_zm_audio_announcer::playleaderdialogonplayer, scripts/zm/grief/audio/_announcer_fix::playleaderdialogonplayer_override );
 	//END _announcer_fix module
 
+	//BEG _hud module
+	if ( getDvar( "mapname" ) == "zm_prison" )
+	{
+		precacheShader( "faction_guards" );
+		precacheShader( "faction_inmates" );
+	}
+	//END _hud module
+
 	//BEG _obituary module
 	replaceFunc( maps/mp/zombies/_zm_utility::track_players_intersection_tracker, scripts/zm/grief/gametype/_obituary::track_players_intersection_tracker_override );
 	//END _obituary module
@@ -130,10 +138,16 @@ main()
 	//BEG _point_steal module
 	replaceFunc( maps/mp/zombies/_zm_score::player_reduce_points, scripts/zm/grief/mechanics/_point_steal::player_reduce_points_override );
 	//END _point_steal module
+	if ( level.grief_gamerules[ "no_boards" ] )
+	{
+		level.no_board_repair = true; //Disable all board repairing.
+		replaceFunc( maps/mp/zombies/_zm_blockers::should_delete_zbarriers, ::should_delete_zbarriers_override ); //Delete barriers on map
+	}
 }
 
 init()
 {
+	precacheStatusIcon( "waypoint_revive" );
 	level.playerSuicideAllowed = false;
 	level.noroundnumber = 1;
 	setDvar( "g_friendlyfireDist", 0 );
@@ -193,7 +207,6 @@ on_player_connect()
 			player.last_griefed_by.time = 0;
 			player thread scripts/zm/grief/gametype/_obituary::watch_for_down();
 		}
-		player thread scripts/zm/grief/mechanics/_round_system::give_points_on_restart_and_round_change();
 		player scripts/zm/grief/persistence/_session_data::init_player_session_data();
 		player.killsconfirmed = 0;
 		player.stabs = 0;
@@ -518,6 +531,11 @@ check_quickrevive_for_hotjoin() //checked changed to match cerberus output
 	{
 		maps/mp/zombies/_zm::update_quick_revive( false );
 	}
+}
+
+should_delete_zbarriers_override() //checked matches cerberus output
+{
+	return 1;
 }
 
 // init_gamemodecommonvox( prefix )
