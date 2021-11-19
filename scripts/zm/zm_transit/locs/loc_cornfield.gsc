@@ -20,14 +20,12 @@ struct_init()
 	{
 		scripts/zm/grief/gametype_modules/_gametype_setup::register_map_initial_spawnpoint( coordinates[ i ], angles[ i ] );
 	}
-
-	initial_zone[ 0 ] = "zone_pri";
-	initial_zone[ 1 ] = "zone_station_ext";
-	initial_zone[ 2 ] = "zone_tow";
-	initial_zone[ 3 ] = "zone_far_ext";
-	initial_zone[ 4 ] = "zone_brn";
-	//Initialize cut location zones
-	////////////////////////////////////
+	level.location_zones = [];
+	level.location_zones[ 0 ] = "zone_pri";
+	level.location_zones[ 1 ] = "zone_station_ext";
+	level.location_zones[ 2 ] = "zone_tow";
+	level.location_zones[ 3 ] = "zone_far_ext";
+	level.location_zones[ 4 ] = "zone_brn";
 }
 
 precache()
