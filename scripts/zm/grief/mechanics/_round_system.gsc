@@ -25,11 +25,6 @@ generate_storage_maps()
 	}
 	level.e_team_index_grief[ "B" ] = 0;
 	level.e_team_index_grief[ "A" ] = 1;
-	// team_count = getGametypeSetting( "teamCount" );
-	// for ( teamindex = 3; teamindex <= team_count; teamIndex++ )
-	// {
-	// 	level.e_team_index_grief[ "team" + teamindex ] = teamIndex - 1;
-	// }
 }
 
 grief_save_loadouts()
