@@ -83,16 +83,24 @@ perk_restrictions()
 	}
 	perk_speciality_names = level.data_maps[ "perks" ][ "specialties" ];
 	perk_power_notify_names = level.data_maps[ "perks" ][ "power_notifies" ];
-	for ( i = 0; i < perk_speciality_names.size; i++ )
+	perk_restrictions = strTok( level.grief_restrictions[ "perks" ], " " );
+	foreach ( perk in perk_restrictions )
 	{
-		if ( isSubStr( level.grief_restrictions[ "perks" ], perk_speciality_names[ i ] ) || isSubStr( level.grief_restrictions[ "perks" ], perk_power_notify_names[ i ] ) )
+		for ( i = 0; i < perk_speciality_names.size; i++ )
 		{
-			level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_off", i );
-			level.data_maps[ "perks" ][ "is_active" ][ i ] = "0";
-			trigger = getent( level.data_maps[ "perks" ][ "specialties" ][ i ], "script_noteworthy" );
-			trigger trigger_off_proc();
-			trigger.machine ghost();
-			trigger.clip notSolid();
+			if ( perk == perk_speciality_names[ i ] || perk == perk_power_notify_names[ i ] )
+			{
+				level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_off", i );
+				level.data_maps[ "perks" ][ "is_active" ][ i ] = "0";
+				trigger = getent( "specialty_" + level.data_maps[ "perks" ][ "specialties" ][ i ], "script_noteworthy" );
+				if ( isDefined( trigger ) )
+				{
+					trigger trigger_off_proc();
+					trigger.machine ghost();
+					trigger.clip notSolid();
+				}
+				break;
+			}
 		}
 	}
 }
@@ -120,10 +128,10 @@ set_power_state( state )
 		}
 		for ( i = 0; i < level.data_maps[ "perks" ][ "power_notifies" ].size; i++ )
 		{
-			if ( !isSubStr( level.grief_restrictions[ "perks" ], level.data_maps[ "perks" ][ "specialties" ][ i ] ) )
+			level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_on", i );
+			trigger = getent( "specialty_" + level.data_maps[ "perks" ][ "specialties" ][ i ], "script_noteworthy" );
+			if ( isDefined( trigger ) )
 			{
-				level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_on", i );
-				trigger = getent( level.data_maps[ "perks" ][ "specialties" ][ i ], "script_noteworthy" );
 				trigger trigger_on_proc();
 				trigger.machine show();
 				trigger.clip solid();
@@ -132,7 +140,7 @@ set_power_state( state )
 	}
 	else 
 	{
-		flag_set( "power_on" );
+		flag_clear( "power_on" );
 		level setclientfield( "zombie_power_on", 0 );
 		if ( level.script == "zm_transit" )
 		{
@@ -152,10 +160,13 @@ set_power_state( state )
 		for ( i = 0; i < level.data_maps[ "perks" ][ "power_notifies" ].size; i++ )
 		{
 			level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_off", i );
-			trigger = getent( level.data_maps[ "perks" ][ "specialties" ][ i ], "script_noteworthy" );
-			trigger trigger_on_proc();
-			trigger.machine ghost();
-			trigger.clip notSolid();
+			trigger = getent( "specialty_" + level.data_maps[ "perks" ][ "specialties" ][ i ], "script_noteworthy" );
+			if ( isDefined( trigger ) )
+			{
+				trigger trigger_on_proc();
+				trigger.machine ghost();
+				trigger.clip notSolid();
+			}
 		}
 	}
 }
