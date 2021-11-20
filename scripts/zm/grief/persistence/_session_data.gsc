@@ -8,7 +8,7 @@ init_player_session_data()
 	if ( !isDefined( level.players_in_session[ self.name ] ) )
 	{
 		level.players_in_session[ self.name ] = spawnStruct();
-		if ( level.grief_gamerules[ "use_preset_teams" ] && self scripts/zm/grief/team/_teams::check_for_predefined_team() )
+		if ( self scripts/zm/grief/team/_teams::check_for_predefined_team() )
 		{
 			level.players_in_session[ self.name ].sessionteam = self.team;
 		}
