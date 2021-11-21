@@ -52,7 +52,6 @@ main()
 	//BEG _gamerules module
 	scripts/zm/grief/gametype_modules/_gamerules::init_gamerules();
 	replaceFunc( maps/mp/zombies/_zm_magicbox::treasure_chest_init, scripts/zm/grief/gametype_modules/_gamerules::treasure_chest_init_override );
-	replaceFunc( maps/mp/zombies/_zm_perks::turn_perk_off, scripts/zm/grief/gametype_modules/_gamerules::turn_perk_off_override );
 	//END _gamerules module
 
 	//BEG _gametype_setup module 
@@ -89,7 +88,6 @@ main()
 
 	//BEG promod_main module
 	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_override );
-	//replaceFunc( maps/mp/gametypes_zm/_zm_gametype::init, ::game_module_init_override );
 	replaceFunc( maps/mp/zombies/_zm::onallplayersready, ::onallplayersready_override );
 	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::hide_gump_loading_for_hotjoiners, ::hide_gump_loading_for_hotjoiners_override );
 	level.crash_delay = 20;
@@ -149,15 +147,13 @@ init()
 emptyLobbyRestart()
 {
 	level endon( "end_game" );
-	while ( 1 )
+	while ( true )
 	{
-		players = getPlayers();
-		if ( players.size > 0 )
+		if ( getPlayers().size > 0 )
 		{
-			while ( 1 )
+			while ( true )
 			{
-				players = getPlayers();
-				if ( players.size < 1  )
+				if ( getPlayers().size < 1  )
 				{
 					map_restart( false );
 				}
@@ -170,10 +166,19 @@ emptyLobbyRestart()
 
 on_player_connect()
 {
-	level endon( "end_game" );
 	while ( true )
 	{
 		level waittill( "connected", player );
+		if ( is_true( level.intermission ) )
+		{
+			return;
+		}
+		player thread game_module_on_player_spawned();
+		player scripts/zm/grief/gametype/_grief_hud::grief_onplayerconnect();
+		if ( isDefined( level.grief_connected_callback ) )
+		{
+			self [[ level.grief_connected_callback ]]();
+		}
 		if ( level.grief_gamerules[ "knife_lunge" ] )
 		{
 			player setClientDvar( "aim_automelee_range", 120 );
@@ -183,7 +188,6 @@ on_player_connect()
 			player setClientDvar( "aim_automelee_range", 0 );
 		}
 		player thread health_bar_hud(); //part of _health_bar
-		player thread on_player_spawned();
 		player thread afk_kick();
 		if ( !isDefined( player.last_griefed_by ) )
 		{
@@ -205,10 +209,10 @@ on_player_connect()
 }
 
 afk_kick()
-{   
-	level endon( "game_ended" );
+{
+	level endon( "end_game" );
 	self endon("disconnect");
-	if ( self.grief_is_admin )
+	if ( is_true( self.grief_is_admin ) )
 	{
 		return;
 	}
@@ -230,43 +234,6 @@ afk_kick()
 		}
 		wait 0.05;
 		time++;
-	}
-}
-
-on_player_spawned()
-{	
-	level endon( "game_ended" );
-	self endon( "disconnect" );
-
-	while ( true )
-	{	
-		self waittill( "spawned_player" );
-		self.health = level.grief_gamerules[ "player_health" ];
-		self.maxHealth = self.health;
-		if ( level.grief_gamerules[ "reduced_pistol_ammo" ] )
-		{
-			scripts/zm/grief/mechanics/loadout/_weapons::reduce_starting_ammo();
-		}
-	}
-}
-
-game_module_init_override() //checked matches cerberus output
-{
-	level thread game_module_on_player_connect();
-}
-
-game_module_on_player_connect() //checked matches cerberus output
-{
-	level endon( "end_game" );
-	for ( ;; )
-	{
-		level waittill( "connected", player );
-		player thread game_module_on_player_spawned();
-		player scripts/zm/grief/gametype/_grief_hud::grief_onplayerconnect();
-		if ( isDefined( level.grief_connected_callback ) )
-		{
-			self [[ level.grief_connected_callback ]]();
-		}
 	}
 }
 
@@ -307,6 +274,10 @@ game_module_on_player_spawned() //checked partially changed to cerberus output
 			self giveweapon( level._team_loadout );
 			self switchtoweapon( level._team_loadout );
 		}
+		if ( level.grief_gamerules[ "reduced_pistol_ammo" ] )
+		{
+			self scripts/zm/grief/mechanics/loadout/_weapons::reduce_starting_ammo();
+		}
 		if ( isDefined( level.gamemode_post_spawn_logic ) )
 		{
 			self [[ level.gamemode_post_spawn_logic ]]();
@@ -325,14 +296,9 @@ onallplayersready_override()
 	{
 		wait 0.1;
 	}
-	game[ "state" ] = "playing";
 	wait_for_all_players_to_connect( level.crash_delay );
 	setinitialplayersconnected(); 
 	flag_set( "initial_players_connected" );
-	while ( !aretexturesloaded() )
-	{
-		wait 0.05;
-	}
 	thread maps/mp/zombies/_zm::start_zombie_logic_in_x_sec( 3 );
 	maps/mp/zombies/_zm::fade_out_intro_screen_zm( 5, 1.5, 1 );
 }

@@ -175,7 +175,6 @@ onprecachegametype()
 	precacheshader( "waypoint_revive_cia_zm" );
 	level._effect[ "butterflies" ] = loadfx( "maps/zombie/fx_zmb_impact_noharm" );
 	level thread maps/mp/zombies/_zm_game_module_meat_utility::init_item_meat( "zgrief" );
-	level thread scripts/zm/promod_main::game_module_init_override();
 	scripts/zm/grief/gametype_modules/_gametype_setup::rungametypeprecache_override( "zgrief" );
 }
 
