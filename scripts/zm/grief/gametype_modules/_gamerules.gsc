@@ -24,6 +24,7 @@ init_gamerules()
 	level.grief_gamerules[ "power_state" ] = getDvarIntDefault( "grief_gamerule_power_start_state", 1 );
 	level.grief_gamerules[ "round_zombie_spawn_delay" ] = getDvarIntDefault( "grief_gamerule_round_zombie_spawn_delay", 15 );
 	level.grief_gamerules[ "pregame_time" ] = getDvarIntDefault( "grief_gamerule_pregame_time", 15 );
+	level.grief_gamerules[ "health_bar" ] = getDvarIntDefault( "grief_gamerule_health_bar", 0 );
 	setdvar( "ui_scorelimit", level.grief_gamerules[ "scorelimit" ] );
 	//setdvar( "ui_timelimit", level.grief_gamerules[ "timelimit" ] );
 	makeDvarServerInfo( "ui_scorelimit" );

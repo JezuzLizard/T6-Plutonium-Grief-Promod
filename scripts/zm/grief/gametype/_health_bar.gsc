@@ -65,39 +65,48 @@ health_bar_hud()
 	health_bar thread cleanup_health_bar_on_end_game();
 	health_bar_text thread cleanup_health_bar_on_disconnect( self );
 	health_bar_text thread cleanup_health_bar_on_end_game();
+
 	while ( true )
 	{
-		if ( isDefined( self.e_afterlife_corpse ) || !is_player_valid( self ) )
+		if( level.grief_gamerules[ "health_bar" ] )
 		{
 			if (health_bar.alpha != 0)
 			{
-				health_bar fadeOverTime( 2.0 );
 				health_bar.alpha = 0;
-				health_bar.bar fadeOverTime( 2.0 );
 				health_bar.bar.alpha = 0;
-				health_bar.barframe fadeOverTime( 2.0 );
 				health_bar.barframe.alpha = 0;
-				health_bar_text fadeOverTime( 2.0 );
 				health_bar_text.alpha = 0;
-				wait 2;
 			}
-			wait 0.05;
-			continue;
 		}
-		if ( health_bar.alpha != 0.8 )
+		else
 		{
-			health_bar fadeOverTime( 2.0 );
-			health_bar.alpha = 0.8;
-			health_bar.bar fadeOverTime( 2.0 );
-			health_bar.bar.alpha = 0.8;
-			health_bar.barframe fadeOverTime( 2.0 );
-			health_bar.barframe.alpha = 0.8;
-			health_bar_text fadeOverTime( 2.0 );
-			health_bar_text.alpha = 0.8;
-			wait 2;
+			if ( isDefined( self.e_afterlife_corpse ) || !is_player_valid( self )  && isDefined( self.waiting_to_revive ) &&  self.waiting_to_revive || self maps/mp/zombies/_zm_laststand::player_is_in_laststand()  )
+			{
+				if (health_bar.alpha != 0)
+				{
+					health_bar.alpha = 0;
+					health_bar.bar.alpha = 0;
+					health_bar.barframe.alpha = 0;
+					health_bar_text.alpha = 0;
+				}
+				wait 0.05;
+				continue;
+			}
+			if ( health_bar.alpha != 0.8 )
+			{
+				health_bar fadeOverTime( 0.25 );
+				health_bar.alpha = 0.8;
+				health_bar.bar fadeOverTime( 0.25 );
+				health_bar.bar.alpha = 0.8;
+				health_bar.barframe fadeOverTime( 0.25 );
+				health_bar.barframe.alpha = 0.8;
+				health_bar_text fadeOverTime( 0.25 );
+				health_bar_text.alpha = 0.8;
+				wait 0.25;
+			}
+			health_bar updatebar( self.health / self.maxhealth );
+			health_bar_text setvalue( self.health );
 		}
-		health_bar updatebar( self.health / self.maxhealth );
-		health_bar_text setvalue( self.health );
 		wait 0.05;
 	}
 }
