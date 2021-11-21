@@ -398,7 +398,7 @@ time_round_end()
 
 time_pre_round( timer )
 {
-	timer.alpha = 1;
+	//timer.alpha = 1;
 	timer setTimer( level.grief_gamerules[ "round_zombie_spawn_delay" ] );
 	for ( zombie_spawn_delay = level.grief_gamerules[ "round_zombie_spawn_delay" ]; zombie_spawn_delay > 0; zombie_spawn_delay-- )
 	{
