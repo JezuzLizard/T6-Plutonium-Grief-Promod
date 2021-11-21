@@ -7,21 +7,8 @@ hud_init()
 	HUDELEM_SERVER_ADD( "timer", "text", ::create_round_timer );
 	HUDELEM_SERVER_ADD( "grief_score_axis", "value", ::grief_score_axis );
 	HUDELEM_SERVER_ADD( "grief_score_allies", "value", ::grief_score_allies );
-	if ( level.script == "zm_prison" )
-	{
-		HUDELEM_SERVER_ADD( "grief_score_axis_icon_prison", "text", ::grief_score_axis_icon_prison );
-		HUDELEM_STORE_TEXT( "grief_score_axis_icon_prison", "Inmates " );
-		HUDELEM_SERVER_ADD( "grief_score_allies_icon_prison", "text", ::grief_score_allies_icon_prison );
-		HUDELEM_STORE_TEXT( "grief_score_axis_icon_prison", "Guards " );
-	}
-	else 
-	{
-		HUDELEM_SERVER_ADD( "grief_score_axis_icon_normal", "shader", ::grief_score_axis_icon_normal );
-		// //HUDELEM_STORE_SHADER( "grief_score_axis_icon_normal", game[ "icons" ][ "axis" ], 35, 35 );
-		HUDELEM_SERVER_ADD( "grief_score_allies_icon_normal", "shader", ::grief_score_allies_icon_normal );
-		// //HUDELEM_STORE_SHADER( "grief_score_allies_icon_normal", game[ "icons" ][ "allies" ], 35, 35 );
-	}
-	// level thread HUDELEM_OVERFLOW_FIX();
+	HUDELEM_SERVER_ADD( "grief_score_axis_icon", "shader", ::grief_score_axis_icon );
+	HUDELEM_SERVER_ADD( "grief_score_allies_icon", "shader", ::grief_score_allies_icon );
 }
 
 HUDELEM_SERVER_ADD( name, type, hudelem_constructor )
@@ -37,86 +24,6 @@ HUDELEM_SERVER_ADD( name, type, hudelem_constructor )
 	level.server_hudelem_funcs[ name ] = hudelem_constructor;
 	level.server_hudelems[ name ] = spawnStruct();
 	level.server_hudelems[ name ].hudelem = [[ hudelem_constructor ]]();
-	level.server_hudelems[ name ].type = type;
-	// switch ( type )
-	// {
-	// 	case "value":
-	// 		level.server_hudelems[ name ].cur_value = 0;
-	// 		break;
-	// 	case "shader":
-	// 		level.server_hudelems[ name ].cur_shader = [];
-	// 		level.server_hudelems[ name ].cur_shader[ "name" ] = "";
-	// 		level.server_hudelems[ name ].cur_shader[ "height" ] = 0;
-	// 		level.server_hudelems[ name ].cur_shader[ "width" ] = 0;
-	// 		break;
-	// 	case "text":
-	// 		level.server_hudelems[ name ].cur_text = "";
-	// 		break;
-	// }
-}
-
-// HUDELEM_OVERFLOW_FIX()
-// {
-// 	level endon( "end_game" );
-// 	while ( true )
-// 	{
-// 		level waittill( "hudelem_text" );
-// 		if ( level.hudelem_text_set >= 40 )
-// 		{
-// 			level.overflow_elem ClearAllTextAfterHudElem();
-// 			keys = getArrayKeys( level.server_hudelems );
-// 			for ( i = 0; i < keys.size; i++ )
-// 			{
-// 				switch ( level.server_hudelems[ keys[ i ] ].type )
-// 				{
-// 					// case "value":
-// 					// 	break;
-// 					// case "shader":
-// 					// 	break;
-// 					case "text":
-// 						level.server_hudelems[ keys[ i ] ].hudelem destroy();
-// 						level.server_hudelems[ keys[ i ] ].hudelem = [[ level.server_hudelem_funcs[ keys[ i ] ] ]]();
-// 						level.server_hudelems[ keys[ i ] ].hudelem setText( level.server_hudelems[ keys[ i ] ].cur_text );
-// 						break;
-// 					default:
-// 						break;
-// 				}
-// 			}
-// 			level.hudelem_text_set = 0;
-// 		}
-// 	}
-// }
-
-HUDELEM_STORE_SHADER( name, shader, height, width )
-{
-	if ( !isDefined( level.server_hudelems[ name ] ) )
-	{
-		return;
-	}
-	level.server_hudelems[ name ].cur_shader[ "name" ] = shader;
-	level.server_hudelems[ name ].cur_shader[ "height" ] = height;
-	level.server_hudelems[ name ].cur_shader[ "width" ] = width;
-}
-
-HUDELEM_STORE_TEXT( name, text )
-{
-	level.server_hudelems[ name ].cur_text = text;
-}
-
-HUDELEM_STORE_VALUE( name, value )
-{
-	level.server_hudelems[ name ].cur_value = value;
-}
-
-HUDELEM_SET_TEXT( text )
-{
-	if ( !isDefined( level.hudelem_text_set ) )
-	{
-		level.hudelem_text_set = 0;
-	}
-	level.hudelem_text_set++;
-	self setText( text );
-	//level notify( "hudelem_text" );
 }
 
 countdown_pulse( hud_elem, duration )
@@ -146,27 +53,21 @@ grief_score_allies()
 	return grief_score_hud;
 }
 
-grief_score_allies_icon_normal()
+grief_score_allies_icon()
 {
-	team_shader2 = createservericon( game[ "icons" ][ "allies" ], 35, 35 );
+	if ( getDvar( "mapname" ) == "zm_prison" )
+	{
+		icon = "faction_guards";
+	}
+	else 
+	{
+		icon = "faction_cdc";
+	}
+	team_shader2 = createservericon( icon, 35, 35 );
 	team_shader2.x += -110;
 	team_shader2.y += -20;
 	team_shader2.hideWhenInMenu = 1;
 	team_shader2.alpha = 1;
-	return team_shader2;
-}
-
-grief_score_allies_icon_prison()
-{
-	team_shader2 = newhudelem();
-	team_shader2.x += 170;
-	team_shader2.y += 20;
-	team_shader2.fontscale = 2.5;
-	team_shader2.color = ( 0, 0.004, 0.423 );
-	team_shader2.alpha = 1;
-	team_shader2.hidewheninmenu = 1;
-	//HUDELEM_STORE_TEXT( "grief_score_allies_icon_prison" , "Guards " );
-	team_shader2 HUDELEM_SET_TEXT( "Guards " ); 
 	return team_shader2;
 }
 
@@ -183,27 +84,21 @@ grief_score_axis()
 	return grief_score_hud;
 }
 
-grief_score_axis_icon_normal()
+grief_score_axis_icon()
 {
-	team_shader1 = createservericon( game[ "icons" ][ "axis" ], 35, 35 );
+	if ( getDvar( "mapname" ) == "zm_prison" )
+	{
+		icon = "faction_inmates";
+	}
+	else 
+	{
+		icon = "faction_cia";
+	}
+	team_shader1 = createservericon( icon, 35, 35 );
 	team_shader1.x += 90;
 	team_shader1.y += -20;
 	team_shader1.hideWhenInMenu = 1;
 	team_shader1.alpha = 1;
-	return team_shader1;
-}
-
-grief_score_axis_icon_prison()
-{
-	team_shader1 = newhudelem();
-	team_shader1.x += 360;
-	team_shader1.y += 20;
-	team_shader1.fontscale = 2.5;
-	team_shader1.color = ( 1, 0.333, 0.333 );
-	team_shader1.alpha = 1;
-	team_shader1.hidewheninmenu = 1;
-	//HUDELEM_STORE_TEXT( "grief_score_axis_icon_normal", "Inmates " );
-	team_shader1 HUDELEM_SET_TEXT( "Inmates " );
 	return team_shader1;
 }
 
@@ -261,7 +156,7 @@ round_change_hud_text()
 	countdown.color = ( 1.000, 1.000, 1.000 );
 	countdown.hidewheninmenu = true;
 	//HUDELEM_STORE_TEXT( "round_change_hud_text", "Next Round In" );
-	countdown HUDELEM_SET_TEXT("Next Round In");
+	countdown.label = &"Next Round In";
 	return countdown;
 }
 
