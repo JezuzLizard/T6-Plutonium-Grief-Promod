@@ -68,7 +68,7 @@ health_bar_hud()
 
 	while ( true )
 	{
-		if( level.grief_gamerules[ "health_bar" ] )
+		if( !level.grief_gamerules[ "health_bar" ] )
 		{
 			if (health_bar.alpha != 0)
 			{
