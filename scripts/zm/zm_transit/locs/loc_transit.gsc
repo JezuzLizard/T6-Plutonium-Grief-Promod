@@ -11,7 +11,11 @@
 
 struct_init()
 {
-	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, -5, 0), ( -6136, 5590, -63.85 ) );
+	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, 180, 0 ), ( -6706, 5016, -56 ) );
+	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_quickrevive", "zombie_vending_revive", ( 0, 180, 0 ), ( -6122, 4110, -52 ) );
+	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_rof", "zombie_vending_doubletap2", ( 0, 180, 0 ), ( -6241, 5337, -56 ) );
+	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_fastreload", "zombie_vending_sleight", ( 0, 120, 0 ), ( -7489, 4217, -64 ) );
+	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_weapupgrade", "p6_anim_zm_buildable_pap", ( 0, 230, 0 ), ( -6834, 4553, -65 ) );
 }
 
 precache() //checked matches cerberus output
