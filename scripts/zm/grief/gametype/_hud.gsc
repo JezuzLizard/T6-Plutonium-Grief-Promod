@@ -4,16 +4,15 @@
 
 hud_init()
 {
-	HUDELEM_SERVER_ADD( "timer", "text", ::create_round_timer );
-	HUDELEM_SERVER_ADD( "grief_score_axis", "value", ::grief_score_axis );
-	HUDELEM_SERVER_ADD( "grief_score_allies", "value", ::grief_score_allies );
-	HUDELEM_SERVER_ADD( "grief_score_axis_icon", "shader", ::grief_score_axis_icon );
-	HUDELEM_SERVER_ADD( "grief_score_allies_icon", "shader", ::grief_score_allies_icon );
+	HUDELEM_SERVER_ADD( "grief_score_axis", ::grief_score_axis );
+	HUDELEM_SERVER_ADD( "grief_score_allies", ::grief_score_allies );
+	HUDELEM_SERVER_ADD( "grief_score_axis_icon", ::grief_score_axis_icon );
+	HUDELEM_SERVER_ADD( "grief_score_allies_icon", ::grief_score_allies_icon );
 }
 
-HUDELEM_SERVER_ADD( name, type, hudelem_constructor )
+HUDELEM_SERVER_ADD( name, hudelem_constructor )
 {
-	if ( !isDefined( level.server_hudelems ) )
+	if ( !isDefined( level.server_hudelem_funcs ) )
 	{
 		level.server_hudelem_funcs = [];
 	}
@@ -100,22 +99,6 @@ grief_score_axis_icon()
 	team_shader1.hideWhenInMenu = 1;
 	team_shader1.alpha = 1;
 	return team_shader1;
-}
-
-create_round_timer()
-{
-	seconds_display = newhudelem();
-	seconds_display.hidewheninmenu = 1;
-	seconds_display.horzalign = "user_left";
-	seconds_display.vertalign = "user_bottom";
-	seconds_display.foreground = 1;
-	seconds_display.font = "objective";
-	seconds_display.fontscale = 3;
-	seconds_display.color = ( 1, 1, 1 );
-	seconds_display.alpha = 1;
-	seconds_display.x += 120;
-	seconds_display.y -= 40;
-	return seconds_display;
 }
 
 round_change_hud_timer_elem()
