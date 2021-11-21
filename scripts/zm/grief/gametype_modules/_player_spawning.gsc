@@ -82,6 +82,10 @@ onspawnplayer( predictedspawn )
 	{
 		self delay_thread( 0.05, maps/mp/zombies/_zm::spawnspectator );
 	}
+	else if ( is_true( level.in_grief_pre_round ) )
+	{
+		self freezecontrols( 0 );
+	}
 	else 
 	{
 		self enableweapons();
@@ -233,7 +237,14 @@ onplayerspawned() //checked matches cerberus output
 	for ( ;; )
 	{
 		self waittill( "spawned_player" );
-		self freezecontrols( 1 );
+		if ( is_true( level.in_grief_pre_round ) )
+		{
+			self freezecontrols( 0 );
+		}
+		else 
+		{
+			self freezecontrols( 1 );
+		}
 		self.hits = 0;
 		self init_player_offhand_weapons();
 		lethal_grenade = self get_player_lethal_grenade();

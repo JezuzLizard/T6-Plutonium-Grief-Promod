@@ -279,6 +279,7 @@ start_new_round( is_restart )
 	give_points_on_restart_and_round_change();
 	level notify( "timer_start_pre_round" );
 	unfreeze_all_players_controls();
+	level.in_grief_pre_round = true;
 	wait level.grief_gamerules[ "round_zombie_spawn_delay" ];
 	level thread maps/mp/zombies/_zm_audio::change_zombie_music( "round_start" );
 	maps/mp/zombies/_zm_powerups::powerup_round_start();
@@ -287,7 +288,7 @@ start_new_round( is_restart )
 	{
 		flag_set( "spawn_zombies" );
 	}
-	unfreeze_all_players_controls();
+	level.in_grief_pre_round = false;
 }
 
 give_points_on_restart_and_round_change()
