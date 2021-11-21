@@ -45,6 +45,14 @@ main()
 	replaceFunc( maps/mp/zombies/_zm_audio_announcer::playleaderdialogonplayer, scripts/zm/grief/audio/_announcer_fix::playleaderdialogonplayer_override );
 	//END _announcer_fix module
 
+	//BEG _hud module
+	if ( getDvar( "mapname" ) == "zm_prison" )
+	{
+		precacheShader( "faction_guards" );
+		precacheShader( "faction_inmates" );
+	}
+	//END _hud module
+
 	//BEG _obituary module
 	replaceFunc( maps/mp/zombies/_zm_utility::track_players_intersection_tracker, scripts/zm/grief/gametype/_obituary::track_players_intersection_tracker_override );
 	//END _obituary module
