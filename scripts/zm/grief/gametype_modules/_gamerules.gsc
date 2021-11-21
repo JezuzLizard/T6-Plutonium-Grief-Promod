@@ -34,8 +34,8 @@ init_gamerules()
 
 init_restrictions()
 {
-	key_list = "weapupgrade:Pack_A_Punch:1|armorvest:juggernog:1|quickrevive:revive:1|fastreload:sleight:1|rof:doubletap:1|longersprint:marathon:1|deadshot:deadshot:1|additionalprimaryweapon:additionalprimaryweapon:1|scavenger:tombstone:1|finalstand:chugabud:1|grenadepulldeath:electric_cherry:1|flakjacket:divetonuke:1|nomotionsensor:specialty_nomotionsensor:1";
-	key_names = "specialties|power_notifies|is_active";
+	key_list = "weapupgrade:Pack_A_Punch|armorvest:juggernog|quickrevive:revive|fastreload:sleight|rof:doubletap|longersprint:marathon|deadshot:deadshot|additionalprimaryweapon:additionalprimaryweapon|scavenger:tombstone|finalstand:chugabud|grenadepulldeath:electric_cherry|flakjacket:divetonuke|nomotionsensor:specialty_nomotionsensor";
+	key_names = "specialties|power_notifies";
 	generate_map( "perks", key_list, key_names );
 	key_list = "nuke:1|insta_kill:1|full_ammo:1|double_points:1";
 	if ( getDvar( "ui_zm_gamemodegroup" ) == "zencounter" )
@@ -76,45 +76,54 @@ powerup_restrictions()
 	}
 }
 
-perk_restrictions()
+is_perk_restricted( perk )
 {
 	if ( level.grief_restrictions[ "perks" ] == "" )
 	{
-		return;
+		return false;
 	}
-	if ( !flag( "power_on" ) )
-	{
-		return;
-	}
-	perk_speciality_names = level.data_maps[ "perks" ][ "specialties" ];
-	perk_power_notify_names = level.data_maps[ "perks" ][ "power_notifies" ];
 	perk_restrictions = strTok( level.grief_restrictions[ "perks" ], " " );
-	foreach ( perk in perk_restrictions )
+	foreach ( restriction in perk_restrictions )
 	{
-		for ( i = 0; i < perk_speciality_names.size; i++ )
+		if ( perk == restriction || restriction == "all" )
 		{
-			if ( perk == perk_speciality_names[ i ] || perk == perk_power_notify_names[ i ] || perk == "all" )
-			{
-				level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_off", i );
-				level.data_maps[ "perks" ][ "is_active" ][ i ] = "0";
-				trigger = getent( "specialty_" + level.data_maps[ "perks" ][ "specialties" ][ i ], "script_noteworthy" );
-				if ( isDefined( trigger ) )
-				{
-					trigger trigger_off_proc();
-					trigger.machine ghost();
-					trigger.clip notSolid();
-					perk_machine = getEnt( trigger.target, "target" );
-					if ( isDefined( perk_machine ) )
-					{
-						perk_machine perk_fx( undefined, 1 );
-						perk_machine ghost();
-					}
-				}
-				break;
-			}
+			return true;
 		}
 	}
+	return false;
 }
+
+// perk_restrictions()
+// {
+// 	if ( level.grief_restrictions[ "perks" ] == "" )
+// 	{
+// 		return;
+// 	}
+// 	if ( !flag( "power_on" ) )
+// 	{
+// 		return;
+// 	}
+// 	perk_speciality_names = level.data_maps[ "perks" ][ "specialties" ];
+// 	perk_power_notify_names = level.data_maps[ "perks" ][ "power_notifies" ];
+// 	perk_restrictions = strTok( level.grief_restrictions[ "perks" ], " " );
+// 	foreach ( perk in perk_restrictions )
+// 	{
+// 		for ( i = 0; i < perk_speciality_names.size; i++ )
+// 		{
+// 			if ( perk == perk_speciality_names[ i ] || perk == perk_power_notify_names[ i ] || perk == "all" )
+// 			{
+// 				trigger = getent( "specialty_" + level.data_maps[ "perks" ][ "specialties" ][ i ], "script_noteworthy" );
+// 				if ( isDefined( trigger ) )
+// 				{
+// 					level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_off", i );
+// 					trigger trigger_off_proc();
+// 					trigger.clip notSolid();
+// 				}
+// 				break;
+// 			}
+// 		}
+// 	}
+// }
 
 set_power_state( state )
 {
@@ -139,16 +148,26 @@ set_power_state( state )
 		}
 		for ( i = 0; i < level.data_maps[ "perks" ][ "power_notifies" ].size; i++ )
 		{
-			level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_on", i );
-			trigger = getent( "specialty_" + level.data_maps[ "perks" ][ "specialties" ][ i ], "script_noteworthy" );
-			if ( isDefined( trigger ) )
+			if ( is_perk_restricted( level.data_maps[ "perks" ][ "specialties" ][ i ] ) || is_perk_restricted( level.data_maps[ "perks" ][ "power_notifies" ][ i ] ) )
 			{
-				trigger trigger_on_proc();
-				trigger.clip solid();
+				trigger = getent( "specialty_" + level.data_maps[ "perks" ][ "specialties" ][ i ], "script_noteworthy" );
+				if ( isDefined( trigger ) && !is_true( trigger.is_restricted ) )
+				{
+					hide_restricted_perk( trigger );
+					trigger.is_restricted = true;
+				}
+			}
+			else 
+			{
+				trigger = getent( "specialty_" + level.data_maps[ "perks" ][ "specialties" ][ i ], "script_noteworthy" );
+				if ( isDefined( trigger ) )
+				{
+					level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_on", i );
+				}
 			}
 		}
 	}
-	else 
+	else if ( is_true( level.grief_initial_power_on_done ) )
 	{
 		flag_clear( "power_on" );
 		level setclientfield( "zombie_power_on", 0 );
@@ -169,20 +188,25 @@ set_power_state( state )
 		}
 		for ( i = 0; i < level.data_maps[ "perks" ][ "power_notifies" ].size; i++ )
 		{
-			level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_off", i );
-			trigger = getent( "specialty_" + level.data_maps[ "perks" ][ "specialties" ][ i ], "script_noteworthy" );
-			if ( isDefined( trigger ) )
+			if ( is_perk_restricted( level.data_maps[ "perks" ][ "specialties" ][ i ] ) || is_perk_restricted( level.data_maps[ "perks" ][ "power_notifies" ][ i ] ) )
 			{
-				trigger trigger_off_proc();
-				trigger.clip notSolid();
-				perk_machine = getEnt( trigger.target, "target" );
-				if ( isDefined( perk_machine ) )
+				trigger = getent( "specialty_" + level.data_maps[ "perks" ][ "specialties" ][ i ], "script_noteworthy" );
+				if ( isDefined( trigger ) && !is_true( trigger.is_restricted ) )
 				{
-					perk_machine perk_fx( undefined, 1 );
-					perk_machine ghost();
+					level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_off", i );
+					hide_restricted_perk( trigger );
+					trigger.is_restricted = true;
 				}
 			}
+			else
+			{
+				level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_off", i );
+			}
 		}
+	}
+	if ( !isDefined( level.grief_initial_power_on_done ) )
+	{
+		level.grief_initial_power_on_done = true;
 	}
 }
 
@@ -284,5 +308,57 @@ generate_map( map_name, arg_list, name_list )
 				level.data_maps[ map_name ][ name_list_keys[ j ] ][ size ] = pairs[ j ];
 			}
 		}
+	}
+}
+
+turn_perk_off_override( ishidden )
+{
+	self notify( "stop_loopsound" );
+	newmachine = spawn( "script_model", self.origin );
+	newmachine.angles = self.angles;
+	newmachine.targetname = self.targetname;
+	newmachine.ishidden = 1;
+	newmachine hide();
+	self delete();
+}
+
+perk_fx_override( fx, turnofffx )
+{
+	if ( isDefined( turnofffx ) )
+	{
+		self.perk_fx = 0;
+	}
+	else if ( !is_true( perk_machine.is_restricted ) )
+	{
+		wait 3;
+		if ( isDefined( self ) && !is_true( self.perk_fx ) )
+		{
+			playfxontag( level._effect[ fx ], self, "tag_origin" );
+			self.perk_fx = 1;
+		}
+	}
+}
+
+hide_restricted_perk( perk_trigger )
+{
+	if ( !is_true( perk_machine.is_restricted ) )
+	{
+		perk_trigger trigger_off_proc();
+		perk_trigger.clip notSolid();
+		perk_machine = getEnt( perk_trigger.target, "targetname" );
+		perk_machine hide();
+		perk_machine.is_restricted = true;
+	}
+}
+
+show_restricted_perk( perk_trigger )
+{
+	if ( is_true( perk_machine_is_restricted ) )
+	{
+		perk_trigger trigger_on_proc();
+		perk_trigger.clip solid();
+		perk_machine = getEnt( perk_trigger.target, "targetname" );
+		perk_machine show();
+		perk_machine.is_restricted = false;
 	}
 }
