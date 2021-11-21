@@ -78,11 +78,8 @@ match_end( winner )
 	keys = getArrayKeys( level.server_hudelems );
 	for ( i = 0; i < keys.size; i++ )
 	{
-		foreach ( elem in level.server_hudelems[ keys[ i ] ] )
-		{
-			elem.hudelem notify( "destroy_hud" );
-			elem.hudelem destroy();
-		}
+		level.server_hudelems[ keys[ i ] ].hudelem notify( "destroy_hud" );
+		level.server_hudelems[ keys[ i ] ].hudelem destroy();
 	}
 	level.gamemodulewinningteam = winner;
 	players = getPlayers();
