@@ -28,6 +28,8 @@ powerup_zombies()
 
 set_zombie_spawn_speed()
 {
+	level.zombie_vars[ "zombie_spawn_delay" ] = 2;
+
 	for ( i = 1; i <= level.zombie_power_level; i++ )
 	{
 		timer = level.zombie_vars[ "zombie_spawn_delay" ];
@@ -86,7 +88,7 @@ zombie_spawning() //checked changed to match cerberus output
 {
 	level endon( "end_game" );
 	old_spawn = undefined;
-	level.zombie_vars[ "zombie_spawn_delay" ] = 0.5;
+	level.zombie_vars[ "zombie_spawn_delay" ] = 2;
 	while ( 1 )
 	{
 		while ( get_current_zombie_count() >= level.zombie_ai_limit )
