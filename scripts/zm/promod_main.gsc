@@ -52,6 +52,8 @@ main()
 	//BEG _gamerules module
 	scripts/zm/grief/gametype_modules/_gamerules::init_gamerules();
 	replaceFunc( maps/mp/zombies/_zm_magicbox::treasure_chest_init, scripts/zm/grief/gametype_modules/_gamerules::treasure_chest_init_override );
+	replaceFunc( maps/mp/zombies/_zm_perks::turn_perk_off, scripts/zm/grief/gametype_modules/_gamerules::turn_perk_off_override );
+	replaceFunc( maps/mp/zombies/_zm_perks::perk_fx, scripts/zm/grief/gametype_modules/_gamerules::perk_fx_override );
 	//END _gamerules module
 
 	//BEG _gametype_setup module 
