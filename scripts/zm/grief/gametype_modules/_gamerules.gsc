@@ -92,7 +92,7 @@ perk_restrictions()
 	{
 		for ( i = 0; i < perk_speciality_names.size; i++ )
 		{
-			if ( perk == perk_speciality_names[ i ] || perk == perk_power_notify_names[ i ] )
+			if ( perk == perk_speciality_names[ i ] || perk == perk_power_notify_names[ i ] || perk == "all" )
 			{
 				level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_off", i );
 				level.data_maps[ "perks" ][ "is_active" ][ i ] = "0";
@@ -102,10 +102,11 @@ perk_restrictions()
 					trigger trigger_off_proc();
 					trigger.machine ghost();
 					trigger.clip notSolid();
-					perk_machine = getEnt( trigger.targetname, "targetname" );
+					perk_machine = getEnt( trigger.target, "target" );
 					if ( isDefined( perk_machine ) )
 					{
 						perk_machine perk_fx( undefined, 1 );
+						perk_machine ghost();
 					}
 				}
 				break;
@@ -142,7 +143,6 @@ set_power_state( state )
 			if ( isDefined( trigger ) )
 			{
 				trigger trigger_on_proc();
-				trigger.machine show();
 				trigger.clip solid();
 			}
 		}
@@ -173,12 +173,12 @@ set_power_state( state )
 			if ( isDefined( trigger ) )
 			{
 				trigger trigger_off_proc();
-				trigger.machine ghost();
 				trigger.clip notSolid();
-				perk_machine = getEnt( trigger.targetname, "targetname" );
+				perk_machine = getEnt( trigger.target, "target" );
 				if ( isDefined( perk_machine ) )
 				{
 					perk_machine perk_fx( undefined, 1 );
+					perk_machine ghost();
 				}
 			}
 		}
@@ -284,15 +284,4 @@ generate_map( map_name, arg_list, name_list )
 			}
 		}
 	}
-}
-
-turn_perk_off_override( isHidden )
-{
-	self notify( "stop_loopsound" );
-	newmachine = spawn( "script_model", self.origin );
-	newmachine.angles = self.angles;
-	newmachine.targetname = self.targetname;
-	newmachine.ishidden = 1;
-	newmachine ghost();
-	self delete();
 }
