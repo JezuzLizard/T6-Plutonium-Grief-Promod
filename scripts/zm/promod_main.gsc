@@ -143,6 +143,7 @@ main()
 
 init()
 {
+	precacheStatusIcon( "waypoint_revive" );
 	level.playerSuicideAllowed = false;
 	level.noroundnumber = 1;
 	setDvar( "g_friendlyfireDist", 0 );

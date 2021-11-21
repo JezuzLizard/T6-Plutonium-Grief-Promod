@@ -14,7 +14,9 @@ watch_for_down()
 	while ( true )
 	{
 		flag_wait( "spawn_zombies" );
-		if ( self maps/mp/zombies/_zm_laststand::player_is_in_laststand() || !isAlive( self ) )
+		in_laststand = self maps/mp/zombies/_zm_laststand::player_is_in_laststand();
+		is_alive = isAlive( self );
+		if ( in_laststand || !is_alive )
 		{
 			if ( isDefined( self.last_griefed_by.attacker ) )
 			{
@@ -27,12 +29,25 @@ watch_for_down()
 				}
 				//self thread scripts/zm/grief/mechanics/_point_steal::steal_points_on_bleedout( self.last_griefed_by.attacker );
 			}
-			self.statusicon = "hud_status_dead";
+			self thread change_status_icon( is_alive );
 			self waittill_either( "player_revived", "spawned" );
 			self.statusicon = "";
 		}
 		wait 0.05;
 	}
+}
+
+change_status_icon( is_alive )
+{
+	level endon( "end_game" );
+	self endon( "spawned" );
+	self endon( "player_revived" );
+	if ( is_alive )
+	{
+		self.statusicon = "waypoint_revive";
+		self waittill( "bled_out" );
+	}
+	self.statusicon = "hud_status_dead";
 }
 
 track_players_intersection_tracker_override()
