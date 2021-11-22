@@ -227,7 +227,7 @@ match_start()
 	//flag_set( "timer_pause" );
 	setdvar( "ui_scorelimit", level.grief_gamerules[ "scorelimit" ] );
 	makeDvarServerInfo( "ui_scorelimit" );
-	level thread timed_rounds(); //3
+	//level thread timed_rounds(); //3
 	start_new_round( false ); //2
 	level thread grief_save_loadouts();
 	level thread check_for_surviving_team(); //1
