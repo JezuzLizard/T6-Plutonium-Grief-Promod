@@ -11,6 +11,7 @@ onplayerspawned_override()
 	}
 }
 
+
 playerhealthregen()
 {
 	self notify( "playerHealthRegen" );
@@ -30,8 +31,6 @@ playerhealthregen()
 	self player_flag_clear( "player_has_red_flashing_overlay" );
 	self player_flag_clear( "player_is_invulnerable" );
 	self thread maps/mp/zombies/_zm_playerhealth::healthoverlay();
-	level.playerhealth_regularregendelay = 2000;
-	level.longregentime = 4000;
 	oldratio = 1;
 	veryhurt = 0;
 	playerjustgotredflashing = 0;
@@ -39,7 +38,6 @@ playerhealthregen()
 	hurttime = 0;
 	newhealth = 0;
 	lastinvulratio = 1;
-	healthoverlaycutoff = 0.2;
 	self thread maps/mp/zombies/_zm_playerhealth::playerhurtcheck();
 	if ( !isDefined( self.veryhurt ) )
 	{
@@ -51,15 +49,26 @@ playerhealthregen()
 		setdvar( "scr_playerInvulTimeScale", 1 );
 	}
 	playerinvultimescale = getDvarFloat( "scr_playerInvulTimeScale" );
+	healthoverlaycutoff = getDvarIntDefault( "health_overlay_cutoff", 0.2 );
+	longregendelay = getDvarIntDefault( "health_regen_long_delay", 5000 );
+	regularregendelay = getDvarIntDefault( "health_regen_delay", 2400 );
+	regenrate_enabled = getDvarIntDefault( "health_regen_rate_enabled", 0 );
+	player_health = getDvarIntDefault( "health_player_maxhealth", 100 );
+
 	for ( ;; )
 	{
 		wait 0.05;
 		waittillframeend;
 		health_ratio = self.health / self.maxhealth;
-		maxhealthratio = self.maxhealth / 100;
-		regenrate = 0.05 / maxhealthratio;
-		regularregendelay = 2000;
-		longregendelay = 4000;
+		if ( regenrate_enabled )
+		{
+			maxhealthratio = self.maxhealth / 100;
+			regenrate = 0.05 / maxhealthratio;
+		}
+		else
+		{
+			regenrate = 0.1;
+		}
 		has_revive = 0;
 		if ( self hasPerk("specialty_quickrevive" ) )
 		{
@@ -125,7 +134,15 @@ playerhealthregen()
 				}
 				else
 				{
-					newhealth += regenrate;
+					if ( regenrate_enabled )
+					{
+						newhealth += regenrate;
+					}
+					else
+					{
+						newhealth = 1;
+						self.veryhurt = 0;
+					}
 				}
 			}
 			if ( newhealth > 1 )
