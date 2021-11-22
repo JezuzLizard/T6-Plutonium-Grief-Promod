@@ -6,7 +6,6 @@
 
 init_gamerules()
 {
-	//level.default_solo_laststandpistol = "m1911_zm";
 	level.grief_gamerules = [];
 	level.grief_gamerules[ "scorelimit" ] = getDvarIntDefault( "grief_gamerule_scorelimit", 3 );
 	level.grief_gamerules[ "timelimit" ] = getGametypeSetting( "timelimit" );
@@ -25,10 +24,10 @@ init_gamerules()
 	level.grief_gamerules[ "round_zombie_spawn_delay" ] = getDvarIntDefault( "grief_gamerule_round_zombie_spawn_delay", 15 );
 	level.grief_gamerules[ "pregame_time" ] = getDvarIntDefault( "grief_gamerule_pregame_time", 15 );
 	level.grief_gamerules[ "health_bar" ] = getDvarIntDefault( "grief_gamerule_health_bar", 0 );
+	level.grief_gamerules[ "disable_fog" ] = getDvarIntDefault( "grief_gamerule_disable_fog", 1 );
 	setdvar( "ui_scorelimit", level.grief_gamerules[ "scorelimit" ] );
-	//setdvar( "ui_timelimit", level.grief_gamerules[ "timelimit" ] );
 	makeDvarServerInfo( "ui_scorelimit" );
-	//makeDvarServerInfo( "ui_timelimit" );
+	set_fog();
 	level thread init_restrictions();
 }
 
@@ -361,4 +360,10 @@ show_restricted_perk( perk_trigger )
 		perk_machine show();
 		perk_machine.is_restricted = false;
 	}
+}
+
+set_fog()
+{
+	if( level.grief_gamerules[ "disable_fog" ] )
+		setDvar("r_fog", 0);
 }
