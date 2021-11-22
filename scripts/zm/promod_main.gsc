@@ -106,6 +106,7 @@ main()
 	//END promod_main module
 
 	//BEG _powerups module
+	precacheShader( "specialty_instakill_zombies" );
 	// replaceFunc( maps/mp/zombies/_zm_powerups::randomize_powerups, scripts/zm/grief/mechanics/_powerups::randomize_powerups_override );
 	// replaceFunc( maps/mp/zombies/_zm_powerups::get_next_powerup, scripts/zm/grief/mechanics/_powerups::get_next_powerup_override );
 	// replaceFunc( maps/mp/zombies/_zm_powerups::get_valid_powerup, scripts/zm/grief/mechanics/_powerups::get_valid_powerup_override );
