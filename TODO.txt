@@ -28,7 +28,7 @@ Skip first round countdown after pregame. //done
 Change timer to use SetTimer() instead of SetText().
 Make the timer larger and fix its position so it is nicer looking.
 Fix powerup drops and enable restrictions system.
-Fix connection interrupted error that occurs on end_game.
+Fix connection interrupted error that occurs on end_game. //done
 Fix crash on map_restart.
 
 Features:
@@ -43,13 +43,16 @@ DUOs.
 Remove barrier rebuilding
 Powerup capturing i.e. objectives like Domination 
 Useful powerups:
-Nuke
-Double Points
-Insta Kill
-Max Ammo
 Free Perk
 Team Points
-Meat
+Meat lets you control the zombies and target players
+Give zombie blood for whole team
 Powerdowns:
-Steal Points from other team
+Other team loses points
+Lose Perk
+Reduce trap cooldown and duration to 5 seconds on, 20 second off on zm_prison, keep cost same
+Fix pub blocking by changing from applyKnockback() to setVelocity()
 
+Change point steal to steal 50 if not shellshocked, and steal 100 if shellshocked.
+Friendly knife attacks transfer points to that player.
+Disable perks at a different time before the initial_blackscreen_passed flag.
