@@ -13,12 +13,13 @@
 
 
 #include scripts/zm/grief/audio/_announcer_fix;
-//scripts/zm/grief/commands/promod_commands;
+//#include scripts/zm/grief/commands/promod_commands;
 #include scripts/zm/grief/gametype/_grief_hud;
 #include scripts/zm/grief/gametype/_health_bar;
 #include scripts/zm/grief/gametype/_hud;
 #include scripts/zm/grief/gametype/_obituary;
 #include scripts/zm/grief/gametype/_pregame;
+#include scripts/zm/grief/gametype/_visual;
 
 #include scripts/zm/grief/gametype_modules/_gamerules;
 #include scripts/zm/grief/gametype_modules/_gametype_setup;
