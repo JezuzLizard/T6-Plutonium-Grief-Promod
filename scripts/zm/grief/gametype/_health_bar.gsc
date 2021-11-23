@@ -1,35 +1,13 @@
 #include maps/mp/gametypes_zm/_hud_util;
 #include maps/mp/zombies/_zm_utility;
 #include common_scripts/utility;
+#include maps/mp/_utility;
 
 health_bar_hud()
 {
 	level endon( "end_game" );
 	self endon("disconnect");
-	// health_bar = self createprimaryprogressbar();
-	// health_bar.hidewheninmenu = 1;
-	// health_bar.horzalign = "user_left";
-	// health_bar.vertalign = "user_bottom";
-	// health_bar.x += 65;
-	// health_bar.y -= 36;
-	// health_bar.bar.hidewheninmenu = 1;
-	// health_bar.bar.horzalign = "user_left";
-	// health_bar.bar.vertalign = "user_bottom";
-	// health_bar.bar.x += 65;
-	// health_bar.bar.y -= 35;
-	// health_bar.barframe.hidewheninmenu = 1;
-	// health_bar.barframe.horzalign = "user_left";
-	// health_bar.barframe.vertalign = "user_bottom";
-	// health_bar.barframe.x += 65;
-	// health_bar.barframe.y -= 36;
-	// health_bar_text = self createprimaryprogressbartext();
-	// health_bar_text.horzalign = "user_left";
-	// health_bar_text.vertalign = "user_bottom";
-	// health_bar_text.hidewheninmenu = 1;
-	// health_bar_text.x += 65;
-	// health_bar_text.y -= 24;
-	// health_bar_r = ceil( ( 255/360 ) * 100 ) / 100;
-	// health_bar_text.color = ( health_bar_r, 0, 0 );
+	
 	health_bar = self createprimaryprogressbar();
 	if (level.script == "zm_buried")
 	{
@@ -68,7 +46,8 @@ health_bar_hud()
 
 	while ( true )
 	{
-		if( !level.grief_gamerules[ "health_bar" ] )
+		enable_health_bar = getDvarIntDefault( "health_bar_hud", 0 );
+		if( !enable_health_bar )
 		{
 			if (health_bar.alpha != 0)
 			{

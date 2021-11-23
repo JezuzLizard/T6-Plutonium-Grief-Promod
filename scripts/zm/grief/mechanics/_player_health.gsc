@@ -7,10 +7,16 @@ onplayerspawned_override()
 		self waittill( "spawned_player" );
 		self scripts/zm/grief/mechanics/loadout/_perks::perk_set_max_health_if_jugg_override( "health_reboot", 1, 0 );
 		self notify( "noHealthOverlay" );
+		self setplayerhealth();
 		self thread playerhealthregen();
 	}
 }
 
+setplayerhealth()
+{
+	self.health = getDvarIntDefault( "health_player_maxhealth", 100 );
+	self.maxhealth = self.health;
+}
 
 playerhealthregen()
 {
@@ -38,6 +44,7 @@ playerhealthregen()
 	hurttime = 0;
 	newhealth = 0;
 	lastinvulratio = 1;
+	healthoverlaycutoff = 0.2;
 	self thread maps/mp/zombies/_zm_playerhealth::playerhurtcheck();
 	if ( !isDefined( self.veryhurt ) )
 	{
@@ -49,11 +56,9 @@ playerhealthregen()
 		setdvar( "scr_playerInvulTimeScale", 1 );
 	}
 	playerinvultimescale = getDvarFloat( "scr_playerInvulTimeScale" );
-	healthoverlaycutoff = getDvarIntDefault( "health_overlay_cutoff", 0.2 );
 	longregendelay = getDvarIntDefault( "health_regen_long_delay", 5000 );
 	regularregendelay = getDvarIntDefault( "health_regen_delay", 2400 );
 	regenrate_enabled = getDvarIntDefault( "health_regen_rate_enabled", 0 );
-	player_health = getDvarIntDefault( "health_player_maxhealth", 100 );
 
 	for ( ;; )
 	{
@@ -141,7 +146,6 @@ playerhealthregen()
 					else
 					{
 						newhealth = 1;
-						self.veryhurt = 0;
 					}
 				}
 			}
