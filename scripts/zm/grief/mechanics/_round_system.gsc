@@ -262,7 +262,7 @@ start_new_round( is_restart )
 	}
 	else 
 	{
-		if ( !flag( "first_round" ) )
+		if ( !flag( "first_round" ) && ( level.grief_gamerules[ "next_round_time" ] > 0 ) )
 		{
 			freeze_all_players_controls();
 			round_countdown_text = round_change_hud_text();
