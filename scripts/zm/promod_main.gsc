@@ -13,7 +13,7 @@
 
 
 #include scripts/zm/grief/audio/_announcer_fix;
-//#include scripts/zm/grief/commands/promod_commands;
+#include scripts/zm/grief/commands/promod_commands;
 #include scripts/zm/grief/gametype/_grief_hud;
 #include scripts/zm/grief/gametype/_health_bar;
 #include scripts/zm/grief/gametype/_hud;
