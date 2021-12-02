@@ -71,11 +71,6 @@ func_should_drop_meat()
 	return true;
 }
 
-grief_game_end_check_func()
-{
-	return false;
-}
-
 onprecachegametype()
 {
 	precacheitem( "death_self_zm" );
@@ -86,8 +81,6 @@ onprecachegametype()
 
 onstartgametype()
 {
-	level.no_end_game_check = true;
-	level._game_module_game_end_check = ::grief_game_end_check_func;
 	scripts/zm/grief/gametype_modules/_gametype_setup::rungametypemain_override( "zgrief", scripts/zm/grief/mechanics/_round_system::zgrief_main_override );
 }
 

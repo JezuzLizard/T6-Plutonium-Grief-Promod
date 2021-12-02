@@ -152,6 +152,8 @@ main()
 	level.custom_spectate_permissions = ::setspectatepermissionsgrief;
 	level.custom_end_screen = ::custom_end_screen;
 	level._supress_survived_screen = true;
+	level.no_end_game_check = true;
+	level._game_module_game_end_check = ::grief_game_end_check_func;
 	//END grief globals
 }
 
@@ -631,5 +633,10 @@ player_prevent_damage( einflictor, eattacker, idamage, idflags, smeansofdeath, s
 	{
 		return true;
 	}
+	return false;
+}
+
+grief_game_end_check_func()
+{
 	return false;
 }
