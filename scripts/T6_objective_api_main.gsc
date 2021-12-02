@@ -33,7 +33,7 @@ init()
 
 on_player_connect()
 {
-	level endon("end_game2");
+	level endon("end_game");
 	level endon("game_ended");
 	for(;;)
 	{
@@ -66,7 +66,7 @@ on_player_disconnect()
 
 destroy_all_hud_on_end_game()
 {
-	level waittill_either( "end_game2", "game_ended" );
+	level waittill_either( "end_game", "game_ended" );
 	hud_keys = getArrayKeys( level.custom_objectives );
 	foreach ( name in hud_keys )
 	{
@@ -165,7 +165,7 @@ OBJ_REMOVE_PLAYER()
 
 OBJ_REMOVE_FAILSAFE( player )
 {
-	level endon( "end_game2" );
+	level endon( "end_game" );
 	level endon( "game_ended" );
 	while ( true )
 	{
@@ -231,7 +231,7 @@ OBJ_CREATE_SERVER_WAYPOINT( team )
 HEALTH_INDICATOR_UPDATE( health_indicator )
 {
 	self endon( "disconnect" );
-	level endon("end_game2");
+	level endon("end_game");
 	level endon("game_ended");
 	
 	if (flag_exists("initial_blackscreen_passed") && !flag("initial_blackscreen_passed"))
@@ -367,7 +367,7 @@ LOCATION_INDICATOR_UPDATE( location_elem )
 
 watch_for_location_ping()
 {
-	level endon( "end_game2" );
+	level endon( "end_game" );
 	level endon( "game_ended" );
 	self endon( "disconnect" );
 	self.has_ping_location = false;
@@ -400,7 +400,7 @@ watch_for_location_ping()
 
 watch_melee_button()
 {
-	level endon( "end_game2" );
+	level endon( "end_game" );
 	level endon( "game_ended" );
 	self endon( "disconnect" );
 	self endon( "watch_melee_button_end" );

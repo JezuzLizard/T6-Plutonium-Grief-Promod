@@ -37,7 +37,7 @@ show_grief_hud_msg( msg, msg_parm, offset, cleanup_end_game ) //checked matches 
 	zgrief_hudmsg.font = "default";
 	if ( is_true( cleanup_end_game ) )
 	{
-		level endon( "end_game2" );
+		level endon( "end_game" );
 		zgrief_hudmsg thread show_grief_hud_msg_cleanup();
 	}
 	if ( isDefined( msg_parm ) )
@@ -68,7 +68,7 @@ show_grief_hud_msg( msg, msg_parm, offset, cleanup_end_game ) //checked matches 
 show_grief_hud_msg_cleanup() //checked matches cerberus output
 {
 	self endon( "death" );
-	level waittill( "end_game2" );
+	level waittill( "end_game" );
 	if ( isDefined( self ) )
 	{
 		self destroy();
@@ -90,7 +90,7 @@ _delay_thread_watch_host_migrate_proc( timer, func, param1, param2, param3, para
 
 zgrief_player_bled_out_msg() //checked matches cerberus output
 {
-	level endon( "end_game2" );
+	level endon( "end_game" );
 	self endon( "disconnect" );
 	flag_wait( "match_start" );
 	while ( 1 )
@@ -102,7 +102,7 @@ zgrief_player_bled_out_msg() //checked matches cerberus output
 
 update_players_on_bleedout_or_disconnect( excluded_player ) //checked changed to match cerberus output
 {
-	level endon( "end_game2" );
+	level endon( "end_game" );
 	players = getPlayers();
 	if ( isDefined( level.predicted_round_winner ) )
 	{

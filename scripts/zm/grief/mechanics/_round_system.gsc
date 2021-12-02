@@ -105,7 +105,6 @@ match_end( winner )
 	else 
 	{
 		//level notify( "end_game" );
-		level notify( "end_game2" );
 		end_game();
 	}
 }
@@ -131,7 +130,7 @@ round_restart()
 
 check_for_surviving_team()
 {
-	level endon( "end_game2" );
+	level endon( "end_game" );
 	new_round = false;
 	while ( 1 )
 	{

@@ -86,7 +86,7 @@ speedup_at_powerup()
 
 zombie_spawning() //checked changed to match cerberus output
 {
-	level endon( "end_game2" );
+	level endon( "end_game" );
 	old_spawn = undefined;
 	level.zombie_vars[ "zombie_spawn_delay" ] = 2;
 	while ( 1 )

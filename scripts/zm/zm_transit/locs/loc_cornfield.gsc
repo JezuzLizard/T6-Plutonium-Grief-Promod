@@ -121,7 +121,7 @@ zombie_speed_up_distance_check()
 
 increase_cornfield_zombie_speed()
 {
-	level endon( "end_game2" );
+	level endon( "end_game" );
 	level.zombie_vars[ "zombie_spawn_delay" ] = 0.08;
 	level.speed_change_round = undefined;
 	while ( 1 )

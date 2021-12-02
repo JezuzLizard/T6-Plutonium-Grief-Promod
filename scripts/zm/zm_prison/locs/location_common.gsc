@@ -156,7 +156,7 @@ give_player_shiv()
 
 grief_brutus_logic()
 {
-	level endon( "end_game2" );
+	level endon( "end_game" );
 	while ( true )
 	{
 		flag_wait( "spawn_zombies" );
