@@ -1,3 +1,4 @@
+#include maps/mp/_utility;
 #include maps/mp/zombies/_zm_utility;
 #include maps/mp/zombies/_zm;
 #include common_scripts/utility;
@@ -551,7 +552,7 @@ end_game() //checked changed to match cerberus output
 	}
 	for ( i = 0; i < players.size; i++ )
 	{
-		if ( players[ i ] player_is_in_laststand() )
+		if ( players[ i ] maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
 		{
 			players[ i ] recordplayerdeathzombies();
 			players[ i ] maps/mp/zombies/_zm_stats::increment_player_stat( "deaths" );
