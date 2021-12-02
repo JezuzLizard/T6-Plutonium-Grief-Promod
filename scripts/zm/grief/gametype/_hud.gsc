@@ -27,7 +27,7 @@ HUDELEM_SERVER_ADD( name, hudelem_constructor )
 
 countdown_pulse( hud_elem, duration )
 {
-	level endon( "end_game" );
+	level endon( "end_game2" );
 	waittillframeend;
 	while ( duration > 0 && !level.gameended )
 	{

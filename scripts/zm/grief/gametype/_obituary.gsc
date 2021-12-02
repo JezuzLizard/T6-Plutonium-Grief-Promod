@@ -9,7 +9,7 @@
 
 watch_for_down()
 {
-	level endon( "end_game" );
+	level endon( "end_game2" );
 	self endon( "disconnect" );
 	while ( true )
 	{
@@ -39,7 +39,7 @@ watch_for_down()
 
 change_status_icon( is_alive )
 {
-	level endon( "end_game" );
+	level endon( "end_game2" );
 	self endon( "spawned" );
 	self endon( "player_revived" );
 	if ( is_alive )
@@ -54,7 +54,7 @@ track_players_intersection_tracker_override()
 {
 	self endon( "disconnect" );
 	self endon( "death" );
-	level endon( "end_game" );
+	level endon( "end_game2" );
 	wait 5;
 	while ( 1 )
 	{

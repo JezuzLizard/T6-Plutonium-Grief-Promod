@@ -174,7 +174,7 @@ init()
 
 emptyLobbyRestart()
 {
-	level endon( "end_game" );
+	level endon( "end_game2" );
 	while ( true )
 	{
 		if ( getPlayers().size > 0 )
@@ -238,7 +238,7 @@ on_player_connect()
 
 afk_kick()
 {
-	level endon( "end_game" );
+	level endon( "end_game2" );
 	self endon("disconnect");
 	if ( is_true( self.grief_is_admin ) )
 	{
@@ -267,7 +267,7 @@ afk_kick()
 
 game_module_on_player_spawned() //checked partially changed to cerberus output
 {
-	level endon( "end_game" );
+	level endon( "end_game2" );
 	self endon( "disconnect" );
 	for ( ;; )
 	{

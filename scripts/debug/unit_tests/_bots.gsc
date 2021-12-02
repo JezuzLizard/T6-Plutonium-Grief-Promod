@@ -149,7 +149,7 @@ spawn_bots_stay( num )
 
 bot_round_test()
 {
-	level endon( "end_game" );
+	level endon( "end_game2" );
 	teams = [];
 	teams[ 0 ] = "allies";
 	teams[ 1 ] = "axis";

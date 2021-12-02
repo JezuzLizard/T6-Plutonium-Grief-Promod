@@ -80,7 +80,7 @@ player_reduce_points_override( event, mod, hit_location ) //checked matches cerb
 
 steal_points_on_bleedout( attacker )
 {
-	level endon( "end_game" );
+	level endon( "end_game2" );
 	self endon( "disconnect" );
 	self endon( "spawned" );
 	self endon( "revived" );
