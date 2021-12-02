@@ -6,6 +6,7 @@
 
 struct_init()
 {
+	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, 102, 0 ), ( 473.92, 6638.99, 208 ) );
 	coordinates = array( ( -335, 5512, -71 ), ( -589, 5452, -71 ), ( -1094, 5426, -71 ), ( -1200, 5882, -71 ),
 						 ( 669, 6785, 209 ), ( 476, 6774, 196 ), ( 699, 6562, 208 ), ( 344, 6472, 264 ) );
 	angles = array( ( 0, 0, 0 ), ( 0, 0, 0 ), ( 0, 180, 0 ), ( 0, 0, 0 ),
