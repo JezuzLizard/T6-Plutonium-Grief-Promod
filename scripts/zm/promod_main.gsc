@@ -170,6 +170,7 @@ init()
 	level.onplayerdisconnect = ::onplayerdisconnect;
 	level.prevent_player_damage = ::player_prevent_damage;
 	check_quickrevive_for_hotjoin();
+	setscoreboardcolumns( "score", "stabs", "killsconfirmed", "revives", "downs" );
 }
 
 emptyLobbyRestart()
