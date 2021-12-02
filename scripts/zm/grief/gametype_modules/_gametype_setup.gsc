@@ -215,6 +215,7 @@ add_struct_location_gamemode_func( gametype, location, func )
 
 manage_zones_override( initial_zone )
 {
+	level endon( "end_game" );
 	deactivate_initial_barrier_goals();
 	zone_choke = 0;
 	spawn_points = maps/mp/gametypes_zm/_zm_gametype::get_player_spawns_for_gametype();

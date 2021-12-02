@@ -32,6 +32,7 @@ generate_storage_maps()
 
 grief_save_loadouts()
 {
+	level endon( "end_game" );
 	while ( true )
 	{
 		flag_wait( "spawn_zombies" );

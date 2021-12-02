@@ -261,6 +261,7 @@ remove_zombie_hats_for_grief()
 
 magicbox_face_spawn()
 {
+	level endon( "end_game" );
 	self endon( "disconnect" );
 	if ( !is_gametype_active( "zgrief" ) )
 	{

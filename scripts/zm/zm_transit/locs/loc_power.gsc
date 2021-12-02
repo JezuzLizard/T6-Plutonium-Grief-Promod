@@ -109,6 +109,7 @@ init_barriers()
 
 falling_death_init()
 {
+	level endon( "end_game" );
 	trig = getent( "transit_falling_death", "targetname" );
 	if ( isDefined( trig ) )
 	{

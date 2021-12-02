@@ -233,6 +233,7 @@ wallbuy( weapon_angles, weapon_coordinates, chalk_fx, weapon_name, weapon_model,
 
 playchalkfx( effect, origin, angles ) //custom function
 {
+	level endon( "end_game" );
 	while ( 1 )
 	{
 		fx = SpawnFX( level._effect[ effect ], origin, AnglesToForward( angles ), AnglesToUp( angles ) );

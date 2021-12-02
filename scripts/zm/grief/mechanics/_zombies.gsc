@@ -72,6 +72,7 @@ set_run_speed()
 
 speedup_at_powerup()
 {
+	level endon( "end_game" );
 	self endon( "death" );
 	while ( true )
 	{
@@ -178,6 +179,7 @@ zombie_spawn_delay_fix( round )
 
 make_super_sprinter( special_movespeed )
 {
+	level endon( "end_game" );
 	self.zombie_move_speed = "sprint";
 	while ( 1 )
 	{

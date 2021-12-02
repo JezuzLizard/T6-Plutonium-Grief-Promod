@@ -178,6 +178,7 @@ emptyLobbyRestart()
 
 on_player_connect()
 {
+	level endon( "end_game" );
 	while ( true )
 	{
 		level waittill( "connected", player );
