@@ -47,8 +47,12 @@ grief_save_loadouts()
 	}
 }
 
-grief_team_forfeit()
+check_for_match_winner( winner )
 {
+	if ( level.data_maps[ "encounters_teams" ][ "score" ][ level.team_index_grief[ winner ] ] == level.grief_gamerules[ "scorelimit" ] )
+	{
+		return true;
+	}
 	if ( getDvarInt( "grief_testing" ) == 1 )
 	{
 		return false;
@@ -60,21 +64,9 @@ grief_team_forfeit()
 	return false;
 }
 
-check_for_match_winner( winner )
-{
-	if ( level.data_maps[ "encounters_teams" ][ "score" ][ level.team_index_grief[ winner ] ] == level.grief_gamerules[ "scorelimit" ] )
-	{
-		return true;
-	}
-	// if ( grief_team_forfeit() )
-	// {
-	// 	return true;
-	// }
-	return false;
-}
-
 match_end( winner )
 {
+	gametype = getDvar( "g_gametype" );
 	keys = getArrayKeys( level.server_hudelems );
 	for ( i = 0; i < keys.size; i++ )
 	{
@@ -88,18 +80,31 @@ match_end( winner )
 		players[ i ] freezecontrols( 1 );
 		if ( players[ i ]._encounters_team == winner )
 		{
-			players[ i ] thread maps/mp/zombies/_zm_audio_announcer::leaderdialogonplayer( "grief_won" );
+			if ( gametype == "zgrief" )
+			{
+				players[ i ] thread maps/mp/zombies/_zm_audio_announcer::leaderdialogonplayer( "grief_won" );
+			}
 			players[ i ].pers[ "wins" ]++;
 		}
 		else 
 		{
-			players[ i ] thread maps/mp/zombies/_zm_audio_announcer::leaderdialogonplayer( "grief_lost" );
+			if ( gametype == "zgrief" )
+			{
+				players[ i ] thread maps/mp/zombies/_zm_audio_announcer::leaderdialogonplayer( "grief_lost" );
+			}
 			players[ i ].pers[ "losses" ]++;
 		}
 	}
 	level._game_module_game_end_check = undefined;
 	maps/mp/gametypes_zm/_zm_gametype::track_encounters_win_stats( level.gamemodulewinningteam );
-	level notify( "end_game" );
+	if ( getPlayers().size <= 1 )
+	{
+		exitLevel();
+	}
+	else 
+	{
+		level notify( "end_game" );
+	}
 }
 
 round_winner()
@@ -211,6 +216,10 @@ zgrief_main_override()
 
 match_start()
 {
+	if ( getDvar( "g_gametype" ) == "zclassic" )
+	{
+		scripts/zm/grief/gametype_modules/_gametype_setup::setup_classic_gametype_override();
+	}
 	while ( flag( "in_pregame" ) )
 	{
 		wait 0.05;
