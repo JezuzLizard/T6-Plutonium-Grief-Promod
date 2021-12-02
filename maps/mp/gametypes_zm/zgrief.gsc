@@ -24,13 +24,9 @@ main()
 	maps/mp/gametypes_zm/_zm_gametype::main();
 	level.onprecachegametype = ::onprecachegametype;
 	level.onstartgametype = ::onstartgametype;
-	level.custom_spectate_permissions = ::setspectatepermissionsgrief;
 	level._game_module_custom_spawn_init_func = maps/mp/gametypes_zm/_zm_gametype::custom_spawn_init_func;
 	level._game_module_stat_update_func = maps/mp/zombies/_zm_stats::grief_custom_stat_update;
-	level.custom_end_screen = ::custom_end_screen;
 	level.gamemode_map_postinit[ "zgrief" ] = ::postinit_func;
-	level._supress_survived_screen = 1;
-	level.prevent_player_damage = ::player_prevent_damage;
 	maps/mp/gametypes_zm/_zm_gametype::post_gametype_main( "zgrief" );
 	level.grief_connected_callback = ::zgrief_connected;
 }
@@ -40,84 +36,8 @@ zgrief_connected()
 	self thread maps/mp/gametypes_zm/zmeat::create_item_meat_watcher();
 }
 
-setspectatepermissionsgrief()
-{
-	self allowspectateteam( "allies", 1 );
-	self allowspectateteam( "axis", 1 );
-	self allowspectateteam( "freelook", 0 );
-	self allowspectateteam( "none", 1 );
-}
-
-custom_end_screen()
-{
-	players = get_players();
-	for ( i = 0; i < players.size; i++ )
-	{
-		players[ i ].game_over_hud = newclienthudelem( players[ i ] );
-		players[ i ].game_over_hud.alignx = "center";
-		players[ i ].game_over_hud.aligny = "middle";
-		players[ i ].game_over_hud.horzalign = "center";
-		players[ i ].game_over_hud.vertalign = "middle";
-		players[ i ].game_over_hud.y -= 130;
-		players[ i ].game_over_hud.foreground = 1;
-		players[ i ].game_over_hud.fontscale = 3;
-		players[ i ].game_over_hud.alpha = 0;
-		players[ i ].game_over_hud.color = ( 1, 1, 1 );
-		players[ i ].game_over_hud.hidewheninmenu = 1;
-		players[ i ].game_over_hud settext( &"ZOMBIE_GAME_OVER" );
-		players[ i ].game_over_hud fadeovertime( 1 );
-		players[ i ].game_over_hud.alpha = 1;
-		if ( players[ i ] issplitscreen() )
-		{
-			players[ i ].game_over_hud.fontscale = 2;
-			players[ i ].game_over_hud.y += 40;
-		}
-		players[ i ].survived_hud = newclienthudelem( players[ i ] );
-		players[ i ].survived_hud.alignx = "center";
-		players[ i ].survived_hud.aligny = "middle";
-		players[ i ].survived_hud.horzalign = "center";
-		players[ i ].survived_hud.vertalign = "middle";
-		players[ i ].survived_hud.y -= 100;
-		players[ i ].survived_hud.foreground = 1;
-		players[ i ].survived_hud.fontscale = 2;
-		players[ i ].survived_hud.alpha = 0;
-		players[ i ].survived_hud.color = ( 1, 1, 1 );
-		players[ i ].survived_hud.hidewheninmenu = 1;
-		if ( players[ i ] issplitscreen() )
-		{
-			players[ i ].survived_hud.fontscale = 1.5;
-			players[ i ].survived_hud.y += 40;
-		}
-		winner_text = &"ZOMBIE_GRIEF_WIN";
-		loser_text = &"ZOMBIE_GRIEF_LOSE";
-		if ( level.round_number < 2 )
-		{
-			winner_text = &"ZOMBIE_GRIEF_WIN_SINGLE";
-			loser_text = &"ZOMBIE_GRIEF_LOSE_SINGLE";
-		}
-		if ( is_true( level.host_ended_game ) )
-		{
-			players[ i ].survived_hud settext( &"MP_HOST_ENDED_GAME" );
-		}
-		else
-		{
-			if ( isDefined( level.gamemodulewinningteam ) && players[ i ]._encounters_team == level.gamemodulewinningteam )
-			{
-				players[ i ].survived_hud settext( winner_text, level.round_number );
-			}
-			else
-			{
-				players[ i ].survived_hud settext( loser_text, level.round_number );
-			}
-		}
-		players[ i ].survived_hud fadeovertime( 1 );
-		players[ i ].survived_hud.alpha = 1;
-	}
-}
-
 postinit_func()
 {
-	level.prevent_player_damage = ::player_prevent_damage;
 	level.powerup_drop_count = 0;
 	level.is_zombie_level = 1;
 	level.meat_bounce_override = ::meat_bounce_override;
@@ -156,23 +76,9 @@ grief_game_end_check_func()
 	return false;
 }
 
-player_prevent_damage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime )
-{
-	if ( isDefined( eattacker ) && isplayer( eattacker ) && self != eattacker && !eattacker hasperk( "specialty_noname" ) && !is_true( self.is_zombie ))
-	{
-		return true;
-	}
-	return false;
-}
-
 onprecachegametype()
 {
 	precacheitem( "death_self_zm" );
-	precacheshellshock( "grief_stab_zm" );
-	precacheshader( "faction_cdc" );
-	precacheshader( "faction_cia" );
-	precacheshader( "waypoint_revive_cdc_zm" );
-	precacheshader( "waypoint_revive_cia_zm" );
 	level._effect[ "butterflies" ] = loadfx( "maps/zombie/fx_zmb_impact_noharm" );
 	level thread maps/mp/zombies/_zm_game_module_meat_utility::init_item_meat( "zgrief" );
 	scripts/zm/grief/gametype_modules/_gametype_setup::rungametypeprecache_override( "zgrief" );
@@ -182,7 +88,6 @@ onstartgametype()
 {
 	level.no_end_game_check = true;
 	level._game_module_game_end_check = ::grief_game_end_check_func;
-	scripts/zm/grief/gametype_modules/_gametype_setup::setup_classic_gametype_override();
 	scripts/zm/grief/gametype_modules/_gametype_setup::rungametypemain_override( "zgrief", scripts/zm/grief/mechanics/_round_system::zgrief_main_override );
 }
 

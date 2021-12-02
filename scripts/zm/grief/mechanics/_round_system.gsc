@@ -211,6 +211,10 @@ zgrief_main_override()
 
 match_start()
 {
+	if ( getDvar( "g_gametype" ) == "zclassic" )
+	{
+		scripts/zm/grief/gametype_modules/_gametype_setup::setup_classic_gametype_override();
+	}
 	while ( flag( "in_pregame" ) )
 	{
 		wait 0.05;
