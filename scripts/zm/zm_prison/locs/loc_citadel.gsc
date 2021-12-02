@@ -1,3 +1,9 @@
+#include maps/mp/zombies/_zm_utility;
+#include common_scripts/utility;
+#include maps/mp/_utility;
+#include maps/mp/zm_prison;
+#include scripts/zm/zm_prison/locs/location_common;
+
 struct_init()
 {
 	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 3, 180, 0 ), ( 2184, 10429, 1144 ) );

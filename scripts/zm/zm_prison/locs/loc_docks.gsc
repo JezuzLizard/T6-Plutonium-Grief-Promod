@@ -1,3 +1,9 @@
+#include maps/mp/zombies/_zm_utility;
+#include common_scripts/utility;
+#include maps/mp/_utility;
+#include maps/mp/zm_prison;
+#include scripts/zm/zm_prison/locs/location_common;
+
 struct_init()
 {
 	coordinates = array( ( -335, 5512, -71 ), ( -589, 5452, -71 ), ( -1094, 5426, -71 ), ( -1200, 5882, -71 ),
@@ -26,6 +32,8 @@ main()
 	maps/mp/gametypes_zm/_zm_gametype::setup_standard_objects( "cellblock" );
 	//maps/mp/zombies/_zm_magicbox::treasure_chest_init( "start_chest" );
 	precacheshader( "zm_al_wth_zombie" );
+	maps/mp/zombies/_zm_ai_brutus::precache();
+	maps/mp/zombies/_zm_ai_brutus::init();
 	array_thread( level.zombie_spawners, ::add_spawn_function, ::remove_zombie_hats_for_grief );
 	t_temp = getent( "tower_trap_activate_trigger", "targetname" );
 	t_temp delete();
