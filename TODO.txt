@@ -36,6 +36,7 @@ Add status icon to downed/dead players. //done
 New maps:
 Docks. (zm_prison)
 Nuketown. (zm_nuked)
+- Perks no longer drop from the sky, instead they spawn in immediately.
 Maze. (zm_buried) Doors always open.
 New modes:
 SOLOs.

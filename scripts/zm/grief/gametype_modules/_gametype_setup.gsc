@@ -401,14 +401,7 @@ rungametypemain_override( gamemode, mode_main_func, use_round_logic )
 
 non_round_logic_override( gamemode, mode_logic_func )
 {
-	if ( gamemode == "zgrief" )
-	{
-		level thread scripts/zm/grief/mechanics/_round_system::zgrief_main_override();
-	}
-	else 
-	{
-		level thread [[ mode_logic_func ]]();
-	}
+	level thread scripts/zm/grief/mechanics/_round_system::zgrief_main_override();
 }
 
 game_objects_allowed_override( mode, location )
