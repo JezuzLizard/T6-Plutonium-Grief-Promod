@@ -171,7 +171,6 @@ main()
 		model turn_afterlife_interact_on();
 		wait 0.1;
 	}
-	scripts/zm/grief/gametype_modules/_gametype_setup::wallbuy( ( 0, 10, 0 ), ( -340, 6204, 43.5 ), "mp5k_zm_fx", "mp5k_zm", "t6_wpn_smg_mp5_world", "mp5", "weapon_upgrade" );
 	scripts/zm/zm_prison/locs/location_common::common_init();
 }
 

@@ -6,7 +6,7 @@
 
 struct_init()
 {
-	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 3, 180, 0 ), ( 2184, 10429, 1144 ) );
+	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 3, 270, 0 ), ( 2184, 10429, 1144 ) );
 	coordinates = array( ( -12, 8735, 1128 ), ( 311, 8722, 1128 ), ( 350, 9025, 1136 ), ( 730, 9017, 1128 ),
 						 ( 729, 9370, 1104 ), ( 729, 9704, 1104 ), ( 739, 10007, 1128 ), ( 1122, 10050, 1128 ) );
 	angles = array( ( 0, 0, 0 ), ( 0, 0, 0 ), ( 0, 180, 0 ), ( 0, 0, 0 ),
@@ -43,7 +43,7 @@ main()
 	//maps/mp/zombies/_zm_magicbox::treasure_chest_init( "start_chest" );
 	precacheshader( "zm_al_wth_zombie" );
 	array_thread( level.zombie_spawners, ::add_spawn_function, ::remove_zombie_hats_for_grief );
-	scripts/zm/grief/gametype_modules/_gametype_setup::wallbuy( ( 359, 0, 0 ), ( 1567, 10166, 1144 ), "mp5k_zm_fx", "mp5k_zm", "t6_wpn_smg_mp5_world", "mp5", "weapon_upgrade" );
+	scripts/zm/grief/gametype_modules/_gametype_setup::wallbuy( ( 0, -90, 0 ), ( 1557, 10166, 1199 ), "mp5k_zm_fx", "mp5k_zm", "t6_wpn_smg_mp5_world", "mp5", "weapon_upgrade" );
 	maps/mp/zombies/_zm_ai_brutus::precache();
 	maps/mp/zombies/_zm_ai_brutus::init();
 	scripts/zm/zm_prison/locs/location_common::common_init();
