@@ -30,7 +30,7 @@ precache()
 main()
 {
 	maps/mp/gametypes_zm/_zm_gametype::setup_standard_objects( "cellblock" );
-	//maps/mp/zombies/_zm_magicbox::treasure_chest_init( "start_chest" );
+	// maps/mp/zombies/_zm_magicbox::treasure_chest_init( "start_chest" );
 	precacheshader( "zm_al_wth_zombie" );
 	maps/mp/zombies/_zm_ai_brutus::precache();
 	maps/mp/zombies/_zm_ai_brutus::init();
@@ -48,41 +48,41 @@ main()
 	{
 		trigger delete();
 	}
-	a_e_gondola_lights = getentarray( "gondola_state_light", "targetname" );
-	foreach ( light in a_e_gondola_lights )
-	{
-		light delete();
-	}
-	a_e_gondola_landing_gates = getentarray( "gondola_landing_gates", "targetname" );
-	foreach ( model in a_e_gondola_landing_gates )
-	{
-		model delete();
-	}
-	a_e_gondola_landing_doors = getentarray( "gondola_landing_doors", "targetname" );
-	foreach ( model in a_e_gondola_landing_doors )
-	{
-		model delete();
-	}
-	a_e_gondola_gates = getentarray( "gondola_gates", "targetname" );
-	foreach ( model in a_e_gondola_gates )
-	{
-		model delete();
-	}
-	a_e_gondola_doors = getentarray( "gondola_doors", "targetname" );
-	foreach ( model in a_e_gondola_doors )
-	{
-		model delete();
-	}
-	m_gondola = getent( "zipline_gondola", "targetname" );
-	m_gondola delete();
-	t_ride_trigger = getent( "gondola_ride_trigger", "targetname" );
-	t_ride_trigger delete();
-	a_classic_clips = getentarray( "classic_clips", "targetname" );
-	foreach ( clip in a_classic_clips )
-	{
-		clip connectpaths();
-		clip delete();
-	}
+	// a_e_gondola_lights = getentarray( "gondola_state_light", "targetname" );
+	// foreach ( light in a_e_gondola_lights )
+	// {
+	// 	light delete();
+	// }
+	// a_e_gondola_landing_gates = getentarray( "gondola_landing_gates", "targetname" );
+	// foreach ( model in a_e_gondola_landing_gates )
+	// {
+	// 	model delete();
+	// }
+	// a_e_gondola_landing_doors = getentarray( "gondola_landing_doors", "targetname" );
+	// foreach ( model in a_e_gondola_landing_doors )
+	// {
+	// 	model delete();
+	// }
+	// a_e_gondola_gates = getentarray( "gondola_gates", "targetname" );
+	// foreach ( model in a_e_gondola_gates )
+	// {
+	// 	model delete();
+	// }
+	// a_e_gondola_doors = getentarray( "gondola_doors", "targetname" );
+	// foreach ( model in a_e_gondola_doors )
+	// {
+	// 	model delete();
+	// }
+	// m_gondola = getent( "zipline_gondola", "targetname" );
+	// m_gondola delete();
+	// t_ride_trigger = getent( "gondola_ride_trigger", "targetname" );
+	// t_ride_trigger delete();
+	// a_classic_clips = getentarray( "classic_clips", "targetname" );
+	// foreach ( clip in a_classic_clips )
+	// {
+	// 	clip connectpaths();
+	// 	clip delete();
+	// }
 	a_afterlife_props = getentarray( "afterlife_show", "targetname" );
 	foreach ( m_prop in a_afterlife_props )
 	{
@@ -128,14 +128,14 @@ main()
 		m_nixie_tube = getent( "nixie_tube_" + i, "targetname" );
 		m_nixie_tube delete();
 	}
-	t_elevator_door = getent( "nixie_elevator_door", "targetname" );
-	t_elevator_door delete();
-	e_elevator_clip = getent( "elevator_door_playerclip", "targetname" );
-	e_elevator_clip delete();
-	e_elevator_bottom_gate = getent( "elevator_bottom_gate_l", "targetname" );
-	e_elevator_bottom_gate delete();
-	e_elevator_bottom_gate = getent( "elevator_bottom_gate_r", "targetname" );
-	e_elevator_bottom_gate delete();
+	// t_elevator_door = getent( "nixie_elevator_door", "targetname" );
+	// t_elevator_door delete();
+	// e_elevator_clip = getent( "elevator_door_playerclip", "targetname" );
+	// e_elevator_clip delete();
+	// e_elevator_bottom_gate = getent( "elevator_bottom_gate_l", "targetname" );
+	// e_elevator_bottom_gate delete();
+	// e_elevator_bottom_gate = getent( "elevator_bottom_gate_r", "targetname" );
+	// e_elevator_bottom_gate delete();
 	m_docks_puzzle = getent( "cable_puzzle_gate_01", "targetname" );
 	m_docks_puzzle delete();
 	m_docks_puzzle = getent( "cable_puzzle_gate_02", "targetname" );
@@ -172,9 +172,22 @@ main()
 		wait 0.1;
 	}
 	scripts/zm/zm_prison/locs/location_common::common_init();
+	delete_door_trigs();
 }
 
 remove_zombie_hats_for_grief()
 {
 	self detach( "c_zom_guard_hat" );
+}
+
+delete_door_trigs()
+{	
+	doors = getentarray( "zombie_door", "targetname" );
+	foreach ( door in doors )
+	{
+		if ( door.target == "pf3762_auto2526" ) //staircase
+		{
+			door delete();
+		}
+	}
 }
