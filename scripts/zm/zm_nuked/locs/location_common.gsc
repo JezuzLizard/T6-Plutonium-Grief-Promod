@@ -12,6 +12,7 @@ precache()
 
 main()
 {
+	level._effect[ "butterflies" ] = loadfx( "maps/zombie/fx_zmb_impact_noharm" );
 	maps/mp/gametypes_zm/_zm_gametype::setup_standard_objects( "nuked" );
 	maps/mp/zombies/_zm_game_module::set_current_game_module( level.game_module_standard_index );
 	level.enemy_location_override_func = ::enemy_location_override;
