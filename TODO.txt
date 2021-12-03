@@ -30,6 +30,8 @@ Make the timer larger and fix its position so it is nicer looking.
 Fix powerup drops and enable restrictions system.
 Fix connection interrupted error that occurs on end_game. //done
 Fix crash on map_restart.
+Fix end_game notify causing a freeze when it triggers on a forfeit.
+Add revive waypoints for teams other than allies.
 
 Features:
 Add status icon to downed/dead players. //done
