@@ -293,7 +293,7 @@ start_new_round( is_restart )
 	level.in_grief_pre_round = true;
 	wait level.grief_gamerules[ "round_zombie_spawn_delay" ];
 	level thread maps/mp/zombies/_zm_audio::change_zombie_music( "round_start" );
-	maps/mp/zombies/_zm_powerups::powerup_round_start();
+	//maps/mp/zombies/_zm_powerups::powerup_round_start(); //Disable drops for citadel, and docks locs.
 	flag_clear( "spawn_players" );
 	if ( !flag( "spawn_zombies" ) )
 	{
@@ -313,70 +313,6 @@ give_points_on_restart_and_round_change()
 		}
 	}
 }
-
-// timed_rounds()
-// {
-// 	timelimit_in_seconds = int( level.grief_gamerules[ "timelimit" ] * 60 );
-// 	time_left = parse_minutes( to_mins( timelimit_in_seconds ) );
-// 	//BEG Overflow fix
-// 	level.overflow_elem = maps/mp/gametypes_zm/_hud_util::createServerFontString( "default", 1.5 );
-// 	level.overflow_elem setText("xTUL"); //dont remove text here
-// 	level.overflow_elem.alpha = 0;
-// 	//END Overflow fix
-// 	cur_rounds_played = level.rounds_played;
-// 	level.server_hudelems[ "timer" ].hudelem.alpha = 0;
-// 	while ( true )
-// 	{
-// 		if ( flag( "timer_pause" ) )
-// 		{
-// 			level.server_hudelems[ "timer" ].hudelem.alpha = 0;
-// 			while ( flag( "timer_pause" ) )
-// 			{
-// 				wait 1;
-// 			}
-// 			zombie_spawn_delay = level.grief_gamerules[ "round_zombie_spawn_delay" ];
-// 			level.server_hudelems[ "timer" ].hudelem.alpha = 1;
-// 			while ( zombie_spawn_delay > 0 )
-// 			{
-// 				time_left = parse_minutes( to_mins( zombie_spawn_delay ) );
-// 				timeleft_text = time_left[ "minutes" ] + ":" + time_left[ "seconds" ];
-// 				level.server_hudelems[ "timer" ].hudelem HUDELEM_SET_TEXT( timeleft_text );
-// 				wait 1;
-// 				zombie_spawn_delay--;
-// 			}
-// 			waittillframeend;
-// 			if ( cur_rounds_played != level.rounds_played )
-// 			{
-// 				timelimit_in_seconds = int( level.grief_gamerules[ "timelimit" ] * 60 );
-// 				cur_rounds_played = level.rounds_played;
-// 			}
-// 		}
-// 		level.server_hudelems[ "timer" ].hudelem.alpha = 0; //hide the timer for now
-// 		time_left = parse_minutes( to_mins( timelimit_in_seconds ) );
-// 		timeleft_text = time_left[ "minutes" ] + ":" + time_left[ "seconds" ];
-// 		level.server_hudelems[ "timer" ].hudelem HUDELEM_SET_TEXT( timeleft_text );
-// 		wait 1;
-// 		timelimit_in_seconds--;
-// 		if ( ( timelimit_in_seconds % level.zombies_powerup_time ) == 0 )
-// 		{
-// 			if ( level.script == "zm_transit" )
-// 			{
-// 				play_sound_2d( "evt_nomans_warning" );
-// 			}
-// 			else 
-// 			{
-// 				level thread maps/mp/zombies/_zm_audio::change_zombie_music( "round_start" );
-// 			}
-// 			scripts/zm/grief/mechanics/_zombies::powerup_zombies();
-// 		}
-// 		if ( ( timelimit_in_seconds % 20 ) == 0 )
-// 		{
-// 			level.overflow_elem ClearAllTextAfterHudElem();
-// 			level.server_hudelems[ "timer" ].hudelem destroy();
-// 			level.server_hudelems[ "timer" ].hudelem = [[ level.server_hudelem_funcs[ "timer" ] ]]();
-// 		}
-// 	}
-// }
 
 timed_rounds()
 {

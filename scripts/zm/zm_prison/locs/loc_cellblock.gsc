@@ -287,32 +287,6 @@ magicbox_face_spawn()
 	}
 }
 
-turn_afterlife_interact_on()
-{
-	if ( self.script_string == "cell_1_powerup_activate" || self.script_string == "intro_powerup_activate" || self.script_string == "cell_2_powerup_activate" || self.script_string == "wires_shower_door" )
-	{
-		return;
-	}
-	if ( self.script_string == "electric_cherry_on" || self.script_string == "sleight_on" || self.script_string == "wires_admin_door" )
-	{
-		if ( !isDefined( level.shockbox_anim ) )
-		{
-			level.shockbox_anim[ "on" ] = %fxanim_zom_al_shock_box_on_anim;
-			level.shockbox_anim[ "off" ] = %fxanim_zom_al_shock_box_off_anim;
-		}
-		if ( issubstr( self.model, "p6_zm_al_shock_box" ) )
-		{
-			self useanimtree( -1 );
-			self setmodel( "p6_zm_al_shock_box_on" );
-			self setanim( level.shockbox_anim[ "on" ] );
-		}
-	}
-	else
-	{
-		self delete();
-	}
-}
-
 delete_door_trigs()
 {	
 	if ( level.grief_gamerules[ "disable_doors" ] )
