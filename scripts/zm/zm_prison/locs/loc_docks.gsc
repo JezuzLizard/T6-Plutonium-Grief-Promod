@@ -137,26 +137,26 @@ main()
 	// e_elevator_bottom_gate delete();
 	// e_elevator_bottom_gate = getent( "elevator_bottom_gate_r", "targetname" );
 	// e_elevator_bottom_gate delete();
-	m_docks_puzzle = getent( "cable_puzzle_gate_01", "targetname" );
-	m_docks_puzzle delete();
-	m_docks_puzzle = getent( "cable_puzzle_gate_02", "targetname" );
-	m_docks_puzzle delete();
-	m_infirmary_case = getent( "infirmary_case_door_left", "targetname" );
-	m_infirmary_case delete();
-	m_infirmary_case = getent( "infirmary_case_door_right", "targetname" );
-	m_infirmary_case delete();
-	fake_plane_part = getent( "fake_veh_t6_dlc_zombie_part_control", "targetname" );
-	fake_plane_part delete();
-	for ( i = 1; i <= 3; i++ )
-	{
-		m_generator = getent( "generator_panel_" + i, "targetname" );
-		m_generator delete();
-	}
-	a_m_generator_core = getentarray( "generator_core", "targetname" );
-	foreach ( generator in a_m_generator_core )
-	{
-		generator delete();
-	}
+	// m_docks_puzzle = getent( "cable_puzzle_gate_01", "targetname" );
+	// m_docks_puzzle delete();
+	// m_docks_puzzle = getent( "cable_puzzle_gate_02", "targetname" );
+	// m_docks_puzzle delete();
+	// m_infirmary_case = getent( "infirmary_case_door_left", "targetname" );
+	// m_infirmary_case delete();
+	// m_infirmary_case = getent( "infirmary_case_door_right", "targetname" );
+	// m_infirmary_case delete();
+	// fake_plane_part = getent( "fake_veh_t6_dlc_zombie_part_control", "targetname" );
+	// fake_plane_part delete();
+	// for ( i = 1; i <= 3; i++ )
+	// {
+	// 	m_generator = getent( "generator_panel_" + i, "targetname" );
+	// 	m_generator delete();
+	// }
+	// a_m_generator_core = getentarray( "generator_core", "targetname" );
+	// foreach ( generator in a_m_generator_core )
+	// {
+	// 	generator delete();
+	// }
 	e_playerclip = getent( "electric_chair_playerclip", "targetname" );
 	e_playerclip delete();
 	for ( i = 1; i <= 4; i++ )

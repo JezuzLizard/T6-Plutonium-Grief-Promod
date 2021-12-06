@@ -1,3 +1,4 @@
+#include maps/mp/_utility;
 
 perk_set_max_health_if_jugg_override( perk, set_premaxhealth, clamp_health_to_max_health ) //checked matches cerberus output
 {
