@@ -6,7 +6,6 @@
 
 init_gamerules()
 {
-	//level.default_solo_laststandpistol = "m1911_zm";
 	level.grief_gamerules = [];
 	level.grief_gamerules[ "scorelimit" ] = getDvarIntDefault( "grief_gamerule_scorelimit", 3 );
 	level.grief_gamerules[ "timelimit" ] = getGametypeSetting( "timelimit" );
@@ -24,12 +23,10 @@ init_gamerules()
 	level.grief_gamerules[ "power_state" ] = getDvarIntDefault( "grief_gamerule_power_start_state", 1 );
 	level.grief_gamerules[ "round_zombie_spawn_delay" ] = getDvarIntDefault( "grief_gamerule_round_zombie_spawn_delay", 15 );
 	level.grief_gamerules[ "pregame_time" ] = getDvarIntDefault( "grief_gamerule_pregame_time", 15 );
-	level.grief_gamerules[ "health_bar" ] = getDvarIntDefault( "grief_gamerule_health_bar", 0 );
 	level.grief_gamerules[ "disable_fog" ] = getDvarIntDefault( "grief_gamerule_disable_fog", 1 );
 	set_fog();
 	setdvar( "ui_scorelimit", level.grief_gamerules[ "scorelimit" ] );
 	makeDvarServerInfo( "ui_scorelimit" );
-	//makeDvarServerInfo( "ui_timelimit" );
 	level thread init_restrictions();
 }
 

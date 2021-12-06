@@ -6,29 +6,32 @@
 
 init()
 {
-	level.health_indicators_thresholds = [];
-	level.health_indicators_thresholds[ "damaged" ] = 0.6;
-	level.health_indicators_thresholds[ "hurt" ] = 0.2;
-	level.health_indicators_thresholds[ "near_death" ] = 0.01;
-	level.health_indicators_thresholds[ "dead" ] = 0.0;
-	level.waypoint_size = 2;
-	level.waypoint_height_offset = ( 0, 0, 80 );
-	level.location_pings_feature_enabled = getDvarIntDefault( "obj_player_waypoints_location_pings_enabled", 0 );
-	level.health_indicators_feature_enabled = getDvarIntDefault( "obj_player_waypoints_health_indicators_enabled", 1 );
-	level.health_indicators_show_on_full_health = getDvarIntDefault( "obj_player_waypoints_health_indicators_show_on_full_health", 0 );
-	level.location_pings_duration = 5;
-	if ( level.location_pings_feature_enabled )
+	if( getDvarIntDefault( "hud_health_indicators", 0 ) )
 	{
-		OBJ_ADD_NEW( "location_pings", ::LOCATION_INDICATOR_UPDATE );
+		level.health_indicators_thresholds = [];
+		level.health_indicators_thresholds[ "damaged" ] = 0.6;
+		level.health_indicators_thresholds[ "hurt" ] = 0.2;
+		level.health_indicators_thresholds[ "near_death" ] = 0.01;
+		level.health_indicators_thresholds[ "dead" ] = 0.0;
+		level.waypoint_size = 2;
+		level.waypoint_height_offset = ( 0, 0, 80 );
+		level.location_pings_feature_enabled = getDvarIntDefault( "obj_player_waypoints_location_pings_enabled", 0 );
+		level.health_indicators_feature_enabled = getDvarIntDefault( "obj_player_waypoints_health_indicators_enabled", 1 );
+		level.health_indicators_show_on_full_health = getDvarIntDefault( "obj_player_waypoints_health_indicators_show_on_full_health", 0 );
+		level.location_pings_duration = 5;
+		if ( level.location_pings_feature_enabled )
+		{
+			OBJ_ADD_NEW( "location_pings", ::LOCATION_INDICATOR_UPDATE );
+		}
+		if ( level.health_indicators_feature_enabled )
+		{
+			OBJ_ADD_NEW( "overhead_health_indicator", ::HEALTH_INDICATOR_UPDATE );
+		}
+		level.location_pings_player_colors = array( ( 1, 1, 1 ), ( 0.49, 0.81, 0.93 ), ( 0.96, 0.79, 0.31 ), ( 0.51, 0.93, 0.53 ), ( 0.47, 0.34, 0.08 ), ( 0.24, 0.91, 0.93 ), ( 0.93, 0.24, 0.27 ), ( 0.97, 0.54, 0.06 ) );
+		level.location_pings_hud_index = 0;
+		level thread on_player_connect();
+		level thread destroy_all_hud_on_end_game();
 	}
-	if ( level.health_indicators_feature_enabled )
-	{
-		OBJ_ADD_NEW( "overhead_health_indicator", ::HEALTH_INDICATOR_UPDATE );
-	}
-	level.location_pings_player_colors = array( ( 1, 1, 1 ), ( 0.49, 0.81, 0.93 ), ( 0.96, 0.79, 0.31 ), ( 0.51, 0.93, 0.53 ), ( 0.47, 0.34, 0.08 ), ( 0.24, 0.91, 0.93 ), ( 0.93, 0.24, 0.27 ), ( 0.97, 0.54, 0.06 ) );
-	level.location_pings_hud_index = 0;
-	level thread on_player_connect();
-	level thread destroy_all_hud_on_end_game();
 }
 
 on_player_connect()

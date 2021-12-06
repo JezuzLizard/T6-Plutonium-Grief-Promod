@@ -46,7 +46,7 @@ health_bar_hud()
 
 	while ( true )
 	{
-		enable_health_bar = getDvarIntDefault( "health_bar_hud", 0 );
+		enable_health_bar = getDvarIntDefault( "hud_health_bar", 0 );
 		if( !enable_health_bar )
 		{
 			if (health_bar.alpha != 0)

@@ -1,6 +1,7 @@
 #include maps/mp/gametypes_zm/_hud_util;
 #include common_scripts/utility;
 #include maps/mp/zombies/_zm_utility;
+#include maps/mp/_utility;
 
 hud_init()
 {
@@ -8,6 +9,7 @@ hud_init()
 	HUDELEM_SERVER_ADD( "grief_score_allies", ::grief_score_allies );
 	HUDELEM_SERVER_ADD( "grief_score_axis_icon", ::grief_score_axis_icon );
 	HUDELEM_SERVER_ADD( "grief_score_allies_icon", ::grief_score_allies_icon );
+	set_server_hud_alpha( getDvarIntDefault( "hud_scoreboard", 1 ) );
 }
 
 HUDELEM_SERVER_ADD( name, hudelem_constructor )
@@ -23,6 +25,29 @@ HUDELEM_SERVER_ADD( name, hudelem_constructor )
 	level.server_hudelem_funcs[ name ] = hudelem_constructor;
 	level.server_hudelems[ name ] = spawnStruct();
 	level.server_hudelems[ name ].hudelem = [[ hudelem_constructor ]]();
+}
+
+HUDELEM_CLIENT_ADD( name, hudelem_constructor )
+{
+	if ( !isDefined( self.server_hudelem_funcs ) )
+	{
+		self.server_hudelem_funcs = [];
+	}
+	if ( !isDefined( self.server_hudelems ) )
+	{
+		self.server_hudelems = [];
+	}
+	self.server_hudelem_funcs[ name ] = hudelem_constructor;
+	self.server_hudelems[ name ] = spawnStruct();
+	self.server_hudelems[ name ].hudelem = [[ hudelem_constructor ]]();
+}
+
+set_server_hud_alpha( alpha )
+{
+	level.server_hudelems[ "grief_score_axis" ].hudelem.alpha = alpha;
+	level.server_hudelems[ "grief_score_allies" ].hudelem.alpha = alpha;
+	level.server_hudelems[ "grief_score_axis_icon" ].hudelem.alpha = alpha;
+	level.server_hudelems[ "grief_score_allies_icon" ].hudelem.alpha = alpha;
 }
 
 countdown_pulse( hud_elem, duration )
@@ -162,3 +187,36 @@ hidetimerdisplayongameend() //checked matches cerberus output
 	level waittill( "game_ended" );
 	self.alpha = 0;
 }
+
+hide_score_hud( state )
+{
+	level waittill("initial_blackscreen_passed");
+	wait 2;
+	if( !level.grief_gamerules[ "hide_score" ] )
+	{
+		return;
+	}
+	players = get_players();
+	for ( i = 0; i < players.size; i++ )
+	{
+		players[ i ] setclientminiscoreboardhide( state );
+	}
+}
+
+hide_ammo_hud( state )
+{
+	level waittill("initial_blackscreen_passed");
+	if( !level.grief_gamerules[ "hide_ammo" ] )
+	{
+		return;
+	}
+	players = get_players();
+	for ( i = 0; i < players.size; i++ )
+	{
+		players[ i ] setclientammocounterhide( state );
+	}
+}
+
+// set grief_gamerule_hide_ammo_hud //Toggles the ammo hud.
+// set grief_gamerule_hide_score_hud //Toggles the score hud.
+
