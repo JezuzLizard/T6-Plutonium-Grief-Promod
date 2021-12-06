@@ -79,7 +79,8 @@ match_end( winner )
 	for ( i = 0; i < players.size; i++ )
 	{
 		players[ i ] freezecontrols( 1 );
-		if ( players[ i ]._encounters_team == winner )
+		//iPrintLn( "Winner: " + players[ i ].pers[ "team" ] + " == " + winner );
+		if ( players[ i ].pers[ "team" ] == winner )
 		{
 			if ( gametype == "zgrief" )
 			{
@@ -87,7 +88,7 @@ match_end( winner )
 			}
 			players[ i ].pers[ "wins" ]++;
 		}
-		else 
+		else
 		{
 			if ( gametype == "zgrief" )
 			{
@@ -104,8 +105,7 @@ match_end( winner )
 	}
 	else 
 	{
-		//level notify( "end_game" );
-		end_game();
+		end_grief_game();
 	}
 }
 
@@ -468,7 +468,7 @@ grief_reset_message()
 	level thread maps/mp/zombies/_zm_audio_announcer::leaderdialog( "grief_restarted" );
 }
 
-end_game() //checked changed to match cerberus output
+end_grief_game() //checked changed to match cerberus output
 {
 	check_end_game_intermission_delay();
 	clientnotify( "zesn" );
@@ -514,88 +514,69 @@ end_game() //checked changed to match cerberus output
 		player closemenu();
 		player closeingamemenu();
 	}
-	if ( !isDefined( level._supress_survived_screen ) )
+	mvp = choose_mvp();
+	for ( i = 0; i < players.size; i++ )
 	{
-		for ( i = 0; i < players.size; i++ )
+		players[ i ].game_over_hud = newclienthudelem( players[ i ] );
+		players[ i ].game_over_hud.alignx = "center";
+		players[ i ].game_over_hud.aligny = "middle";
+		players[ i ].game_over_hud.horzalign = "center";
+		players[ i ].game_over_hud.vertalign = "middle";
+		players[ i ].game_over_hud.y -= 130;
+		players[ i ].game_over_hud.foreground = 1;
+		players[ i ].game_over_hud.fontscale = 3.2;
+		players[ i ].game_over_hud.alpha = 0;
+		players[ i ].game_over_hud.color = ( 1, 1, 1 );
+		players[ i ].game_over_hud settext( &"ZOMBIE_GAME_OVER" );
+		players[ i ].game_over_hud.hidewheninmenu = 1;
+		players[ i ].game_over_hud fadeovertime( 1 );
+		players[ i ].game_over_hud.alpha = 1;
+
+		players[ i ].survived_hud = newclienthudelem( players[ i ] );
+		players[ i ].survived_hud.alignx = "center";
+		players[ i ].survived_hud.aligny = "middle";
+		players[ i ].survived_hud.horzalign = "center";
+		players[ i ].survived_hud.vertalign = "middle";
+		players[ i ].survived_hud.y -= 100;
+		players[ i ].survived_hud.foreground = 1;
+		players[ i ].survived_hud.fontscale = 2;
+		players[ i ].survived_hud.alpha = 0;
+		players[ i ].survived_hud.color = ( 1, 1, 1 );
+		players[ i ].survived_hud.hidewheninmenu = 1;
+
+		players[ i ].mvp_hud = newclienthudelem( players[ i ] );
+		players[ i ].mvp_hud.alignx = "center";
+		players[ i ].mvp_hud.aligny = "middle";
+		players[ i ].mvp_hud.horzalign = "center";
+		players[ i ].mvp_hud.vertalign = "middle";
+		players[ i ].mvp_hud.y -= 100;
+		players[ i ].mvp_hud.foreground = 1;
+		players[ i ].mvp_hud.fontscale = 2;
+		players[ i ].mvp_hud.alpha = 0;
+		players[ i ].mvp_hud.color = ( 1, 1, 1 );
+		players[ i ].mvp_hud.hidewheninmenu = 1;
+		players[ i ].mvp_hud settext( getDvarDefault( "end_game_mvp_msg", "Most Valuable Player: " ) + mvp.name );
+
+		players[ i ].game_over_hud settext( getDvarDefault( "end_game_msg", &"ZOMBIE_GAME_OVER" ) );
+		winner_text = getDvarDefault( "end_game_winning_msg", &"ZOMBIE_GRIEF_WIN" );
+		loser_text = getDvarDefault( "end_game_losing_msg", &"ZOMBIE_GRIEF_LOSE" );
+		if ( is_true( level.host_ended_game ) )
 		{
-			if ( isDefined( level.custom_game_over_hud_elem ) )
-			{
-				game_over[ i ] = [[ level.custom_game_over_hud_elem ]]( players[ i ] );
-			}
-			else
-			{
-				game_over[ i ] = newclienthudelem( players[ i ] );
-				game_over[ i ].alignx = "center";
-				game_over[ i ].aligny = "middle";
-				game_over[ i ].horzalign = "center";
-				game_over[ i ].vertalign = "middle";
-				game_over[ i ].y -= 130;
-				game_over[ i ].foreground = 1;
-				game_over[ i ].fontscale = 3;
-				game_over[ i ].alpha = 0;
-				game_over[ i ].color = ( 1, 1, 1 );
-				game_over[ i ].hidewheninmenu = 1;
-				game_over[ i ] settext( &"ZOMBIE_GAME_OVER" );
-				game_over[ i ] fadeovertime( 1 );
-				game_over[ i ].alpha = 1;
-				/*
-				if ( players[ i ] issplitscreen() )
-				{
-					game_over[ i ].fontscale = 2;
-					game_over[ i ].y += 40;
-				}
-				*/
-			}
-			survived[ i ] = newclienthudelem( players[ i ] );
-			survived[ i ].alignx = "center";
-			survived[ i ].aligny = "middle";
-			survived[ i ].horzalign = "center";
-			survived[ i ].vertalign = "middle";
-			survived[ i ].y -= 100;
-			survived[ i ].foreground = 1;
-			survived[ i ].fontscale = 2;
-			survived[ i ].alpha = 0;
-			survived[ i ].color = ( 1, 1, 1 );
-			survived[ i ].hidewheninmenu = 1;
-			/*
-			if ( players[ i ] issplitscreen() )
-			{
-				survived[ i ].fontscale = 1.5;
-				survived[ i ].y += 40;
-			}
-			*/
-			if ( level.round_number < 2 )
-			{
-				if ( level.script == "zombie_moon" )
-				{
-					if ( !isDefined( level.left_nomans_land ) )
-					{
-						nomanslandtime = level.nml_best_time;
-						player_survival_time = int( nomanslandtime / 1000 );
-						player_survival_time_in_mins = maps/mp/zombies/_zm::to_mins( player_survival_time );
-						survived[ i ] settext( &"ZOMBIE_SURVIVED_NOMANS", player_survival_time_in_mins );
-					}
-					else if ( level.left_nomans_land == 2 )
-					{
-						survived[ i ] settext( &"ZOMBIE_SURVIVED_ROUND" );
-					}
-				}
-				else
-				{
-					survived[ i ] settext( &"ZOMBIE_SURVIVED_ROUND" );
-				}
-			}
-			else
-			{
-				survived[ i ] settext( &"ZOMBIE_SURVIVED_ROUNDS", level.round_number );
-			}
-			survived[ i ] fadeovertime( 1 );
-			survived[ i ].alpha = 1;
+			players[ i ].survived_hud settext( &"MP_HOST_ENDED_GAME" );
 		}
-	}
-	if ( isDefined( level.custom_end_screen ) )
-	{
-		level [[ level.custom_end_screen ]]();
+		else
+		{
+			if ( isDefined( level.gamemodulewinningteam ) && players[ i ].pers[ "team" ] == level.gamemodulewinningteam )
+			{
+				players[ i ].survived_hud settext( winner_text, level.grief_gamerules[ "zombie_power_level_start" ] );
+			}
+			else
+			{
+				players[ i ].survived_hud settext( loser_text, level.grief_gamerules[ "zombie_power_level_start" ] );
+			}
+		}
+		players[ i ].survived_hud fadeovertime( 1 );
+		players[ i ].survived_hud.alpha = 1;	
 	}
 	for ( i = 0; i < players.size; i++ )
 	{
@@ -617,14 +598,6 @@ end_game() //checked changed to match cerberus output
 	}
 	wait 0.05;
 	players = get_players();
-	if ( !isDefined( level._supress_survived_screen ) )
-	{
-		for(i = 0; i < players.size; i++)
-		{
-			survived[ i ] destroy();
-			game_over[ i ] destroy();
-		}
-	}
 	for ( i = 0; i < players.size; i++ )
 	{
 		if ( isDefined( players[ i ].survived_hud ) )
@@ -634,6 +607,11 @@ end_game() //checked changed to match cerberus output
 		if ( isDefined( players[ i ].game_over_hud ) )
 		{
 			players[ i ].game_over_hud destroy();
+		}
+		if ( isDefined( players[ i ].mvp_hud ) )
+		{
+			//players[ i ].mvp_hud fadeovertime( 1 );
+			players[ i ].mvp_hud.alpha = 1;
 		}
 	}
 	intermission();
@@ -646,7 +624,71 @@ end_game() //checked changed to match cerberus output
 	for ( i = 0; i < players.size; i++ )
 	{
 		players[ i ] cameraactivate( 0 );
+		if ( isDefined( players[ i ].mvp_hud ) )
+		{
+			players[ i ].mvp_hud destroy();
+		}
 	}
 	exitlevel( 0 );
 	wait 666;
+}
+
+getDvarDefault( dvarname, defaultvalue )
+{
+	value = getDvar( dvarname );
+	if ( value != "" )
+	{
+		return value;
+	}
+	return defaultvalue;
+}
+
+choose_mvp()
+{
+	players = get_players();
+	mvp_killsconfirmed = players[0];
+	mvp_stabs = players[0];
+	mvp_downs = players[0];
+	mvp_revives = players[0];
+	foreach ( player in players )
+	{
+		if( !isDefined( player.mvp_score ) )
+		{
+			player.mvp_score = 0;
+		}
+		if( mvp_killsconfirmed.killsconfirmed < player.killsconfirmed )
+		{
+			mvp_killsconfirmed = player;
+		}
+		if( mvp_stabs.stabs < player.stabs )
+		{
+			mvp_stabs = player;
+		}
+		if( mvp_downs.downs > player.downs )
+		{
+			mvp_downs = player;
+		}
+		if( mvp_revives.revives < player.revives )
+		{
+			mvp_revives = player;
+		}
+		// if( mvp_team.pers[ "team" ] == winner )
+		// {
+		// 	mvp_team = player;
+		// }
+	}
+	mvp_killsconfirmed.mvp_score++;
+	mvp_stabs.mvp_score++;
+	mvp_downs.mvp_score++;
+	mvp_revives.mvp_score++;
+	mvp = players[0];
+	foreach(player in players)
+	{
+		if( mvp.mvp_score < player.mvp_score )
+		{
+			mvp = player;
+		}
+	}
+
+	return mvp;
 }

@@ -61,20 +61,6 @@ menu_onmenuresponse_override()
 			self openmenu( game[ "menu_team" ] );
 			continue;
 		}
-		if ( response == "endgame" )
-		{
-			if ( self issplitscreen() )
-			{
-				level.skipvote = 1;
-				if ( is_true( level.gameended ) )
-				{
-					level.host_ended_game = 1;
-					maps/mp/zombies/_zm_game_module::freeze_players( 1 );
-					level notify( "end_game" );
-				}
-			}
-			continue;
-		}
 		if ( response == "endround" )
 		{
 			if ( is_true( level.gameended ) )

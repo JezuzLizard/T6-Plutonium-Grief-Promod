@@ -150,7 +150,6 @@ main()
 		precacheshader( "waypoint_revive_cia_zm" );
 	}
 	level.custom_spectate_permissions = ::setspectatepermissionsgrief;
-	level.custom_end_screen = ::custom_end_screen;
 	level._supress_survived_screen = true;
 	level.no_end_game_check = true;
 	level._game_module_game_end_check = ::grief_game_end_check_func;
@@ -559,73 +558,6 @@ setspectatepermissionsgrief()
 	self allowspectateteam( "axis", 1 );
 	self allowspectateteam( "freelook", 0 );
 	self allowspectateteam( "none", 1 );
-}
-
-custom_end_screen()
-{
-	players = get_players();
-	for ( i = 0; i < players.size; i++ )
-	{
-		players[ i ].game_over_hud = newclienthudelem( players[ i ] );
-		players[ i ].game_over_hud.alignx = "center";
-		players[ i ].game_over_hud.aligny = "middle";
-		players[ i ].game_over_hud.horzalign = "center";
-		players[ i ].game_over_hud.vertalign = "middle";
-		players[ i ].game_over_hud.y -= 130;
-		players[ i ].game_over_hud.foreground = 1;
-		players[ i ].game_over_hud.fontscale = 3;
-		players[ i ].game_over_hud.alpha = 0;
-		players[ i ].game_over_hud.color = ( 1, 1, 1 );
-		players[ i ].game_over_hud.hidewheninmenu = 1;
-		players[ i ].game_over_hud settext( &"ZOMBIE_GAME_OVER" );
-		players[ i ].game_over_hud fadeovertime( 1 );
-		players[ i ].game_over_hud.alpha = 1;
-		if ( players[ i ] issplitscreen() )
-		{
-			players[ i ].game_over_hud.fontscale = 2;
-			players[ i ].game_over_hud.y += 40;
-		}
-		players[ i ].survived_hud = newclienthudelem( players[ i ] );
-		players[ i ].survived_hud.alignx = "center";
-		players[ i ].survived_hud.aligny = "middle";
-		players[ i ].survived_hud.horzalign = "center";
-		players[ i ].survived_hud.vertalign = "middle";
-		players[ i ].survived_hud.y -= 100;
-		players[ i ].survived_hud.foreground = 1;
-		players[ i ].survived_hud.fontscale = 2;
-		players[ i ].survived_hud.alpha = 0;
-		players[ i ].survived_hud.color = ( 1, 1, 1 );
-		players[ i ].survived_hud.hidewheninmenu = 1;
-		if ( players[ i ] issplitscreen() )
-		{
-			players[ i ].survived_hud.fontscale = 1.5;
-			players[ i ].survived_hud.y += 40;
-		}
-		winner_text = &"ZOMBIE_GRIEF_WIN";
-		loser_text = &"ZOMBIE_GRIEF_LOSE";
-		if ( level.round_number < 2 )
-		{
-			winner_text = &"ZOMBIE_GRIEF_WIN_SINGLE";
-			loser_text = &"ZOMBIE_GRIEF_LOSE_SINGLE";
-		}
-		if ( is_true( level.host_ended_game ) )
-		{
-			players[ i ].survived_hud settext( &"MP_HOST_ENDED_GAME" );
-		}
-		else
-		{
-			if ( isDefined( level.gamemodulewinningteam ) && players[ i ]._encounters_team == level.gamemodulewinningteam )
-			{
-				players[ i ].survived_hud settext( winner_text, level.round_number );
-			}
-			else
-			{
-				players[ i ].survived_hud settext( loser_text, level.round_number );
-			}
-		}
-		players[ i ].survived_hud fadeovertime( 1 );
-		players[ i ].survived_hud.alpha = 1;
-	}
 }
 
 player_prevent_damage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime )
