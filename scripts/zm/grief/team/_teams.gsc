@@ -215,7 +215,7 @@ team_change_timer()
 check_for_predefined_team()
 {
 	//team = get_key_value_from_value( "grief_preset_teams", getDvar( "grief_preset_teams" ), self.name, "team_name" );
-	axis_guids = strTok( getDvar( "grief_teams_axis_guids" ), ";" );
+	axis_guids = strTok( getDvar( "grief_teams_axis_guids" ), "," );
 	team = "";
 	if ( axis_guids.size > 0 )
 	{
@@ -228,7 +228,7 @@ check_for_predefined_team()
 			}
 		}
 	}
-	allies_guids = strTok( getDvar( "grief_teams_allies_guids" ), ";" );
+	allies_guids = strTok( getDvar( "grief_teams_allies_guids" ), "," );
 	if ( allies_guids.size > 0 && team == "" )
 	{
 		foreach ( guid in allies_guids )

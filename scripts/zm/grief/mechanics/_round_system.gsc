@@ -566,7 +566,7 @@ end_grief_game() //checked changed to match cerberus output
 		}
 		else
 		{
-			if ( isDefined( level.gamemodulewinningteam ) && players[ i ].pers[ "team" ] == level.gamemodulewinningteam )
+			if ( isDefined( level.gamemodulewinningteam ) && players[ i ].team == level.gamemodulewinningteam )
 			{
 				players[ i ].survived_hud settext( winner_text, level.grief_gamerules[ "zombie_power_level_start" ] );
 			}
