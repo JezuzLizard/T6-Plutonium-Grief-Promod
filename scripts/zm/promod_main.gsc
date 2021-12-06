@@ -449,6 +449,7 @@ override_perk_struct_locations()
 			}
 			if ( location != getDvar( "ui_zm_mapstartlocation" ) )
 			{
+				return;
 			}
 			else 
 			{

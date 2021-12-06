@@ -84,16 +84,14 @@ perks_from_the_sky_override()
 		wait 0.05;
 	}
 	flag_wait( "initial_blackscreen_passed" );
-	wait randomintrange( 5, 10 );
-	bring_random_perk( machines, machine_triggers );
-	wait randomintrange( 5, 10 );
-	bring_random_perk( machines, machine_triggers );
-	wait randomintrange( 5, 10 );
-	bring_random_perk( machines, machine_triggers );
-	wait randomintrange( 5, 10 );
-	bring_random_perk( machines, machine_triggers );
-	wait randomintrange( 5, 10 );
-	bring_random_perk( machines, machine_triggers );
+	for( i = 0; i < level.data_maps[ "perks" ][ "specialties" ].size; i++ )
+	{
+		if( !scripts/zm/grief/gametype_modules/_gamerules::is_perk_restricted( level.data_maps[ "perks" ][ "specialties" ][ i ] ) )
+		{
+			wait randomintrange( 1, 4 );
+			bring_random_perk( machines, machine_triggers );
+		}
+	}
 }
 
 bring_random_perk( machines, machine_triggers ) //checked matches cerberus output

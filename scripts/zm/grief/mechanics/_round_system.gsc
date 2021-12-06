@@ -103,7 +103,7 @@ match_end( winner )
 	{
 		exitLevel();
 	}
-	else 
+	else
 	{
 		// end_grief_game();
 		level notify( "end_game" );
@@ -612,7 +612,7 @@ end_game_override() //checked changed to match cerberus output
 		}
 		if ( isDefined( players[ i ].mvp_hud ) )
 		{
-			//players[ i ].mvp_hud fadeovertime( 1 );
+			players[ i ].mvp_hud fadeovertime( 1 );
 			players[ i ].mvp_hud.alpha = 1;
 		}
 	}
