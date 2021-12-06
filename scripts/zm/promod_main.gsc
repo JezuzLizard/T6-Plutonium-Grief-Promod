@@ -46,11 +46,6 @@ main()
 	//END _announcer_fix module
 
 	//BEG _hud module
-	if ( getDvar( "mapname" ) == "zm_prison" )
-	{
-		precacheShader( "faction_guards" );
-		precacheShader( "faction_inmates" );
-	}
 	//END _hud module
 
 	//BEG _obituary module
@@ -113,6 +108,7 @@ main()
 	//END _powerups module
 
 	//BEG _round_system module
+	replaceFunc( maps\mp\zombies\_zm::end_game, scripts/zm/grief/mechanics/_round_system::end_game_override );
 	scripts/zm/grief/mechanics/_round_system::generate_storage_maps();
 	flag_init( "match_start", 0 );
 	flag_init( "timer_pause", 0 );
@@ -148,6 +144,11 @@ main()
 		precacheshader( "faction_cia" );
 		precacheshader( "waypoint_revive_cdc_zm" );
 		precacheshader( "waypoint_revive_cia_zm" );
+	}
+	if ( getDvar( "mapname" ) == "zm_prison" )
+	{
+		precacheShader( "faction_guards" );
+		precacheShader( "faction_inmates" );
 	}
 	level.custom_spectate_permissions = ::setspectatepermissionsgrief;
 	level._supress_survived_screen = true;

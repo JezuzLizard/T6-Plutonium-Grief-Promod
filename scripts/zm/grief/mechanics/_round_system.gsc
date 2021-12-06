@@ -105,7 +105,8 @@ match_end( winner )
 	}
 	else 
 	{
-		end_grief_game();
+		// end_grief_game();
+		level notify( "end_game" );
 	}
 }
 
@@ -468,8 +469,9 @@ grief_reset_message()
 	level thread maps/mp/zombies/_zm_audio_announcer::leaderdialog( "grief_restarted" );
 }
 
-end_grief_game() //checked changed to match cerberus output
+end_game_override() //checked changed to match cerberus output
 {
+	level waittill( "end_game" );
 	check_end_game_intermission_delay();
 	clientnotify( "zesn" );
 	if ( isDefined( level.sndgameovermusicoverride ) )
