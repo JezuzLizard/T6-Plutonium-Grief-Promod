@@ -37,7 +37,7 @@ perk_set_max_health_if_jugg_override( perk, set_premaxhealth, clamp_health_to_ma
 	{
 		if ( perk == "health_reboot" )
 		{
-			max_total_health = 100;
+			max_total_health = getDvarIntDefault( "health_player_maxhealth", 100 );
 		}
 	}
 	if ( isDefined( max_total_health ) )
