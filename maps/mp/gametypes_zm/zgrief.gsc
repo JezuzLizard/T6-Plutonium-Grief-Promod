@@ -20,7 +20,6 @@
 
 main()
 {
-	//replaceFunc( maps/mp/gametypes_zm/zmeat::waittill_thrown , ::waittill_thrown_override );
 	maps/mp/gametypes_zm/_zm_gametype::main();
 	level.onprecachegametype = ::onprecachegametype;
 	level.onstartgametype = ::onstartgametype;
@@ -76,12 +75,12 @@ onprecachegametype()
 	precacheitem( "death_self_zm" );
 	level._effect[ "butterflies" ] = loadfx( "maps/zombie/fx_zmb_impact_noharm" );
 	level thread maps/mp/zombies/_zm_game_module_meat_utility::init_item_meat( "zgrief" );
-	scripts/zm/grief/gametype_modules/_gametype_setup::rungametypeprecache_override( "zgrief" );
+	rungametypeprecache( "zgrief" );
 }
 
 onstartgametype()
 {
-	scripts/zm/grief/gametype_modules/_gametype_setup::rungametypemain_override( "zgrief", scripts/zm/grief/mechanics/_round_system::zgrief_main_override );
+	rungametypemain( "zgrief" );
 }
 
 meat_stink_powerup_grab( powerup, who )
@@ -148,7 +147,7 @@ meat_bounce_override( pos, normal, ent )
 			level thread meat_stink_player( ent );
 			if ( isDefined( self.owner ) )
 			{
-				ent scripts/zm/grief/mechanics/_point_steal::attacker_steal_points( self.owner, "meat" );
+				//ent scripts/zm/grief/mechanics/_point_steal::attacker_steal_points( self.owner, "meat" );
 				maps/mp/_demo::bookMark( "zm_player_meat_stink", GetTime(), ent, self.owner, 0, self );
 				self.owner maps/mp/zombies/_zm_stats::increment_client_stat( "contaminations_given" );
 			}
@@ -250,18 +249,4 @@ meat_stink_player_cleanup()
 		self.meat_stink_3p delete();
 	}
 	self setClientfieldToPlayer( "meat_stink", 0 );
-}
-
-waittill_thrown_override()
-{
-	self endon( "death" );
-	self endon( "disconnect" );
-	self endon( "reset_downed" );
-	self waittill( "grenade_fire", weapon, weapname );
-	if ( weapname == get_gamemode_var( "item_meat_name" ) )
-	{
-		closest_player = get_closest_player( weapon.origin );
-		weapon missile_setTarget( closest_player, ( 0, 0, 0 ) );
-		weapon playSound( "zmb_meat_meat_tossed" );
-	}
 }

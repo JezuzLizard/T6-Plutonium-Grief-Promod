@@ -393,14 +393,6 @@ rungametypemain_override( gamemode, mode_main_func, use_round_logic )
 			}
 		}
 	}
-	if ( isDefined( mode_main_func ) )
-	{
-		level thread non_round_logic_override( gamemode, mode_main_func );
-	}
-}
-
-non_round_logic_override( gamemode, mode_logic_func )
-{
 	level thread scripts/zm/grief/mechanics/_round_system::zgrief_main_override();
 }
 
