@@ -10,6 +10,7 @@
 #include maps/mp/zombies/_zm_weap_ballistic_knife;
 #include maps/mp/zombies/_zm_equipment;
 #include maps/mp/zombies/_zm_magicbox;
+#include scripts/debug/event_logger;
 
 add_struct( s_struct )
 {

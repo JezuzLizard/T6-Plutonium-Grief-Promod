@@ -39,6 +39,8 @@
 
 #include scripts/zm/grief/team/_teams;
 
+#include scripts/debug/event_logger;
+
 main()
 {
 	EVENT_START( "MAIN_MODULE" );
