@@ -41,63 +41,76 @@
 
 main()
 {
+	EVENT_START( "MAIN_MODULE" );
 	//BEG _announcer_fix module
-	replaceFunc( maps/mp/zombies/_zm_audio_announcer::playleaderdialogonplayer, scripts/zm/grief/audio/_announcer_fix::playleaderdialogonplayer_override );
+	//replaceFunc( maps/mp/zombies/_zm_audio_announcer::playleaderdialogonplayer, scripts/zm/grief/audio/_announcer_fix::playleaderdialogonplayer_override );
 	//END _announcer_fix module
 
 	//BEG _hud module
 	//END _hud module
 
 	//BEG _obituary module
-	replaceFunc( maps/mp/zombies/_zm_utility::track_players_intersection_tracker, scripts/zm/grief/gametype/_obituary::track_players_intersection_tracker_override );
+	//replaceFunc( maps/mp/zombies/_zm_utility::track_players_intersection_tracker, scripts/zm/grief/gametype/_obituary::track_players_intersection_tracker_override );
 	//END _obituary module
 
 	//BEG _gamerules module
+	EVENT_START( "GAMERULES_MODULE" );
 	scripts/zm/grief/gametype_modules/_gamerules::init_gamerules();
 	replaceFunc( maps/mp/zombies/_zm_magicbox::treasure_chest_init, scripts/zm/grief/gametype_modules/_gamerules::treasure_chest_init_override );
 	replaceFunc( maps/mp/zombies/_zm_perks::turn_perk_off, scripts/zm/grief/gametype_modules/_gamerules::turn_perk_off_override );
 	replaceFunc( maps/mp/zombies/_zm_perks::perk_fx, scripts/zm/grief/gametype_modules/_gamerules::perk_fx_override );
+	EVENT_END( "GAMERULES_MODULE" );
 	//END _gamerules module
 
 	//BEG _gametype_setup module 
+	EVENT_START( "GAMETYPE_MODULE" );
 	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::rungametypeprecache, scripts/zm/grief/gametype_modules/_gametype_setup::rungametypeprecache_override );
 	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::rungametypemain, scripts/zm/grief/gametype_modules/_gametype_setup::rungametypemain_override );
 	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::game_objects_allowed, scripts/zm/grief/gametype_modules/_gametype_setup::game_objects_allowed_override );
 	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::setup_standard_objects, scripts/zm/grief/gametype_modules/_gametype_setup::setup_standard_objects_override );
 	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::setup_classic_gametype, scripts/zm/grief/gametype_modules/_gametype_setup::setup_classic_gametype_override );
 	replaceFunc( maps/mp/zombies/_zm_zonemgr::manage_zones, scripts/zm/grief/gametype_modules/_gametype_setup::manage_zones_override );
+	EVENT_END( "GAMETYPE_MODULE" );
 	//END _gametype_setup module 
 
 	//BEG _player_spawning module
+	EVENT_START( "SPAWNING_MODULE" );
 	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::get_player_spawns_for_gametype, scripts/zm/grief/gametype_modules/_player_spawning::get_player_spawns_for_gametype_override );
+	EVENT_END( "SPAWNING_MODULE" );
 	//END _player_spawning module
 
 	//BEG _power module
-	replaceFunc( maps/mp/zombies/_zm_blockers::waittill_door_can_close, scripts/zm/grief/gametype_modules/_power::waittill_door_can_close_override );
+	//replaceFunc( maps/mp/zombies/_zm_blockers::waittill_door_can_close, scripts/zm/grief/gametype_modules/_power::waittill_door_can_close_override );
 	//END _power module
 
 	//BEG _perks module
+	EVENT_START( "PERKS_MODULE" );
 	replaceFunc( maps/mp/zombies/_zm_perks::perk_set_max_health_if_jugg, scripts/zm/grief/mechanics/loadout/_perks::perk_set_max_health_if_jugg_override );
+	EVENT_END( "PERKS_MODULE" );
 	//END _perks module
 
 	//BEG _player_health module
-	replaceFunc( maps/mp/zombies/_zm_playerhealth::onplayerspawned, scripts/zm/grief/mechanics/_player_health::onplayerspawned_override );
+	//replaceFunc( maps/mp/zombies/_zm_playerhealth::onplayerspawned, scripts/zm/grief/mechanics/_player_health::onplayerspawned_override );
 	//END _player_health module
 	
 	//BEG _pregame module
+	EVENT_START( "PREGAME_MODULE" );
 	level.player_movement_suppressed = true;
 	flag_init( "in_pregame", 0 );
 	flag_init( "player_quota", 0 );
 	level thread scripts/zm/grief/gametype/_pregame::pregame();
+	EVENT_END( "PREGAME_MODULE" );
 	//END _pregame module
 
 	//BEG promod_main module
+	EVENT_START( "PROMOD_MODULE" );
 	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_override );
 	replaceFunc( maps/mp/zombies/_zm::onallplayersready, ::onallplayersready_override );
 	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::hide_gump_loading_for_hotjoiners, ::hide_gump_loading_for_hotjoiners_override );
 	level.crash_delay = 20;
 	level thread on_player_connect();
 	level thread emptyLobbyRestart();
+	EVENT_END( "PROMOD_MODULE" );
 	//END promod_main module
 
 	//BEG _powerups module
@@ -108,35 +121,42 @@ main()
 	//END _powerups module
 
 	//BEG _round_system module
-	replaceFunc( maps\mp\zombies\_zm::end_game, scripts/zm/grief/mechanics/_round_system::end_game_override );
+	EVENT_START( "ROUND_MODULE" );
+	replaceFunc( maps/mp/zombies/_zm::end_game, scripts/zm/grief/mechanics/_round_system::end_game_override );
 	scripts/zm/grief/mechanics/_round_system::generate_storage_maps();
 	flag_init( "match_start", 0 );
 	flag_init( "timer_pause", 0 );
 	flag_init( "first_round", 0 );
 	flag_init( "spawn_players", 1 );
 	flag_init( "timer_reset", 0 );
+	EVENT_END( "ROUND_MODULE" );
 	//END _round_system module
 
 	//BEG _teams module
+	EVENT_START( "TEAMS_MODULE" );
 	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::menu_onmenuresponse, scripts/zm/grief/team/_teams::menu_onmenuresponse_override );
 	level.team_change_cooldown = 60;
 	level.team_change_max = 2;
 	level.grief_team_members = [];
 	level.grief_team_members[ "allies" ] = 0;
 	level.grief_team_members[ "axis" ] = 0;
+	EVENT_END( "TEAMS_MODULE" );
 	//END _teams module
 
 	//BEG _zombies module
+	EVENT_START( "ZOMBIES_MODULE" );
 	replaceFunc( maps/mp/zombies/_zm_utility::init_zombie_run_cycle, scripts/zm/grief/mechanics/_zombies::init_zombie_run_cycle_override );
 	level.zombies_power_level = 1;
 	level.zombies_powerup_time = 20;
+	EVENT_END( "ZOMBIES_MODULE" );
 	//END _zombies module
 
 	//BEG _point_steal module
-	replaceFunc( maps/mp/zombies/_zm_score::player_reduce_points, scripts/zm/grief/mechanics/_point_steal::player_reduce_points_override );
+	//replaceFunc( maps/mp/zombies/_zm_score::player_reduce_points, scripts/zm/grief/mechanics/_point_steal::player_reduce_points_override );
 	//END _point_steal module
 
 	//BEG grief globals
+	EVENT_START( "GLOBALS_MODULE" );
 	precacheshellshock( "grief_stab_zm" );
 	if ( getDvar( "g_gametype" ) == "zgrief" || getDvar( "mapname" ) == "zm_nuked" )
 	{
@@ -154,11 +174,14 @@ main()
 	level._supress_survived_screen = true;
 	level.no_end_game_check = true;
 	level._game_module_game_end_check = ::grief_game_end_check_func;
+	EVENT_END( "GLOBALS_MODULE" );
 	//END grief globals
+	EVENT_END( "MAIN_MODULE" );
 }
 
 init()
 {
+	EVENT_START( "INIT_MODULE" );
 	precacheStatusIcon( "waypoint_revive" );
 	level.playerSuicideAllowed = false;
 	level.noroundnumber = 1;
@@ -171,6 +194,7 @@ init()
 	level.prevent_player_damage = ::player_prevent_damage;
 	check_quickrevive_for_hotjoin();
 	setscoreboardcolumns( "score", "stabs", "killsconfirmed", "revives", "downs" );
+	EVENT_END( "INIT_MODULE" );
 }
 
 emptyLobbyRestart()
@@ -287,10 +311,6 @@ game_module_on_player_spawned() //checked partially changed to cerberus output
 		self.zmbdialoggroups = [];
 		self.zmbdialoggroup = "";
 		self takeallweapons();
-		if ( isDefined( level.givecustomcharacters ) )
-		{
-			self [[ level.givecustomcharacters ]]();
-		}
 		self giveweapon( "knife_zm" );
 		weapons_restored = self scripts/zm/grief/mechanics/loadout/_weapons::grief_laststand_weapons_return();
 		if ( !is_true( weapons_restored ) )
@@ -321,6 +341,7 @@ hide_gump_loading_for_hotjoiners_override()
 
 onallplayersready_override()
 {
+	EVENT_START( "ONALLPLAYERSREADY" );
 	while ( getPlayers().size == 0 )
 	{
 		wait 0.1;
@@ -330,6 +351,7 @@ onallplayersready_override()
 	flag_set( "initial_players_connected" );
 	thread maps/mp/zombies/_zm::start_zombie_logic_in_x_sec( 3 );
 	maps/mp/zombies/_zm::fade_out_intro_screen_zm( 5, 1.5, 1 );
+	EVENT_END( "ONALLPLAYERSREADY" );
 }
 
 wait_for_all_players_to_connect( max_wait )
@@ -424,7 +446,7 @@ struct_class_init_override()
 			}
 		}
 	}
-	override_perk_struct_locations();
+	//override_perk_struct_locations();
 }
 
 override_perk_struct_locations()

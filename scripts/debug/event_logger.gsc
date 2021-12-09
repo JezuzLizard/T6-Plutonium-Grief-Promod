@@ -10,7 +10,9 @@ EVENT_START( event )
 {
 	if ( level.debug_event_logging )
 	{
-		print( ( getTime() / 1000 ) + " " + event + " STARTED" );
+		message = event + " STARTED";
+		print( ( getTime() / 1000 ) + " " + message );
+		logPrint( message + "\n" );
 	}
 }
 
@@ -19,7 +21,9 @@ EVENT_END( event )
 {
 	if ( level.debug_event_logging )
 	{
-		print( ( getTime() / 1000 ) + " " + event + " ENDED" );
+		message = event + " ENDED";
+		print( ( getTime() / 1000 ) + " " + message );
+		logPrint( message + "\n" );
 	}
 }
 
@@ -27,6 +31,8 @@ EVENT_LOGPRINT( event, message )
 {
 	if ( level.debug_event_logging )
 	{
-		print( ( getTime() / 1000 ) + " " + event + ": " + message );
+		log = event + ": " + message;
+		print( ( getTime() / 1000 ) + " " + log );
+		logPrint( log + "\n" );
 	}
 }

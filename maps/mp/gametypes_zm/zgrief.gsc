@@ -20,6 +20,7 @@
 
 main()
 {
+	EVENT_START( "ZGRIEF_MAIN" );
 	maps/mp/gametypes_zm/_zm_gametype::main();
 	level.onprecachegametype = ::onprecachegametype;
 	level.onstartgametype = ::onstartgametype;
@@ -28,6 +29,7 @@ main()
 	level.gamemode_map_postinit[ "zgrief" ] = ::postinit_func;
 	maps/mp/gametypes_zm/_zm_gametype::post_gametype_main( "zgrief" );
 	level.grief_connected_callback = ::zgrief_connected;
+	EVENT_END( "ZGRIEF_MAIN" );
 }
 
 zgrief_connected()
@@ -37,6 +39,7 @@ zgrief_connected()
 
 postinit_func()
 {
+	EVENT_START( "ZGRIEF_POSTINIT" );
 	level.powerup_drop_count = 0;
 	level.is_zombie_level = 1;
 	level.meat_bounce_override = ::meat_bounce_override;
@@ -46,11 +49,7 @@ postinit_func()
 	level._effect[ "meat_stink_torso" ] = loadfx( "maps/zombie/fx_zmb_meat_stink_torso" );
 	include_powerup( "meat_stink" );
 	maps/mp/zombies/_zm_powerups::add_zombie_powerup( "meat_stink", "t6_wpn_zmb_meat_world", &"ZOMBIE_POWERUP_MAX_AMMO", ::func_should_drop_meat, 0, 0, 0 );
-	setmatchtalkflag( "DeadChatWithDead", 1 );
-	setmatchtalkflag( "DeadChatWithTeam", 1 );
-	setmatchtalkflag( "DeadHearTeamLiving", 1 );
-	setmatchtalkflag( "DeadHearAllLiving", 1 );
-	setmatchtalkflag( "EveryoneHearsEveryone", 1 );
+	EVENT_END( "ZGRIEF_POSTINIT" );
 }
 
 func_should_drop_meat()
@@ -72,15 +71,19 @@ func_should_drop_meat()
 
 onprecachegametype()
 {
+	EVENT_START( "ZGRIEF_ONPRECACHEGAMETYPE" );
 	precacheitem( "death_self_zm" );
 	level._effect[ "butterflies" ] = loadfx( "maps/zombie/fx_zmb_impact_noharm" );
 	level thread maps/mp/zombies/_zm_game_module_meat_utility::init_item_meat( "zgrief" );
 	rungametypeprecache( "zgrief" );
+	EVENT_END( "ZGRIEF_ONPRECACHEGAMETYPE" );
 }
 
 onstartgametype()
 {
+	EVENT_START( "ZGRIEF_ONSTARTGAMETYPE" );
 	rungametypemain( "zgrief" );
+	EVENT_END( "ZGRIEF_ONSTARTGAMETYPE" );
 }
 
 meat_stink_powerup_grab( powerup, who )

@@ -235,7 +235,7 @@ match_start()
 	flag_set( "first_round" );
 	level.rounds_played = 0;
 	level.timer_reset = false;
-	scripts/zm/grief/gametype/_hud::hud_init(); //part of _hud module
+	//scripts/zm/grief/gametype/_hud::hud_init(); //part of _hud module
 	//flag_set( "timer_pause" );
 	setdvar( "ui_scorelimit", level.grief_gamerules[ "scorelimit" ] );
 	makeDvarServerInfo( "ui_scorelimit" );

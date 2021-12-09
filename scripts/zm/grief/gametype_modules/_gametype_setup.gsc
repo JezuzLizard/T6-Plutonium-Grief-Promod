@@ -332,6 +332,7 @@ manage_zones_override( initial_zone )
 
 rungametypeprecache_override( gamemode )
 {
+	EVENT_START( "RUNGAMETYPEPRECACHE" );
 	if ( !isDefined( level.gamemode_map_location_main ) || !isDefined( level.gamemode_map_location_main[ gamemode ] ) )
 	{
 		return;
@@ -362,10 +363,12 @@ rungametypeprecache_override( gamemode )
 	{
 		self [[ level.precachecustomcharacters ]]();
 	}
+	EVENT_END( "RUNGAMETYPEPRECACHE" );
 }
 
 rungametypemain_override( gamemode, mode_main_func, use_round_logic )
 {
+	EVENT_START( "RUNGAMETYPEMAIN" );
 	if ( !isDefined( level.gamemode_map_location_main ) || !isDefined( level.gamemode_map_location_main[ gamemode ] ) )
 	{
 		return;
@@ -394,6 +397,7 @@ rungametypemain_override( gamemode, mode_main_func, use_round_logic )
 		}
 	}
 	level thread scripts/zm/grief/mechanics/_round_system::zgrief_main_override();
+	EVENT_END( "RUNGAMETYPEMAIN" );
 }
 
 game_objects_allowed_override( mode, location )
