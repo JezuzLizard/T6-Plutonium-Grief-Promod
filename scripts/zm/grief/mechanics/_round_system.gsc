@@ -68,11 +68,14 @@ check_for_match_winner( winner )
 match_end( winner )
 {
 	gametype = getDvar( "g_gametype" );
-	keys = getArrayKeys( level.server_hudelems );
-	for ( i = 0; i < keys.size; i++ )
+	if ( isDefined( level.server_hudelems ) )
 	{
-		level.server_hudelems[ keys[ i ] ].hudelem notify( "destroy_hud" );
-		level.server_hudelems[ keys[ i ] ].hudelem destroy();
+		keys = getArrayKeys( level.server_hudelems );
+		for ( i = 0; i < keys.size; i++ )
+		{
+			level.server_hudelems[ keys[ i ] ].hudelem notify( "destroy_hud" );
+			level.server_hudelems[ keys[ i ] ].hudelem destroy();
+		}
 	}
 	level.gamemodulewinningteam = winner;
 	players = getPlayers();

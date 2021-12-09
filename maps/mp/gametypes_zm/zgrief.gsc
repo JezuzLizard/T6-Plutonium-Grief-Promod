@@ -17,6 +17,9 @@
 #include maps/mp/gametypes_zm/_hud_util;
 #include maps/mp/_utility;
 #include maps/mp/zombies/_zm_spawner;
+#include maps/mp/gametypes_zm/_zm_gametype;
+
+#include scripts/debug/event_logger;
 
 main()
 {
