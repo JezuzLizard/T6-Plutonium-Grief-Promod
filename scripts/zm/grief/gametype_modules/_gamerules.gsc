@@ -25,8 +25,8 @@ init_gamerules()
 	level.grief_gamerules[ "pregame_time" ] = getDvarIntDefault( "grief_gamerule_pregame_time", 5 );
 	level.grief_gamerules[ "disable_fog" ] = getDvarIntDefault( "grief_gamerule_disable_fog", 1 );
 	set_fog();
-	setdvar( "ui_scorelimit", level.grief_gamerules[ "scorelimit" ] );
-	makeDvarServerInfo( "ui_scorelimit" );
+	// setdvar( "ui_scorelimit", level.grief_gamerules[ "scorelimit" ] );
+	// makeDvarServerInfo( "ui_scorelimit" );
 	level thread init_restrictions();
 }
 
@@ -48,10 +48,8 @@ init_restrictions()
 	generate_map( "powerups", key_list, key_names );
 	level.grief_restrictions = [];
 	level.grief_restrictions[ "perks" ] = getDvar( "grief_restrictions_perks" );
-	//level.grief_restrictions[ "weapons" ] = getDvar( "grief_restrictions_weapons" );
 	level.grief_restrictions[ "powerups" ] = getDvar( "grief_restrictions_powerups" );
 	powerup_restrictions();
-	//level.grief_restrictions[ "doors" ] = getDvar( "grief_restrictions_doors" );
 }
 
 powerup_restrictions()
@@ -61,6 +59,11 @@ powerup_restrictions()
 		return;
 	}
 	powerup_restrictions = strTok( level.grief_restrictions[ "powerups" ], " " );
+	if ( level.grief_restrictions[ "powerups" ] == "all" )
+	{
+		level.zombie_include_powerups = [];
+		return;
+	}
 	for ( i = 0; i < level.data_maps[ "powerups" ][ "names" ].size; i++ )
 	{
 		for ( j = 0; j < powerup_restrictions.size; j++ )
