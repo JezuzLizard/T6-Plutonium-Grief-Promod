@@ -11,11 +11,6 @@
 
 main()
 {
-	if ( getDvar( "g_gametype" ) != "zgrief" )
-    {
-		return;
-    }
-
 	//BEG grief_main module
 	replaceFunc(maps/mp/zombies/_zm_audio_announcer::playleaderdialogonplayer, ::playleaderdialogonplayer);
 	replaceFunc(maps/mp/zombies/_zm_game_module::wait_for_team_death_and_round_end, ::wait_for_team_death_and_round_end);
@@ -29,11 +24,6 @@ main()
 
 init()
 {
-    if ( getDvar( "g_gametype" ) != "zgrief" )
-    {
-		return;
-    }
-
 	if ( getDvarInt( "zombies_minplayers" ) < 2 || getDvarInt( "zombies_minplayers" ) == "" )
 	{
 		setDvar( "zombies_minplayers", 2 );
@@ -45,7 +35,6 @@ init()
 	scripts/zm/grief/gametype_modules/_gamerules::init_gamerules();
 	scripts/zm/grief/gametype/_hud::hud_init(); //part of _hud module
 
-	// level thread grief_score_hud();
 	level thread set_grief_vars();
 	level thread init_round_start_wait( level.grief_gamerules[ "pregame_time" ] );
 	level thread unlimited_zombies();
