@@ -5,11 +5,14 @@
 
 hud_init()
 {
-	HUDELEM_SERVER_ADD( "grief_score_axis", ::grief_score_axis );
-	HUDELEM_SERVER_ADD( "grief_score_allies", ::grief_score_allies );
-	HUDELEM_SERVER_ADD( "grief_score_axis_icon", ::grief_score_axis_icon );
-	HUDELEM_SERVER_ADD( "grief_score_allies_icon", ::grief_score_allies_icon );
-	set_server_hud_alpha( getDvarIntDefault( "hud_scoreboard", 1 ) );
+	if ( !level.grief_multiteam )
+	{
+		HUDELEM_SERVER_ADD( "grief_score_axis", ::grief_score_axis );
+		HUDELEM_SERVER_ADD( "grief_score_allies", ::grief_score_allies );
+		HUDELEM_SERVER_ADD( "grief_score_axis_icon", ::grief_score_axis_icon );
+		HUDELEM_SERVER_ADD( "grief_score_allies_icon", ::grief_score_allies_icon );
+		set_server_hud_alpha( getDvarIntDefault( "hud_scoreboard", 1 ) );
+	}
 }
 
 HUDELEM_SERVER_ADD( name, hudelem_constructor )

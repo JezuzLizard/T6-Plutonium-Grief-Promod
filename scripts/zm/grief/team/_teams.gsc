@@ -7,8 +7,13 @@ player_team_setup()
 {
 	teamplayersallies = countplayers( "allies" );
 	teamplayersaxis = countplayers( "axis" );
+	if ( level.grief_multiteam )
+	{
+		teamplayersteam3 = countPlayers( "team3" );
+		teamplayersteam4 = countPlayers( "team4" );
+	}
 	session_team = level.players_in_session[ self.name ].sessionteam;
-	if ( isDefined( session_team ) && countplayers( session_team ) < 4 )
+	if ( isDefined( session_team ) && countplayers( session_team ) < level.grief_team_size_max )
 	{
 		self.team = session_team;
 		self.sessionteam = session_team;
@@ -17,26 +22,88 @@ player_team_setup()
 	}
 	else 
 	{
-		if ( teamplayersallies > teamplayersaxis )
+		if ( level.grief_multiteam )
 		{
-			self.team = "axis";
-			self.sessionteam = "axis";
-			self.pers[ "team" ] = "axis";
-			self._encounters_team = "A";
-		}
-		else if ( teamplayersallies < teamplayersaxis )
-		{
-			self.team = "allies";
-			self.sessionteam = "allies";
-			self.pers[ "team" ] = "allies";
-			self._encounters_team = "B";
+			if ( teamplayersallies == 0 )
+			{
+				self.team = "allies";
+				self.sessionteam = "allies";
+				self.pers[ "team" ] = "allies";
+				self._encounters_team = "B";
+			}
+			else if ( teamplayersaxis == 0 )
+			{
+				self.team = "axis";
+				self.sessionteam = "axis";
+				self.pers[ "team" ] = "axis";
+				self._encounters_team = "A";
+			}
+			else if ( teamplayersteam3 == 0 )
+			{
+				self.team = "team3";
+				self.sessionteam = "team3";
+				self.pers[ "team" ] = "team3";
+				self._encounters_team = "C";
+			}
+			else if ( teamplayersteam4 == 0 )
+			{
+				self.team = "team4";
+				self.sessionteam = "team4";
+				self.pers[ "team" ] = "team4";
+				self._encounters_team = "D";
+			}
+			else if ( ( teamplayersallies < level.grief_team_size_max ) )
+			{
+				self.team = "allies";
+				self.sessionteam = "allies";
+				self.pers[ "team" ] = "allies";
+				self._encounters_team = "B";
+			}
+			else if ( ( teamplayersaxis < level.grief_team_size_max ) )
+			{
+				self.team = "axis";
+				self.sessionteam = "axis";
+				self.pers[ "team" ] = "axis";
+				self._encounters_team = "A";
+			}
+			else if ( ( teamplayersteam3 < level.grief_team_size_max ) )
+			{
+				self.team = "team3";
+				self.sessionteam = "team3";
+				self.pers[ "team" ] = "team3";
+				self._encounters_team = "C";
+			}
+			else if ( ( teamplayersteam4 < level.grief_team_size_max ) )
+			{
+				self.team = "team4";
+				self.sessionteam = "team4";
+				self.pers[ "team" ] = "team4";
+				self._encounters_team = "D";
+			}
 		}
 		else
 		{
-			self.team = "allies";
-			self.sessionteam = "allies";
-			self.pers[ "team" ] = "allies";
-			self._encounters_team = "B";
+			if ( teamplayersallies > teamplayersaxis )
+			{
+				self.team = "axis";
+				self.sessionteam = "axis";
+				self.pers[ "team" ] = "axis";
+				self._encounters_team = "A";
+			}
+			else if ( teamplayersallies < teamplayersaxis )
+			{
+				self.team = "allies";
+				self.sessionteam = "allies";
+				self.pers[ "team" ] = "allies";
+				self._encounters_team = "B";
+			}
+			else
+			{
+				self.team = "allies";
+				self.sessionteam = "allies";
+				self.pers[ "team" ] = "allies";
+				self._encounters_team = "B";
+			}
 		}
 		level.players_in_session[ self.name ].sessionteam = self.team;
 	}
@@ -151,7 +218,7 @@ player_can_change_to_team( new_team )
 		self iPrintLn( "You cannot change teams when you are the only player left." );
 		return false;
 	}
-	else if ( ( level.grief_team_members[ new_team ] + 1 ) > 4 )
+	else if ( ( level.grief_team_members[ new_team ] + 1 ) > level.grief_team_size_max )
 	{
 		self iPrintLn( "You cannot change teams when the team you are changing to is at it's maximum." );
 		return false;
@@ -240,7 +307,7 @@ check_for_predefined_team()
 			}
 		}
 	}
-	if ( team != "" && isDefined( level.teams[ team ] ) && countPlayers( team ) < 4 )
+	if ( team != "" && isDefined( level.teams[ team ] ) && countPlayers( team ) < level.grief_team_size_max )
 	{
 		self.team = team;
 		self.sessionteam = team;

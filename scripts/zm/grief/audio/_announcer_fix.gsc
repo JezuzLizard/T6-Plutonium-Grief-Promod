@@ -1,6 +1,7 @@
 #include maps/mp/zombies/_zm_audio;
 #include maps/mp/zombies/_zm_audio_announcer;
 
+//If dialog causes crashes in multiteam please check this function.
 playleaderdialogonplayer_override( dialog, team, waittime )
 {
 	self endon( "disconnect" );

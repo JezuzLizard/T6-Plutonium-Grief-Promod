@@ -2,11 +2,6 @@
 #include common_scripts/utility;
 #include maps/mp/_utility;
 
-// create_griefed_obituary_msg( victim, attacker, weapon, mod )
-// {
-// 	//return va( "OBITUARY;%s;%s;%s;%s;%s;%s", victim.team, victim.name, attacker.team, attacker.name, weapon, mod );
-// }
-
 watch_for_down()
 {
 	level endon( "end_game" );

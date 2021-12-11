@@ -41,6 +41,16 @@
 
 main()
 {
+	if ( getGametypeSetting( "teamCount" ) > 2 )
+	{
+		level.grief_multiteam = true;
+		level.grief_team_size_max = 2;
+	}
+	else 
+	{
+		level.grief_multiteam = false;
+		level.grief_team_size_max = 4;
+	}
 	//BEG _announcer_fix module
 	replaceFunc( maps/mp/zombies/_zm_audio_announcer::playleaderdialogonplayer, scripts/zm/grief/audio/_announcer_fix::playleaderdialogonplayer_override );
 	//END _announcer_fix module
@@ -109,7 +119,7 @@ main()
 
 	//BEG _round_system module
 	replaceFunc( maps\mp\zombies\_zm::end_game, scripts/zm/grief/mechanics/_round_system::end_game_override );
-	scripts/zm/grief/mechanics/_round_system::generate_storage_maps();
+	//scripts/zm/grief/mechanics/_round_system::generate_storage_maps();
 	flag_init( "match_start", 0 );
 	flag_init( "timer_pause", 0 );
 	flag_init( "first_round", 0 );
@@ -124,6 +134,12 @@ main()
 	level.grief_team_members = [];
 	level.grief_team_members[ "allies" ] = 0;
 	level.grief_team_members[ "axis" ] = 0;
+	if ( level.grief_multiteam )
+	{
+		level.grief_team_members[ "team3" ] = 0;
+		level.grief_team_members[ "team4" ] = 0;
+		level.team_change_max = 1;
+	}
 	//END _teams module
 
 	//BEG _zombies module
@@ -171,6 +187,15 @@ init()
 	level.prevent_player_damage = ::player_prevent_damage;
 	check_quickrevive_for_hotjoin();
 	setscoreboardcolumns( "score", "stabs", "killsconfirmed", "revives", "downs" );
+	if ( level.grief_multiteam )
+	{
+		if ( !isDefined( level.spawn_funcs ) )
+		{
+			level.spawn_funcs = [];
+		}
+		level.spawn_funcs[ "team4" ] = [];
+		level.spawn_funcs[ "team5" ] = [];
+	}
 }
 
 emptyLobbyRestart()
@@ -556,8 +581,7 @@ final killcam
 
 setspectatepermissionsgrief()
 {
-	self allowspectateteam( "allies", 1 );
-	self allowspectateteam( "axis", 1 );
+	self maps/mp/gametypes_zm/_spectating::allowspectateallteams( true );
 	self allowspectateteam( "freelook", 0 );
 	self allowspectateteam( "none", 1 );
 }

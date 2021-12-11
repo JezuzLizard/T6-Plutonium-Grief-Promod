@@ -10,11 +10,16 @@ generate_storage_maps()
 	key_list = "str:player_name|str:team_name|bool:is_perm|bool:is_banned";
 	key_names = "value_types|keys";
 	scripts/zm/grief/gametype_modules/_gamerules::generate_map( "grief_preset_teams", key_list, key_names );
-	key_list = "allies:B:0|axis:A:0"; //|team3:C:false:0|team4:D:false:0|team5:E:false:0|team6:F:false:0|team7:G:false:0|team8:H:false:0
+	key_list = "allies:B:0|axis:A:0"; //team5:E:false:0|team6:F:false:0|team7:G:false:0|team8:H:false:0
+	if ( level.grief_multiteam )
+	{
+		key_list = "allies:B:0|axis:A:0|team3:C:0|team4:D:0";
+	}
 	key_names = "team|e_team|score";
 	scripts/zm/grief/gametype_modules/_gamerules::generate_map( "encounters_teams", key_list, key_names );
 	level.data_maps[ "encounters_teams" ][ "score" ][ 0 ] = 0;
 	level.data_maps[ "encounters_teams" ][ "score" ][ 1 ] = 0;
+	level.team_index_grief = [];
 	level.team_index_grief[ "allies" ] = 0;
 	level.team_index_grief[ "axis" ] = 1;
 	team_count = getGametypeSetting( "teamCount" );
@@ -22,13 +27,16 @@ generate_storage_maps()
 	{
 		level.team_index_grief[ "team" + teamindex ] = teamIndex - 1;
 	}
+	level.e_team_index_grief = [];
 	level.e_team_index_grief[ "B" ] = 0;
 	level.e_team_index_grief[ "A" ] = 1;
-	// team_count = getGametypeSetting( "teamCount" );
-	// for ( teamindex = 3; teamindex <= team_count; teamIndex++ )
-	// {
-	// 	level.e_team_index_grief[ "team" + teamindex ] = teamIndex - 1;
-	// }
+	if ( level.grief_multiteam )
+	{
+		level.e_team_index_grief[ "C" ] = 2;
+		level.e_team_index_grief[ "D" ] = 3;
+		level.data_maps[ "encounters_teams" ][ "score" ][ 2 ] = 0;
+		level.data_maps[ "encounters_teams" ][ "score" ][ 3 ] = 0;
+	}
 }
 
 grief_save_loadouts()
@@ -74,7 +82,6 @@ match_end( winner )
 		level.server_hudelems[ keys[ i ] ].hudelem notify( "destroy_hud" );
 		level.server_hudelems[ keys[ i ] ].hudelem destroy();
 	}
-	level.gamemodulewinningteam = winner;
 	players = getPlayers();
 	for ( i = 0; i < players.size; i++ )
 	{
@@ -98,7 +105,6 @@ match_end( winner )
 		}
 	}
 	level._game_module_game_end_check = undefined;
-	maps/mp/gametypes_zm/_zm_gametype::track_encounters_win_stats( level.gamemodulewinningteam );
 	if ( getPlayers().size <= 1 )
 	{
 		exitLevel();
@@ -482,7 +488,7 @@ end_game_override() //checked changed to match cerberus output
 	{
 		level thread maps/mp/zombies/_zm_audio::change_zombie_music( "game_over" );
 	}
-	players = get_players();
+	players = getPlayers();
 	for ( i = 0; i < players.size; i++ )
 	{
 		setclientsysstate( "lsm", "0", players[ i ] );
@@ -509,7 +515,7 @@ end_game_override() //checked changed to match cerberus output
 	wait 0.1;
 	game_over = [];
 	survived = [];
-	players = get_players();
+	players = getPlayers();
 	setmatchflag( "disableIngameMenu", 1 );
 	foreach ( player in players )
 	{
@@ -590,7 +596,7 @@ end_game_override() //checked changed to match cerberus output
 	maps/mp/zombies/_zm_stats::update_global_counters_on_match_end();
 	wait 1;
 	wait 3.95;
-	players = get_players();
+	players = getPlayers();
 	foreach ( player in players )
 	{
 		if ( isdefined( player.sessionstate ) && player.sessionstate == "spectator" )
@@ -599,7 +605,7 @@ end_game_override() //checked changed to match cerberus output
 		}
 	}
 	wait 0.05;
-	players = get_players();
+	players = getPlayers();
 	for ( i = 0; i < players.size; i++ )
 	{
 		if ( isDefined( players[ i ].survived_hud ) )
@@ -619,10 +625,10 @@ end_game_override() //checked changed to match cerberus output
 	intermission();
 	wait level.zombie_vars[ "zombie_intermission_time" ];
 	level notify( "stop_intermission" );
-	array_thread( get_players(), ::player_exit_level );
+	array_thread( getPlayers(), ::player_exit_level );
 	bbprint( "zombie_epilogs", "rounds %d", level.round_number );
 	wait 1.5;
-	players = get_players();
+	players = getPlayers();
 	for ( i = 0; i < players.size; i++ )
 	{
 		players[ i ] cameraactivate( 0 );
@@ -647,7 +653,7 @@ getDvarDefault( dvarname, defaultvalue )
 
 choose_mvp()
 {
-	players = get_players();
+	players = getPlayers();
 	mvp_killsconfirmed = players[0];
 	mvp_stabs = players[0];
 	mvp_downs = players[0];

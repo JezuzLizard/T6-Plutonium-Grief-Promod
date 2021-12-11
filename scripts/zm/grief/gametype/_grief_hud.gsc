@@ -2,6 +2,8 @@
 #include maps/mp/zombies/_zm_audio_announcer;
 #include maps/mp/_utility;
 
+//Come back to this once grief multi-team is done.
+
 grief_onplayerconnect() //checked matches cerberus output
 {
 	self thread zgrief_player_bled_out_msg();
