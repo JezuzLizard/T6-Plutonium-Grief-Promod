@@ -353,7 +353,7 @@ zombie_goto_round(target_round)
 		}
 	}
 
-	round_start_wait(5);
+	round_start_wait( level.grief_gamerules[ "pregame_time" ] );
 }
 
 round_start_wait(time, initial)
@@ -363,7 +363,7 @@ round_start_wait(time, initial)
 		initial = false;
 	}
 
-	level thread zombie_spawn_wait(time + 5);
+	level thread zombie_spawn_wait(time + level.grief_gamerules[ "round_zombie_spawn_delay" ]);
 
 	players = get_players();
 	foreach(player in players)
@@ -411,7 +411,7 @@ round_start_countdown_hud(time)
     countdown.color = ( 1, 1, 0 );
     countdown.hidewheninmenu = true;
     countdown maps/mp/gametypes_zm/_hud::fontpulseinit();
-    countdown thread round_start_countdown_hud_timer(time);
+    countdown thread round_start_countdown_hud_timer();
 	countdown thread round_start_countdown_hud_end_game_watcher();
 
 	countdown.countdown_text = createServerFontString( "objective", 1.5 );
@@ -440,11 +440,11 @@ round_start_countdown_hud_end_game_watcher()
 	self round_start_countdown_hud_destroy();
 }
 
-round_start_countdown_hud_timer(time)
+round_start_countdown_hud_timer()
 {
 	level endon( "end_game" );
 
-    timer = time;
+    timer = level.grief_gamerules[ "next_round_time" ];
     while ( true )
     {
         self setValue( timer );
@@ -499,7 +499,7 @@ round_end(winner, force_win)
 
 	if(!force_win)
 	{
-		wait 5;
+		wait level.grief_gamerules[ "suicide_check" ];
 	}
 
 	players = get_players();
