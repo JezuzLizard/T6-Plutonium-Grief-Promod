@@ -6,7 +6,7 @@ get_powerups_allowed()
 	powerups_allowed = [];
 	for ( i = 0; i < level.data_maps[ "powerups" ][ "names" ].size; i++ )
 	{
-		if ( level.data_maps[ "powerups" ][ "allowed" ][ i ] == "1" )
+		if ( level.data_maps[ "powerups" ][ "allowed" ][ i ] )
 		{
 			powerups_allowed[ powerups_allowed.size ] = level.data_maps[ "powerups" ][ "names" ][ i ];
 		}

@@ -7,12 +7,20 @@
 
 generate_storage_maps()
 {
-	key_list = "str:player_name|str:team_name|bool:is_perm|bool:is_banned";
-	key_names = "value_types|keys";
-	scripts/zm/grief/gametype_modules/_gamerules::generate_map( "grief_preset_teams", key_list, key_names );
-	key_list = "allies:B:0|axis:A:0"; //|team3:C:false:0|team4:D:false:0|team5:E:false:0|team6:F:false:0|team7:G:false:0|team8:H:false:0
-	key_names = "team|e_team|score";
-	scripts/zm/grief/gametype_modules/_gamerules::generate_map( "encounters_teams", key_list, key_names );
+	// key_list = "str:player_name|str:team_name|bool:is_perm|bool:is_banned";
+	// key_names = "value_types|keys";
+	// scripts/zm/grief/gametype_modules/_gamerules::generate_map( "grief_preset_teams", key_list, key_names );
+	// key_list = "allies:B:0|axis:A:0"; //|team3:C:false:0|team4:D:false:0|team5:E:false:0|team6:F:false:0|team7:G:false:0|team8:H:false:0
+	// key_names = "team|e_team|score";
+	// scripts/zm/grief/gametype_modules/_gamerules::generate_map( "encounters_teams", key_list, key_names );
+	level.data_maps[ "encounters_teams" ] = [];
+	level.data_maps[ "encounters_teams" ][ "team" ] = [];
+	level.data_maps[ "encounters_teams" ][ "team" ][ 0 ] = "allies";
+	level.data_maps[ "encounters_teams" ][ "team" ][ 1 ] = "axis";
+	level.data_maps[ "encounters_teams" ][ "e_team" ] = [];
+	level.data_maps[ "encounters_teams" ][ "e_team" ][ 0 ] = "B";
+	level.data_maps[ "encounters_teams" ][ "e_team" ][ 1 ] = "A";
+	level.data_maps[ "encounters_teams" ][ "score" ] = [];
 	level.data_maps[ "encounters_teams" ][ "score" ][ 0 ] = 0;
 	level.data_maps[ "encounters_teams" ][ "score" ][ 1 ] = 0;
 	level.team_index_grief[ "allies" ] = 0;

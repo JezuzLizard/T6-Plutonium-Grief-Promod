@@ -32,20 +32,70 @@ init_gamerules()
 
 init_restrictions()
 {
-	key_list = "weapupgrade:Pack_A_Punch|armorvest:juggernog|quickrevive:revive|fastreload:sleight|rof:doubletap|longersprint:marathon|deadshot:deadshot|additionalprimaryweapon:additionalprimaryweapon|scavenger:tombstone|finalstand:chugabud|grenadepulldeath:electric_cherry|flakjacket:divetonuke|nomotionsensor:specialty_nomotionsensor";
-	key_names = "specialties|power_notifies";
-	generate_map( "perks", key_list, key_names );
-	key_list = "nuke:1|insta_kill:1|full_ammo:1|double_points:1";
-	if ( getDvar( "ui_zm_gamemodegroup" ) == "zencounter" )
+	if ( !isDefined( level.data_maps ) )
 	{
-		key_list += "|meat_stink:1";
+		level.data_maps = [];
 	}
-	if ( level.script != "zm_transit" && level.script != "zm_highrise" )
-	{
-		key_list += "|fire_sale:1";
-	}
-	key_names = "names|allowed";
-	generate_map( "powerups", key_list, key_names );
+	level.data_maps[ "perks" ] = [];
+	level.data_maps[ "perks" ][ "specialties" ] = [];
+	level.data_maps[ "perks" ][ "specialties" ][ 0 ] = "weapupgrade";
+	level.data_maps[ "perks" ][ "specialties" ][ 1 ] = "armorvest";
+	level.data_maps[ "perks" ][ "specialties" ][ 2 ] = "quickrevive";
+	level.data_maps[ "perks" ][ "specialties" ][ 3 ] = "fastreload";
+	level.data_maps[ "perks" ][ "specialties" ][ 4 ] = "rof";
+	level.data_maps[ "perks" ][ "specialties" ][ 5 ] = "longersprint";
+	level.data_maps[ "perks" ][ "specialties" ][ 6 ] = "deadshot";
+	level.data_maps[ "perks" ][ "specialties" ][ 7 ] = "additionalprimaryweapon";
+	level.data_maps[ "perks" ][ "specialties" ][ 8 ] = "scavenger";
+	level.data_maps[ "perks" ][ "specialties" ][ 9 ] = "finalstand";
+	level.data_maps[ "perks" ][ "specialties" ][ 10 ] = "grenadepulldeath";
+	level.data_maps[ "perks" ][ "specialties" ][ 11 ] = "flakjacket";
+	level.data_maps[ "perks" ][ "specialties" ][ 12 ] = "nomotionsensor";
+	level.data_maps[ "perks" ][ "power_notifies" ] = [];
+	level.data_maps[ "perks" ][ "power_notifies" ][ 0 ] = "Pack_A_Punch";
+	level.data_maps[ "perks" ][ "power_notifies" ][ 1 ] = "juggernog";
+	level.data_maps[ "perks" ][ "power_notifies" ][ 2 ] = "revive";
+	level.data_maps[ "perks" ][ "power_notifies" ][ 3 ] = "sleight";
+	level.data_maps[ "perks" ][ "power_notifies" ][ 4 ] = "doubletap";
+	level.data_maps[ "perks" ][ "power_notifies" ][ 5 ] = "marathon";
+	level.data_maps[ "perks" ][ "power_notifies" ][ 6 ] = "deadshot";
+	level.data_maps[ "perks" ][ "power_notifies" ][ 7 ] = "additionalprimaryweapon";
+	level.data_maps[ "perks" ][ "power_notifies" ][ 8 ] = "tombstone";
+	level.data_maps[ "perks" ][ "power_notifies" ][ 9 ] = "chugabud";
+	level.data_maps[ "perks" ][ "power_notifies" ][ 10 ] = "electric_cherry";
+	level.data_maps[ "perks" ][ "power_notifies" ][ 11 ] = "divetonuke";
+	level.data_maps[ "perks" ][ "power_notifies" ][ 12 ] = "specialty_nomotionsensor";
+	// key_list = "weapupgrade:Pack_A_Punch|armorvest:juggernog|quickrevive:revive|fastreload:sleight|rof:doubletap|longersprint:marathon|deadshot:deadshot|additionalprimaryweapon:additionalprimaryweapon|scavenger:tombstone|finalstand:chugabud|grenadepulldeath:electric_cherry|flakjacket:divetonuke|nomotionsensor:specialty_nomotionsensor";
+	// key_names = "specialties|power_notifies";
+	// generate_map( "perks", key_list, key_names );
+	level.data_maps[ "powerups" ] = [];
+	level.data_maps[ "powerups" ][ "names" ] = [];
+	level.data_maps[ "powerups" ][ "names" ][ 0 ] = "nuke";
+	level.data_maps[ "powerups" ][ "names" ][ 1 ] = "insta_kill";
+	level.data_maps[ "powerups" ][ "names" ][ 2 ] = "full_ammo";
+	level.data_maps[ "powerups" ][ "names" ][ 3 ] = "double_points";
+	level.data_maps[ "powerups" ][ "names" ][ 4 ] = "meat_stink";
+	level.data_maps[ "powerups" ][ "names" ][ 5 ] = "fire_sale";
+	level.data_maps[ "powerups" ][ "names" ][ 6 ] = "zombie_blood";
+	level.data_maps[ "powerups" ][ "allowed" ] = [];
+	level.data_maps[ "powerups" ][ "allowed" ][ 0 ] = true;
+	level.data_maps[ "powerups" ][ "allowed" ][ 1 ] = true;
+	level.data_maps[ "powerups" ][ "allowed" ][ 2 ] = true;
+	level.data_maps[ "powerups" ][ "allowed" ][ 3 ] = true;
+	level.data_maps[ "powerups" ][ "allowed" ][ 4 ] = true;
+	level.data_maps[ "powerups" ][ "allowed" ][ 5 ] = true;
+	level.data_maps[ "powerups" ][ "allowed" ][ 6 ] = true;
+	// key_list = "nuke:1|insta_kill:1|full_ammo:1|double_points:1";
+	// if ( getDvar( "ui_zm_gamemodegroup" ) == "zencounter" )
+	// {
+	// 	key_list += "|meat_stink:1";
+	// }
+	// if ( level.script != "zm_transit" && level.script != "zm_highrise" )
+	// {
+	// 	key_list += "|fire_sale:1";
+	// }
+	// key_names = "names|allowed";
+	// generate_map( "powerups", key_list, key_names );
 	level.grief_restrictions = [];
 	level.grief_restrictions[ "perks" ] = getDvar( "grief_restrictions_perks" );
 	//level.grief_restrictions[ "weapons" ] = getDvar( "grief_restrictions_weapons" );
@@ -67,7 +117,7 @@ powerup_restrictions()
 		{
 			if ( isSubStr( level.data_maps[ "powerups" ][ "names" ][ i ], powerup_restrictions[ j ] ) || level.grief_restrictions[ "powerups" ] == "all" )
 			{
-				level.data_maps[ "powerups" ][ "allowed" ][ i ] = "0";
+				level.data_maps[ "powerups" ][ "allowed" ][ i ] = false;
 				break;
 			}
 		}
