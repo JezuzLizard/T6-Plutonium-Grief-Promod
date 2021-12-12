@@ -1,5 +1,6 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
+#include maps/mp/zombies/_zm_utility;
 #include maps/mp/zombies/_zm_pers_upgrades_functions;
 #include maps/mp/zombies/_zm_power;
 #include maps/mp/zombies/_zm_perks;
