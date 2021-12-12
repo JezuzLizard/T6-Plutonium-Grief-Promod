@@ -78,6 +78,16 @@ main()
 
 	//BEG _perks module
 	replaceFunc( maps/mp/zombies/_zm_perks::perk_set_max_health_if_jugg, scripts/zm/grief/mechanics/loadout/_perks::perk_set_max_health_if_jugg_override );
+	replaceFunc( maps/mp/zombies/_zm_perks::turn_doubletap_on, scripts/zm/grief/mechanics/loadout/_perks::turn_doubletap_on_override );
+	replaceFunc( maps/mp/zombies/_zm_perks::turn_marathon_on, scripts/zm/grief/mechanics/loadout/_perks::turn_marathon_on_override );
+	replaceFunc( maps/mp/zombies/_zm_perks::turn_jugger_on, scripts/zm/grief/mechanics/loadout/_perks::turn_jugger_on_override );
+	replaceFunc( maps/mp/zombies/_zm_perks::turn_revive_on, scripts/zm/grief/mechanics/loadout/_perks::turn_revive_on_override );
+	replaceFunc( maps/mp/zombies/_zm_perks::turn_sleight_on, scripts/zm/grief/mechanics/loadout/_perks::turn_sleight_on_override );
+	replaceFunc( maps/mp/zombies/_zm_perks::turn_deadshot_on, scripts/zm/grief/mechanics/loadout/_perks::turn_deadshot_on_override );
+	replaceFunc( maps/mp/zombies/_zm_perks::turn_additionalprimaryweapon_on, scripts/zm/grief/mechanics/loadout/_perks::turn_additionalprimaryweapon_on_override );
+	replaceFunc( maps/mp/zombies/_zm_perks::turn_chugabud_on, scripts/zm/grief/mechanics/loadout/_perks::turn_chugabud_on_override );
+	replaceFunc( maps/mp/zombies/_zm_perks::turn_doubletap_on, scripts/zm/grief/mechanics/loadout/_perks::turn_doubletap_on_override );
+	replaceFunc( maps/mp/zombies/_zm_perks::turn_doubletap_on, scripts/zm/grief/mechanics/loadout/_perks::turn_doubletap_on_override );
 	//END _perks module
 
 	//BEG _player_health module
