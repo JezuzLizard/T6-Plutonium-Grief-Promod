@@ -88,13 +88,10 @@ turn_jugger_on_override() //checked changed to match cerberus output
 			machine[ i ] thread play_loop_on_machine();
 		}
 		level notify( "specialty_armorvest_power_on" );
-		if ( array_validate( machine_triggers )
-		{
-			array_thread( machine_triggers, ::set_power_on, 1 );
-		}
+		array_thread( machine_triggers, ::set_power_on, 1 );
 		if ( isDefined( level.machine_assets[ "juggernog" ].power_on_callback ) )
 		{
-				array_thread( machine, level.machine_assets[ "juggernog" ].power_on_callback );
+			array_thread( machine, level.machine_assets[ "juggernog" ].power_on_callback );
 		}
 		level waittill( "juggernog_off" );
 		if ( isDefined( level.machine_assets[ "juggernog" ].power_off_callback ) )
