@@ -254,6 +254,7 @@ check_for_predefined_team()
 default_menu_autoassign( assignment )
 {
 	self closemenus();
+	self scripts/zm/grief/persistence/_session_data::init_player_session_data();
 	self player_team_setup();
 	self.class = undefined;
 	self updateobjectivetext();

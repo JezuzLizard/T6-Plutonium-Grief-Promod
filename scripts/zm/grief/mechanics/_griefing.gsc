@@ -3,17 +3,9 @@
 //Extended Grief Mechanics
 game_module_player_damage_callback( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime )
 {
-	self.last_damage_from_zombie_or_player = 0;
-	if ( isDefined( eattacker ) )
+	if ( isDefined( eattacker ) && isplayer( eattacker ) && eattacker == self )
 	{
-		if ( isplayer( eattacker ) && eattacker == self )
-		{
-			return;
-		}
-		if ( isDefined( eattacker.is_zombie ) || eattacker.is_zombie && isplayer( eattacker ) )
-		{
-			self.last_damage_from_zombie_or_player = 1;
-		}
+		return;
 	}
 	if ( isDefined( eattacker) && isplayer( eattacker ) )
 	{
@@ -34,29 +26,29 @@ game_module_player_damage_callback( einflictor, eattacker, idamage, idflags, sme
 	{
 		return;
 	}
-	if ( isplayer( eattacker ) && isDefined( eattacker._encounters_team ) && eattacker._encounters_team != self._encounters_team )
+	if ( isDefined( eattacker) && isplayer( eattacker ) && isDefined( eattacker._encounters_team ) && eattacker._encounters_team != self._encounters_team )
 	{
 		self.last_griefed_by.attacker = eattacker;
 		self.last_griefed_by.meansofdeath = smeansofdeath;
 		self.last_griefed_by.weapon = sweapon;
 		self.last_griefed_by.time = getTime();
-		if ( is_true( self.hasriotshield ) && isDefined( vdir ) )
-		{
-			if ( is_true( self.hasriotshieldequipped ) )
-			{
-				if ( self maps/mp/zombies/_zm::player_shield_facing_attacker( vdir, 0.2 ) && isDefined( self.player_shield_apply_damage ) )
-				{
-					return;
-				}
-			}
-			else if ( !isdefined( self.riotshieldentity ) )
-			{
-				if ( !self maps/mp/zombies/_zm::player_shield_facing_attacker( vdir, -0.2 ) && isdefined( self.player_shield_apply_damage ) )
-				{
-					return;
-				}
-			}
-		}
+		// if ( is_true( self.hasriotshield ) && isDefined( vdir ) )
+		// {
+		// 	if ( is_true( self.hasriotshieldequipped ) )
+		// 	{
+		// 		if ( self maps/mp/zombies/_zm::player_shield_facing_attacker( vdir, 0.2 ) && isDefined( self.player_shield_apply_damage ) )
+		// 		{
+		// 			return;
+		// 		}
+		// 	}
+		// 	else if ( !isdefined( self.riotshieldentity ) )
+		// 	{
+		// 		if ( !self maps/mp/zombies/_zm::player_shield_facing_attacker( vdir, -0.2 ) && isdefined( self.player_shield_apply_damage ) )
+		// 		{
+		// 			return;
+		// 		}
+		// 	}
+		// }
 		self do_player_knockback( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime );
 		if ( isDefined( level._effect[ "butterflies" ] ) )
 		{

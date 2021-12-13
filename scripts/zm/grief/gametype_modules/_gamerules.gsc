@@ -376,7 +376,7 @@ perk_fx_override( fx, turnofffx )
 	{
 		self.perk_fx = 0;
 	}
-	else if ( !is_true( perk_machine.is_restricted ) )
+	else if ( !is_true( self.is_restricted ) )
 	{
 		wait 3;
 		if ( isDefined( self ) && !is_true( self.perk_fx ) )
@@ -389,6 +389,7 @@ perk_fx_override( fx, turnofffx )
 
 hide_restricted_perk( perk_trigger )
 {
+	perk_machine = getEnt( perk_trigger.target, "targetname" );
 	if ( !is_true( perk_machine.is_restricted ) )
 	{
 		perk_trigger trigger_off_proc();
@@ -401,7 +402,8 @@ hide_restricted_perk( perk_trigger )
 
 show_restricted_perk( perk_trigger )
 {
-	if ( is_true( perk_machine_is_restricted ) )
+	perk_machine = getEnt( perk_trigger.target, "targetname" );
+	if ( is_true( perk_machine.is_restricted ) )
 	{
 		perk_trigger trigger_on_proc();
 		perk_trigger.clip solid();

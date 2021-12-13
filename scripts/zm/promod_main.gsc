@@ -238,7 +238,6 @@ on_player_connect()
 			player thread scripts/zm/grief/gametype/_obituary::watch_for_down();
 		}
 		player thread scripts/zm/grief/mechanics/_round_system::give_points_on_restart_and_round_change();
-		player scripts/zm/grief/persistence/_session_data::init_player_session_data();
 		player.killsconfirmed = 0;
 		player.stabs = 0;
 		player.assists = 0;

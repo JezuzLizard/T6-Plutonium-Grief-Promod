@@ -202,8 +202,7 @@ OBJ_SPAWN_ENT_ON_ENT( ent, offset, link )
 	{
 		offset = ( 0, 0, 0 );
 	}
-	elem_ent = spawn( "script_model", ent.origin + offset );
-	elem_ent setModel( "script_origin" );
+	elem_ent = spawn( "script_origin", ent.origin + offset );
 	if ( is_true( link ) )
 	{
 		elem_ent linkTo( ent );

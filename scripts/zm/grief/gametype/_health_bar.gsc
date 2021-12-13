@@ -11,15 +11,15 @@ health_bar_hud()
 	health_bar = self createprimaryprogressbar();
 	if (level.script == "zm_buried")
 	{
-		health_bar setpoint(undefined, "BOTTOM", -335, -95);
+		health_bar setpoint("CENTER", "BOTTOM", -335, -95);
 	}
 	else if (level.script == "zm_tomb")
 	{
-		health_bar setpoint(undefined, "BOTTOM", -335, -100);
+		health_bar setpoint("CENTER", "BOTTOM", -335, -100);
 	}
 	else
 	{
-		health_bar setpoint(undefined, "BOTTOM", -335, -70);
+		health_bar setpoint("CENTER", "BOTTOM", -335, -70);
 	}
 	health_bar.hidewheninmenu = 1;
 	health_bar.bar.hidewheninmenu = 1;
@@ -28,22 +28,19 @@ health_bar_hud()
 	health_bar_text = self createprimaryprogressbartext();
 	if (level.script == "zm_buried")
 	{
-		health_bar_text setpoint(undefined, "BOTTOM", -410, -95);
+		health_bar_text setpoint("CENTER", "BOTTOM", -410, -95);
 	}
 	else if (level.script == "zm_tomb")
 	{
-		health_bar_text setpoint(undefined, "BOTTOM", -410, -100);
+		health_bar_text setpoint("CENTER", "BOTTOM", -410, -100);
 	}
 	else
 	{
-		health_bar_text setpoint(undefined, "BOTTOM", -410, -70);
+		health_bar_text setpoint("CENTER", "BOTTOM", -410, -70);
 	}
 	health_bar_text.hidewheninmenu = 1;
-	health_bar thread cleanup_health_bar_on_disconnect( self );
 	health_bar thread cleanup_health_bar_on_end_game();
-	health_bar_text thread cleanup_health_bar_on_disconnect( self );
 	health_bar_text thread cleanup_health_bar_on_end_game();
-
 	while ( true )
 	{
 		enable_health_bar = getDvarIntDefault( "hud_health_bar", 0 );
@@ -90,15 +87,11 @@ health_bar_hud()
 	}
 }
 
-cleanup_health_bar_on_disconnect( player )
-{
-	level endon( "end_game" );
-	player waittill( "disconnect" );
-	self destroyelem();
-}
-
 cleanup_health_bar_on_end_game()
 {
 	level waittill( "end_game" );
-	self destroyelem();
+	if ( isDefined( self ) )
+	{
+		self destroyelem();
+	}
 }
