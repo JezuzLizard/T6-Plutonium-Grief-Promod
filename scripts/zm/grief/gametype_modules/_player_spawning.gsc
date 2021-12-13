@@ -310,6 +310,7 @@ onplayerspawned() //checked matches cerberus output
 				{
 					self.lives = 0;
 				}
+				self.score_lost_when_downed = 0;
 			}
 		}
 	}

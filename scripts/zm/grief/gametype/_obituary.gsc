@@ -25,7 +25,7 @@ watch_for_down()
 				{
 					obituary( self, self.last_griefed_by.attacker, self.last_griefed_by.weapon, self.last_griefed_by.meansofdeath );
 					self.last_griefed_by.attacker.killsconfirmed++;
-					self.last_griefed_by.attacker.pers[ "killsconfirmed" ]++;
+					//self.last_griefed_by.attacker.pers[ "killsconfirmed" ]++;
 				}
 				//self thread scripts/zm/grief/mechanics/_point_steal::steal_points_on_bleedout( self.last_griefed_by.attacker );
 			}
