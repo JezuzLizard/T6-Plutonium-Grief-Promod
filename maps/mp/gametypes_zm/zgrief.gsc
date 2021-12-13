@@ -75,12 +75,12 @@ onprecachegametype()
 	precacheitem( "death_self_zm" );
 	level._effect[ "butterflies" ] = loadfx( "maps/zombie/fx_zmb_impact_noharm" );
 	level thread maps/mp/zombies/_zm_game_module_meat_utility::init_item_meat( "zgrief" );
-	rungametypeprecache( "zgrief" );
+	maps/mp/gametypes_zm/_zm_gametype::rungametypeprecache( "zgrief" );
 }
 
 onstartgametype()
 {
-	rungametypemain( "zgrief" );
+	maps/mp/gametypes_zm/_zm_gametype::rungametypemain( "zgrief" );
 }
 
 meat_stink_powerup_grab( powerup, who )
