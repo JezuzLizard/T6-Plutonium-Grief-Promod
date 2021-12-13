@@ -11,7 +11,7 @@ game_module_player_damage_callback( einflictor, eattacker, idamage, idflags, sme
 	{
 		if ( smeansofdeath == "MOD_MELEE" )
 		{
-			eattacker.pers[ "stabs" ]++;
+			// eattacker.pers[ "stabs" ]++;
 			eattacker.stabs++;
 		}
 	}
