@@ -526,7 +526,6 @@ end_game_override() //checked changed to match cerberus output
 		player closemenu();
 		player closeingamemenu();
 	}
-	mvp = choose_mvp();
 	for ( i = 0; i < players.size; i++ )
 	{
 		players[ i ].game_over_hud = newclienthudelem( players[ i ] );
@@ -556,19 +555,23 @@ end_game_override() //checked changed to match cerberus output
 		players[ i ].survived_hud.color = ( 1, 1, 1 );
 		players[ i ].survived_hud.hidewheninmenu = 1;
 
-		players[ i ].mvp_hud = newclienthudelem( players[ i ] );
-		players[ i ].mvp_hud.alignx = "center";
-		players[ i ].mvp_hud.aligny = "middle";
-		players[ i ].mvp_hud.horzalign = "center";
-		players[ i ].mvp_hud.vertalign = "middle";
-		players[ i ].mvp_hud.y -= 100;
-		players[ i ].mvp_hud.foreground = 1;
-		players[ i ].mvp_hud.fontscale = 2;
-		players[ i ].mvp_hud.alpha = 0;
-		players[ i ].mvp_hud.color = ( 1, 1, 1 );
-		players[ i ].mvp_hud.hidewheninmenu = 1;
-		players[ i ].mvp_hud settext( getDvarDefault( "end_game_mvp_msg", "Most Valuable Player: " ) + mvp.name );
-
+		display_mvp_messge = getDvarIntDefault( "end_game_display_mvp", 1 );
+		if( display_mvp_messge )
+		{
+			mvp = choose_mvp();
+			players[ i ].mvp_hud = newclienthudelem( players[ i ] );
+			players[ i ].mvp_hud.alignx = "center";
+			players[ i ].mvp_hud.aligny = "middle";
+			players[ i ].mvp_hud.horzalign = "center";
+			players[ i ].mvp_hud.vertalign = "middle";
+			players[ i ].mvp_hud.y -= 100;
+			players[ i ].mvp_hud.foreground = 1;
+			players[ i ].mvp_hud.fontscale = 2;
+			players[ i ].mvp_hud.alpha = 0;
+			players[ i ].mvp_hud.color = ( 1, 1, 1 );
+			players[ i ].mvp_hud.hidewheninmenu = 1;
+			players[ i ].mvp_hud settext( getDvarDefault( "end_game_mvp_msg", "Most Valuable Player: " ) + mvp.name );
+		}
 		players[ i ].game_over_hud settext( getDvarDefault( "end_game_msg", &"ZOMBIE_GAME_OVER" ) );
 		winner_text = getDvarDefault( "end_game_winning_msg", "YOU WIN!" );
 		loser_text = getDvarDefault( "end_game_losing_msg", "YOU LOSE!" );
@@ -580,11 +583,11 @@ end_game_override() //checked changed to match cerberus output
 		{
 			if ( isDefined( level.gamemodulewinningteam ) && players[ i ].team == level.gamemodulewinningteam )
 			{
-				players[ i ].survived_hud settext( winner_text, level.grief_gamerules[ "zombie_power_level_start" ] );
+				players[ i ].survived_hud settext( winner_text );
 			}
 			else
 			{
-				players[ i ].survived_hud settext( loser_text, level.grief_gamerules[ "zombie_power_level_start" ] );
+				players[ i ].survived_hud settext( loser_text );
 			}
 		}
 		players[ i ].survived_hud fadeovertime( 1 );
