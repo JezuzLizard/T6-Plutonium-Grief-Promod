@@ -94,7 +94,19 @@ do_player_knockback( einflictor, eattacker, idamage, idflags, smeansofdeath, swe
 			{
 				self.is_reviving_grief = 1;
 			}
-			self applyknockback( idamage, vdir );
+			if ( self getstance() == "prone" && !is_true( self.is_reviving_grief ) && level.grief_gamerules[ "increase_knockback" ] )
+			{
+				self applyknockback( idamage * 3, vdir );
+			}
+			else if ( self getstance() == "crouch" && !is_true( self.is_reviving_grief ) && level.grief_gamerules[ "increase_knockback" ] )
+			{
+				self applyknockback( idamage * 2, vdir );
+			}
+			else
+			{
+				self applyknockback( idamage, vdir );
+			}
+			//self setvelocity( self get_push_vector() );
 		}
 		else if ( is_weapon_shotgun( sweapon ) )
 		{
@@ -119,7 +131,7 @@ do_player_knockback( einflictor, eattacker, idamage, idflags, smeansofdeath, swe
 	{
 		self scripts/zm/grief/mechanics/_point_steal::attacker_steal_points( eattacker, "deny_revive" );
 	}
-	self.is_reviving_grief = false;
+	self.is_reviving_grief = 0;
 }
 
 reset_players_last_griefed_by()

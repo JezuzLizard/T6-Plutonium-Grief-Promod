@@ -182,6 +182,7 @@ init()
 	check_quickrevive_for_hotjoin();
 	setscoreboardcolumns( "score", "stabs", "killsconfirmed", "revives", "downs" );
 	level thread remove_status_icons_on_end_game();
+	// level thread spawn_bots(7);
 }
 
 emptyLobbyRestart()
@@ -596,5 +597,42 @@ remove_status_icons_on_end_game()
 	foreach(player in players)
 	{
 		player.statusicon = "";
+	}
+}
+
+spawn_bots(num)
+{
+	level waittill( "connected", player );
+
+	level.bots = [];
+
+	for(i = 0; i < num; i++)
+	{
+		if(get_players().size == 8)
+		{
+			break;
+		}
+
+		// fixes bot occasionally not spawning
+		while(!isDefined(level.bots[i]))
+		{
+			level.bots[i] = addtestclient();
+		}
+
+		wait 0.4; // need wait or bots don't spawn at correct origin
+	}
+	level thread set_bots_stance( "prone" );
+}
+
+set_bots_stance( stance )
+{
+	while(1)
+	{
+		wait 15;
+		foreach(bot in level.bots)
+		{
+			wait 0.4;
+			bot setStance(stance);
+		}
 	}
 }
