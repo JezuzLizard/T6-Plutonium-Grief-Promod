@@ -261,6 +261,7 @@ start_new_round( is_restart )
 	{
 		flag_clear( "spawn_zombies" );
 	}
+	level.isresetting_grief = true;
 	all_surviving_players_invulnerable();
 	kill_all_zombies();
 	all_surviving_players_vulnerable();
@@ -311,6 +312,7 @@ start_new_round( is_restart )
 		flag_set( "spawn_zombies" );
 	}
 	level.in_grief_pre_round = false;
+	level.isresetting_grief = false;
 }
 
 give_points_on_restart_and_round_change()
