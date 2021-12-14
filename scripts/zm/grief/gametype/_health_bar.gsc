@@ -15,7 +15,7 @@ health_bar_hud()
 	health_bar_text = self createprimaryprogressbartext();
 	if (level.script == "zm_buried")
 	{
-		health_bar setpoint("CENTER", "BOTTOM", -335, -95)
+		health_bar setpoint("CENTER", "BOTTOM", -335, -95);
 		health_bar_text setpoint("CENTER", "BOTTOM", -410, -95);
 	}
 	else if (level.script == "zm_tomb")

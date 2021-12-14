@@ -50,7 +50,7 @@ change_status_icon( is_alive )
 	if ( is_alive )
 	{
 		self.statusicon = "waypoint_revive";
-		self thread update_icon_on_bleedout()
+		self thread update_icon_on_bleedout();
 		
 	}
 	else 
