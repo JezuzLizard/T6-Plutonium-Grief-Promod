@@ -303,7 +303,8 @@ start_new_round( is_restart )
 	level.in_grief_pre_round = true;
 	wait level.grief_gamerules[ "round_zombie_spawn_delay" ];
 	level thread maps/mp/zombies/_zm_audio::change_zombie_music( "round_start" );
-	//maps/mp/zombies/_zm_powerups::powerup_round_start(); //Disable drops for citadel, and docks locs.
+	maps/mp/zombies/_zm_powerups::powerup_round_start(); //Disable drops for citadel, and docks locs.
+	level.zombie_vars[ "zombie_powerup_drop_max_per_round" ] = 0; //Disable drops for citadel, and docks locs.
 	flag_clear( "spawn_players" );
 	if ( !flag( "spawn_zombies" ) )
 	{
