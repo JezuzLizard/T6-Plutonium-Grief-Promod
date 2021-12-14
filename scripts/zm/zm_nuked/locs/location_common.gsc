@@ -194,63 +194,46 @@ init_nuked_perks_override() //checked changed to match cerberus output
 	left corner of the yellow house script_int 2
 	inside the yellow house script_int 4
 	*/
-	other_locations_array = array( 0, 1, 2, 3, 5, 7 );
-	first_room_locations_array = array( 8, 9, 3, 6 );
-
-	random_location = first_room_locations_array[ randomInt( first_room_locations_array.size ) ];
-	arrayRemoveValue( first_room_locations_array, random_location );
 	// logline1 = "quick revive random location: " + random_location + "\n";
 	// logprint( logline1 );
 	level.random_perk_structs = [];
-	level.random_perk_structs[ 0 ] = getstruct( perk_structs[ random_location ].target, "targetname" );
+	level.random_perk_structs[ 0 ] = getstruct( perk_structs[ 8 ].target, "targetname" );
 	level.random_perk_structs[ 0 ].targetname = "zm_perk_machine_override";
 	level.random_perk_structs[ 0 ].model = level.nuked_perks[ 0 ].model;
 	level.random_perk_structs[ 0 ].blocker_model = getent( level.random_perk_structs[ 0 ].target, "targetname" );
 	level.random_perk_structs[ 0 ].script_noteworthy = level.nuked_perks[ 0 ].script_noteworthy;
 	level.random_perk_structs[ 0 ].turn_on_notify = level.nuked_perks[ 0 ].turn_on_notify;
 	level.struct_class_names[ "targetname" ][ "zm_perk_machine_override" ][ level.struct_class_names[ "targetname" ][ "zm_perk_machine_override" ].size ] = level.random_perk_structs[ 0 ];
-
-	random_location = first_room_locations_array[ randomInt( first_room_locations_array.size ) ];
-	arrayRemoveValue( first_room_locations_array, random_location );
 	// logline1 = "speed cola random location: " + random_location + "\n";
 	// logprint( logline1 );
-	level.random_perk_structs[ 1 ] = getstruct( perk_structs[ random_location ].target, "targetname" );
+	level.random_perk_structs[ 1 ] = getstruct( perk_structs[ 9 ].target, "targetname" );
 	level.random_perk_structs[ 1 ].targetname = "zm_perk_machine_override";
 	level.random_perk_structs[ 1 ].model = level.nuked_perks[ 1 ].model;
 	level.random_perk_structs[ 1 ].blocker_model = getent( level.random_perk_structs[ 1 ].target, "targetname" );
 	level.random_perk_structs[ 1 ].script_noteworthy = level.nuked_perks[ 1 ].script_noteworthy;
 	level.random_perk_structs[ 1 ].turn_on_notify = level.nuked_perks[ 1 ].turn_on_notify;
 	level.struct_class_names[ "targetname" ][ "zm_perk_machine_override" ][ level.struct_class_names[ "targetname" ][ "zm_perk_machine_override" ].size ] = level.random_perk_structs[ 1 ];
-
-	random_location = first_room_locations_array[ randomInt( first_room_locations_array.size ) ];
-	arrayRemoveValue( first_room_locations_array, random_location );
 	// logline1 = "double tap random location: " + random_location + "\n";
 	// logprint( logline1 );
-	level.random_perk_structs[ 2 ] = getstruct( perk_structs[ random_location ].target, "targetname" );
+	level.random_perk_structs[ 2 ] = getstruct( perk_structs[ 3 ].target, "targetname" );
 	level.random_perk_structs[ 2 ].targetname = "zm_perk_machine_override";
 	level.random_perk_structs[ 2 ].model = level.nuked_perks[ 2 ].model;
 	level.random_perk_structs[ 2 ].blocker_model = getent( level.random_perk_structs[ 2 ].target, "targetname" );
 	level.random_perk_structs[ 2 ].script_noteworthy = level.nuked_perks[ 2 ].script_noteworthy;
 	level.random_perk_structs[ 2 ].turn_on_notify = level.nuked_perks[ 2 ].turn_on_notify;
 	level.struct_class_names[ "targetname" ][ "zm_perk_machine_override" ][ level.struct_class_names[ "targetname" ][ "zm_perk_machine_override" ].size ] = level.random_perk_structs[ 2 ];
-
-	random_location = first_room_locations_array[ randomInt( first_room_locations_array.size ) ];
-	arrayRemoveValue( first_room_locations_array, random_location );
 	// logline1 = "jugg random location: " + random_location + "\n";
 	// logprint( logline1 );
-	level.random_perk_structs[ 3 ] = getstruct( perk_structs[ random_location ].target, "targetname" );
+	level.random_perk_structs[ 3 ] = getstruct( perk_structs[ 6 ].target, "targetname" );
 	level.random_perk_structs[ 3 ].targetname = "zm_perk_machine_override";
 	level.random_perk_structs[ 3 ].model = level.nuked_perks[ 3 ].model;
 	level.random_perk_structs[ 3 ].blocker_model = getent( level.random_perk_structs[ 3 ].target, "targetname" );
 	level.random_perk_structs[ 3 ].script_noteworthy = level.nuked_perks[ 3 ].script_noteworthy;
 	level.random_perk_structs[ 3 ].turn_on_notify = level.nuked_perks[ 3 ].turn_on_notify;
 	level.struct_class_names[ "targetname" ][ "zm_perk_machine_override" ][ level.struct_class_names[ "targetname" ][ "zm_perk_machine_override" ].size ] = level.random_perk_structs[ 3 ];
-
-	random_location = first_room_locations_array[ randomInt( first_room_locations_array.size ) ];
-	arrayRemoveValue( first_room_locations_array, random_location );
 	// logline1 = "pack random location: " + random_location + "\n";
 	// logprint( logline1 );
-	level.random_perk_structs[ 4 ] = getstruct( perk_structs[ random_location ].target, "targetname" );
+	level.random_perk_structs[ 4 ] = getstruct( perk_structs[ 0 ].target, "targetname" );
 	level.random_perk_structs[ 4 ].targetname = "zm_perk_machine_override";
 	level.random_perk_structs[ 4 ].model = level.nuked_perks[ 4 ].model;
 	level.random_perk_structs[ 4 ].blocker_model = getent( level.random_perk_structs[ 4 ].target, "targetname" );
