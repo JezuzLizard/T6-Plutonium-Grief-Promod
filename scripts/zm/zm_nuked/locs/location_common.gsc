@@ -84,9 +84,9 @@ perks_from_the_sky_override()
 		wait 0.05;
 	}
 	flag_wait( "initial_blackscreen_passed" );
-	for( i = 0; i < level.data_maps[ "perks" ][ "specialties" ].size; i++ )
+	for( i = 0; i < 5; i++ )
 	{
-		if( !scripts/zm/grief/gametype_modules/_gamerules::is_perk_restricted( level.data_maps[ "perks" ][ "specialties" ][ i ] ) )
+		if( !scripts/zm/grief/gametype_modules/_gamerules::is_perk_restricted( machine_triggers[ i ].script_noteworthy ) )
 		{
 			wait randomintrange( 1, 4 );
 			bring_random_perk( machines, machine_triggers );
