@@ -181,6 +181,7 @@ init()
 	level.prevent_player_damage = ::player_prevent_damage;
 	check_quickrevive_for_hotjoin();
 	setscoreboardcolumns( "score", "stabs", "killsconfirmed", "revives", "downs" );
+	level thread remove_status_icons_on_end_game();
 }
 
 emptyLobbyRestart()
@@ -583,4 +584,17 @@ player_prevent_damage( einflictor, eattacker, idamage, idflags, smeansofdeath, s
 grief_game_end_check_func()
 {
 	return false;
+}
+
+remove_status_icons_on_end_game()
+{
+	level waittill("end_game");
+
+	wait 5;
+
+	players = get_players();
+	foreach(player in players)
+	{
+		player.statusicon = "";
+	}
 }

@@ -70,27 +70,13 @@ do_game_mode_shellshock( attacker, meansofdeath, weapon )
 {
 	self endon( "disconnect" );
 	self._being_shellshocked = 1;
-	if ( self.score < 0 )
+	if ( meansofdeath == "MOD_MELEE" )
 	{
-		if ( meansofdeath == "MOD_MELEE" )
-		{
-			self shellshock( "grief_stab_zm", 1 );
-		}
-		else 
-		{
-			self shellshock( "grief_stab_zm", 0.4 );
-		}
+		self shellshock( "grief_stab_zm", 0.75 );
 	}
 	else 
 	{
-		if ( meansofdeath == "MOD_MELEE" )
-		{
-			self shellshock( "grief_stab_zm", 0.75 );
-		}
-		else 
-		{
-			self shellshock( "grief_stab_zm", 0.25 );
-		}
+		self shellshock( "grief_stab_zm", level.weapon_shellshock );
 	}
 	wait 0.75;
 	self._being_shellshocked = 0;

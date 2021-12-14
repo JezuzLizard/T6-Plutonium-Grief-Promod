@@ -188,7 +188,7 @@ barrier( barrier_coordinates, barrier_model, barrier_angles, not_solid ) //custo
 	level.survival_barriers[ level.survival_barriers_index ] = spawn( "script_model", barrier_coordinates );
 	level.survival_barriers[ level.survival_barriers_index ] setModel( barrier_model );
 	level.survival_barriers[ level.survival_barriers_index ] rotateTo( barrier_angles, 0.1 );
-	level.survival_barriers[ level.survival_barriers_index ] disconnectPaths();  
+	// level.survival_barriers[ level.survival_barriers_index ] disconnectPaths();  
 	if ( is_true( not_solid ) )
 	{
 		level.survival_barriers[ level.survival_barriers_index ] notSolid();
