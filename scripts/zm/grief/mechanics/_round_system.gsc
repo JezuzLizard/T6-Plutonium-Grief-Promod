@@ -569,8 +569,8 @@ end_game_override() //checked changed to match cerberus output
 		players[ i ].mvp_hud settext( getDvarDefault( "end_game_mvp_msg", "Most Valuable Player: " ) + mvp.name );
 
 		players[ i ].game_over_hud settext( getDvarDefault( "end_game_msg", &"ZOMBIE_GAME_OVER" ) );
-		winner_text = getDvarDefault( "end_game_winning_msg", &"ZOMBIE_GRIEF_WIN" );
-		loser_text = getDvarDefault( "end_game_losing_msg", &"ZOMBIE_GRIEF_LOSE" );
+		winner_text = getDvarDefault( "end_game_winning_msg", "YOU WIN!" );
+		loser_text = getDvarDefault( "end_game_losing_msg", "YOU LOSE!" );
 		if ( is_true( level.host_ended_game ) )
 		{
 			players[ i ].survived_hud settext( &"MP_HOST_ENDED_GAME" );

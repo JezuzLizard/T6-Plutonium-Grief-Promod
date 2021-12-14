@@ -15,54 +15,54 @@
 
 main()
 {
-	if ( getDvar( "sv_maprotation_old" ) == "" )
-	{
-		setDvar( "sv_maprotation_old", getDvar( "sv_maprotation" ) );
-	}
-	COM_INIT();
-	FS_INIT();
-	level.server = spawnStruct();
-	level.server.name = "Server";
-	level.server.is_server = true;
-	level.custom_commands_restart_countdown = 5;
-	level.custom_commands_namespaces_total = 0;
-	level.custom_commands_total = 0;
-	level.custom_commands_page_count = 0;
-	level.custom_commands_page_max = 5;
-	level.custom_commands_listener_timeout = getDvarIntDefault( "tcs_cmd_listener_timeout", 12 );
-	level.custom_commands_cooldown_time = getDvarIntDefault( "tcs_cmd_cd", 5 );
-	level.custom_commands_tokens = getDvarStringDefault( "tcs_cmd_tokens", "/" ); //separated by spaces, good tokens are generally not used at the start of a normal message 
-	// "/" is recommended for anonymous command usage, other tokens are not anonymous
-	CMD_INIT_PERMS();
-	INIT_MOD_INTEGRATIONS();
-	level.custom_commands = [];
-	CMD_ADDCOMMAND( "admin a", "cvar cv", "admin:cvar <name|guid|clientnum> <cvarname> <newval>", ::CMD_CVAR_f );
-	CMD_ADDCOMMAND( "admin a", "kick k", "admin:kick <name|guid|clientnum>", ::CMD_ADMIN_KICK_f );
-	CMD_ADDCOMMAND( "admin a", "lock l", "admin:lock <password>", ::CMD_LOCK_SERVER_f );
-	CMD_ADDCOMMAND( "admin a", "unlock ul", "admin:unlock", ::CMD_UNLOCK_SERVER_f );
-	CMD_ADDCOMMAND( "admin a", "dvar d", "admin:dvar <dvarname> <newval>", ::CMD_SERVER_DVAR_f );
-	CMD_ADDCOMMAND( "admin a", "cvarall ca", "admin:cvarall <dvarname> <newval", ::CMD_CVARALL_f );
-	CMD_ADDCOMMAND( "admin a", "nextmap nm", "admin:nextmap <mapalias>", ::CMD_NEXTMAP_f );
-	CMD_ADDCOMMAND( "admin a", "resetrotation rr", "admin:resetrotation", ::CMD_RESETROTATION_f );
-	CMD_ADDCOMMAND( "admin a", "randomnextmap rnm", "admin:randomnextmap", ::CMD_RANDOMNEXTMAP_f );
-	CMD_ADDCOMMAND( "utility u", "cmdlist cl", "utility:cmdlist [namespace]", ::CMD_UTILITY_CMDLIST_f, true );
-	CMD_ADDCOMMAND( "admin a", "playerlist plist", "admin:playerlist [team]", ::CMD_PLAYERLIST_f, true );
-	CMD_ADDCOMMAND( "admin a", "restart mr", "admin:restart", ::CMD_RESTART_f, true );
-	CMD_ADDCOMMAND( "admin a", "rotate r", "admin:rotate", ::CMD_ROTATE_f, true );
-	CMD_ADDCOMMAND( "admin a", "changemap cm", "admin:changemap <mapalias>", ::CMD_CHANGEMAP_f, true );
-	CMD_ADDCOMMAND( "vote v", "start s", "vote:start <voteable> [arg1] [arg2] [arg3] [arg4]", ::CMD_VOTESTART_f, true );
+	// if ( getDvar( "sv_maprotation_old" ) == "" )
+	// {
+	// 	setDvar( "sv_maprotation_old", getDvar( "sv_maprotation" ) );
+	// }
+	// COM_INIT();
+	// FS_INIT();
+	// level.server = spawnStruct();
+	// level.server.name = "Server";
+	// level.server.is_server = true;
+	// level.custom_commands_restart_countdown = 5;
+	// level.custom_commands_namespaces_total = 0;
+	// level.custom_commands_total = 0;
+	// level.custom_commands_page_count = 0;
+	// level.custom_commands_page_max = 5;
+	// level.custom_commands_listener_timeout = getDvarIntDefault( "tcs_cmd_listener_timeout", 12 );
+	// level.custom_commands_cooldown_time = getDvarIntDefault( "tcs_cmd_cd", 5 );
+	// level.custom_commands_tokens = getDvarStringDefault( "tcs_cmd_tokens", "/" ); //separated by spaces, good tokens are generally not used at the start of a normal message 
+	// // "/" is recommended for anonymous command usage, other tokens are not anonymous
+	// CMD_INIT_PERMS();
+	// INIT_MOD_INTEGRATIONS();
+	// level.custom_commands = [];
+	// CMD_ADDCOMMAND( "admin a", "cvar cv", "admin:cvar <name|guid|clientnum> <cvarname> <newval>", ::CMD_CVAR_f );
+	// CMD_ADDCOMMAND( "admin a", "kick k", "admin:kick <name|guid|clientnum>", ::CMD_ADMIN_KICK_f );
+	// CMD_ADDCOMMAND( "admin a", "lock l", "admin:lock <password>", ::CMD_LOCK_SERVER_f );
+	// CMD_ADDCOMMAND( "admin a", "unlock ul", "admin:unlock", ::CMD_UNLOCK_SERVER_f );
+	// CMD_ADDCOMMAND( "admin a", "dvar d", "admin:dvar <dvarname> <newval>", ::CMD_SERVER_DVAR_f );
+	// CMD_ADDCOMMAND( "admin a", "cvarall ca", "admin:cvarall <dvarname> <newval", ::CMD_CVARALL_f );
+	// CMD_ADDCOMMAND( "admin a", "nextmap nm", "admin:nextmap <mapalias>", ::CMD_NEXTMAP_f );
+	// CMD_ADDCOMMAND( "admin a", "resetrotation rr", "admin:resetrotation", ::CMD_RESETROTATION_f );
+	// CMD_ADDCOMMAND( "admin a", "randomnextmap rnm", "admin:randomnextmap", ::CMD_RANDOMNEXTMAP_f );
+	// CMD_ADDCOMMAND( "utility u", "cmdlist cl", "utility:cmdlist [namespace]", ::CMD_UTILITY_CMDLIST_f, true );
+	// CMD_ADDCOMMAND( "admin a", "playerlist plist", "admin:playerlist [team]", ::CMD_PLAYERLIST_f, true );
+	// CMD_ADDCOMMAND( "admin a", "restart mr", "admin:restart", ::CMD_RESTART_f, true );
+	// CMD_ADDCOMMAND( "admin a", "rotate r", "admin:rotate", ::CMD_ROTATE_f, true );
+	// CMD_ADDCOMMAND( "admin a", "changemap cm", "admin:changemap <mapalias>", ::CMD_CHANGEMAP_f, true );
+	// CMD_ADDCOMMAND( "vote v", "start s", "vote:start <voteable> [arg1] [arg2] [arg3] [arg4]", ::CMD_VOTESTART_f, true );
 
-	VOTE_INIT();
+	// VOTE_INIT();
 
-	CMD_ADDCOMMANDLISTENER( "listener_cmdlist", "showmore" );
-	CMD_ADDCOMMANDLISTENER( "listener_cmdlist", "page" );
-	CMD_ADDCOMMANDLISTENER( "listener_playerlist", "showmore" );
-	CMD_ADDCOMMANDLISTENER( "listener_playerlist", "page" );
+	// CMD_ADDCOMMANDLISTENER( "listener_cmdlist", "showmore" );
+	// CMD_ADDCOMMANDLISTENER( "listener_cmdlist", "page" );
+	// CMD_ADDCOMMANDLISTENER( "listener_playerlist", "showmore" );
+	// CMD_ADDCOMMANDLISTENER( "listener_playerlist", "page" );
 
-	level thread COMMAND_BUFFER();
-	level thread dvar_command_watcher();
-	level thread end_commands_on_end_game();
-	level notify( "tcs_init_done" );
+	// level thread COMMAND_BUFFER();
+	// level thread dvar_command_watcher();
+	// level thread end_commands_on_end_game();
+	// level notify( "tcs_init_done" );
 }
 
 dvar_command_watcher()
