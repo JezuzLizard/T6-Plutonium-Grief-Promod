@@ -27,7 +27,15 @@ watch_for_down()
 					self.last_griefed_by.attacker.killsconfirmed++;
 					//self.last_griefed_by.attacker.pers[ "killsconfirmed" ]++;
 				}
+				else 
+				{
+					obituary(self, self, "none", "MOD_SUICIDE");
+				}
 				//self thread scripts/zm/grief/mechanics/_point_steal::steal_points_on_bleedout( self.last_griefed_by.attacker );
+			}
+			else 
+			{
+				obituary(self, self, "none", "MOD_SUICIDE");
 			}
 			self thread change_status_icon( is_alive );
 			self waittill_either( "player_revived", "spawned" );
@@ -39,14 +47,24 @@ watch_for_down()
 
 change_status_icon( is_alive )
 {
-	level endon( "end_game" );
-	self endon( "spawned" );
-	self endon( "player_revived" );
 	if ( is_alive )
 	{
 		self.statusicon = "waypoint_revive";
-		self waittill( "bled_out" );
+		self thread update_icon_on_bleedout()
+		
 	}
+	else 
+	{
+		self.statusicon = "hud_status_dead";
+	}
+}
+
+update_icon_on_bleedout()
+{
+	level endon( "end_game" );
+	self endon( "spawned" );
+	self endon( "player_revived" );
+	self waittill( "bled_out" );
 	self.statusicon = "hud_status_dead";
 }
 
