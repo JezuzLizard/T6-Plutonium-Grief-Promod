@@ -11,7 +11,7 @@ parse_cmd_message( message )
 	}
 	multi_cmds = [];
 	command_keys = [];
-	multiple_cmds_keys = strTok( message, ";" );
+	multiple_cmds_keys = strTok( message, "," );
 	for ( i = 0; i < multiple_cmds_keys.size; i++ )
 	{
 		cmd_args = strTok( multiple_cmds_keys[ i ], " " );

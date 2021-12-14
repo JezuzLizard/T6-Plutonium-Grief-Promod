@@ -19,7 +19,6 @@ COM_INIT()
 
 	COM_ADDCHANNEL( "con", ::COM_PRINT );
 	COM_ADDCHANNEL( "g_log", ::COM_LOGPRINT );
-	COM_ADDCHANNEL( "con_log", ::COM_CONSOLELOGPRINT );
 	COM_ADDCHANNEL( "iprint", ::COM_IPRINTLN );
 	COM_ADDCHANNEL( "iprintbold", ::COM_IPRINTLNBOLD );
 	COM_ADDCHANNEL( "say", ::COM_SAY );
@@ -66,7 +65,7 @@ COM_CAPS_MSG_TITLE( channel, filter, players )
 {
 	if ( channel == "g_log" || channel == "con" )
 	{
-		if ( channel == "g_log" )
+		if ( channel == "g_log" && filter != "notitle" )
 		{
 			return va( "%s:", toUpper( filter ) );
 		}
@@ -126,11 +125,6 @@ COM_LOGPRINT( channel, message, players, arg_list )
 	logPrint( message + "\n" );
 }
 
-COM_CONSOLELOGPRINT( channel, message, players, arg_list )
-{
-	//consoleLogPrint( message );
-}
-
 COM_IPRINTLN( channel, message, players, arg_list )
 {
 	if ( array_validate( players ) )
@@ -149,7 +143,7 @@ COM_IPRINTLN( channel, message, players, arg_list )
 	}
 	else 
 	{
-		COM_PRINT( "con|", va( "level COM_PRINTF() msg %s sent for channel %s has bad players arg", message, channel ) );
+		COM_PRINT( "con", va( "COM_PRINTF() msg %s sent for channel %s has bad players arg", message, channel ) );
 	}
 }
 
@@ -171,13 +165,13 @@ COM_IPRINTLNBOLD( channel, message, players, arg_list )
 	}
 	else 
 	{
-		COM_PRINT( "con|", va( "level COM_PRINTF() msg %s sent for channel %s has bad players arg", message, channel ) );
+		COM_PRINT( "con", va( "COM_PRINTF() msg %s sent for channel %s has bad players arg", message, channel ) );
 	}
 }
 
 COM_SAY( channel, message, players, arg_list )
 {
-	//say( message );
+	say( message );
 }
 
 COM_TELL( channel, message, players, arg_list )
@@ -198,17 +192,17 @@ COM_TELL( channel, message, players, arg_list )
 	}
 	else 
 	{
-		COM_PRINT( "con|", va( "level COM_PRINTF() msg %s sent for channel %s has bad players arg", message, channel ) );
+		COM_PRINT( "con", va( "COM_PRINTF() msg %s sent for channel %s has bad players arg", message, channel ) );
 	}
 }
 
 COM_OBITUARY( channel, message, players, arg_list )
 {
-	if ( array_validate( players ) )
+	if ( array_validate( players ) && players.size == 2 )
 	{
 		if ( !isDefined( arg_list[ 0 ] ) || !isDefined( arg_list[ 1 ] ) )
 		{
-			COM_PRINT( "con|", va( "level COM_PRINTF() channel %s arg_list requires <weapon> <mod>", channel ) );
+			COM_PRINT( "con", va( "COM_PRINTF() channel %s arg_list requires <weapon> <mod>", channel ) );
 		}
 		victim = players[ 0 ];
 		attacker = players[ 1 ];
@@ -218,7 +212,7 @@ COM_OBITUARY( channel, message, players, arg_list )
 	}
 	else 
 	{
-		COM_PRINT( "con|", va( "level COM_PRINTF() channel %s requires an array of two players", channel ) );
+		COM_PRINT( "con", va( "COM_PRINTF() channel %s requires an array of two players", channel ) );
 	}
 }
 
@@ -259,10 +253,10 @@ COM_GET_CMD_FEEDBACK_CHANNEL()
 {
 	if ( is_true( self.is_server ) )
 	{
-		return "con|";
+		return "con";
 	}
 	else 
 	{
-		return "tell|";
+		return "tell";
 	}
 }

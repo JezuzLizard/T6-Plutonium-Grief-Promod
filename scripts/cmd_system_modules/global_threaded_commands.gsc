@@ -21,7 +21,12 @@ CMD_VOTESTART_f( arg_list )
 	}
 	if ( is_true( level.vote_in_progress ) )
 	{
-		level COM_PRINTF( channel, "cmderror", va( "vote:start: You cannot start a new vote until the current vote is finished in %s seconds.", level.vote_in_progress_timeleft ), self );
+		level COM_PRINTF( channel, "cmderror", va( "vote:start: You cannot start a new vote until the current vote is finished in %s seconds.", level.vote_in_progress_timeleft + "" ), self );
+		return;
+	}
+	if ( get_vote_threshold() == -1 )
+	{
+		level COM_PRINTF( channel, "cmderror", "vote:start: You cannot start a new vote when there is less than 3 players.", self );
 		return;
 	}
 	key_type = arg_list[ 0 ];
@@ -61,20 +66,18 @@ CMD_VOTESTART_f( arg_list )
 	}
 	else 
 	{
-		level COM_PRINTF( channel, "cmderror", va( "vote:start: Unsupported key_type %s recevied." ), self );
+		level COM_PRINTF( channel, "cmderror", va( "vote:start: Unsupported key_type %s recevied.", key_type ), self );
 		return;
 	}
-	level COM_PRINTF( "con|say|", "notitle", va( "You have %s seconds to cast your vote.", level.vote_timeout ), self );
-	level COM_PRINTF( "con|say|", "notitle", "Do /yes or /no to vote.", self );
-	level COM_PRINTF( "con|say|", "notitle", "Outcome is determined from players who cast a vote, not from the total players.", self );
+	level COM_PRINTF( "g_log", "cmdinfo", va( "Voteables Usage: %s started vote for %s.", self.name, key_type ), self );
+	level COM_PRINTF( "con|say", "notitle", va( "You have %s seconds to cast your vote.", level.vote_timeout + "" ), self );
+	level COM_PRINTF( "con|say", "notitle", "Do /yes or /no to vote.", self );
+	level COM_PRINTF( "con|say", "notitle", "Outcome is determined from players who cast a vote, not from the total players.", self );
 	level thread vote_timeout_countdown();
 	level.vote_in_progress_votes = [];
 	foreach ( player in level.players )
 	{
-		if ( player != self )
-		{
-			player thread player_track_vote();
-		}
+		player thread player_track_vote();
 	}
 	level thread count_votes();
 	level.vote_in_progress = true;
@@ -95,7 +98,6 @@ CMD_CHANGEMAP_f( arg_list )
 	channel = self COM_GET_CMD_FEEDBACK_CHANNEL();
 	if ( array_validate( arg_list ) )
 	{
-		alias = toLower( arg_list[ 0 ] );
 		rotation_data = find_map_data_from_alias( alias );
 		if ( rotation_data[ "mapname" ] != "" )
 		{
@@ -109,13 +111,14 @@ CMD_CHANGEMAP_f( arg_list )
 				display_name = get_MP_map_name( rotation_data[ "mapname" ] );
 				rotation_string = va( "exec %s.cfg map %s", getDvar( "g_gametype" ), rotation_data[ "mapname" ] );
 			}
-			message = va( "admin:changemap: %s second rotate to map %s countdown started", level.custom_commands_restart_countdown, display_name );
-			level COM_PRINTF( "say|con|", "notitle", va( "%s executed %s", self.name, message ), self );
+			message = va( "admin:changemap: %s second rotate to map %s countdown started.", level.custom_commands_restart_countdown + "", display_name );
+			level COM_PRINTF( "g_log", "cmdinfo", va( "Changemap Usage: %s changed map to %s.", self.name, display_name ), self );
+			level COM_PRINTF( "say|con", "notitle", message, self );
 			setDvar( "sv_maprotation", rotation_string );
 			setDvar( "sv_maprotationCurrent", rotation_string );
 			for ( i = level.custom_commands_restart_countdown; i > 0; i-- )
 			{
-				level COM_PRINTF( "con|say|", "notitle", va( "%s seconds", i ) );
+				level COM_PRINTF( "con|say", "notitle", va( "%s seconds", i ) );
 				wait 1;
 			}
 			level notify( "end_commands" );
@@ -123,11 +126,11 @@ CMD_CHANGEMAP_f( arg_list )
 			exitLevel( false );
 			return;
 		}
-		level COM_PRINTF( channel, "cmderror", va( "admin:changemap: alias %s is invalid", alias ), self );
+		level COM_PRINTF( channel, "cmderror", va( "admin:changemap: alias %s is invalid.", alias ), self );
 	}
 	else 
 	{
-		level COM_PRINTF( channel, "cmderror", "admin:changemap: did not receive alias arg", self );
+		level COM_PRINTF( channel, "cmderror", "admin:changemap: did not receive alias arg.", self );
 	}
 }
 
@@ -135,12 +138,13 @@ CMD_ROTATE_f( arg_list )
 {
 	self notify( "rotate_f" );
 	self endon( "rotate_f" );
-	message = va( "admin:rotate: %s second rotate countdown started", level.custom_commands_restart_countdown, self );
-	level COM_PRINTF( "say|con|", "notitle", va( "%s executed %s", self.name, message ), self );
+	message = va( "admin:rotate: %s second rotate countdown started", level.custom_commands_restart_countdown + "", self );
+	level COM_PRINTF( "g_log", "cmdinfo", va( "Rotate Usage: %s rotated the map.", self.name ), self );
+	level COM_PRINTF( "say|con", "notitle", message, self );
 	for ( i = level.custom_commands_restart_countdown; i > 0; i-- )
 	{
 		wait 1;
-		level COM_PRINTF( "con|say|", "notitle", va( "%s seconds", i ) );
+		level COM_PRINTF( "con|say", "notitle", va( "%s seconds", i ) );
 	}
 	level notify( "end_commands" );
 	wait 0.5;
@@ -151,12 +155,13 @@ CMD_RESTART_f( arg_list )
 {
 	self notify( "restart_f" );
 	self endon( "restart_f" );
-	message = va( "admin:restart: %s second restart countdown started", level.custom_commands_restart_countdown );
-	level COM_PRINTF( "say|con|", "notitle", va( "%s executed %s", self.name, message ), self );
+	message = va( "admin:restart: %s second restart countdown started", level.custom_commands_restart_countdown + "" );
+	level COM_PRINTF( "g_log", "cmdinfo", va( "Restart Usage: %s restarted the map.", self.name ), self );
+	level COM_PRINTF( "say|con", "notitle", message, self );
 	for ( i = level.custom_commands_restart_countdown; i > 0; i-- )
 	{
 		wait 1;
-		level COM_PRINTF( "con|say|", "notitle", va( "%s seconds", i ) );
+		level COM_PRINTF( "con|say", "notitle", va( "%s seconds", i ) );
 	}
 	level notify( "end_commands" );
 	wait 0.5;
@@ -199,12 +204,12 @@ CMD_PLAYERLIST_f( arg_list )
 	{
 		if ( channel == "con" )
 		{
-			message = va( "%s %s %s", players[ i ].name, players[ i ] getGUID(), players[ i ] getEntityNumber() ); //remember to add rank as a listing option
+			message = va( "%s %s %s", players[ i ].name, players[ i ] getGUID() + "", players[ i ] getEntityNumber() + "" ); //remember to add rank as a listing option
 			level COM_PRINTF( channel, "cmdinfo", message, self );
 		}
 		else 
 		{
-			message = va( "^3%s ^2%s ^4%s", players[ i ].name, players[ i ] getGUID(), players[ i ] getEntityNumber() ); //remember to add rank as a listing option
+			message = va( "^3%s ^2%s ^4%s", players[ i ].name, players[ i ] getGUID() + "", players[ i ] getEntityNumber() + "" ); //remember to add rank as a listing option
 			players_to_display[ players_to_display.size ] = message;
 		}
 		remaining_players--;
@@ -216,11 +221,11 @@ CMD_PLAYERLIST_f( arg_list )
 				{
 					level COM_PRINTF( channel, "cmdinfo", message, self );
 				}
-				level COM_PRINTF( channel, "cmdinfo", va( "Displaying page %s out of %s do /showmore or /page(num) to display more players.", current_page, remaining_pages ), self );
+				level COM_PRINTF( channel, "cmdinfo", va( "Displaying page %s out of %s do /showmore or /page(num) to display more players.", current_page + "", remaining_pages + "" ), self );
 				self setup_command_listener( "listener_playerlist" );
 				result = self wait_command_listener( "listener_playerlist" );
 				self clear_command_listener( "listener_playerlist" );
-				if ( result[ 0 ] == "timeout" )
+				if ( !isDefined( result[ 0 ] ) || result[ 0 ] == "timeout" )
 				{
 					return;
 				}
@@ -229,12 +234,12 @@ CMD_PLAYERLIST_f( arg_list )
 					user_defined_page = int( result[ 1 ] );
 					if ( !isDefined( user_defined_page ) )
 					{
-						level COM_PRINTF( channel, "cmderror", va( "Page number arg sent to admin:playerlist is undefined. Valid inputs are 1 thru %s.", remaining_pages ), self );
+						level COM_PRINTF( channel, "cmderror", va( "Page number arg sent to admin:playerlist is undefined. Valid inputs are 1 thru %s.", remaining_pages + "" ), self );
 						return;
 					}
 					if ( user_defined_page > remaining_pages || user_defined_page == 0 )
 					{
-						level COM_PRINTF( channel, "cmderror", va( "Page number %s sent to admin:playerlist is invalid. Valid inputs are 1 thru %s.", result[ 1 ], remaining_pages ), self );
+						level COM_PRINTF( channel, "cmderror", va( "Page number %s sent to admin:playerlist is invalid. Valid inputs are 1 thru %s.", result[ 1 ], remaining_pages + "" ), self );
 						return;
 					}
 				}
@@ -297,11 +302,11 @@ CMD_UTILITY_CMDLIST_f( arg_list )
 						{
 							level COM_PRINTF( channel, "cmdinfo", message, self );
 						}
-						level COM_PRINTF( channel, "cmdinfo", va( "Displaying page %s out of %s do /showmore or /page(num) to display more commands.", current_page, level.custom_commands_page_count ), self );
+						level COM_PRINTF( channel, "cmdinfo", va( "Displaying page %s out of %s do /showmore or /page(num) to display more commands.", current_page + "", level.custom_commands_page_count + "" ), self );
 						self setup_command_listener( "listener_cmdlist" );
 						result = self wait_command_listener( "listener_cmdlist" );
 						self clear_command_listener( "listener_cmdlist" );
-						if ( result[ 0 ] == "timeout" )
+						if ( !isDefined( result[ 0 ] ) || result[ 0 ] == "timeout" )
 						{
 							return;
 						}
@@ -310,12 +315,12 @@ CMD_UTILITY_CMDLIST_f( arg_list )
 							user_defined_page = int( result[ 1 ] );
 							if ( !isDefined( user_defined_page ) )
 							{
-								level COM_PRINTF( channel, "cmderror", va( "Page number arg sent to utility:cmdlist is undefined. Valid inputs are 1 thru %s.", level.custom_commands_page_count ), self );
+								level COM_PRINTF( channel, "cmderror", va( "Page number arg sent to utility:cmdlist is undefined. Valid inputs are 1 thru %s.", level.custom_commands_page_count + "" ), self );
 								return;
 							}
 							if ( user_defined_page > level.custom_commands_page_count || user_defined_page == 0 )
 							{
-								level COM_PRINTF( channel, "cmderror", va( "Page number %s sent to utility:cmdlist is invalid. Valid inputs are 1 thru %s.", result[ 1 ], level.custom_commands_page_count ), self );
+								level COM_PRINTF( channel, "cmderror", va( "Page number %s sent to utility:cmdlist is invalid. Valid inputs are 1 thru %s.", result[ 1 ], level.custom_commands_page_count + "" ), self );
 								return;
 							}
 						}
@@ -351,14 +356,13 @@ CMD_UTILITY_VOTELIST_f( arg_list )
 	remaining_cmds = voteables_keys.size;
 	for ( i = 0; i < voteables_keys.size; i++ )
 	{
-		message = va( "^4%s", level.custom_votes[ voteables_keys[ i ] ].usage );
 		if ( channel == "con" )
 		{
-			level COM_PRINTF( channel, "cmdinfo", message, self );
+			level COM_PRINTF( channel, "cmdinfo", level.custom_votes[ voteables_keys[ i ] ].usage, self );
 		}
 		else 
 		{
-			voteables_to_display[ voteables_to_display.size ] = message;
+			voteables_to_display[ voteables_to_display.size ] = va( "^4%s", level.custom_votes[ voteables_keys[ i ] ].usage );
 		}
 		remaining_cmds--;
 		if ( ( voteables_to_display.size > level.custom_commands_page_max ) && channel == "tell" && remaining_cmds != 0 )
@@ -369,11 +373,11 @@ CMD_UTILITY_VOTELIST_f( arg_list )
 				{
 					level COM_PRINTF( channel, "cmdinfo", message, self );
 				}
-				level COM_PRINTF( channel, "cmdinfo", va( "Displaying page %s out of %s do /showmore or /page(num) to display more voteables.", current_page, level.custom_commands_page_count ), self );
+				level COM_PRINTF( channel, "cmdinfo", va( "Displaying page %s out of %s do /showmore or /page <num> to display more voteables.", current_page + "", level.custom_commands_page_count + "" ), self );
 				self setup_command_listener( "listener_voteables" );
 				result = self wait_command_listener( "listener_voteables" );
 				self clear_command_listener( "listener_voteables" );
-				if ( result[ 0 ] == "timeout" )
+				if ( !isDefined( result[ 0 ] ) || result[ 0 ] == "timeout" )
 				{
 					return;
 				}
@@ -382,12 +386,12 @@ CMD_UTILITY_VOTELIST_f( arg_list )
 					user_defined_page = int( result[ 1 ] );
 					if ( !isDefined( user_defined_page ) )
 					{
-						level COM_PRINTF( channel, "cmderror", va( "Page number arg sent to utility:votelist is undefined. Valid inputs are 1 thru %s.", level.custom_commands_page_count ), self );
+						level COM_PRINTF( channel, "cmderror", va( "Page number arg sent to utility:votelist is undefined. Valid inputs are 1 thru %s.", level.custom_commands_page_count + "" ), self );
 						return;
 					}
 					if ( user_defined_page > level.custom_commands_page_count || user_defined_page == 0 )
 					{
-						level COM_PRINTF( channel, "cmderror", va( "Page number %s sent to utility:votelist is invalid. Valid inputs are 1 thru %s.", result[ 1 ], level.custom_commands_page_count ), self );
+						level COM_PRINTF( channel, "cmderror", va( "Page number %s sent to utility:votelist is invalid. Valid inputs are 1 thru %s.", result[ 1 ], level.custom_commands_page_count + "" ), self );
 						return;
 					}
 				}

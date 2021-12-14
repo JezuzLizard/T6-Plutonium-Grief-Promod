@@ -9,7 +9,7 @@ get_vote_threshold()
 	num_players = level.players.size;
 	if ( num_players < 3 )
 	{
-		 return 99;
+		 return -1;
 	}
 	return ceil( num_players / 2 ) + 1;
 }
@@ -28,11 +28,20 @@ player_track_vote()
 	self setup_command_listener( "listener_vote" );
 	result = self wait_command_listener( "listener_vote" );
 	self clear_command_listener( "listener_vote" );
-	if ( result == "timeout" )
+	if ( !isDefined( result[ 0 ] ) || result[ 0 ] == "timeout" )
 	{
 		return;
 	}
-	level.vote_in_progress_votes[ level.vote_in_progress_votes.size ] = result;
+	if ( isSubStr( result[ 0 ], "yes" ) )
+	{
+		result_str = "yes";
+	}
+	else if ( isSubStr( result[ 0 ], "no" ) )
+	{
+		result_str = "no";
+	}
+	level COM_PRINTF( "tell", "cmdinfo", va( "You voted %s", result_str ), self );
+	level.vote_in_progress_votes[ level.vote_in_progress_votes.size ] = result_str;
 }
 
 count_votes()
@@ -61,18 +70,18 @@ count_votes()
 	if ( yes_votes > no_votes )
 	{
 		outcome = true;
-		level COM_PRINTF( "con|say|", "notitle", va( "vote:count: Received %s yeses, and % nos. Action executed.", yes_votes, no_votes ), self );
+		level COM_PRINTF( "con|say", "notitle", va( "vote:count: Received %s yeses, and %s nos. Action executed.", yes_votes + "", no_votes + "" ), self );
 	}
 	else if ( yes_votes < no_votes )
 	{
 		outcome = false;
-		level COM_PRINTF( "con|say|", "notitle", va( "vote:count: Received %s yeses, and % nos. Action not executed.", yes_votes, no_votes ), self );
+		level COM_PRINTF( "con|say", "notitle", va( "vote:count: Received %s yeses, and %s nos. Action not executed.", yes_votes + "", no_votes + "" ), self );
 	}
 	else 
 	{
 		outcome = cointoss();
 		outcome_str = cast_bool_to_str( outcome, "yes no" );
-		level COM_PRINTF( "con|say|", "notitle", va( "vote:count: Tie. Action decided by cointoss() result %s.", outcome_str ), self );
+		level COM_PRINTF( "con|say", "notitle", va( "vote:count: Tie. Action decided by cointoss() result %s.", outcome_str ), self );
 	}
 	level notify( "vote_ended", outcome );
 }

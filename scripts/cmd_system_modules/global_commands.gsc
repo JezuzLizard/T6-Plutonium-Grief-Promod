@@ -10,6 +10,7 @@
 
 CMD_RANDOMNEXTMAP_f( arg_list )
 {
+	result = [];
 	if ( sessionModeIsZombiesGame() )
 	{
 		if ( level.mod_integrations[ "cut_tranzit_locations" ] )
@@ -45,6 +46,7 @@ CMD_RANDOMNEXTMAP_f( arg_list )
 
 CMD_RESETROTATION_f( arg_list )
 {
+	result = [];
 	setDvar( "sv_maprotation", getDvar( "sv_maprotation_old" ) );
 	setDvar( "sv_maprotationCurrent", getDvar( "sv_maprotation_old" ) );
 	result[ "filter" ] = "cmdinfo";
@@ -54,15 +56,16 @@ CMD_RESETROTATION_f( arg_list )
 
 CMD_NEXTMAP_f( arg_list )
 {
+	result = [];
 	if ( array_validate( arg_list ) )
 	{
-		alias = toLower( arg_list[ 0 ] );
+		alias = arg_list[ 0 ];
 		rotation_data = find_map_data_from_alias( alias );
 		if ( rotation_data[ "mapname" ] != "" )
 		{
 			if ( sessionModeIsZombiesGame() )
 			{
-				display_name = get_ZM_map_display_name_from_location_gametype( rotation_data[ "location" ] );
+				display_name = get_ZM_map_display_name_from_location_gametype( rotation_data[ "location" ], rotation_data[ "gametype" ] );
 				rotation_string = va( "exec zm_%s_%s.cfg map %s", rotation_data[ "gamemode" ], rotation_data[ "location" ], rotation_data[ "mapname" ] );
 			}
 			else 
@@ -91,6 +94,7 @@ CMD_NEXTMAP_f( arg_list )
 
 CMD_LOCK_SERVER_f( arg_list )
 {
+	result = [];
 	if ( array_validate( arg_list ) )
 	{
 		password = arg_list[ 0 ];
@@ -108,6 +112,7 @@ CMD_LOCK_SERVER_f( arg_list )
 
 CMD_UNLOCK_SERVER_f( arg_list )
 {
+	result = [];
 	setDvar( "g_password", "" );
 	result[ "filter" ] = "cmdinfo";
 	result[ "message" ] = "admin:unlock: Successfully unlocked the server";

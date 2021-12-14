@@ -19,7 +19,7 @@ CMD_ADDCOMMANDLISTENER( listener_name, listener_cmd )
 	}
 }
 
-CMD_ISCOMMANDLISTENER_ACTIVE_PLAYER( listener_name)
+CMD_ISCOMMANDLISTENER_ACTIVE( listener_name )
 {
 	return is_true( self.cmd_listeners[ listener_name ].active );
 }
@@ -73,6 +73,7 @@ wait_command_listener( listener_name )
 
 clear_command_listener_on_cmd_reuse( listener_name )
 {
+	self endon( va( "%s_timeout_reset", listener_name ) );
 	self waittill( listener_name );
 	self.cmd_listeners[ listener_name ].active = false;
 }

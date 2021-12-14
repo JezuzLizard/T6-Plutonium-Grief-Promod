@@ -18,280 +18,273 @@ find_map_data_from_alias( alias )
 			case "prison":
 			case "mob":
 			case "alcatraz":
-				gamemode = "classic";
-				location = "prison";
-				mapname = "zm_prison";
+				result[ "gamemode" ] = "classic";
+				result[ "location" ] = "prison";
+				result[ "mapname" ] = "zm_prison";
 				break;
 			case "dr":
 			case "dierise":
 			case "rooftop":
-				gamemode = "classic";
-				location = "rooftop";
-				mapname = "zm_highrise";
+				result[ "gamemode" ] = "classic";
+				result[ "location" ] = "rooftop";
+				result[ "mapname" ] = "zm_highrise";
 				break;
 			case "or":
 			case "origins":
 			case "tomb":
-				gamemode = "classic";
-				location = "tomb";
-				mapname = "zm_tomb";
+				result[ "gamemode" ] = "classic";
+				result[ "location" ] = "tomb";
+				result[ "mapname" ] = "zm_tomb";
 				break;
 			case "buried":
 			case "processing":
-				gamemode = "classic";
-				location = "processing";
-				mapname = "zm_buried";
+				result[ "gamemode" ] = "classic";
+				result[ "location" ] = "processing";
+				result[ "mapname" ] = "zm_buried";
 				break;
 			case "nuke":
 			case "nuked":
 			case "nuketown":
-				gamemode = "standard";
-				location = "nuked";
-				mapname = "zm_nuked";
+				result[ "gamemode" ] = "standard";
+				result[ "location" ] = "nuked";
+				result[ "mapname" ] = "zm_nuked";
 				break;
 			case "gc":
 			case "gcell":
 			case "gblock":
 			case "gcellblock":
-				gamemode = "grief";
-				location = "cellblock";
-				mapname = "zm_prison";
+				result[ "gamemode" ] = "grief";
+				result[ "location" ] = "cellblock";
+				result[ "mapname" ] = "zm_prison";
 				break;
 			case "gs":
 			case "gstreet":
 			case "gborough":
-				gamemode = "grief";
-				location = "street";
-				mapname = "zm_buried";
+				result[ "gamemode" ] = "grief";
+				result[ "location" ] = "street";
+				result[ "mapname" ] = "zm_buried";
 				break;
 			case "gf":
 			case "gfarm":
-				gamemode = "grief";
-				location = "farm";
-				mapname = "zm_transit";
+				result[ "gamemode" ] = "grief";
+				result[ "location" ] = "farm";
+				result[ "mapname" ] = "zm_transit";
 				break;
 			case "gt":
 			case "gtown":
-				gamemode = "grief";
-				location = "town";
-				mapname = "zm_transit";
+				result[ "gamemode" ] = "grief";
+				result[ "location" ] = "town";
+				result[ "mapname" ] = "zm_transit";
 				break;
 			case "gb":
 			case "gbus":
 			case "gdepot":
-				gamemode = "grief";
-				location = "transit";
-				mapname = "zm_transit";
+				result[ "gamemode" ] = "grief";
+				result[ "location" ] = "transit";
+				result[ "mapname" ] = "zm_transit";
 				break;
 			case "sf":
 			case "sfarm":
-				gamemode = "standard";
-				location = "farm";
-				mapname = "zm_transit";
+				result[ "gamemode" ] = "standard";
+				result[ "location" ] = "farm";
+				result[ "mapname" ] = "zm_transit";
 				break;
 			case "st":
 			case "stown":
-				gamemode = "standard";
-				location = "town";
-				mapname = "zm_transit";
+				result[ "gamemode" ] = "standard";
+				result[ "location" ] = "town";
+				result[ "mapname" ] = "zm_transit";
 				break;
 			case "sb":
 			case "sbus":
 			case "sdepot":
-				gamemode = "standard";
-				location = "transit";
-				mapname = "zm_transit";
+				result[ "gamemode" ] = "standard";
+				result[ "location" ] = "transit";
+				result[ "mapname" ] = "zm_transit";
 				break;
 			default:
-				if ( level.mod_integrations[ "cut_tranzit_locations" ] )
-				{
-					switch ( alias )
-					{
-						case "gd":
-						case "gdin":
-						case "gdiner":
-							gamemode = "grief";
-							location = "diner";
-							mapname = "zm_transit";
-							break;
-						case "gtu":
-						case "gtunnel":
-							gamemode = "grief";
-							location = "tunnel";
-							mapname = "zm_transit";
-							break;
-						case "gp":
-						case "gpow":
-						case "gpower":
-							gamemode = "grief";
-							location = "power";
-							mapname = "zm_transit";
-							break;
-						case "gcorn":
-						case "gcornfield":
-							gamemode = "grief";
-							location = "power";
-							mapname = "zm_transit";
-							break;
-						case "sd":
-						case "sdin":
-						case "sdiner":
-							gamemode = "standard";
-							location = "diner";
-							mapname = "zm_transit";
-							break;
-						case "stu":
-						case "stunnel":
-							gamemode = "standard";
-							location = "tunnel";
-							mapname = "zm_transit";
-							break;
-						case "sp":
-						case "spow":
-						case "spower":
-							gamemode = "standard";
-							location = "power";
-							mapname = "zm_transit";
-							break;
-						case "scorn":
-						case "scornfield":
-							gamemode = "standard";
-							location = "power";
-							mapname = "zm_transit";
-							break;
-						default:
-							result[ "gamemode" ] = "";
-							result[ "location" ] = "";
-							result[ "mapname" ] = "";
-					}
-				}
-				else 
-				{
+				result[ "gamemode" ] = "";
+				result[ "location" ] = "";
+				result[ "mapname" ] = "";
+				break;
+
+		}
+		if ( result[ "mapname" ] == "" && level.mod_integrations[ "cut_tranzit_locations" ] )
+		{
+			switch ( alias )
+			{
+				case "gd":
+				case "gdin":
+				case "gdiner":
+					result[ "gamemode" ] = "grief";
+					result[ "location" ] = "diner";
+					result[ "mapname" ] = "zm_transit";
+					break;
+				case "gtu":
+				case "gtunnel":
+					result[ "gamemode" ] = "grief";
+					result[ "location" ] = "tunnel";
+					result[ "mapname" ] = "zm_transit";
+					break;
+				case "gp":
+				case "gpow":
+				case "gpower":
+					result[ "gamemode" ] = "grief";
+					result[ "location" ] = "power";
+					result[ "mapname" ] = "zm_transit";
+					break;
+				case "gcorn":
+				case "gcornfield":
+					result[ "gamemode" ] = "grief";
+					result[ "location" ] = "power";
+					result[ "mapname" ] = "zm_transit";
+					break;
+				case "sd":
+				case "sdin":
+				case "sdiner":
+					result[ "gamemode" ] = "standard";
+					result[ "location" ] = "diner";
+					result[ "mapname" ] = "zm_transit";
+					break;
+				case "stu":
+				case "stunnel":
+					result[ "gamemode" ] = "standard";
+					result[ "location" ] = "tunnel";
+					result[ "mapname" ] = "zm_transit";
+					break;
+				case "sp":
+				case "spow":
+				case "spower":
+					result[ "gamemode" ] = "standard";
+					result[ "location" ] = "power";
+					result[ "mapname" ] = "zm_transit";
+					break;
+				case "scorn":
+				case "scornfield":
+					result[ "gamemode" ] = "standard";
+					result[ "location" ] = "power";
+					result[ "mapname" ] = "zm_transit";
+					break;
+				default:
 					result[ "gamemode" ] = "";
 					result[ "location" ] = "";
 					result[ "mapname" ] = "";
-				}
-				return result;
-
+					break;
+			}
 		}
-		result[ "gamemode" ] = gamemode;
-		result[ "location" ] = location;
-		result[ "mapname" ] = mapname;
-		return result;
 	}
 	else 
 	{
 		switch ( alias )
 		{
 			case "aftermath":
-				mapname = "mp_la";
+				result[ "mapname" ] = "mp_la";
 				break;
 			case "cargo":
 			case "dockside":
-				mapname = "mp_dockside";
+				result[ "mapname" ] = "mp_dockside";
 				break;
 			case "carrier":
-				mapname = "mp_carrier";
+				result[ "mapname" ] = "mp_carrier";
 				break;
 			case "drone":
-				mapname = "mp_drone";
+				result[ "mapname" ] = "mp_drone";
 				break;
 			case "express":
-				mapname = "mp_express";
+				result[ "mapname" ] = "mp_express";
 				break;
 			case "hijacked":
-				mapname = "mp_hijacked";
+				result[ "mapname" ] = "mp_hijacked";
 				break;
 			case "meltdown":
-				mapname = "mp_meltdown";
+				result[ "mapname" ] = "mp_meltdown";
 				break;
 			case "overflow":
-				mapname = "mp_overflow";
+				result[ "mapname" ] = "mp_overflow";
 				break;
 			case "plaza":
 			case "nightclub":
-				mapname = "mp_nightclub";
+				result[ "mapname" ] = "mp_nightclub";
 				break;
 			case "raid":
-				mapname = "mp_raid";
+				result[ "mapname" ] = "mp_raid";
 				break;
 			case "slums":
-				mapname = "mp_slums";
+				result[ "mapname" ] = "mp_slums";
 				break;
 			case "village":
 			case "standoff":
-				mapname = "mp_village";
+				result[ "mapname" ] = "mp_village";
 				break;
 			case "turbine":
-				mapname = "mp_turbine";
+				result[ "mapname" ] = "mp_turbine";
 				break;
 			case "yemen":
 			case "socotra":
-				mapname = "mp_socotra";
+				result[ "mapname" ] = "mp_socotra";
 				break;
 			case "nuketown":
-				mapname = "mp_nuketown_2020";
+				result[ "mapname" ] = "mp_nuketown_2020";
 				break;
 			case "downhill":
-				mapname = "downhill";
+				result[ "mapname" ] = "downhill";
 				break;
 			case "mirage":
-				mapname = "mp_mirage";
+				result[ "mapname" ] = "mp_mirage";
 				break;
 			case "hydro":
-				mapname = "mp_hydro";
+				result[ "mapname" ] = "mp_hydro";
 				break;
 			case "grind":
 			case "skate":
-				mapname = "mp_skate";
+				result[ "mapname" ] = "mp_skate";
 				break;
 			case "encore":
 			case "concert":
-				mapname = "mp_concert";
+				result[ "mapname" ] = "mp_concert";
 				break;
 			case "magma":
-				mapname = "mp_magma";
+				result[ "mapname" ] = "mp_magma";
 				break;
 			case "vertigo":
-				mapname = "mp_vertigo";
+				result[ "mapname" ] = "mp_vertigo";
 				break;
 			case "studio":
-				mapname = "mp_studio";
+				result[ "mapname" ] = "mp_studio";
 				break;
 			case "uplink":
-				mapname = "mp_uplink";
+				result[ "mapname" ] = "mp_uplink";
 				break;
 			case "detour":
 			case "bridge":
-				mapname = "mp_bridge";
+				result[ "mapname" ] = "mp_bridge";
 				break;
 			case "cove":
 			case "castaway":
-				mapname = "mp_castaway";
+				result[ "mapname" ] = "mp_castaway";
 				break;
 			case "rush":
 			case "paintball":
-				mapname = "mp_paintball";
+				result[ "mapname" ] = "mp_paintball";
 				break;
 			case "dig":
-				mapname = "mp_dig";
+				result[ "mapname" ] = "mp_dig";
 				break;
 			case "frost":
 			case "frostbite":
-				mapname = "mp_frostbite";
+				result[ "mapname" ] = "mp_frostbite";
 				break;
 			case "pod":
-				mapname = "mp_pod";
+				result[ "mapname" ] = "mp_pod";
 				break;
 			case "takeoff":
-				mapname = "mp_takeoff";
+				result[ "mapname" ] = "mp_takeoff";
 				break;
 			default:
 				result[ "mapname" ] = "";
-				return result;
+				break;
 		}
 	}
-	result[ "mapname" ] = mapname;
 	return result;
 }
 
@@ -299,38 +292,77 @@ get_ZM_map_display_name_from_location_gametype( location, gametype )
 {
 	switch ( location )
 	{
-		case "transit":
+		case "town":
+			location_str = "Town";
+			break;
+		case "farm":
+			location_str = "Farm";
+			break;
+		case "diner":
+			location_str = "Diner";
+			break;
+		case "power":
+			location_str = "Power";
+			break;
+		case "cornfield":
+			location_str = "Cornfield";
+			break;
+		case "tunnel":
+			location_str = "Tunnel";
+			break;
+		case "cellblock":
+			location_str = "Cellblock";
+			break;
+		case "street":
+			location_str = "Borough";
+			break;
+		case "processing":
+			location_str = "Buried";
+			break;
+		case "prison":
+			location_str = "Alcatraz";
+			break;
+		case "rooftop":
+			location_str = "Die Rise";
+			break;
+		case "tomb":
+			location_str = "Origins";
+			break;
+		default:
+			break;
+	}
+	switch ( gametype )
+	{
+		case "classic":
+			gametype_str = "Classic";
+			break;
+		case "standard":
+			gametype_str = "Survival";
+			break;
+		case "grief":
+			gametype_str = "Grief";
+			break;
+		case "cleansed":
+			gametype_str = "Turned";
+			break;
+		default:
+			break;
+	}
+	if ( location_str == "" )
+	{
+		if ( location == "transit" )
+		{
 			if ( gametype == "classic" )
 			{
-				return "Tranzit";
+				location_str = "Tranzit";
 			}
-			return "Bus Depot";
-		case "town":
-			return "Town";
-		case "farm":
-			return "Farm";
-		case "diner":
-			return "Diner";
-		case "power":
-			return "Power";
-		case "cornfield":
-			return "Cornfield";
-		case "tunnel":
-			return "Tunnel";
-		case "cellblock":
-			return "Cellblock";
-		case "street":
-		case "processing":
-			return "Buried";
-		case "prison":
-			return "Alcatraz";
-		case "rooftop":
-			return "Die Rise";
-		case "tomb":
-			return "Origins";
-		default:
-			return location;
+			else 
+			{
+				location_str = "Bus Depot";
+			}
+		}
 	}
+	return va( "%s %s", gametype_str, location_str );
 }
 
 get_MP_map_name( mapname )
@@ -731,12 +763,12 @@ cast_bool_to_str( bool, binary_string_options )
 
 is_even( int )
 {
-	return int % 2 == 0;
+	return ( int % 2 ) == 0;
 }
 
 is_odd( int )
 {
-	return int % 2 == 1;
+	return ( int % 2 ) == 1;
 }
 
 CMD_ADDCOMMAND( namespace_aliases, cmdaliases, cmdusage, cmdfunc, is_threaded_cmd )
@@ -750,7 +782,7 @@ CMD_ADDCOMMAND( namespace_aliases, cmdaliases, cmdusage, cmdfunc, is_threaded_cm
 	level.custom_commands[ namespace_aliases ][ cmdaliases ].usage = cmdusage;
 	level.custom_commands[ namespace_aliases ][ cmdaliases ].func = cmdfunc;
 	level.custom_commands_total++;
-	if ( ceil( level.custom_commands_total / level.custom_commands_page_max ) > level.custom_commands_page_count )
+	if ( ceil( level.custom_commands_total / level.custom_commands_page_max ) >= level.custom_commands_page_count )
 	{
 		level.custom_commands_page_count++;
 	}
@@ -758,6 +790,8 @@ CMD_ADDCOMMAND( namespace_aliases, cmdaliases, cmdusage, cmdfunc, is_threaded_cm
 	{
 		level.custom_threaded_commands[ cmdaliases ] = true;
 	}
+	// sv_cmdname = strTok( cmdaliases, " " );
+	// addCommand( sv_cmdname, cmdfunc );
 }
 
 VOTE_ADDVOTEABLE( vote_type_aliases, usage, pre_vote_execute_func, post_vote_execute_func )
@@ -768,6 +802,11 @@ VOTE_ADDVOTEABLE( vote_type_aliases, usage, pre_vote_execute_func, post_vote_exe
 	}
 	if ( !isDefined( level.custom_votes[ vote_type_aliases ] ) )
 	{
+		level.custom_votes_total++;
+		if ( ceil( level.custom_votes_total / level.custom_commands_page_max ) >= level.custom_votes_page_count )
+		{
+			level.custom_votes_page_count++;
+		}
 		level.custom_votes[ vote_type_aliases ] = spawnStruct();
 		level.custom_votes[ vote_type_aliases ].pre_func = pre_vote_execute_func;
 		level.custom_votes[ vote_type_aliases ].post_func = post_vote_execute_func;
@@ -793,6 +832,25 @@ CMD_EXECUTE( namespace, cmdname, arg_list )
 			}
 		}
 	}
+	else 
+	{
+		namespace_keys = getArrayKeys( level.custom_commands );
+		foreach ( namespace_key in namespace_keys )
+		{
+			cmd_keys = getArrayKeys( level.custom_commands[ namespace_key ] );
+			cmd_keys_index = get_alias_index( cmdname, cmd_keys );
+			if ( cmd_keys_index != -1 )
+			{
+				namespace = namespace_key;
+				indexable_cmdname = cmd_keys[ cmd_keys_index ];
+				if ( is_true( level.custom_threaded_commands[ indexable_cmdname ] ) )
+				{
+					is_threaded_cmd = true;
+				}
+				break;
+			}
+		}
+	}
 	can_execute_cmd = indexable_cmdname != "";
 	if ( can_execute_cmd )
 	{
@@ -805,17 +863,17 @@ CMD_EXECUTE( namespace, cmdname, arg_list )
 			result = self [[ level.custom_commands[ namespace ][ indexable_cmdname ].func ]]( arg_list );
 		}
 	}
-	channel = "tell|";
+	channel = "tell";
 	if ( is_true( self.is_server ) )
 	{
-		channel = "con|";
+		channel = "con";
 	}
 	if ( array_validate( result ) )
 	{
 		if ( result[ "filter" ] != "cmderror" )
 		{
 			cmd_log = va( "%s executed %s", self.name, result[ "message" ] );
-			level COM_PRINTF( "g_log|", result[ "filter" ], cmd_log, self );
+			level COM_PRINTF( "g_log", result[ "filter" ], cmd_log, self );
 			if ( isDefined( result[ "channels" ] ) )
 			{
 				level COM_PRINTF( result[ "channels" ], result[ "filter" ], result[ "message" ], self );
@@ -827,13 +885,9 @@ CMD_EXECUTE( namespace, cmdname, arg_list )
 		}
 		else if ( !is_threaded_cmd )
 		{
-			if ( namespace == "" )
+			if ( indexable_cmdname == "" )
 			{
-				level COM_PRINTF( channel, "cmderror", "Command unknown namespace", self );
-			}
-			else if ( indexable_cmdname == "" )
-			{
-				level COM_PRINTF( channel, "cmderror", va( "Command %s not found in namespace %s", cmdname, namespace ), self );
+				level COM_PRINTF( channel, "cmderror", va( "Command %s not found", cmdname ), self );
 			}
 			else 
 			{

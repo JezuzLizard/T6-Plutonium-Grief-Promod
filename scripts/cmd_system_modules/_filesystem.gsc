@@ -82,7 +82,7 @@ FS_file_open_failure( filename )
 {
 	if ( level.FS_open_files.size > level.max_open_files )
 	{
-		return va( "%s files are open max is %s", level.FS_open_files.size, level.max_open_files );
+		return va( "%s files are open max is %s", level.FS_open_files.size + "", level.max_open_files + "" );
 	}
 	if ( isInArray( level.FS_open_files, filename ) )
 	{

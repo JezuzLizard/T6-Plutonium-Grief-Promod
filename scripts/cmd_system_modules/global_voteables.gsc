@@ -9,6 +9,8 @@
 
 VOTE_INIT()
 {
+	level.custom_votes_total = 0;
+	level.custom_votes_page_count = 0;
 	level.vote_timeout = getDvarIntDefault( "tcs_vote_timelimit_seconds", 30 );
 	level.vote_start_anonymous = getDvarIntDefault( "tcs_anonymous_vote_start", 1 );
 	CMD_ADDCOMMANDLISTENER( "listener_vote", "yes" );
@@ -24,10 +26,10 @@ VOTEABLE_CVARALL_PRE_f( arg_list )
 	dvar_name = arg_list[ 1 ];
 	new_value = arg_list[ 2 ];
 	result = [];
-	if ( isDefined( new_value ) && getDvar( dvar_name ) != "" )
+	if ( isDefined( dvar_name ) && isDefined( new_value ) )
 	{
 		result[ "message" ] = va( "%s would like to set %s to %s", name, dvar_name, new_value );
-		result[ "channels" ] = "con|say|g_log|";
+		result[ "channels" ] = "con|say";
 		result[ "filter" ] = "notitle";
 	}
 	else 
@@ -47,7 +49,7 @@ VOTEABLE_KICK_PRE_f( arg_list )
 	if ( isDefined( player ) )
 	{
 		result[ "message" ] = va( "%s would like to kick %s", name, player.name );
-		result[ "channels" ] = "con|say|g_log|";
+		result[ "channels" ] = "con|say";
 		result[ "filter" ] = "notitle";
 	}
 	else 
@@ -75,8 +77,8 @@ VOTEABLE_NEXTMAP_PRE_f( arg_list )
 			display_name = get_MP_map_name( rotation_data[ "mapname" ] );
 		}
 		result[ "message" ] = va( "%s would like to set the next map to %s", name, display_name );
-		result[ "channels" ] = "con|say|g_log|";
-		result[ "filter" ] = "cmdinfo";
+		result[ "channels" ] = "con|say";
+		result[ "filter" ] = "notitle";
 	}
 	else 
 	{
