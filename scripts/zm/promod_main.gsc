@@ -180,6 +180,7 @@ init()
 	level.autoassign = scripts/zm/grief/team/_teams::default_menu_autoassign; //part of _teams module
 	level.onplayerdisconnect = ::onplayerdisconnect;
 	level.prevent_player_damage = ::player_prevent_damage;
+	maps/mp/zombies/_zm::register_player_damage_callback( ::player_damage_override );
 	check_quickrevive_for_hotjoin();
 	set_fog();
 	setscoreboardcolumns( "score", "stabs", "killsconfirmed", "revives", "downs" );

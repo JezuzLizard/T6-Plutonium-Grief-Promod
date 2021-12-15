@@ -36,7 +36,7 @@ init_zombie_run_cycle_override()
 		{
 			self change_zombie_run_cycle();
 			return;
-		}s
+		}
 		zombie_count = get_current_zombie_count();
 		zombie_left = level.zombie_ai_limit - zombie_count;
 		if ( zombie_left == change_left )

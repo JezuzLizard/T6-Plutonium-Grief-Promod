@@ -209,3 +209,35 @@ playerhealthregen()
 		}
 	}
 }
+
+player_damage_override( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime )
+{
+	if (smeansofdeath == "MOD_FALLING")
+	{
+		// remove fall damage being based off max health
+		ratio = self.maxhealth / 100;
+		idamage = int(idamage / ratio);
+
+		// increase fall damage beyond 110
+		if (idamage >= 110)
+		{
+			min_velocity = 420;
+			max_velocity = 740;
+			if (self.divetoprone)
+			{
+				min_velocity = 300;
+				max_velocity = 560;
+			}
+			diff_velocity = max_velocity - min_velocity;
+			velocity = abs(self.fall_velocity);
+			if (velocity < min_velocity)
+			{
+				velocity = min_velocity;
+			}
+
+			idamage = int(((velocity - min_velocity) / diff_velocity) * 110);
+		}
+	}
+
+	return idamage;
+}
