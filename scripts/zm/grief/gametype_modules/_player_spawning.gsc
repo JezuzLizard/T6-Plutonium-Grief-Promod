@@ -311,7 +311,37 @@ onplayerspawned() //checked matches cerberus output
 					self.lives = 0;
 				}
 				self.score_lost_when_downed = 0;
+				self thread give_player_melee_weapon();
 			}
 		}
+	}
+}
+
+give_player_melee_weapon()
+{
+	if ( !level.grief_gamerules[ "melee_weapon_on_spawn" ] )
+	{
+		return;
+	}
+	self waittill( "controls_unfrozen");
+	trigger = getentarray( "tazer_upgrade", "targetname" )[0];
+	mapname = getDvar( "mapname" );
+	if( mapname != "zm_prison" || mapname != "zm_tomb" )
+	{
+		self thread maps\mp\zombies\_zm_melee_weapon::give_melee_weapon( "tazerknuckles", "zombie_tazer_flourish", "tazer_knuckles_zm", "knife_ballistic_no_melee_zm", "knife_ballistic_no_melee_upgraded_zm", ::tazer_flourish_fx, trigger );
+	}
+}
+
+tazer_flourish_fx()
+{
+	self waittill( "weapon_change", newweapon );
+	if ( newweapon == "zombie_tazer_flourish" )
+	{
+		self endon( "weapon_change" );
+		wait level.tazer_flourish_delay;
+		self thread maps/mp/zombies/_zm_audio::playerexert( "hitmed" );
+		self setclientfieldtoplayer( "tazer_flourish", 1 );
+		wait_network_frame();
+		self setclientfieldtoplayer( "tazer_flourish", 0 );
 	}
 }

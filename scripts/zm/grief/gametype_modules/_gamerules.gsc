@@ -26,6 +26,7 @@ init_gamerules()
 	level.grief_gamerules[ "disable_fog" ] = getDvarIntDefault( "grief_gamerule_disable_fog", 1 );
 	level.grief_gamerules[ "weapon_shellshock" ] = getDvarIntDefault( "grief_gamerule_bullet_shellshock_time", 0.25 );
 	level.grief_gamerules[ "increase_knockback" ] = getDvarIntDefault( "grief_gamerule_disable_pub_blocking", 1 );
+	level.grief_gamerules[ "melee_weapon_on_spawn" ] = getDvarIntDefault( "grief_gamerule_melee_weapon_on_spawn", 0 );
 	level.shock_onpain = getDvarIntDefault( "grief_gamerule_shock_on_pain", 1 );
 	set_fog();
 	setdvar( "ui_scorelimit", level.grief_gamerules[ "scorelimit" ] );
@@ -68,9 +69,7 @@ init_restrictions()
 	level.data_maps[ "perks" ][ "power_notifies" ][ 10 ] = "electric_cherry";
 	level.data_maps[ "perks" ][ "power_notifies" ][ 11 ] = "divetonuke";
 	level.data_maps[ "perks" ][ "power_notifies" ][ 12 ] = "specialty_nomotionsensor";
-	// key_list = "weapupgrade:Pack_A_Punch|armorvest:juggernog|quickrevive:revive|fastreload:sleight|rof:doubletap|longersprint:marathon|deadshot:deadshot|additionalprimaryweapon:additionalprimaryweapon|scavenger:tombstone|finalstand:chugabud|grenadepulldeath:electric_cherry|flakjacket:divetonuke|nomotionsensor:specialty_nomotionsensor";
-	// key_names = "specialties|power_notifies";
-	// generate_map( "perks", key_list, key_names );
+
 	level.data_maps[ "powerups" ] = [];
 	level.data_maps[ "powerups" ][ "names" ] = [];
 	level.data_maps[ "powerups" ][ "names" ][ 0 ] = "nuke";
@@ -88,23 +87,31 @@ init_restrictions()
 	level.data_maps[ "powerups" ][ "allowed" ][ 4 ] = true;
 	level.data_maps[ "powerups" ][ "allowed" ][ 5 ] = true;
 	level.data_maps[ "powerups" ][ "allowed" ][ 6 ] = true;
-	// key_list = "nuke:1|insta_kill:1|full_ammo:1|double_points:1";
-	// if ( getDvar( "ui_zm_gamemodegroup" ) == "zencounter" )
-	// {
-	// 	key_list += "|meat_stink:1";
-	// }
-	// if ( level.script != "zm_transit" && level.script != "zm_highrise" )
-	// {
-	// 	key_list += "|fire_sale:1";
-	// }
-	// key_names = "names|allowed";
-	// generate_map( "powerups", key_list, key_names );
+
 	level.grief_restrictions = [];
 	level.grief_restrictions[ "perks" ] = getDvar( "grief_restrictions_perks" );
-	//level.grief_restrictions[ "weapons" ] = getDvar( "grief_restrictions_weapons" );
 	level.grief_restrictions[ "powerups" ] = getDvar( "grief_restrictions_powerups" );
+	level.grief_restrictions[ "melee_weapons" ] = getDvar( "grief_restrictions_melee_weapon_on_spawn" );
 	powerup_restrictions();
-	//level.grief_restrictions[ "doors" ] = getDvar( "grief_restrictions_doors" );
+	melee_restrictions();
+}
+
+melee_restrictions()
+{	
+	if ( level.grief_restrictions[ "melee_weapons" ] == "" )
+	{
+		return;
+	}
+	level.grief_gamerules[ "melee_weapon_on_spawn" ] = 0;
+	location = getDvar( "ui_zm_mapstartlocation" );
+	mapnames = strTok( level.grief_restrictions[ "melee_weapons" ], " " );
+	for ( i = 0; i < mapnames.size; i++ )
+	{
+		if ( location == mapnames[ i ] )
+		{
+			level.grief_gamerules[ "melee_weapon_on_spawn" ] = 1;
+		}
+	}
 }
 
 powerup_restrictions()

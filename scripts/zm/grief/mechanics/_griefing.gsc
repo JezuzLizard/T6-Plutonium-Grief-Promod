@@ -94,19 +94,14 @@ do_player_knockback( einflictor, eattacker, idamage, idflags, smeansofdeath, swe
 			{
 				self.is_reviving_grief = 1;
 			}
-			if ( self getstance() == "prone" && !is_true( self.is_reviving_grief ) && level.grief_gamerules[ "increase_knockback" ] )
+			if ( level.grief_gamerules[ "increase_knockback" ] && self getstance() == "crouch" || self getstance() == "prone" && !is_true( self.is_reviving_grief ) )
 			{
-				self applyknockback( idamage * 3, vdir );
-			}
-			else if ( self getstance() == "crouch" && !is_true( self.is_reviving_grief ) && level.grief_gamerules[ "increase_knockback" ] )
-			{
-				self applyknockback( idamage * 2, vdir );
+				self applyknockback( 5000, vdir );
 			}
 			else
 			{
 				self applyknockback( idamage, vdir );
 			}
-			//self setvelocity( self get_push_vector() );
 		}
 		else if ( is_weapon_shotgun( sweapon ) )
 		{

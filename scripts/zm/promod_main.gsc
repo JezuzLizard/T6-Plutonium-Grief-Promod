@@ -170,7 +170,7 @@ main()
 init()
 {
 	precacheStatusIcon( "waypoint_revive" );
-	level.playerSuicideAllowed = false;
+	level.playerSuicideAllowed = true;
 	level.noroundnumber = 1;
 	setDvar( "g_friendlyfireDist", 0 );
 	level.game_mode_custom_onplayerdisconnect = scripts/zm/grief/gametype/_grief_hud::grief_onplayerdisconnect; //part of _grief_hud module
@@ -182,7 +182,7 @@ init()
 	check_quickrevive_for_hotjoin();
 	setscoreboardcolumns( "score", "stabs", "killsconfirmed", "revives", "downs" );
 	level thread remove_status_icons_on_end_game();
-	// level thread spawn_bots(7);
+	level thread spawn_bots(1);
 }
 
 emptyLobbyRestart()

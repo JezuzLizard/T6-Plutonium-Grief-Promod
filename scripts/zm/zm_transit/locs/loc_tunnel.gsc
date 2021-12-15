@@ -87,10 +87,10 @@ init_wallbuys()
 	scripts/zm/grief/gametype_modules/_gametype_setup::wallbuy( ( 0, 83, 0 ), ( -10790, -1430, 247 ), "rottweil72_zm_fx", "rottweil72_zm", "t6_wpn_shotty_olympia_world", "olympia", "weapon_upgrade" );
 	scripts/zm/grief/gametype_modules/_gametype_setup::wallbuy( ( 0, 270, 0 ), ( -11839, -1695.1, 287 ), "m16_zm_fx", "m16_zm", "t6_wpn_ar_m16a2_world", "m16", "weapon_upgrade" );
 	scripts/zm/grief/gametype_modules/_gametype_setup::wallbuy( ( 0, 83, 0 ), ( -10625, -545, 247 ), "mp5k_zm_fx", "mp5k_zm", "t6_wpn_smg_mp5_world", "mp5", "weapon_upgrade" );
-	//wallbuy( ( 0, -93, 0 ), ( -11839, -2406, 283 ), "tazer_knuckles_zm_fx", "tazer_knuckles_zm", "t6_wpn_taser_knuckles_world", "tazer_knuckles", "tazer_upgrade" );
+	//scripts/zm/grief/gametype_modules/_gametype_setup::wallbuy( ( 0, -93, 0 ), ( -11839, -2406, 283 ), "tazer_knuckles_zm_fx", "tazer_knuckles_zm", "t6_wpn_taser_knuckles_world", "tazer_knuckles", "tazer_upgrade" );
 }
 
-init_barriers() //custom function
+init_barriers()
 {
 	scripts/zm/grief/gametype_modules/_gametype_setup::barrier( ( -11250, -520, 255 ), "veh_t6_civ_movingtrk_cab_dead", ( 0, 172, 0 ) );
 	scripts/zm/grief/gametype_modules/_gametype_setup::barrier( ( -11250, -580, 255 ), "collision_player_wall_256x256x10", ( 0, 180, 0 ) );

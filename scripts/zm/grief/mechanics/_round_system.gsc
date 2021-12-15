@@ -467,6 +467,7 @@ unfreeze_all_players_controls()
 	foreach ( player in players )
 	{
 		player freezeControls( 0 );
+		player notify( "controls_unfrozen");
 	}
 }
 
