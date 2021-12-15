@@ -66,6 +66,7 @@ main()
 	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::setup_standard_objects, scripts/zm/grief/gametype_modules/_gametype_setup::setup_standard_objects_override );
 	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::setup_classic_gametype, scripts/zm/grief/gametype_modules/_gametype_setup::setup_classic_gametype_override );
 	replaceFunc( maps/mp/zombies/_zm_zonemgr::manage_zones, scripts/zm/grief/gametype_modules/_gametype_setup::manage_zones_override );
+	replaceFunc( maps/mp/zombies/_zm_laststand::suicide_trigger_think, scripts/zm/grief/gametype_modules/_gametype_setup::suicide_trigger_think );
 	//END _gametype_setup module 
 
 	//BEG _player_spawning module
@@ -170,7 +171,7 @@ main()
 init()
 {
 	precacheStatusIcon( "waypoint_revive" );
-	level.playerSuicideAllowed = true;
+	level.playerSuicideAllowed = getDvarIntDefault( "grief_gamerule_self_bleedout", 1 );
 	level.noroundnumber = 1;
 	setDvar( "g_friendlyfireDist", 0 );
 	level.game_mode_custom_onplayerdisconnect = scripts/zm/grief/gametype/_grief_hud::grief_onplayerdisconnect; //part of _grief_hud module
@@ -180,9 +181,10 @@ init()
 	level.onplayerdisconnect = ::onplayerdisconnect;
 	level.prevent_player_damage = ::player_prevent_damage;
 	check_quickrevive_for_hotjoin();
+	set_fog();
 	setscoreboardcolumns( "score", "stabs", "killsconfirmed", "revives", "downs" );
 	level thread remove_status_icons_on_end_game();
-	level thread spawn_bots(1);
+	// level thread spawn_bots(1);
 }
 
 emptyLobbyRestart()
@@ -621,18 +623,16 @@ spawn_bots(num)
 
 		wait 0.4; // need wait or bots don't spawn at correct origin
 	}
-	level thread set_bots_stance( "prone" );
 }
 
-set_bots_stance( stance )
+set_fog()
 {
-	while(1)
+	if( level.grief_gamerules[ "disable_fog" ] )
 	{
-		wait 15;
-		foreach(bot in level.bots)
-		{
-			wait 0.4;
-			bot setStance(stance);
-		}
+		setDvar("r_fog", 0);
+	}
+	else
+	{
+		setDvar("r_fog", 1);
 	}
 }

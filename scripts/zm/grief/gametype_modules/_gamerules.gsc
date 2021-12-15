@@ -26,9 +26,7 @@ init_gamerules()
 	level.grief_gamerules[ "disable_fog" ] = getDvarIntDefault( "grief_gamerule_disable_fog", 1 );
 	level.grief_gamerules[ "weapon_shellshock" ] = getDvarIntDefault( "grief_gamerule_bullet_shellshock_time", 0.25 );
 	level.grief_gamerules[ "increase_knockback" ] = getDvarIntDefault( "grief_gamerule_disable_pub_blocking", 1 );
-	level.grief_gamerules[ "melee_weapon_on_spawn" ] = getDvarIntDefault( "grief_gamerule_melee_weapon_on_spawn", 0 );
 	level.shock_onpain = getDvarIntDefault( "grief_gamerule_shock_on_pain", 1 );
-	set_fog();
 	setdvar( "ui_scorelimit", level.grief_gamerules[ "scorelimit" ] );
 	makeDvarServerInfo( "ui_scorelimit" );
 	level thread init_restrictions();
@@ -420,17 +418,5 @@ show_restricted_perk( perk_trigger )
 		perk_machine = getEnt( perk_trigger.target, "targetname" );
 		perk_machine show();
 		perk_machine.is_restricted = false;
-	}
-}
-
-set_fog()
-{
-	if( level.grief_gamerules[ "disable_fog" ] )
-	{
-		setDvar("r_fog", 0);
-	}
-	else
-	{
-		setDvar("r_fog", 1);
 	}
 }

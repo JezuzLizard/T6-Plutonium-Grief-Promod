@@ -10,6 +10,7 @@
 #include maps/mp/zombies/_zm_weap_ballistic_knife;
 #include maps/mp/zombies/_zm_equipment;
 #include maps/mp/zombies/_zm_magicbox;
+#include maps/mp/zombies/_zm_laststand;
 
 add_struct( s_struct )
 {
@@ -561,4 +562,56 @@ setup_classic_gametype_override()
 		i++;
 	}
 	unlink_meat_traversal_nodes();
+}
+
+suicide_trigger_think() //checked changed to match cerberus output
+{
+	self endon( "disconnect" );
+	self endon( "zombified" );
+	self endon( "stop_revive_trigger" );
+	self endon( "player_revived" );
+	self endon( "bled_out" );
+	self endon( "fake_death" );
+	level endon( "end_game" );
+	level endon( "stop_suicide_trigger" );
+	self thread clean_up_suicide_hud_on_end_game();
+	self thread clean_up_suicide_hud_on_bled_out();
+	while ( self usebuttonpressed() )
+	{
+		wait 1;
+	}
+	if ( !isDefined( self.suicideprompt ) )
+	{
+		return;
+	}
+	while ( 1 )
+	{
+		wait 0.1;
+		if ( !isDefined( self.suicideprompt ) )
+		{
+			continue;
+		}
+		self.suicideprompt settext( "Hold ^3&&1^7 to Spectate" );
+		if ( !self is_suiciding() )
+		{
+			continue;
+		}
+		self.pre_suicide_weapon = self getcurrentweapon();
+		self giveweapon( level.suicide_weapon );
+		self switchtoweapon( level.suicide_weapon );
+		duration = self docowardswayanims();
+		suicide_success = suicide_do_suicide( duration );
+		self.laststand = undefined;
+		self takeweapon( level.suicide_weapon );
+		if ( suicide_success )
+		{
+			self notify( "player_suicide" );
+			wait_network_frame();
+			self maps/mp/zombies/_zm_stats::increment_client_stat( "suicides" );
+			self bleed_out();
+			return;
+		}
+		self switchtoweapon( self.pre_suicide_weapon );
+		self.pre_suicide_weapon = undefined;
+	}
 }
