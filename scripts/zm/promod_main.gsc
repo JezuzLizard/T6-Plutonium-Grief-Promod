@@ -67,7 +67,7 @@ main()
 	replaceFunc( maps/mp/gametypes_zm/_zm_gametype::setup_classic_gametype, scripts/zm/grief/gametype_modules/_gametype_setup::setup_classic_gametype_override );
 	replaceFunc( maps/mp/zombies/_zm_zonemgr::manage_zones, scripts/zm/grief/gametype_modules/_gametype_setup::manage_zones_override );
 	replaceFunc( maps/mp/zombies/_zm_utility::disable_player_move_states, ::disable_player_move_states_override );
-	// replaceFunc( maps/mp/zombies/_zm_laststand::suicide_trigger_think, scripts/zm/grief/gametype_modules/_gametype_setup::suicide_trigger_think );
+	replaceFunc( maps/mp/zombies/_zm_laststand::suicide_trigger_think, scripts/zm/grief/gametype_modules/_gametype_setup::suicide_trigger_think );
 	replaceFunc( maps/mp/zombies/_zm_weapons::weapon_give, scripts/zm/grief/gametype_modules/_gametype_setup::weapon_give );
 	//END _gametype_setup module 
 
