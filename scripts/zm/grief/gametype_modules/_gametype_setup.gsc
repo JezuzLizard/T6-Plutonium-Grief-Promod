@@ -776,3 +776,20 @@ weapon_give( weapon, is_upgrade, magic_box, nosound ) //checked changed to match
 	}
 	self play_weapon_vo( weapon, magic_box );
 }
+
+disable_player_move_states_override( forcestancechange ) //checked matches cerberus output
+{
+	self allowcrouch( 1 );
+	self allowlean( 0 );
+	self allowads( 0 );
+	self allowsprint( level.grief_gamerules[ "sprint_while_drinking_perks" ] );
+	self allowprone( 0 );
+	self allowmelee( 0 );
+	if ( isDefined( forcestancechange ) && forcestancechange == 1 )
+	{
+		if ( self getstance() == "prone" )
+		{
+			self setstance( "crouch" );
+		}
+	}
+}

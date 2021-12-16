@@ -30,6 +30,7 @@ init_gamerules()
 	level.grief_gamerules[ "max_number_walkers" ] = getDvarIntDefault( "grief_gamerule_max_number_walkers", 0 );
 	level.grief_gamerules[ "max_number_zombies" ] = getDvarIntDefault( "grief_gamerule_max_number_zombies", 24 );
 	level.grief_gamerules[ "last_man_standing" ] = getDvarIntDefault( "grief_gamerule_give_last_man_standing_a_chance", 0 );
+	level.grief_gamerules[ "sprint_while_drinking_perks" ] = getDvarIntDefault( "grief_gamerule_sprint_while_drinking_perks", 0 );
 	level.shock_onpain = getDvarIntDefault( "grief_gamerule_shock_on_pain", 1 );
 	setdvar( "ui_scorelimit", level.grief_gamerules[ "scorelimit" ] );
 	makeDvarServerInfo( "ui_scorelimit" );
