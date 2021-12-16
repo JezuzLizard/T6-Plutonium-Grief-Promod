@@ -17,6 +17,7 @@ init_gamerules()
 	level.grief_gamerules[ "knife_lunge" ] = getDvarIntDefault( "grief_gamerule_knife_lunge", 1 );
 	level.grief_gamerules[ "magic" ] = getDvarIntDefault( "grief_gamerule_magic", 1 );
 	level.grief_gamerules[ "reduced_pistol_ammo" ] = getDvarIntDefault( "grief_gamerule_reduced_pistol_ammo", 1 );
+	level.grief_gamerules[ "reduce_mp5_ammo" ] = getDvarIntDefault( "grief_gamerule_reduce_mp5_ammo", 1 );
 	level.grief_gamerules[ "buildables" ] = getDvarIntDefault( "grief_gamerule_buildables", 0 );
 	level.grief_gamerules[ "disable_doors" ] = getDvarIntDefault( "grief_gamerule_disable_doors", 1 );
 	level.grief_gamerules[ "zombie_power_level_start" ] = getDvarIntDefault( "grief_gamerule_zombie_power_level_start", 1 );
