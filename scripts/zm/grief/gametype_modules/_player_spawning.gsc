@@ -324,11 +324,11 @@ give_player_melee_weapon()
 		return;
 	}
 	self waittill( "controls_unfrozen");
-	trigger = getentarray( "tazer_upgrade", "targetname" )[0];
+	wait 0.05;
 	mapname = getDvar( "mapname" );
 	if( mapname != "zm_prison" || mapname != "zm_tomb" )
 	{
-		self thread maps\mp\zombies\_zm_melee_weapon::give_melee_weapon( "tazerknuckles", "zombie_tazer_flourish", "tazer_knuckles_zm", "knife_ballistic_no_melee_zm", "knife_ballistic_no_melee_upgraded_zm", ::tazer_flourish_fx, trigger );
+		self maps\mp\zombies\_zm_melee_weapon::give_melee_weapon_by_name( "tazer_knuckles_zm" );
 	}
 }
 
