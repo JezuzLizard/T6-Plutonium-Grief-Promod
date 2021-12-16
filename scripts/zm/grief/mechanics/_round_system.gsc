@@ -252,6 +252,7 @@ match_start()
 	start_new_round( false ); //2
 	level thread grief_save_loadouts();
 	level thread check_for_surviving_team(); //1
+	level thread disable_revive_trigger_lastman_standing();
 	flag_clear( "first_round" );
 }
 
@@ -726,5 +727,52 @@ handle_post_board_repair_rewards_override( cost, zbarrier ) //checked matches ce
 	if ( isDefined( self.board_repair ) )
 	{
 		self.board_repair += 1;
+	}
+}
+
+disable_revive_trigger_lastman_standing()
+{
+	if ( !level.grief_gamerules[ "last_man_standing" ] )
+	{
+		return;
+	}
+	level endon( "end_game");
+	flag_wait( "initial_blackscreen_passed" );
+	teams = [];
+	teams[ "A" ] = [];
+	teams[ "B" ] = [];
+	while (1)
+	{
+		players = getPlayers();
+		foreach ( e_team in level.data_maps[ "encounters_teams" ][ "e_team" ] )
+		{
+			teams[ e_team ][ "alive_players" ] = 0;
+		}
+		for ( i = 0; i < players.size; i++ )
+		{
+			foreach ( e_team in level.data_maps[ "encounters_teams" ][ "e_team" ] )
+			{
+				if ( is_player_valid( players[ i ], 0, 1 ) )
+				{
+					if ( players[ i ]._encounters_team == e_team )
+					{
+						teams[ e_team ][ "alive_players" ]++;
+					}
+				}
+			}
+		}
+
+		if ( teams[ "A" ][ "alive_players" ] == 1 || teams[ "B" ][ "alive_players" ] == 1 )
+		{
+			foreach ( player in players )
+			{
+				player.revivetrigger = undefined;
+			}
+			while( flag( "spawn_zombies" ) )
+			{
+				wait 1;
+			}
+		}
+		wait 1;
 	}
 }

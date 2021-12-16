@@ -68,8 +68,6 @@ main()
 	replaceFunc( maps/mp/zombies/_zm_zonemgr::manage_zones, scripts/zm/grief/gametype_modules/_gametype_setup::manage_zones_override );
 	replaceFunc( maps/mp/zombies/_zm_laststand::suicide_trigger_think, scripts/zm/grief/gametype_modules/_gametype_setup::suicide_trigger_think );
 	replaceFunc( maps/mp/zombies/_zm_weapons::weapon_give, scripts/zm/grief/gametype_modules/_gametype_setup::weapon_give );
-
-	
 	//END _gametype_setup module 
 
 	//BEG _player_spawning module
@@ -188,7 +186,7 @@ init()
 	set_fog();
 	setscoreboardcolumns( "score", "stabs", "killsconfirmed", "revives", "downs" );
 	level thread remove_status_icons_on_end_game();
-	// level thread spawn_bots(1);
+	// level thread spawn_bots(3);
 }
 
 emptyLobbyRestart()
