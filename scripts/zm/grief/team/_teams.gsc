@@ -156,6 +156,7 @@ player_can_change_to_team( new_team )
 		self iPrintLn( "You cannot change teams when the team you are changing to is at it's maximum." );
 		return false;
 	}
+	self closemenus();
 	level.grief_team_members[ new_team ]++;
 	level.grief_team_members[ self.team ]--;
 	return true;
@@ -178,7 +179,7 @@ player_can_change_teams()
 	}
 	else if ( level.players_in_session[ self.name ].team_change_timer > 0 )
 	{
-		self iPrintLn( "You cannot change teams for another" + level.players_in_session[ self.name ].team_change_timer + " seconds." );
+		self iPrintLn( "You cannot change teams for another " + level.players_in_session[ self.name ].team_change_timer + " seconds." );
 	}
 	else if ( level.players_in_session[ self.name ].team_changed_times > level.team_change_max )
 	{
