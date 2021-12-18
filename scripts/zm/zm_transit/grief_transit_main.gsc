@@ -29,7 +29,7 @@ main()
 			gameObjects = getEntArray( "script_model", "classname" );
 			foreach ( object in gameObjects )
 			{
-				if ( object.script_gameobjectname == "zcleansed zturned" )
+				if ( isDefined( object.script_gameobjectname ) && object.script_gameobjectname == "zcleansed zturned" )
 				{
 					object.script_gameobjectname = "zstandard zgrief zcleansed zturned";
 				}
