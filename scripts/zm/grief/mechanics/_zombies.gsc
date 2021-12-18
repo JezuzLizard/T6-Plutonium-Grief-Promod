@@ -176,6 +176,11 @@ zombie_spawning() //checked changed to match cerberus output
 			spawn_point = level.zombie_spawn_locations[ randomint( level.zombie_spawn_locations.size ) ];
 		}
 		old_spawn = spawn_point;
+		spawning_disabled_by_engine = getDvarInt( "ai_disablespawn" );
+		while ( spawning_disabled_by_engine )
+		{
+			wait 1;
+		}
 		if ( isDefined( level.zombie_spawners ) )
 		{
 			if ( is_true( level.use_multiple_spawns ) )
@@ -204,7 +209,10 @@ zombie_spawning() //checked changed to match cerberus output
 			{
 				spawner = random( level.zombie_spawners );
 			}
-			ai = spawn_zombie( spawner, spawner.targetname, spawn_point );
+			if ( !spawning_disabled_by_engine )
+			{
+				ai = spawn_zombie( spawner, spawner.targetname, spawn_point );
+			}
 		}
 		if ( isDefined( ai ) )
 		{
