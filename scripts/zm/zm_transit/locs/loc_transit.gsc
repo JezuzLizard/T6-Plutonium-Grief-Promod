@@ -32,7 +32,6 @@ transit_main() //checked changed to match cerberus output
 	maps/mp/zombies/_zm_magicbox::treasure_chest_init( "depot_chest" );
 	collision = spawn( "script_model", ( -6896, 4744, 0 ), 1 );
 	collision setmodel( "zm_collision_transit_busdepot_survival" );
-	collision disconnectpaths();
 	scripts/zm/zm_transit/locs/location_common::common_init();
 	depot_remove_lava_collision();
 
