@@ -19,7 +19,8 @@ init_gamerules()
 	level.grief_gamerules[ "reduced_pistol_ammo" ] = getDvarIntDefault( "grief_gamerule_reduced_pistol_ammo", 1 );
 	level.grief_gamerules[ "reduce_mp5_ammo" ] = getDvarIntDefault( "grief_gamerule_reduce_mp5_ammo", 1 );
 	level.grief_gamerules[ "buildables" ] = getDvarIntDefault( "grief_gamerule_buildables", 0 );
-	level.grief_gamerules[ "disable_doors" ] = getDvarIntDefault( "grief_gamerule_disable_doors", 1 );
+	level.grief_gamerules[ "disable_doors_cellblock" ] = getDvarIntDefault( "grief_gamerule_disable_doors_cellblock", 1 );
+	level.grief_gamerules[ "disable_doors_buried" ] = getDvarIntDefault( "grief_gamerule_disable_doors_buried", 1 );
 	level.grief_gamerules[ "zombie_power_level_start" ] = getDvarIntDefault( "grief_gamerule_zombie_power_level_start", 1 );
 	level.grief_gamerules[ "power_state" ] = getDvarIntDefault( "grief_gamerule_power_start_state", 1 );
 	level.grief_gamerules[ "round_zombie_spawn_delay" ] = getDvarIntDefault( "grief_gamerule_round_zombie_spawn_delay", 15 );

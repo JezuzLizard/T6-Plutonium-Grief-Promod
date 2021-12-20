@@ -76,7 +76,6 @@ main()
 		i++;
 	}
 	delete_door_trigs();
-	first_room_hallway_barrier();
 	zbarriers = getzbarrierarray();
 	a_str_zones = [];
 	a_str_zones[ 0 ] = "zone_start";
@@ -289,15 +288,17 @@ magicbox_face_spawn()
 
 delete_door_trigs()
 {	
-	if ( level.grief_gamerules[ "disable_doors" ] )
+	if ( !level.grief_gamerules[ "disable_doors_mob" ] )
 	{
-		doors = getentarray( "zombie_door", "targetname" );
-		foreach ( door in doors )
+		return;
+	}
+	first_room_hallway_barrier();
+	doors = getentarray( "zombie_door", "targetname" );
+	foreach ( door in doors )
+	{
+		if ( door.target == "cellblock_start_door" )
 		{
-			if (  door.target == "pf3674_auto2581" || door.target == "cellblock_start_door" )
-			{
-				door delete();
-			}
+			door delete();
 		}
 	}
 }
