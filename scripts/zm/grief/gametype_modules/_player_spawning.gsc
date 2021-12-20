@@ -19,9 +19,9 @@ onspawnplayer( predictedspawn )
 	pixbeginevent( "ZSURVIVAL:onSpawnPlayer" );
 	self.usingobj = undefined;
 	self.is_zombie = 0;
-	if ( isDefined( level.custom_spawnplayer ) && is_true( self.player_initialized ) )
+	if ( is_true( self.player_initialized ) )
 	{
-		self [[ level.custom_spawnplayer ]]();
+		self grief_spectator_respawn();
 		return;
 	}
 	match_string = "";
@@ -72,7 +72,6 @@ onspawnplayer( predictedspawn )
 	self.spectator_respawn = spawnpoint;
 	self.score = self maps/mp/gametypes_zm/_globallogic_score::getpersstat( "score" );
 	self.pers[ "participation" ] = 0;
-	
 	self.score_total = self.score;
 	self.old_score = self.score;
 	self.player_initialized = 0;
@@ -83,12 +82,12 @@ onspawnplayer( predictedspawn )
 	{
 		self delay_thread( 0.05, maps/mp/zombies/_zm::spawnspectator );
 	}
+	else if ( is_true( level.in_grief_pre_round ) )
+	{
+		self freezecontrols( 0 );
+	}
 	else 
 	{
-		if ( flag( "in_pregame" ) )
-		{
-			self freezecontrols( 1 );
-		}
 		self enableweapons();
 	}
 	pixendevent();
@@ -238,6 +237,14 @@ onplayerspawned() //checked matches cerberus output
 	for ( ;; )
 	{
 		self waittill( "spawned_player" );
+		if ( is_true( level.in_grief_pre_round ) )
+		{
+			self freezecontrols( 0 );
+		}
+		else 
+		{
+			self freezecontrols( 1 );
+		}
 		self.hits = 0;
 		self init_player_offhand_weapons();
 		lethal_grenade = self get_player_lethal_grenade();
@@ -261,7 +268,6 @@ onplayerspawned() //checked matches cerberus output
 		self.zmbdialogactive = 0;
 		self.zmbdialoggroups = [];
 		self.zmbdialoggroup = "";
-
 		if ( is_true( level.player_out_of_playable_area_monitor ) )
 		{
 			self thread player_out_of_playable_area_monitor();
@@ -269,10 +275,6 @@ onplayerspawned() //checked matches cerberus output
 		if ( is_true( level.player_too_many_weapons_monitor ) )
 		{
 			self thread [[ level.player_too_many_weapons_monitor_func ]]();
-		}
-		if ( is_true( level.player_too_many_players_check ) )
-		{
-			level thread [[ level.player_too_many_players_check_func ]]();
 		}
 		self.disabled_perks = [];
 		if ( isDefined( self.player_initialized ) )
@@ -308,7 +310,38 @@ onplayerspawned() //checked matches cerberus output
 				{
 					self.lives = 0;
 				}
+				self.score_lost_when_downed = 0;
+				self thread give_player_melee_weapon();
 			}
 		}
+	}
+}
+
+give_player_melee_weapon()
+{
+	if ( !level.grief_gamerules[ "melee_weapon_on_spawn" ] )
+	{
+		return;
+	}
+	self waittill( "controls_unfrozen");
+	wait 0.05;
+	mapname = getDvar( "mapname" );
+	if( mapname != "zm_prison" || mapname != "zm_tomb" )
+	{
+		self maps\mp\zombies\_zm_melee_weapon::give_melee_weapon_by_name( "tazer_knuckles_zm" );
+	}
+}
+
+tazer_flourish_fx()
+{
+	self waittill( "weapon_change", newweapon );
+	if ( newweapon == "zombie_tazer_flourish" )
+	{
+		self endon( "weapon_change" );
+		wait level.tazer_flourish_delay;
+		self thread maps/mp/zombies/_zm_audio::playerexert( "hitmed" );
+		self setclientfieldtoplayer( "tazer_flourish", 1 );
+		wait_network_frame();
+		self setclientfieldtoplayer( "tazer_flourish", 0 );
 	}
 }

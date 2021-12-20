@@ -30,6 +30,5 @@ town_main()
 	maps/mp/zombies/_zm_magicbox::treasure_chest_init( "town_chest" );
 	collision = spawn( "script_model", ( 1363, 471, 0 ), 1 );
 	collision setmodel( "zm_collision_transit_town_survival" );
-	collision disconnectpaths();
 	scripts/zm/zm_transit/locs/location_common::common_init();
 }

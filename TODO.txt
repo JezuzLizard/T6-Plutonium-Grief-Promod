@@ -3,10 +3,59 @@ Increase zombie spawn rate. //done
 Fix winner checks. //done
 Make all zombies speedup at the siren. //Roughly half speedup now.
 Pause timer on round restart, do not reset timer or zombie power level. //done
-Fix loadout returning full ammo instead of returning the ammo they actually had.
+Fix loadout returning full ammo instead of returning the ammo they actually had. //done
 Destroy timer on end_game. //done using scuffed as hell fix
 Destroy grief score elems on end_game. //done
 Fix old watch for down obituary code //done
 
 Issues found in coop testing:
+Fix Inmates/Guards text not showing on Cellblock. //done
 Points not granted on round changes/restarts //done
+Points are still being stolen from last stand players. //done
+Players aren't frozen on hotjoining during pregame.
+Health bar is trash use bandits instead. //done
+Add health indicators mod. //works will be separate download.
+Fix end game screen displaying "you suck" for everyone.
+Hide the timer for now. //done
+Fix last player on team able to change teams. //done
+Fix locations cellblock and street having no modified spawnpoints //done
+Fix players spawning at the end of a match if hotjoining.
+Fix players able to switch teams if their team after a team change would be less than 1. //done
+Fix players able to switch teams if the new team would have more than 4 players. //done
+Fix players dying to zombie explosions on round end. //done
+Fix vision set resetting on new round. //done
+Skip first round countdown after pregame. //done
+Change timer to use SetTimer() instead of SetText().
+Make the timer larger and fix its position so it is nicer looking.
+Fix powerup drops and enable restrictions system.
+Fix connection interrupted error that occurs on end_game. //done
+Fix crash on map_restart.
+Fix end_game notify causing a freeze when it triggers on a forfeit.
+Add revive waypoints for teams other than allies.
+
+Features:
+Add status icon to downed/dead players. //done
+New maps:
+Docks. (zm_prison)
+Nuketown. (zm_nuked)
+- Perks no longer drop from the sky, instead they spawn in immediately.
+Maze. (zm_buried) Doors always open.
+New modes:
+SOLOs.
+DUOs.
+Remove barrier rebuilding
+Powerup capturing i.e. objectives like Domination 
+Useful powerups:
+Free Perk
+Team Points
+Meat lets you control the zombies and target players
+Give zombie blood for whole team
+Powerdowns:
+Other team loses points
+Lose Perk
+Reduce trap cooldown and duration to 5 seconds on, 20 second off on zm_prison, keep cost same
+Fix pub blocking by changing from applyKnockback() to setVelocity()
+
+Change point steal to steal 50 if not shellshocked, and steal 100 if shellshocked.
+Friendly knife attacks transfer points to that player.
+Disable perks at a different time before the initial_blackscreen_passed flag.

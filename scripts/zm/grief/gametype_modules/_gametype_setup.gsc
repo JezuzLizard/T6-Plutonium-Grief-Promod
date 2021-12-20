@@ -10,6 +10,7 @@
 #include maps/mp/zombies/_zm_weap_ballistic_knife;
 #include maps/mp/zombies/_zm_equipment;
 #include maps/mp/zombies/_zm_magicbox;
+#include maps/mp/zombies/_zm_laststand;
 
 add_struct( s_struct )
 {
@@ -188,7 +189,6 @@ barrier( barrier_coordinates, barrier_model, barrier_angles, not_solid ) //custo
 	level.survival_barriers[ level.survival_barriers_index ] = spawn( "script_model", barrier_coordinates );
 	level.survival_barriers[ level.survival_barriers_index ] setModel( barrier_model );
 	level.survival_barriers[ level.survival_barriers_index ] rotateTo( barrier_angles, 0.1 );
-	level.survival_barriers[ level.survival_barriers_index ] disconnectPaths();  
 	if ( is_true( not_solid ) )
 	{
 		level.survival_barriers[ level.survival_barriers_index ] notSolid();
@@ -393,22 +393,7 @@ rungametypemain_override( gamemode, mode_main_func, use_round_logic )
 			}
 		}
 	}
-	if ( isDefined( mode_main_func ) )
-	{
-		level thread non_round_logic_override( gamemode, mode_main_func );
-	}
-}
-
-non_round_logic_override( gamemode, mode_logic_func )
-{
-	if ( gamemode == "zgrief" )
-	{
-		level thread scripts/zm/grief/mechanics/_round_system::zgrief_main_override();
-	}
-	else 
-	{
-		level thread [[ mode_logic_func ]]();
-	}
+	level thread scripts/zm/grief/mechanics/_round_system::zgrief_main_override();
 }
 
 game_objects_allowed_override( mode, location )
@@ -576,4 +561,234 @@ setup_classic_gametype_override()
 		i++;
 	}
 	unlink_meat_traversal_nodes();
+}
+
+suicide_trigger_think() //checked changed to match cerberus output
+{
+	self endon( "disconnect" );
+	self endon( "zombified" );
+	self endon( "stop_revive_trigger" );
+	self endon( "player_revived" );
+	self endon( "bled_out" );
+	self endon( "fake_death" );
+	level endon( "end_game" );
+	level endon( "stop_suicide_trigger" );
+	self thread clean_up_suicide_hud_on_end_game();
+	self thread clean_up_suicide_hud_on_bled_out();
+	while ( self usebuttonpressed() )
+	{
+		wait 1;
+	}
+	if ( !isDefined( self.suicideprompt ) )
+	{
+		return;
+	}
+	while ( 1 )
+	{
+		wait 0.1;
+		if ( !isDefined( self.suicideprompt ) )
+		{
+			continue;
+		}
+		self.suicideprompt settext( "" );
+		if ( !self is_suiciding() )
+		{
+			continue;
+		}
+		self.pre_suicide_weapon = self getcurrentweapon();
+		self giveweapon( level.suicide_weapon );
+		self switchtoweapon( level.suicide_weapon );
+		duration = self docowardswayanims();
+		suicide_success = suicide_do_suicide( duration );
+		self.laststand = undefined;
+		self takeweapon( level.suicide_weapon );
+		if ( suicide_success )
+		{
+			self notify( "player_suicide" );
+			wait_network_frame();
+			self maps/mp/zombies/_zm_stats::increment_client_stat( "suicides" );
+			self bleed_out();
+			return;
+		}
+		self switchtoweapon( self.pre_suicide_weapon );
+		self.pre_suicide_weapon = undefined;
+	}
+}
+
+weapon_give( weapon, is_upgrade, magic_box, nosound ) //checked changed to match cerberus output
+{
+	primaryweapons = self getweaponslistprimaries();
+	current_weapon = self getcurrentweapon();
+	current_weapon = self maps/mp/zombies/_zm_weapons::switch_from_alt_weapon( current_weapon );
+	if ( !isDefined( is_upgrade ) )
+	{
+		is_upgrade = 0;
+	}
+	weapon_limit = get_player_weapon_limit( self );
+	if ( is_equipment( weapon ) )
+	{
+		self maps/mp/zombies/_zm_equipment::equipment_give( weapon );
+	}
+	if ( weapon == "riotshield_zm" )
+	{
+		if ( isDefined( self.player_shield_reset_health ) )
+		{
+			self [[ self.player_shield_reset_health ]]();
+		}
+	}
+	if ( self hasweapon( weapon ) )
+	{
+		if ( issubstr( weapon, "knife_ballistic_" ) )
+		{
+			self notify( "zmb_lost_knife" );
+		}
+		self givestartammo( weapon );
+		if ( !is_offhand_weapon( weapon ) )
+		{
+			self switchtoweapon( weapon );
+		}
+		return;
+	}
+	if ( is_melee_weapon( weapon ) )
+	{
+		current_weapon = maps/mp/zombies/_zm_melee_weapon::change_melee_weapon( weapon, current_weapon );
+	}
+	else if ( is_lethal_grenade( weapon ) )
+	{
+		old_lethal = self get_player_lethal_grenade();
+		if ( isDefined( old_lethal ) && old_lethal != "" )
+		{
+			self takeweapon( old_lethal );
+			unacquire_weapon_toggle( old_lethal );
+		}
+		self set_player_lethal_grenade( weapon );
+	}
+	else if ( is_tactical_grenade( weapon ) )
+	{
+		old_tactical = self get_player_tactical_grenade();
+		if ( isDefined( old_tactical ) && old_tactical != "" )
+		{
+			self takeweapon( old_tactical );
+			unacquire_weapon_toggle( old_tactical );
+		}
+		self set_player_tactical_grenade( weapon );
+	}
+	else if ( is_placeable_mine( weapon ) )
+	{
+		old_mine = self get_player_placeable_mine();
+		if ( isDefined( old_mine ) )
+		{
+			self takeweapon( old_mine );
+			unacquire_weapon_toggle( old_mine );
+		}
+		self set_player_placeable_mine( weapon );
+	}
+	if ( !is_offhand_weapon( weapon ) )
+	{
+		self maps/mp/zombies/_zm_weapons::take_fallback_weapon();
+	}
+	if ( primaryweapons.size >= weapon_limit )
+	{
+		if ( is_placeable_mine( current_weapon ) || is_equipment( current_weapon ) )
+		{
+			current_weapon = undefined;
+		}
+		if ( isDefined( current_weapon ) )
+		{
+			if ( !is_offhand_weapon( weapon ) )
+			{
+				if ( current_weapon == "tesla_gun_zm" )
+				{
+					level.player_drops_tesla_gun = 1;
+				}
+				if ( issubstr( current_weapon, "knife_ballistic_" ) )
+				{
+					self notify( "zmb_lost_knife" );
+				}
+				self takeweapon( current_weapon );
+				unacquire_weapon_toggle( current_weapon );
+			}
+		}
+	}
+	if ( isDefined( level.zombiemode_offhand_weapon_give_override ) )
+	{
+		if ( self [[ level.zombiemode_offhand_weapon_give_override ]]( weapon ) )
+		{
+			return;
+		}
+	}
+	if ( weapon == "cymbal_monkey_zm" )
+	{
+		self maps/mp/zombies/_zm_weap_cymbal_monkey::player_give_cymbal_monkey();
+		self play_weapon_vo( weapon, magic_box );
+		return;
+	}
+	else if ( issubstr( weapon, "knife_ballistic_" ) )
+	{
+		weapon = self maps/mp/zombies/_zm_melee_weapon::give_ballistic_knife( weapon, issubstr( weapon, "upgraded" ) );
+	}
+	else if ( weapon == "claymore_zm" )
+	{
+		self thread maps/mp/zombies/_zm_weap_claymore::claymore_setup();
+		self play_weapon_vo( weapon, magic_box );
+		return;
+	}
+	if ( isDefined( level.zombie_weapons_callbacks ) && isDefined( level.zombie_weapons_callbacks[ weapon ] ) )
+	{
+		self thread [[ level.zombie_weapons_callbacks[ weapon ] ]]();
+		play_weapon_vo( weapon, magic_box );
+		return;
+	}
+	if ( !is_true( nosound ) )
+	{
+		self play_sound_on_ent( "purchase" );
+	}
+	if ( weapon == "ray_gun_zm" )
+	{
+		playsoundatposition( "mus_raygun_stinger", ( 0, 0, 0 ) );
+	}
+	if ( !is_weapon_upgraded( weapon ) )
+	{
+		self giveweapon( weapon );
+	}
+	else
+	{
+		self giveweapon( weapon, 0, self get_pack_a_punch_weapon_options( weapon ) );
+	}
+	acquire_weapon_toggle( weapon, self );
+	self givestartammo( weapon );
+	if ( !is_offhand_weapon( weapon ) )
+	{
+		if ( !is_melee_weapon( weapon ) )
+		{
+			self switchtoweapon( weapon );
+		}
+		else
+		{
+			self switchtoweapon( current_weapon );
+		}
+	}
+	if ( weapon == "mp5k_zm" && level.grief_gamerules[ "reduce_mp5_ammo" ] )
+	{
+		self setweaponammostock(weapon, 0);
+		self setweaponammoclip(weapon, 0);
+	}
+	self play_weapon_vo( weapon, magic_box );
+}
+
+disable_player_move_states_override( forcestancechange ) //checked matches cerberus output
+{
+	self allowcrouch( 1 );
+	self allowlean( 0 );
+	self allowads( 0 );
+	self allowsprint( level.grief_gamerules[ "sprint_while_drinking_perks" ] );
+	self allowprone( 0 );
+	self allowmelee( 0 );
+	if ( isDefined( forcestancechange ) && forcestancechange == 1 )
+	{
+		if ( self getstance() == "prone" )
+		{
+			self setstance( "crouch" );
+		}
+	}
 }

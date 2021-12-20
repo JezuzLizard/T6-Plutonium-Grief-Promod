@@ -1,5 +1,6 @@
 #include maps/mp/zombies/_zm_utility;
 #include common_scripts/utility;
+#include maps/mp/_utility;
 
 // create_griefed_obituary_msg( victim, attacker, weapon, mod )
 // {
@@ -13,7 +14,9 @@ watch_for_down()
 	while ( true )
 	{
 		flag_wait( "spawn_zombies" );
-		if ( self maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
+		in_laststand = self maps/mp/zombies/_zm_laststand::player_is_in_laststand();
+		is_alive = isAlive( self );
+		if ( in_laststand || !is_alive )
 		{
 			if ( isDefined( self.last_griefed_by.attacker ) )
 			{
@@ -22,16 +25,50 @@ watch_for_down()
 				{
 					obituary( self, self.last_griefed_by.attacker, self.last_griefed_by.weapon, self.last_griefed_by.meansofdeath );
 					self.last_griefed_by.attacker.killsconfirmed++;
-					self.last_griefed_by.attacker.pers[ "killsconfirmed" ]++;
-					self waittill_either( "player_revived", "spawned" );
+					//self.last_griefed_by.attacker.pers[ "killsconfirmed" ]++;
 				}
+				else 
+				{
+					obituary(self, self, "none", "MOD_SUICIDE");
+				}
+				//self thread scripts/zm/grief/mechanics/_point_steal::steal_points_on_bleedout( self.last_griefed_by.attacker );
 			}
+			else 
+			{
+				obituary(self, self, "none", "MOD_SUICIDE");
+			}
+			self thread change_status_icon( is_alive );
+			self waittill_either( "player_revived", "spawned" );
+			self.statusicon = "";
 		}
 		wait 0.05;
 	}
 }
 
-track_players_intersection_tracker_override() //checked partially changed to match cerberus output //did not change while loop to for loop because continues in for loops go infinite
+change_status_icon( is_alive )
+{
+	if ( is_alive )
+	{
+		self.statusicon = "waypoint_revive";
+		self thread update_icon_on_bleedout();
+		
+	}
+	else 
+	{
+		self.statusicon = "hud_status_dead";
+	}
+}
+
+update_icon_on_bleedout()
+{
+	level endon( "end_game" );
+	self endon( "spawned" );
+	self endon( "player_revived" );
+	self waittill( "bled_out" );
+	self.statusicon = "hud_status_dead";
+}
+
+track_players_intersection_tracker_override()
 {
 	self endon( "disconnect" );
 	self endon( "death" );

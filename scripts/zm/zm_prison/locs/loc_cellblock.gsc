@@ -16,6 +16,16 @@
 struct_init()
 {
 	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, 86, 0 ), ( 1403, 9662, 1336 ) );
+	coordinates = array( ( 1422, 9597, 1336 ), ( 1432, 9745, 1336 ), ( 2154, 9062, 1336 ), ( 1969, 9950, 1336 ),
+							( 2150, 9496, 1336 ), ( 2144, 9931, 1336 ), ( 1665, 9053, 1336 ), ( 1661, 9211, 1336 ) );
+	angles = array( ( 0, 0, 0 ), ( 0, 0, 0 ), ( 0, 180, 0 ), ( 0, 0, 0 ),
+					( 0, 180, 0 ), ( 0, 180, 0), ( 0, 0, 0 ), ( 0, 0, 0) );
+	level.struct_class_names[ "targetname" ][ "player_respawn_point" ] = [];
+	level.struct_class_names[ "script_noteworthy" ][ "initial_spawn" ] = [];
+	for ( i = 0; i < coordinates.size; i++ )
+	{
+		scripts/zm/grief/gametype_modules/_gametype_setup::register_map_initial_spawnpoint( coordinates[ i ], angles[ i ] );
+	}
 }
 
 precache()
@@ -274,32 +284,6 @@ magicbox_face_spawn()
 			self.wth_elem destroy();
 		}
 		wait 0.05;
-	}
-}
-
-turn_afterlife_interact_on()
-{
-	if ( self.script_string == "cell_1_powerup_activate" || self.script_string == "intro_powerup_activate" || self.script_string == "cell_2_powerup_activate" || self.script_string == "wires_shower_door" )
-	{
-		return;
-	}
-	if ( self.script_string == "electric_cherry_on" || self.script_string == "sleight_on" || self.script_string == "wires_admin_door" )
-	{
-		if ( !isDefined( level.shockbox_anim ) )
-		{
-			level.shockbox_anim[ "on" ] = %fxanim_zom_al_shock_box_on_anim;
-			level.shockbox_anim[ "off" ] = %fxanim_zom_al_shock_box_off_anim;
-		}
-		if ( issubstr( self.model, "p6_zm_al_shock_box" ) )
-		{
-			self useanimtree( -1 );
-			self setmodel( "p6_zm_al_shock_box_on" );
-			self setanim( level.shockbox_anim[ "on" ] );
-		}
-	}
-	else
-	{
-		self delete();
 	}
 }
 

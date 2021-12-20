@@ -40,6 +40,7 @@ player_team_setup()
 		}
 		level.players_in_session[ self.name ].sessionteam = self.team;
 	}
+	level.grief_team_members[ self.team ]++;
 	self [[ level.givecustomcharacters ]]();
 }
 
@@ -60,20 +61,6 @@ menu_onmenuresponse_override()
 			self openmenu( game[ "menu_team" ] );
 			continue;
 		}
-		if ( response == "endgame" )
-		{
-			if ( self issplitscreen() )
-			{
-				level.skipvote = 1;
-				if ( is_true( level.gameended ) )
-				{
-					level.host_ended_game = 1;
-					maps/mp/zombies/_zm_game_module::freeze_players( 1 );
-					level notify( "end_game" );
-				}
-			}
-			continue;
-		}
 		if ( response == "endround" )
 		{
 			if ( is_true( level.gameended ) )
@@ -90,16 +77,16 @@ menu_onmenuresponse_override()
 			}
 			continue;
 		}
-		if ( menu == game[ "menu_team" ] && self player_can_change_teams() )
+		if ( menu == game[ "menu_team" ] && self player_can_change_teams() && self.new_team == self.team )
 		{
-			if ( response == "autoassign" )
+			if ( response == "autoassign" && self player_can_change_to_team( response ) )
 			{
 				if ( self menuautoassign( response ) )
 				{
 					self iPrintLn( "You will change to " + self.new_team + " next round." );
 				}
 			}
-			else 
+			else if ( self player_can_change_to_team( response ) )
 			{
 				if ( self menuteam( response ) )
 				{
@@ -153,6 +140,28 @@ menuautoassign( comingfrommenu )
 	return true;
 }
 
+player_can_change_to_team( new_team )
+{
+	if ( new_team == "autoassign" )
+	{
+		new_team = getOtherTeam( self.team );
+	}
+	if ( ( level.grief_team_members[ self.team ] - 1 ) < 1 )
+	{
+		self iPrintLn( "You cannot change teams when you are the only player left." );
+		return false;
+	}
+	else if ( ( level.grief_team_members[ new_team ] + 1 ) > 4 )
+	{
+		self iPrintLn( "You cannot change teams when the team you are changing to is at it's maximum." );
+		return false;
+	}
+	self closemenus();
+	level.grief_team_members[ new_team ]++;
+	level.grief_team_members[ self.team ]--;
+	return true;
+}
+
 player_can_change_teams()
 {
 	if ( !isDefined( self.team_num_times_changed_teams ) )
@@ -170,7 +179,7 @@ player_can_change_teams()
 	}
 	else if ( level.players_in_session[ self.name ].team_change_timer > 0 )
 	{
-		self iPrintLn( "You cannot change teams for another" + level.players_in_session[ self.name ].team_change_timer + " seconds." );
+		self iPrintLn( "You cannot change teams for another " + level.players_in_session[ self.name ].team_change_timer + " seconds." );
 	}
 	else if ( level.players_in_session[ self.name ].team_changed_times > level.team_change_max )
 	{
@@ -207,7 +216,7 @@ team_change_timer()
 check_for_predefined_team()
 {
 	//team = get_key_value_from_value( "grief_preset_teams", getDvar( "grief_preset_teams" ), self.name, "team_name" );
-	axis_guids = strTok( getDvar( "grief_teams_axis_guids" ), ";" );
+	axis_guids = strTok( getDvar( "grief_teams_axis_guids" ), "," );
 	team = "";
 	if ( axis_guids.size > 0 )
 	{
@@ -220,7 +229,7 @@ check_for_predefined_team()
 			}
 		}
 	}
-	allies_guids = strTok( getDvar( "grief_teams_allies_guids" ), ";" );
+	allies_guids = strTok( getDvar( "grief_teams_allies_guids" ), "," );
 	if ( allies_guids.size > 0 && team == "" )
 	{
 		foreach ( guid in allies_guids )
@@ -246,6 +255,7 @@ check_for_predefined_team()
 default_menu_autoassign( assignment )
 {
 	self closemenus();
+	self scripts/zm/grief/persistence/_session_data::init_player_session_data();
 	self player_team_setup();
 	self.class = undefined;
 	self updateobjectivetext();
@@ -255,3 +265,4 @@ default_menu_autoassign( assignment )
 	self beginclasschoice();
 	self setclientscriptmainmenu( game[ "menu_class" ] );
 }
+

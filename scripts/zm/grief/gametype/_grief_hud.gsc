@@ -13,6 +13,7 @@ grief_onplayerdisconnect( disconnecting_player ) //checked matches cerberus outp
 	{
 		//level thread update_players_on_bleedout_or_disconnect( disconnecting_player );
 	}
+	level.grief_team_members[ self.team ]--;
 }
 
 show_grief_hud_msg( msg, msg_parm, offset, cleanup_end_game ) //checked matches cerberus output

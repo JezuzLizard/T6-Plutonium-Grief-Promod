@@ -22,4 +22,6 @@ init_override()
 	add_map_location_gamemode( "zclassic", "processing", maps/mp/zm_buried_classic::precache, maps/mp/zm_buried_classic::main );
 	add_map_location_gamemode( "zcleansed", "street", maps/mp/zm_buried_turned_street::precache, maps/mp/zm_buried_turned_street::main );
 	add_map_location_gamemode( "zgrief", "street", scripts/zm/zm_buried/locs/loc_street::precache, scripts/zm/zm_buried/locs/loc_street::main );
+
+	scripts/zm/grief/gametype_modules/_gametype_setup::add_struct_location_gamemode_func( "zgrief", "street", scripts/zm/zm_buried/locs/loc_street::struct_init );
 }

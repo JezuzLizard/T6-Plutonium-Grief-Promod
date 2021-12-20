@@ -219,151 +219,151 @@ CMD_TOGGLEMAGIC_f( arg_list )
 	return result;
 }
 
-CMD_TEAM_UNPERM_f( arg_list )
-{
-	result = [];
-	outcome = set_key_value_from_value( "grief_preset_teams", getDvar( "grief_preset_teams" ), player_name, "is_perm", false );
-	if ( outcome[ "error_msg" ] == 0 )
-	{
-		result[ "filter" ] = "cmdinfo";
-		result[ "message" ] = va( "team:perm: Successfully set entry for %s to be temporary", player_name );
-	}
-	else 
-	{
-		result[ "filter" ] = "cmderror";
-		result[ "message" ] = va( "team:unperm: Failed to set entry for %s to be temporary %s", player_name, outcome[ "error_msg" ] );
-	}
-	return result;
-}
+// CMD_TEAM_UNPERM_f( arg_list )
+// {
+// 	result = [];
+// 	outcome = set_key_value_from_value( "grief_preset_teams", getDvar( "grief_preset_teams" ), player_name, "is_perm", false );
+// 	if ( outcome[ "error_msg" ] == 0 )
+// 	{
+// 		result[ "filter" ] = "cmdinfo";
+// 		result[ "message" ] = va( "team:perm: Successfully set entry for %s to be temporary", player_name );
+// 	}
+// 	else 
+// 	{
+// 		result[ "filter" ] = "cmderror";
+// 		result[ "message" ] = va( "team:unperm: Failed to set entry for %s to be temporary %s", player_name, outcome[ "error_msg" ] );
+// 	}
+// 	return result;
+// }
 
-CMD_TEAM_PERM_f( arg_list )
-{
-	result = [];
-	outcome = set_key_value_from_value( "grief_preset_teams", getDvar( "grief_preset_teams" ), player_name, "is_perm", true );
-	if ( outcome[ "error_msg" ] == 0 )
-	{
-		result[ "filter" ] = "cmdinfo";
-		result[ "message" ] = va( "team:perm: Successfully set entry for %s to be permanent", player_name );
-	}
-	else 
-	{
-		result[ "filter" ] = "cmderror";
-		result[ "message" ] = va( "team:unban: Failed to set entry for %s to be permanent %s", player_name, outcome[ "error_msg" ] );
-	}
-	return result;
-}
+// CMD_TEAM_PERM_f( arg_list )
+// {
+// 	result = [];
+// 	outcome = set_key_value_from_value( "grief_preset_teams", getDvar( "grief_preset_teams" ), player_name, "is_perm", true );
+// 	if ( outcome[ "error_msg" ] == 0 )
+// 	{
+// 		result[ "filter" ] = "cmdinfo";
+// 		result[ "message" ] = va( "team:perm: Successfully set entry for %s to be permanent", player_name );
+// 	}
+// 	else 
+// 	{
+// 		result[ "filter" ] = "cmderror";
+// 		result[ "message" ] = va( "team:unban: Failed to set entry for %s to be permanent %s", player_name, outcome[ "error_msg" ] );
+// 	}
+// 	return result;
+// }
 
-CMD_TEAM_UNBAN_f( arg_list )
-{
-	result = [];
-	outcome = set_key_value_from_value( "grief_preset_teams", getDvar( "grief_preset_teams" ), player_name, "is_banned", false );
-	if ( outcome[ "error_msg" ] == 0 )
-	{
-		result[ "filter" ] = "cmdinfo";
-		result[ "message" ] = va( "team:unban: Successfully unbanned %s from changing teams", player_name );
-	}
-	else 
-	{
-		result[ "filter" ] = "cmderror";
-		result[ "message" ] = va( "team:unban: Failed to unban %s from changing teams %s", player_name, outcome[ "error_msg" ] );
-	}
-	return result;
-}
+// CMD_TEAM_UNBAN_f( arg_list )
+// {
+// 	result = [];
+// 	outcome = set_key_value_from_value( "grief_preset_teams", getDvar( "grief_preset_teams" ), player_name, "is_banned", false );
+// 	if ( outcome[ "error_msg" ] == 0 )
+// 	{
+// 		result[ "filter" ] = "cmdinfo";
+// 		result[ "message" ] = va( "team:unban: Successfully unbanned %s from changing teams", player_name );
+// 	}
+// 	else 
+// 	{
+// 		result[ "filter" ] = "cmderror";
+// 		result[ "message" ] = va( "team:unban: Failed to unban %s from changing teams %s", player_name, outcome[ "error_msg" ] );
+// 	}
+// 	return result;
+// }
 
-CMD_TEAM_BAN_f( arg_list )
-{
-	result = [];
-	outcome1 = set_key_value_from_value( "grief_preset_teams", getDvar( "grief_preset_teams" ), player_name, "is_banned", true );
-	outcome2 = set_key_value_from_value( "grief_preset_teams", getDvar( "grief_preset_teams" ), player_name, "is_perm", true );
-	if ( outcome1[ "error_msg" ] == 0 && outcome2[ "error_msg" ] == 0 )
-	{
-		result[ "filter" ] = "cmdinfo";
-		result[ "message" ] = va( "team:ban: Successfully banned %s from changing teams", player_name );
-	}
-	else 
-	{
-		result[ "filter" ] = "cmderror";
-		result[ "message" ] = va( "team:ban: Failed to ban %s from changing teams %s %s", player_name, outcome2[ "error_msg" ], outcome1[ "error_msg" ] );
-	}
-	return result;
-}
+// CMD_TEAM_BAN_f( arg_list )
+// {
+// 	result = [];
+// 	outcome1 = set_key_value_from_value( "grief_preset_teams", getDvar( "grief_preset_teams" ), player_name, "is_banned", true );
+// 	outcome2 = set_key_value_from_value( "grief_preset_teams", getDvar( "grief_preset_teams" ), player_name, "is_perm", true );
+// 	if ( outcome1[ "error_msg" ] == 0 && outcome2[ "error_msg" ] == 0 )
+// 	{
+// 		result[ "filter" ] = "cmdinfo";
+// 		result[ "message" ] = va( "team:ban: Successfully banned %s from changing teams", player_name );
+// 	}
+// 	else 
+// 	{
+// 		result[ "filter" ] = "cmderror";
+// 		result[ "message" ] = va( "team:ban: Failed to ban %s from changing teams %s %s", player_name, outcome2[ "error_msg" ], outcome1[ "error_msg" ] );
+// 	}
+// 	return result;
+// }
 
-CMD_TEAM_SET_f( arg_list )
-{
-	player_name = arg_list[ 0 ];
-	team_name = arg_list[ 1 ];
-	result = [];
-	if ( isDefined( level.teams[ team_name ] ) )
-	{
-		outcome = set_key_value_from_value( "grief_preset_teams", getDvar( "grief_preset_teams" ), player_name, "team_name", team_name );
-		if ( outcome[ "error_msg" ] == 0 )
-		{
-			result[ "filter" ] = "cmdinfo";
-			result[ "message" ] = va( "team:set: Successfully changed %s to team %s", player_name, team_name );
-		}
-		else 
-		{
-			result[ "filter" ] = "cmderror";
-			result[ "message" ] = va( "team:set: Failed to change %s to team %s %s", player_name, team_name, outcome[ "error_msg" ] );
-		}
-	}
-	else 
-	{
-		result[ "filter" ] = "cmderror";
-		result[ "message" ] = va( "team:set: Tried to set %s to invalid team %s", player_name, team_name );
-	}
-	return result;
-}
+// CMD_TEAM_SET_f( arg_list )
+// {
+// 	player_name = arg_list[ 0 ];
+// 	team_name = arg_list[ 1 ];
+// 	result = [];
+// 	if ( isDefined( level.teams[ team_name ] ) )
+// 	{
+// 		outcome = set_key_value_from_value( "grief_preset_teams", getDvar( "grief_preset_teams" ), player_name, "team_name", team_name );
+// 		if ( outcome[ "error_msg" ] == 0 )
+// 		{
+// 			result[ "filter" ] = "cmdinfo";
+// 			result[ "message" ] = va( "team:set: Successfully changed %s to team %s", player_name, team_name );
+// 		}
+// 		else 
+// 		{
+// 			result[ "filter" ] = "cmderror";
+// 			result[ "message" ] = va( "team:set: Failed to change %s to team %s %s", player_name, team_name, outcome[ "error_msg" ] );
+// 		}
+// 	}
+// 	else 
+// 	{
+// 		result[ "filter" ] = "cmderror";
+// 		result[ "message" ] = va( "team:set: Tried to set %s to invalid team %s", player_name, team_name );
+// 	}
+// 	return result;
+// }
 
-CMD_TEAM_REMOVE_f( arg_list )
-{
-	player_name = arg_list[ 0 ];
-	result = [];
-	new_tokens = remove_tokens_from_array( strTok( getDvar( "grief_preset_teams" ), ";" ), player_name );
-	setDvar( "grief_preset_teams", concatenate_array( new_tokens, ";" ) );
-	result[ "filter" ] = "cmdinfo";
-	result[ "message" ] = va( "team:remove: Successfully removed %s from preset teams.", player_name );
-	return result;
-}
+// CMD_TEAM_REMOVE_f( arg_list )
+// {
+// 	player_name = arg_list[ 0 ];
+// 	result = [];
+// 	new_tokens = remove_tokens_from_array( strTok( getDvar( "grief_preset_teams" ), ";" ), player_name );
+// 	setDvar( "grief_preset_teams", concatenate_array( new_tokens, ";" ) );
+// 	result[ "filter" ] = "cmdinfo";
+// 	result[ "message" ] = va( "team:remove: Successfully removed %s from preset teams.", player_name );
+// 	return result;
+// }
 
-CMD_TEAM_ADD_f( arg_list )
-{
-	player_name = arg_list[ 0 ];
-	team_name = arg_list[ 1 ];
-	is_perm = arg_list[ 2 ];
-	is_banned = arg_list[ 3 ];
-	cur_tokens = strTok( getDvar( "grief_preset_teams" ), ";" );
-	new_tokens = [];
-	result = [];
-	if ( !isDefined( player_name ) || !isDefined( team_name ) )
-	{
-		result[ "filter" ] = "cmderror";
-		result[ "message" ] = "team:add: Missing player or team name arg.";
-		return result;
-	}
-	new_tokens = concatenate_array( remove_tokens_from_array( cur_tokens, player_name ), ";" );
-	if ( !isDefined( is_perm ) )
-	{
-		is_perm = "0";
-	}
-	if ( !isDefined( is_banned ) )
-	{
-		is_banned = "0";
-	}
-	if ( is_perm == "true" )
-	{
-		is_perm = "1";
-	}
-	else if ( is_perm == "false" )
-	{
-		is_perm = "0";
-	}
-	else if ( int( is_perm ) != 0 || int( is_perm ) != 1 )
-	{
-		is_perm = "0";
-	}
-	add_new_preset_team_token( new_tokens, player_name, team_name, is_perm, is_banned );
-	result[ "filter" ] = "cmdinfo";
-	result[ "message" ] = va( "team:add: Successfully added %s to team %s", player_name, team_name );
-	return result;
-}
+// CMD_TEAM_ADD_f( arg_list )
+// {
+// 	player_name = arg_list[ 0 ];
+// 	team_name = arg_list[ 1 ];
+// 	is_perm = arg_list[ 2 ];
+// 	is_banned = arg_list[ 3 ];
+// 	cur_tokens = strTok( getDvar( "grief_preset_teams" ), ";" );
+// 	new_tokens = [];
+// 	result = [];
+// 	if ( !isDefined( player_name ) || !isDefined( team_name ) )
+// 	{
+// 		result[ "filter" ] = "cmderror";
+// 		result[ "message" ] = "team:add: Missing player or team name arg.";
+// 		return result;
+// 	}
+// 	new_tokens = concatenate_array( remove_tokens_from_array( cur_tokens, player_name ), ";" );
+// 	if ( !isDefined( is_perm ) )
+// 	{
+// 		is_perm = "0";
+// 	}
+// 	if ( !isDefined( is_banned ) )
+// 	{
+// 		is_banned = "0";
+// 	}
+// 	if ( is_perm == "true" )
+// 	{
+// 		is_perm = "1";
+// 	}
+// 	else if ( is_perm == "false" )
+// 	{
+// 		is_perm = "0";
+// 	}
+// 	else if ( int( is_perm ) != 0 || int( is_perm ) != 1 )
+// 	{
+// 		is_perm = "0";
+// 	}
+// 	add_new_preset_team_token( new_tokens, player_name, team_name, is_perm, is_banned );
+// 	result[ "filter" ] = "cmdinfo";
+// 	result[ "message" ] = va( "team:add: Successfully added %s to team %s", player_name, team_name );
+// 	return result;
+// }

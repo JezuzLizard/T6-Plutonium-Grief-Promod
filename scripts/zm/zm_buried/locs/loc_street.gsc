@@ -17,8 +17,28 @@
 #include maps/mp/zombies/_zm;
 #include scripts/zm/zm_buried/locs/location_common;
 
+struct_init()
+{
+	coordinates = array( ( -832, -153, 132 ), ( -718, 73, -23 ), ( -1034, 210, -23 ), ( -1170, 425, 8 ),
+							( -356, 169, 10 ), ( 54, 156, 10 ), ( 40, 296, -28 ), ( -94, 573, -23 ) );
+	angles = array( ( 0, 68, 0 ), ( 0, 75, 0 ), ( 0, 40, 0 ), ( 0, -1, 0 ),
+					( 0, 142, 0 ), ( 0, 152, 0), ( 0, 179, 0 ), ( 0, -145, 0) );
+	if ( getDvar( "ui_zm_mapstartlocation" ) == "street" )
+	{
+		level.struct_class_names[ "targetname" ][ "player_respawn_point" ] = [];
+		level.struct_class_names[ "script_noteworthy" ][ "initial_spawn" ] = [];
+	} 
+	for ( i = 0; i < coordinates.size; i++ )
+	{
+		scripts/zm/grief/gametype_modules/_gametype_setup::register_map_initial_spawnpoint( coordinates[ i ], angles[ i ] );
+	}
+}
+
 precache() //checked matches cerberus output
 {
+	precachemodel( "collision_wall_128x128x10_standard" );
+	precachemodel( "collision_wall_256x256x10_standard" );
+	precachemodel( "collision_wall_512x512x10_standard" );
 	precachemodel( "zm_collision_buried_street_grief" );
 	precachemodel( "p6_zm_bu_buildable_bench_tarp" );
 	level.chalk_buildable_pieces_hide = 1;
@@ -40,9 +60,10 @@ precache() //checked matches cerberus output
 
 main() //checked matches cerberus output
 {
-	disable_buried_tunnel_zone();
-	remove_buried_spawns();
-	spawn_barriers();
+	disable_tunnels();
+	// disable_buried_tunnel_zone();
+	// remove_buried_spawns();
+	// spawn_barriers();
 	maps/mp/gametypes_zm/_zm_gametype::setup_standard_objects( "street" );
 	delete_door_and_debris_trigs();
 	maps/mp/zombies/_zm_magicbox::treasure_chest_init( "start_chest" );
@@ -51,37 +72,11 @@ main() //checked matches cerberus output
 	common_init();
 }
 
-spawn_barriers()
-{
-	//barn barrier
-	barrier_model = spawn( "script_model", ( -728, -557, 117 ), 1 );
-	barrier_model.angles = ( 19, 180, 0 );
-	barrier_model setmodel( "p6_zm_bu_sloth_blocker_medium" );
-	barrier_model disconnectpaths();
-	collision = spawn( "script_model", ( -728, -529, 117 ), 1 );
-	collision.angles = ( 19, 4, 0 );
-	collision setModel( "collision_player_64x64x128" );
-	//tunnel blockade
-	collision = spawn( "script_model", (-1495, -280, 40) );
-	collision.angles = ( 0, 90, 0 );
-	collision setmodel( "collision_clip_wall_128x128x10" );
-	couch = spawn( "script_model", (-1512, -262, 26.5) );
-	couch.angles = ( 0, 90, 0 );
-	couch setmodel( "p6_zm_bu_victorian_couch" );
-	//mule kick barrier
-	/*
-	barrier_model = spawn( "script_model", ( -578, 1006, 167 ), 1 );
-	barrier_model.angles = ( 9, 270, 0 );
-	barrier_model setmodel( "p6_zm_bu_sloth_blocker_medium" );
-	barrier_model disconnectpaths();
-	*/
-}
-
 delete_door_and_debris_trigs()
 {	
 	if( level.grief_gamerules[ "disable_doors" ] )
 	{
-		door_trigs_to_delete = array( "pf728_auto2520", "pf728_auto2513", "pf728_auto2496", "pf728_auto2516", "pf728_auto2500" );
+		door_trigs_to_delete = array( "pf728_auto2520", "pf728_auto2513", "pf728_auto2496", "pf728_auto2500" ); //"pf728_auto2516" //power door
 		doors_trigs = getentarray( "zombie_door", "targetname" );
 		foreach ( door_trig in doors_trigs )
 		{
@@ -103,33 +98,6 @@ delete_door_and_debris_trigs()
 				{
 					debris_trig delete();
 				}
-			}
-		}
-	}
-}
-
-disable_buried_tunnel_zone()
-{
-	foreach ( zone in getArrayKeys( level.zones ) )
-	{
-		if ( zone == "zone_tunnel_gun2stables2" )
-		{
-			level.zones[ zone ].is_enabled = 0;
-			level.zones[ zone ].is_spawning_allowed = 0;
-			break;
-		}
-	}
-}
-
-remove_buried_spawns()
-{
-	foreach ( zone in level.zones )
-	{
-		for ( i = 0; i < zone.spawn_locations.size; i++ )
-		{
-			if ( zone.spawn_locations[ i ].origin == ( -1551, -611, 36.69 ) )
-			{
-				zone.spawn_locations[ i ].is_enabled = false;
 			}
 		}
 	}
@@ -224,3 +192,104 @@ playchalkfx( effect, origin, angles ) //custom function
 		fx Delete();
 	}
 }
+
+disable_tunnels() //Jbleezy
+{
+	// stables tunnel entrance
+	origin = (-1502, -262, 26);
+	angles = ( 0, 90, 5 );
+	collision = spawn( "script_model", origin + anglesToUp(angles) * 64 );
+	collision.angles = angles;
+	collision setmodel( "collision_wall_128x128x10_standard" );
+	model = spawn( "script_model", origin + (0, 60, 0) );
+	model.angles = angles;
+	model setmodel( "p6_zm_bu_wood_door_bare" );
+	model = spawn( "script_model", origin + (0, -60, 0) );
+	model.angles = angles;
+	model setmodel( "p6_zm_bu_wood_door_bare_right" );
+
+	// stables tunnel exit
+	origin = (-22, -1912, 269);
+	angles = ( 0, -90, -10 );
+	collision = spawn( "script_model", origin + anglesToUp(angles) * 128 );
+	collision.angles = angles;
+	collision setmodel( "collision_wall_256x256x10_standard" );
+	model = spawn( "script_model", origin );
+	model.angles = angles;
+	model setmodel( "p6_zm_bu_sloth_blocker_medium" );
+
+	// saloon tunnel entrance
+	origin = (488, -1778, 188);
+	angles = ( 0, 0, -10 );
+	collision = spawn( "script_model", origin + anglesToUp(angles) * 64 );
+	collision.angles = angles;
+	collision setmodel( "collision_wall_128x128x10_standard" );
+	model = spawn( "script_model", origin );
+	model.angles = angles;
+	model setmodel( "p6_zm_bu_sloth_blocker_medium" );
+
+	// saloon tunnel exit
+	origin = (120, -1984, 228);
+	angles = ( 0, 45, -10 );
+	collision = spawn( "script_model", origin + anglesToUp(angles) * 128 );
+	collision.angles = angles;
+	collision setmodel( "collision_wall_256x256x10_standard" );
+	model = spawn( "script_model", origin );
+	model.angles = angles;
+	model setmodel( "p6_zm_bu_sloth_blocker_medium" );
+
+	// main tunnel saloon side
+	origin = (770, -863, 320);
+	angles = ( 0, 180, -35 );
+	collision = spawn( "script_model", origin + anglesToUp(angles) * 128 );
+	collision.angles = angles;
+	collision setmodel( "collision_wall_256x256x10_standard" );
+	model = spawn( "script_model", origin );
+	model.angles = angles;
+	model setmodel( "p6_zm_bu_sloth_blocker_medium" );
+
+	// main tunnel courthouse side
+	origin = (349, 579, 240);
+	angles = ( 0, 0, -10 );
+	collision = spawn( "script_model", origin + anglesToUp(angles) * 64 );
+	collision.angles = angles;
+	collision setmodel( "collision_wall_128x128x10_standard" );
+	model = spawn( "script_model", origin );
+	model.angles = angles;
+	model setmodel( "p6_zm_bu_sloth_blocker_medium" );
+
+	// main tunnel above general store
+	origin = (-123, -801, 296);
+	angles = ( 0, 0, 90 );
+	collision = spawn( "script_model", origin );
+	collision.angles = angles;
+	collision setmodel( "collision_wall_128x128x10_standard" );
+
+	// main tunnel above jail
+	origin = (-852, 408, 379);
+	angles = ( 0, 0, 90 );
+	collision = spawn( "script_model", origin );
+	collision.angles = angles;
+	collision setmodel( "collision_wall_512x512x10_standard" );
+
+	// gunsmith debris
+	debris_trigs = getentarray( "zombie_debris", "targetname" );
+	foreach ( debris_trig in debris_trigs )
+	{
+		if ( debris_trig.target == "pf728_auto2534" )
+		{
+			debris_trig delete();
+		}
+	}
+
+	// stables tunnel spawners
+	level.zones["zone_tunnel_gun2stables2"].is_enabled = 0;
+	level.zones["zone_tunnel_gun2stables2"].is_spawning_allowed = 0;
+	foreach ( spawn_location in level.zones["zone_stables"].spawn_locations )
+	{
+		if ( spawn_location.origin == ( -1551, -611, 36.69 ) )
+		{
+			spawn_location.is_enabled = false;
+		}
+	}
+} 

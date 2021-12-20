@@ -12,7 +12,6 @@ common_init()
 	flag_wait( "start_zombie_round_logic" );
 	level.power_local_doors_globally = true;
 	scripts/zm/grief/gametype_modules/_gamerules::set_power_state( level.grief_gamerules[ "power_state" ] );
-	scripts/zm/grief/gametype_modules/_gamerules::perk_restrictions();
 }
 
 enemy_location_override( zombie, enemy )

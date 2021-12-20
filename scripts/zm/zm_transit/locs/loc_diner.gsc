@@ -21,14 +21,6 @@ struct_init()
 	{
 		scripts/zm/grief/gametype_modules/_gametype_setup::register_map_initial_spawnpoint( coordinates[ i ], angles[ i ] );
 	}
-	gameObjects = getEntArray( "script_model", "classname" );
-	foreach ( object in gameObjects )
-	{
-		if ( object.script_gameobjectname == "zcleansed zturned" )
-		{
-			object.script_gameobjectname = "zstandard zgrief zcleansed zturned";
-		}
-	} 
 }
 
 precache()
@@ -45,15 +37,12 @@ precache()
 	collision = spawn( "script_model", start_chest_zbarrier.origin );
 	collision.angles = start_chest_zbarrier.angles;
 	collision setmodel( "collision_clip_32x32x128" );
-	collision disconnectpaths();
 	collision = spawn( "script_model", start_chest_zbarrier.origin - ( 32, 0, 0 ) );
 	collision.angles = start_chest_zbarrier.angles;
 	collision setmodel( "collision_clip_32x32x128" );
-	collision disconnectpaths();
 	collision = spawn( "script_model", start_chest_zbarrier.origin + ( 32, 0, 0 ) );
 	collision.angles = start_chest_zbarrier.angles;
 	collision setmodel( "collision_clip_32x32x128" );
-	collision disconnectpaths();
 	level.chests = [];
 	level.chests[ 0 ] = normalChests[ 3 ];
 	level.chests[ 1 ] = start_chest;
