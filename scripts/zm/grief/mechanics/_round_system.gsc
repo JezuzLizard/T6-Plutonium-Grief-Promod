@@ -665,41 +665,81 @@ getDvarDefault( dvarname, defaultvalue )
 choose_mvp()
 {
 	players = get_players();
-	mvp_killsconfirmed = players[0];
-	mvp_stabs = players[0];
-	mvp_downs = players[0];
-	mvp_revives = players[0];
+	players_killsconfirmed = [];
+	players_stabs = [];
+	players_downs = [];
+	players_revives = [];
+	players_winning_team = [];
+	player_temp_killsconfirmed = players[0];
+	player_temp_stabs = players[0];
+	player_temp_downs = players[0];
+	player_temp_revives = players[0];
 	foreach ( player in players )
 	{
 		if( !isDefined( player.mvp_score ) )
 		{
 			player.mvp_score = 0;
 		}
-		if( mvp_killsconfirmed.killsconfirmed < player.killsconfirmed )
+		if( player_temp_killsconfirmed.killsconfirmed < player.killsconfirmed )
 		{
-			mvp_killsconfirmed = player;
+			player_temp_killsconfirmed = player;
 		}
-		if( mvp_stabs.stabs < player.stabs )
+		if( player_temp_stabs.stabs < player.stabs )
 		{
-			mvp_stabs = player;
+			player_temp_stabs = player;
 		}
-		if( mvp_downs.downs > player.downs )
+		if( player_temp_downs.downs > player.downs )
 		{
-			mvp_downs = player;
+			player_temp_downs = player;
 		}
-		if( mvp_revives.revives < player.revives )
+		if( player_temp_revives.revives < player.revives )
 		{
-			mvp_revives = player;
+			player_temp_revives = player;
 		}
-		// if( mvp_team.pers[ "team" ] == winner )
-		// {
-		// 	mvp_team = player;
-		// }
+		if( player.pers[ "team" ] == level.gamemodulewinningteam )
+		{
+			players_winning_team[players_winning_team.size] = player;
+		}
 	}
-	mvp_killsconfirmed.mvp_score++;
-	mvp_stabs.mvp_score++;
-	mvp_downs.mvp_score++;
-	mvp_revives.mvp_score++;
+	foreach ( player in players )
+	{
+		if( player_temp_killsconfirmed.killsconfirmed == player.killsconfirmed )
+		{
+			players_killsconfirmed[players_killsconfirmed.size] = player;
+		}
+		if( player_temp_stabs.killsconfirmed == player.killsconfirmed )
+		{
+			players_stabs[players_stabs.size] = player;
+		}
+		if( player_temp_downs.killsconfirmed == player.killsconfirmed )
+		{
+			players_downs[players_downs.size] = player;
+		}
+		if( player_temp_revives.killsconfirmed == player.killsconfirmed )
+		{
+			players_revives[players_revives.size] = player;
+		}
+	}
+	foreach ( player in players_killsconfirmed )
+	{
+		player.mvp_score++;
+	}
+	foreach ( player in players_stabs )
+	{
+		player.mvp_score++;
+	}
+	foreach ( player in players_downs )
+	{
+		player.mvp_score++;
+	}
+	foreach ( player in players_revives )
+	{
+		player.mvp_score++;
+	}
+	foreach ( player in players_winning_team )
+	{
+		player.mvp_score++;
+	}
 	mvp = players[0];
 	foreach(player in players)
 	{
