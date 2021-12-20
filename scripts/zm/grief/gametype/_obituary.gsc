@@ -13,7 +13,7 @@ watch_for_down()
 	self endon( "disconnect" );
 	while ( true )
 	{
-		flag_wait( "spawn_zombies" );
+		self waittill( "entering_last_stand" );
 		in_laststand = self maps/mp/zombies/_zm_laststand::player_is_in_laststand();
 		is_alive = isAlive( self );
 		if ( in_laststand || !is_alive )
@@ -37,11 +37,14 @@ watch_for_down()
 			{
 				obituary(self, self, "none", "MOD_SUICIDE");
 			}
-			self thread change_status_icon( is_alive );
-			self waittill_either( "player_revived", "spawned" );
-			self.statusicon = "";
+			// self change_status_icon( is_alive );
+			if ( is_alive )
+			{
+				self.statusicon = "waypoint_revive";
+			}
+			
 		}
-		wait 0.05;
+		// wait 0.05;
 	}
 }
 
@@ -50,12 +53,50 @@ change_status_icon( is_alive )
 	if ( is_alive )
 	{
 		self.statusicon = "waypoint_revive";
-		self thread update_icon_on_bleedout();
-		
+		// self thread update_icon_on_bleedout();	
 	}
 	else 
 	{
 		self.statusicon = "hud_status_dead";
+	}
+}
+
+watch_for_bleedout()
+{
+	level endon("end_game");
+	self endon( "disconnect" );
+
+	while(1)
+	{
+		self waittill( "bled_out" );
+		iPrintLn("bleed out");
+		obituary(self, self, "none", "MOD_CRUSH");
+		self.statusicon = "hud_status_dead";
+	}
+}
+
+watch_for_spectate()
+{
+	level endon("end_game");
+	self endon( "disconnect" );
+
+	while(1)
+	{
+		self waittill( "spawned_spectator" );
+		iPrintLn("spectate");
+		self.statusicon = "hud_status_dead";
+	}
+}
+
+watch_for_spawned_revived()
+{
+	level endon("end_game");
+	self endon( "disconnect" );
+
+	while(1)
+	{
+		self waittill_either( "player_revived", "spawned" );
+		self.statusicon = "";
 	}
 }
 
@@ -66,6 +107,17 @@ update_icon_on_bleedout()
 	self endon( "player_revived" );
 	self waittill( "bled_out" );
 	self.statusicon = "hud_status_dead";
+}
+
+remove_status_icons_on_end_game()
+{
+	level waittill("end_game");
+	wait 5;
+	players = get_players();
+	foreach(player in players)
+	{
+		player.statusicon = "";
+	}
 }
 
 track_players_intersection_tracker_override()

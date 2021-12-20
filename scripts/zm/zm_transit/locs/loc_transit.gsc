@@ -34,9 +34,8 @@ transit_main() //checked changed to match cerberus output
 	collision setmodel( "zm_collision_transit_busdepot_survival" );
 	scripts/zm/zm_transit/locs/location_common::common_init();
 	depot_remove_lava_collision();
-
 	nodes = getnodearray( "classic_only_traversal", "targetname" );
-	if( getDvarIntDefault( "depot_remove_debris_over_lava", 0 ) )
+	if( level.grief_gamerules[ "debris_over_lava_depot" ] )
 	{
 		foreach ( node in nodes )
 			unlink_nodes( node, getnode( node.target, "targetname" ) );
@@ -44,12 +43,11 @@ transit_main() //checked changed to match cerberus output
 		foreach (node in nodes)
 			link_nodes( node, getnode( node.target, "targetname" ) );
 	}
-
 }
 
 depot_remove_lava_collision( )
 {
-	if( !getDvarIntDefault( "depot_remove_debris_over_lava", 0 ) )
+	if( !level.grief_gamerules[ "debris_over_lava_depot" ] )
 	{
 		return;
 	}

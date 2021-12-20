@@ -26,12 +26,15 @@ init_gamerules()
 	level.grief_gamerules[ "round_zombie_spawn_delay" ] = getDvarIntDefault( "grief_gamerule_round_zombie_spawn_delay", 15 );
 	level.grief_gamerules[ "pregame_time" ] = getDvarIntDefault( "grief_gamerule_pregame_time", 15 );
 	level.grief_gamerules[ "disable_fog" ] = getDvarIntDefault( "grief_gamerule_disable_fog", 1 );
-	level.grief_gamerules[ "weapon_shellshock" ] = getDvarIntDefault( "grief_gamerule_bullet_shellshock_time", 0.25 );
-	level.grief_gamerules[ "increase_knockback" ] = getDvarIntDefault( "grief_gamerule_disable_pub_blocking", 1 );
+	level.grief_gamerules[ "weapon_shellshock" ] = getDvarFloatDefault( "grief_gamerule_bullet_shellshock_time", 0.25 );
+	level.grief_gamerules[ "increase_knockback" ] = getDvarIntDefault( "grief_gamerule_disable_pub_blocking", 0 );
 	level.grief_gamerules[ "max_number_walkers" ] = getDvarIntDefault( "grief_gamerule_max_number_walkers", 0 );
 	level.grief_gamerules[ "max_number_zombies" ] = getDvarIntDefault( "grief_gamerule_max_number_zombies", 24 );
 	level.grief_gamerules[ "last_man_standing" ] = getDvarIntDefault( "grief_gamerule_give_last_man_standing_a_chance", 0 );
 	level.grief_gamerules[ "sprint_while_drinking_perks" ] = getDvarIntDefault( "grief_gamerule_sprint_while_drinking_perks", 0 );
+	level.grief_gamerules[ "debris_over_lava_depot" ] = getDvarIntDefault( "grief_gamerule_remove_debris_over_lava_depot", 1 );
+
+	
 	level.shock_onpain = getDvarIntDefault( "grief_gamerule_shock_on_pain", 1 );
 	setdvar( "ui_scorelimit", level.grief_gamerules[ "scorelimit" ] );
 	makeDvarServerInfo( "ui_scorelimit" );

@@ -173,6 +173,7 @@ main()
 init()
 {
 	precacheStatusIcon( "waypoint_revive" );
+	precacheStatusIcon( "hud_status_dead" );
 	level.playerSuicideAllowed = getDvarIntDefault( "grief_gamerule_self_bleedout", 1 );
 	level.noroundnumber = 1;
 	setDvar( "g_friendlyfireDist", 0 );
@@ -234,7 +235,7 @@ on_player_connect()
 			player setClientDvar( "aim_automelee_range", 0 );
 		}
 		player thread health_bar_hud(); //part of _health_bar
-		player thread afk_kick();
+		//player thread afk_kick();
 		if ( !isDefined( player.last_griefed_by ) )
 		{
 			player.last_griefed_by = spawnStruct();
@@ -243,6 +244,9 @@ on_player_connect()
 			player.last_griefed_by.weapon = undefined;
 			player.last_griefed_by.time = 0;
 			player thread scripts/zm/grief/gametype/_obituary::watch_for_down();
+			player thread scripts/zm/grief/gametype/_obituary::watch_for_bleedout();
+			player thread scripts/zm/grief/gametype/_obituary::watch_for_spectate();
+			player thread scripts/zm/grief/gametype/_obituary::watch_for_spawned_revived();
 		}
 		player thread scripts/zm/grief/mechanics/_round_system::give_points_on_restart_and_round_change();
 		player.killsconfirmed = 0;
@@ -590,19 +594,6 @@ player_prevent_damage( einflictor, eattacker, idamage, idflags, smeansofdeath, s
 grief_game_end_check_func()
 {
 	return false;
-}
-
-remove_status_icons_on_end_game()
-{
-	level waittill("end_game");
-
-	wait 5;
-
-	players = get_players();
-	foreach(player in players)
-	{
-		player.statusicon = "";
-	}
 }
 
 spawn_bots(num)
