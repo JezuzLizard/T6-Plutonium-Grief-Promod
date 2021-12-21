@@ -33,7 +33,7 @@ init_gamerules()
 	level.grief_gamerules[ "last_man_standing" ] = getDvarIntDefault( "grief_gamerule_give_last_man_standing_a_chance", 0 );
 	level.grief_gamerules[ "sprint_while_drinking_perks" ] = getDvarIntDefault( "grief_gamerule_sprint_while_drinking_perks", 0 );
 	level.grief_gamerules[ "debris_over_lava_depot" ] = getDvarIntDefault( "grief_gamerule_remove_debris_over_lava_depot", 1 );
-
+	level.grief_gamerules[ "no_boards" ] = getDvarIntDefault( "grief_gamerule_no_boards", 0 );
 	
 	level.shock_onpain = getDvarIntDefault( "grief_gamerule_shock_on_pain", 1 );
 	setdvar( "ui_scorelimit", level.grief_gamerules[ "scorelimit" ] );

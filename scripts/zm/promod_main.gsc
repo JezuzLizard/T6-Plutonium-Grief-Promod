@@ -167,6 +167,11 @@ main()
 	level._supress_survived_screen = true;
 	level.no_end_game_check = true;
 	level._game_module_game_end_check = ::grief_game_end_check_func;
+	if ( level.grief_gamerules[ "no_boards" ] )
+	{
+		level.no_board_repair = true; //Disable all board repairing.
+		replaceFunc( maps/mp/zombies/_zm_blockers::should_delete_zbarriers, ::should_delete_zbarriers_override ); //Delete barriers on map
+	}
 	//END grief globals
 }
 
@@ -629,4 +634,9 @@ set_fog()
 	{
 		setDvar("r_fog", 1);
 	}
+}
+
+should_delete_zbarriers_override() //checked matches cerberus output
+{
+	return 1;
 }
