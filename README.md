@@ -1,6 +1,16 @@
 # T6-Plutonium-Grief-Promod
 A Plutonium mod for the Grief gamemode in zombies.
 
+## Installation
+
+Note: Only dedicated servers are officially supported
+
+Follow this guide to set one up: https://plutonium.pw/docs/server/t6/setting-up-a-server/
+
+Download the latest release or build from scratch with the included build tool.
+
+Follow these instructions on how to install: https://plutonium.pw/docs/modding/loading-mods/#getting-started
+
 ## Created by: JezuzLizard and 5and5
 
 [![IMAGE ALT TEXT HERE](Grief_on_all_maps.png)](https://www.youtube.com/watch?v=vuwAIZxHpWM&ab_channel=Lanevader)
