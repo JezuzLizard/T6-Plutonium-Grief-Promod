@@ -128,6 +128,37 @@ change_team_next_round( team )
 		}
 		self._encounters_team = level.data_maps[ "encounters_teams" ][ "e_team" ][ level.team_index_grief[ team ] ];
 		level.players_in_session[ self.name ].sessionteam = team;
+		self set_player_character( team );
+	}
+}
+
+set_player_character( team )
+{
+	if ( team == "axis" )
+	{
+		if ( "zm_prison" == getDvar( "mapname" ) )
+		{
+			self setmodel( "c_zom_player_grief_inmate_fb" );
+			self setviewmodel( "c_zom_oleary_shortsleeve_viewhands" );
+		}
+		else
+		{
+			self setmodel( "c_zom_player_cia_fb" );
+			self setviewmodel( "c_zom_suit_viewhands" );
+		}
+	}
+	else
+	{
+		if ( "zm_prison" == getDvar( "mapname" ) )
+		{
+			self setmodel( "c_zom_player_grief_guard_fb" );
+			self setviewmodel( "c_zom_grief_guard_viewhands" );
+		}
+		else
+		{
+			self setmodel( "c_zom_player_cdc_fb" );
+			self setviewmodel( "c_zom_hazmat_viewhands" );
+		}
 	}
 }
 

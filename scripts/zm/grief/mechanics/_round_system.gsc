@@ -258,6 +258,7 @@ match_start()
 
 start_new_round( is_restart )
 {
+	level notify( "grief_new_round" );
 	if ( flag( "spawn_zombies" ) )
 	{
 		flag_clear( "spawn_zombies" );

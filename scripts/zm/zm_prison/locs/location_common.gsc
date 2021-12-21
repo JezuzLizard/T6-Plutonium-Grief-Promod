@@ -3,6 +3,7 @@
 #include common_scripts/utility;
 #include maps/mp/zombies/_zm_weapons;
 #include maps/mp/zm_alcatraz_traps;
+#include maps/mp/zombies/_zm_score;
 #include scripts/zm/promod/_gametype_setup;
 
 common_init()
