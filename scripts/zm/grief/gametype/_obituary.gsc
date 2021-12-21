@@ -69,7 +69,6 @@ watch_for_bleedout()
 	while(1)
 	{
 		self waittill( "bled_out" );
-		iPrintLn("bleed out");
 		obituary(self, self, "none", "MOD_CRUSH");
 		self.statusicon = "hud_status_dead";
 	}
@@ -83,7 +82,6 @@ watch_for_spectate()
 	while(1)
 	{
 		self waittill( "spawned_spectator" );
-		iPrintLn("spectate");
 		self.statusicon = "hud_status_dead";
 	}
 }
