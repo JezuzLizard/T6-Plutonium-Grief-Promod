@@ -10,6 +10,7 @@
 #include maps/mp/zombies/_zm_game_module;
 #include maps/mp/zombies/_zm_audio_announcer;
 #include maps/mp/gametypes_zm/_hud_util;
+#include maps/mp/zombies/_zm;
 
 
 #include scripts/zm/grief/audio/_announcer_fix;
@@ -173,6 +174,100 @@ main()
 		replaceFunc( maps/mp/zombies/_zm_blockers::should_delete_zbarriers, ::should_delete_zbarriers_override ); //Delete barriers on map
 	}
 	//END grief globals
+
+	//Temp debugging
+	replaceFunc( maps/mp/zombies/_zm::spawnspectator. ::spawnspectator_override );
+	replaceFunc( maps/mp/gametypes_zm/_globallogic_spawn::in_spawnspectator, ::in_spawnspectator_override );
+}
+
+spawnspectator_override() //checked matches cerberus output
+{
+	self endon( "disconnect" );
+	self endon( "spawned_spectator" );
+	if ( level.intermission )
+	{
+		return;
+	}
+	if ( !is_true( self.died ) )
+	{
+		logprint( "Player " + self.name + " did not die but became a spectator in spawnspectator_override()" );
+		return;
+	}
+	self notify( "spawned" );
+	self notify( "end_respawn" );
+	self.is_zombie = 1;
+	level thread failsafe_revive_give_back_weapons( self );
+	self notify( "zombified" );
+	if ( isDefined( self.revivetrigger ) )
+	{
+		self.revivetrigger delete();
+		self.revivetrigger = undefined;
+	}
+	self.zombification_time = getTime();
+	resettimeout();
+	self stopshellshock();
+	self stoprumble( "damage_heavy" );
+	self.sessionstate = "spectator";
+	self.spectatorclient = -1;
+	self.maxhealth = self.health;
+	self.shellshocked = 0;
+	self.inwater = 0;
+	self.friendlydamage = undefined;
+	self.hasspawned = 1;
+	self.spawntime = getTime();
+	self.afk = 0;
+	self detachall();
+	if ( isDefined( level.custom_spectate_permissions ) )
+	{
+		self [[ level.custom_spectate_permissions ]]();
+	}
+	self thread spectator_thread();
+	self spawn( self.origin, self.angles );
+	self notify( "spawned_spectator" );
+}
+
+in_spawnspectator_override( origin, angles ) //checked matches cerberus output
+{
+	if ( !is_true( self.died ) )
+	{
+		logprint( "Player " + self.name + " did not die but became a spectator in in_spawnspectator_override()" );
+		return;
+	}
+	self setspawnvariables();
+	if ( self.pers[ "team" ] == "spectator" )
+	{
+		self clearlowermessage();
+	}
+	self.sessionstate = "spectator";
+	self.spectatorclient = -1;
+	self.killcamentity = -1;
+	self.archivetime = 0;
+	self.psoffsettime = 0;
+	self.friendlydamage = undefined;
+	if ( self.pers[ "team" ] == "spectator" )
+	{
+		self.statusicon = "";
+	}
+	else
+	{
+		self.statusicon = "hud_status_dead";
+	}
+	maps/mp/gametypes_zm/_spectating::setspectatepermissionsformachine();
+	[[ level.onspawnspectator ]]( origin, angles );
+	if ( level.teambased && !level.splitscreen )
+	{
+		self thread spectatorthirdpersonness();
+	}
+	level thread maps/mp/gametypes_zm/_globallogic::updateteamstatus();
+}
+
+spectatorthirdpersonness() //checked matches cerberus output
+{
+	self endon( "disconnect" );
+	self endon( "spawned" );
+	self notify( "spectator_thirdperson_thread" );
+	self endon( "spectator_thirdperson_thread" );
+	self.spectatingthirdperson = 0;
 }
 
 init()
@@ -259,6 +354,46 @@ on_player_connect()
 		player.assists = 0;
 
 		player.new_team = player.team;
+
+		//Testing
+		player thread watch_for_down_test();
+		player thread spectate_watcher();
+	}
+}
+
+watch_for_down_test()
+{
+	level endon( "end_game" );
+	self endon( "disconnect" );
+	while ( true )
+	{
+		self.died = false;
+		self waittill( "entering_last_stand" );
+		player_state = self waittill_any_return( "revived", "bled_out" );
+		if ( player_state == "revived" )
+		{
+			continue;
+		}
+		else 
+		{
+			self.died = true;
+			self waittill( "spawned_player" );
+		}
+	}
+}
+
+spectate_watcher()
+{
+	level endon( "end_game" );
+	self endon( "disconnect" );
+	while ( true )
+	{
+		if ( !is_true( self.died ) && self.sessionstate == "spectator" )
+		{
+			logprint( "Player " + self.name + " didn't die but became a spectator according to spectate_watcher()" );
+			self waittill( "spawned_player" );
+		}
+		wait 0.05;
 	}
 }
 
