@@ -192,6 +192,32 @@ playchalkfx( effect, origin, angles ) //custom function
 	}
 }
 
+spawn_barriers()
+{
+	//barn barrier
+	barrier_model = spawn( "script_model", ( -728, -557, 117 ), 1 );
+	barrier_model.angles = ( 19, 180, 0 );
+	barrier_model setmodel( "p6_zm_bu_sloth_blocker_medium" );
+	barrier_model disconnectpaths();
+	collision = spawn( "script_model", ( -728, -529, 117 ), 1 );
+	collision.angles = ( 19, 4, 0 );
+	collision setModel( "collision_player_64x64x128" );
+	//tunnel blockade
+	collision = spawn( "script_model", (-1495, -280, 40) );
+	collision.angles = ( 0, 90, 0 );
+	collision setmodel( "collision_clip_wall_128x128x10" );
+	couch = spawn( "script_model", (-1512, -262, 26.5) );
+	couch.angles = ( 0, 90, 0 );
+	couch setmodel( "p6_zm_bu_victorian_couch" );
+	//mule kick barrier
+	/*
+	barrier_model = spawn( "script_model", ( -578, 1006, 167 ), 1 );
+	barrier_model.angles = ( 9, 270, 0 );
+	barrier_model setmodel( "p6_zm_bu_sloth_blocker_medium" );
+	barrier_model disconnectpaths();
+	*/
+}
+
 disable_tunnels() //Jbleezy
 {
 	// stables tunnel entrance
