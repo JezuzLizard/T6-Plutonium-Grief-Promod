@@ -2,7 +2,7 @@
 #include maps/mp/zombies/_zm_utility;
 #include common_scripts/utility;
 #include scripts/zm/promod/utility/_grief_util;
-#include scripts/zm/promod/_gametype_setup;
+#include scripts/zm/_gametype_setup;
 
 common_init()
 {
