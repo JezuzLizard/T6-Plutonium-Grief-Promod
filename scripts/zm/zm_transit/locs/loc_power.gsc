@@ -4,6 +4,7 @@
 #include maps/mp/_utility;
 #include maps/mp/zombies/_zm;
 #include scripts/zm/_gametype_setup;
+#include maps\mp\zombies\_zm_zonemgr;
 
 struct_init()
 {

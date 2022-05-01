@@ -4,6 +4,7 @@
 #include maps/mp/zombies/_zm_weapons;
 #include maps/mp/zm_alcatraz_traps;
 #include scripts/zm/_gametype_setup;
+#include maps\mp\zombies\_zm_score;
 
 common_init()
 {
@@ -11,7 +12,6 @@ common_init()
 	level._effect[ "butterflies" ] = loadfx( "maps/zombie_alcatraz/fx_alcatraz_skull_elec" );
 	flag_wait( "initial_blackscreen_passed" );
 	flag_wait( "start_zombie_round_logic" );
-	scripts/zm/grief/gametype_modules/_gamerules::set_power_state( level.grief_gamerules[ "power_state" ] );
 	level thread maps/mp/zm_alcatraz_traps::init_fan_trap_trigs();
 	level thread maps/mp/zm_alcatraz_traps::init_acid_trap_trigs();
 	if ( getDvarInt( "grief_brutus_enabled") == 1 )

@@ -3,6 +3,7 @@
 #include maps/mp/_utility;
 #include maps/mp/zombies/_zm;
 #include scripts/zm/_gametype_setup;
+#include maps\mp\zombies\_zm_zonemgr;
 
 struct_init()
 {
@@ -20,14 +21,6 @@ struct_init()
 	{
 		scripts/zm/_gametype_setup::register_map_initial_spawnpoint( coordinates[ i ], angles[ i ] );
 	}
-
-	initial_zone[ 0 ] = "zone_pri";
-	initial_zone[ 1 ] = "zone_station_ext";
-	initial_zone[ 2 ] = "zone_tow";
-	initial_zone[ 3 ] = "zone_far_ext";
-	initial_zone[ 4 ] = "zone_brn";
-	//Initialize cut location zones
-	////////////////////////////////////
 }
 
 precache()

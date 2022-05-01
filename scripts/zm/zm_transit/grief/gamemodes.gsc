@@ -20,6 +20,7 @@
 #include scripts/zm/zm_transit/locs/loc_town;
 #include scripts/zm/zm_transit/locs/loc_transit;
 #include scripts/zm/zm_transit/locs/loc_tunnel;
+#include scripts/zm/_gametype_setup;
 
 init_override()
 {
