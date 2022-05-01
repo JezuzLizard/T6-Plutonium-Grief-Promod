@@ -78,12 +78,12 @@ precache()
 
 power_main()
 {
+	enable_zones();
 	level thread falling_death_init();
 	init_wallbuys();
 	init_barriers();
 	maps/mp/zombies/_zm_magicbox::treasure_chest_init( "pow_chest" );
 	scripts/zm/zm_transit/locs/location_common::common_init();
-	enable_zones();
 }
 
 init_wallbuys()
