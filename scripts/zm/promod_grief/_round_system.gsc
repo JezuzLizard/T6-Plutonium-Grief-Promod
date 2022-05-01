@@ -482,3 +482,38 @@ all_surviving_players_vulnerable()
 		}
 	}
 }
+
+respawn_players()
+{
+	players = get_players();
+
+	foreach ( player in players )
+	{
+		if ( !level.initial_spawn_players && player.sessionstate == "spectator" )
+		{
+			player [[ level.spawnplayer ]]();
+			player freeze_player_controls( 1 );
+		}
+	}
+}
+
+zombie_goto_round( target_round )
+{
+	level notify( "restart_round" );
+
+	if ( target_round < 1 )
+		target_round = 1;
+
+	level.zombie_total = 0;
+	maps\mp\zombies\_zm::ai_calculate_health( target_round );
+	zombies = get_round_enemy_array();
+
+	if ( isdefined( zombies ) )
+	{
+		for ( i = 0; i < zombies.size; i++ )
+			zombies[i] dodamage( zombies[i].health + 666, zombies[i].origin );
+	}
+
+	respawn_players();
+	wait 1;
+}
