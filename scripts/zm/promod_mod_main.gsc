@@ -88,6 +88,7 @@ init()
 	}
 	level thread remove_status_icons_on_end_game();
 	level thread check_quickrevive_for_hotjoin();
+	level thread remove_round_number();
 	level.speed_change_round = undefined;
 	wait 15;
 	level thread instructions_on_all_players();
@@ -244,7 +245,7 @@ on_player_connect()
 			player.last_griefed_by.time = 0;
 			player thread watch_for_down();
 		}
-		player thread give_points_on_restart_and_round_change();
+		player thread on_player_spawn();
        	player set_team();
 		player.killsconfirmed = 0;
 		player.stabs = 0;
@@ -254,6 +255,22 @@ on_player_connect()
 			player.survived = 0;
 		}
     }
+}
+
+on_player_spawn()
+{
+	level endon("end_game");
+	self endon( "disconnect" );
+
+	while(1)
+	{
+		self waittill( "spawned_player" );
+
+		if ( self.score < level.grief_gamerules[ "round_restart_points" ] )
+		{
+			self.score = level.grief_gamerules[ "round_restart_points" ];
+		}
+	}
 }
 
 afk_kick()
@@ -284,20 +301,6 @@ afk_kick()
         wait 0.05;
         time++;
     }
-}
-
-give_points_on_restart_and_round_change()
-{
-	level endon( "end_game" );
-	self endon( "disconnect" );
-	while ( true )
-	{
-		level waittill( "grief_give_points" );
-		if ( self.score < level.grief_gamerules[ "round_restart_points" ] )
-		{
-			self.score = level.grief_gamerules[ "round_restart_points" ];
-		}
-	}
 }
 
 set_team()
@@ -1366,4 +1369,16 @@ callback_playermelee_override( eattacker, idamage, sweapon, vorigin, vdir, bonei
     }
 
     self finishmeleehit( eattacker, sweapon, vorigin, vdir, boneindex, shieldhit, hit );
+}
+
+remove_round_number()
+{
+	level endon("end_game");
+
+	while(1)
+	{
+		level waittill("start_of_round");
+
+		setroundsplayed(0);
+	}
 }
