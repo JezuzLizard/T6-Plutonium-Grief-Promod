@@ -185,10 +185,11 @@ monitor_players_connecting_status()
 
 kick_player_if_dont_spawn_in_time()
 {
-	self endon( "begin" );
+	self endon( "spawned_player" );
 	wait 20;
 	logline1 = "Kicking player because they failed to notify begin in less than 20 seconds during the loadscreen" + "\n";
 	logprint( logline1 );
+	print("spawned slow");
 	kick( self getEntityNumber() );
 }
 
@@ -208,9 +209,13 @@ instructions_on_all_players()
 
 instructions()
 {
+	if(!level.grief_gamerules[ "instructions" ])
+		return;
+
 	level endon( "end_game" );
 	self endon( "disconnect" );
-	level waittill( "grief_begin" );
+
+	level waittill( "initial_blackscreen_passed" );
 	rounds = level.grief_gamerules[ "scorelimit" ];
 	self iPrintLn( "Welcome to Grief!" );
 	wait 3;
@@ -295,6 +300,8 @@ afk_kick()
         }
         if( time == 4800 ) //4mins
         {
+			logprint( "afk kick" );
+			print("afk kick");
             kick( self getEntityNumber() );
         }
 
@@ -437,6 +444,8 @@ init_gamerules()
 	level.grief_gamerules[ "buildables" ] = getDvarIntDefault( "grief_gamerule_buildables", 1 );
 	level.grief_gamerules[ "disable_doors" ] = getDvarIntDefault( "grief_gamerule_disable_doors", 1 );
 	level.grief_gamerules[ "zombie_round" ] = getDvarIntDefault( "grief_gamerule_zombie_round", 20 );
+	level.grief_gamerules[ "instructions" ] = getDvarIntDefault( "grief_gamerule_display_instructions", 0 );
+	level.grief_gamerules[ "grief_messages" ] = getDvarIntDefault( "grief_gamerule_display_grief_messages", 0 );
 }
 
 set_knife_lunge( arg )
@@ -1226,6 +1235,8 @@ remove_disconnected_players_spawnpoint_property( spawnpoints )
 
 round_think( restart )
 {
+	flag_init( "grief_begin" );
+
 	if ( !isdefined( restart ) )
 		restart = 0;
 	level endon( "end_round_think" );
