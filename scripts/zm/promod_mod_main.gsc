@@ -22,9 +22,18 @@
 
 main()
 {
+	level.grief_ffa = getDvarIntDefault( "grief_ffa", 0 );
+	if ( level.grief_ffa )
+	{
+		setGameTypeSetting( "teamCount", 1 );
+		if ( !isDefined( level.grief_ffa_team_model ) )
+		{
+			level.grief_ffa_team_model = random( array( "allies", "axis" ) );
+		}
+	}
 	replaceFunc( maps\mp\zombies\_zm_magicbox::treasure_chest_init, ::treasure_chest_init_override );
 	replaceFunc( maps\mp\zombies\_zm_game_module::wait_for_team_death_and_round_end, scripts\zm\promod_grief\_round_system::wait_for_team_death_and_round_end_override );
-	replaceFunc( maps\mp\zombies\_zm::getfreespawnpoint, ::getfreespawnpoint_override );
+	//replaceFunc( maps\mp\zombies\_zm::getfreespawnpoint, ::getfreespawnpoint_override );
 	precacheshellshock( "grief_stab_zm" );
 	precacheStatusIcon( "waypoint_revive" );
 	if ( getDvar( "g_gametype" ) == "zgrief" || getDvar( "mapname" ) == "zm_nuked" )
@@ -49,6 +58,7 @@ init()
 	level.round_think_func = ::round_think;
 	level._game_module_player_damage_callback = ::game_module_player_damage_callback;
 	level._game_module_player_damage_grief_callback = ::game_module_player_damage_grief_callback;
+	level.callbackplayerdamage = ::callback_playerdamage;
 	level.callbackplayermelee = ::callback_playermelee_override;
 	level.meat_bounce_override = ::meat_bounce_override;
 	setDvar( "g_friendlyfireDist", 0 );
@@ -57,7 +67,25 @@ init()
 	level.grief_round_intermission_countdown = ::intermission_hud;
 	level.grief_loadout_save = ::grief_loadout_save;
 	level thread on_player_connect();
-	setscoreboardcolumns( "score", "stabs", "killsconfirmed", "revives", "downs" );
+	if ( level.grief_ffa )
+	{
+		setscoreboardcolumns( "score", "stabs", "killsconfirmed", "survived", "downs" );
+		setDvar( "player_lastStandBleedoutTime", 1.0 );
+		level.zombie_vars[ "penalty_downed" ] = 0;
+		level.zombie_vars[ "penalty_no_revive" ] = 0;
+	}
+	else 
+	{
+		setscoreboardcolumns( "score", "stabs", "killsconfirmed", "revives", "downs" );	
+	}
+	if ( level.script == "zm_tomb" )
+	{
+		level.default_solo_laststandpistol = "c96_zm";
+	}
+	else 
+	{
+		level.default_solo_laststandpistol = "m1911_zm";
+	}
 	level thread remove_status_icons_on_end_game();
 	level thread check_quickrevive_for_hotjoin();
 	level.speed_change_round = undefined;
@@ -221,6 +249,10 @@ on_player_connect()
 		player.killsconfirmed = 0;
 		player.stabs = 0;
 		player.assists = 0;
+		if ( level.grief_ffa )
+		{
+			player.survived = 0;
+		}
     }
 }
 
@@ -270,6 +302,13 @@ give_points_on_restart_and_round_change()
 
 set_team()
 {
+	if ( level.grief_ffa )
+	{
+		self.team = "allies";
+		self.sessionteam = "allies";
+		self.pers[ "team" ] = "allies";
+		return;
+	}
 	teamplayersallies = countplayers( "allies");
 	teamplayersaxis = countplayers( "axis");
 	if ( getDvarInt( "grief_gamerule_use_preset_teams" ) == 1 )
@@ -678,14 +717,22 @@ game_module_player_damage_callback( einflictor, eattacker, idamage, idflags, sme
 			self.last_damage_from_zombie_or_player = 1;
 		}
 	}
-	if ( isDefined( eattacker) && isplayer( eattacker ) )
+	if ( !isDefined( eattacker ) || !isplayer( eattacker ) )
 	{
-		if ( smeansofdeath == "MOD_MELEE" )
+		return;
+	}
+	if ( smeansofdeath == "MOD_MELEE" )
+	{
+		eattacker.stabs++;
+	}
+	if ( level.grief_ffa )
+	{
+		if ( !self maps/mp/zombies/_zm_laststand::player_is_in_laststand() && !eattacker maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
 		{
-			eattacker.stabs++;
+			self player_steal_points( eattacker, smeansofdeath );
 		}
 	}
-	if ( isDefined( eattacker ) && isplayer( eattacker ) && isDefined( eattacker._encounters_team ) && eattacker._encounters_team != self._encounters_team )
+	else if ( isDefined( eattacker._encounters_team ) && eattacker._encounters_team != self._encounters_team )
 	{
 		if ( !self maps/mp/zombies/_zm_laststand::player_is_in_laststand() && !eattacker maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
 		{
@@ -696,29 +743,12 @@ game_module_player_damage_callback( einflictor, eattacker, idamage, idflags, sme
 	{
 		return;
 	}
-	if ( isDefined( eattacker ) && isplayer( eattacker ) && isDefined( eattacker._encounters_team ) && eattacker._encounters_team != self._encounters_team )
+	if ( isDefined( eattacker._encounters_team ) && eattacker._encounters_team != self._encounters_team || level.grief_ffa )
 	{
 		self.last_griefed_by.attacker = eattacker;
 		self.last_griefed_by.meansofdeath = smeansofdeath;
 		self.last_griefed_by.weapon = sweapon;
 		self.last_griefed_by.time = getTime();
-		if ( is_true( self.hasriotshield ) && isDefined( vdir ) )
-		{
-			if ( is_true( self.hasriotshieldequipped ) )
-			{
-				if ( self maps/mp/zombies/_zm::player_shield_facing_attacker( vdir, 0.2 ) && isDefined( self.player_shield_apply_damage ) )
-				{
-					return;
-				}
-			}
-			else if ( !isdefined( self.riotshieldentity ) )
-			{
-				if ( !self maps/mp/zombies/_zm::player_shield_facing_attacker( vdir, -0.2 ) && isdefined( self.player_shield_apply_damage ) )
-				{
-					return;
-				}
-			}
-		}
 		if ( isDefined( level._game_module_player_damage_grief_callback ) )
 		{
 			self [[ level._game_module_player_damage_grief_callback ]]( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime );
@@ -760,6 +790,64 @@ do_game_mode_shellshock( attacker, meansofdeath, weapon ) //checked matched cerb
 		wait 0.75;
 	}
 	self._being_shellshocked = 0;
+}
+
+callback_playerdamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime, boneindex )
+{
+    if ( isdefined( eattacker ) && isplayer( eattacker ) && eattacker.sessionteam == self.sessionteam && !eattacker hasperk( "specialty_noname" ) && !( isdefined( self.is_zombie ) && self.is_zombie ) && !level.grief_ffa )
+    {
+        self process_friendly_fire_callbacks( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime, boneindex );
+
+        if ( self != eattacker )
+        {
+            return;
+        }
+        else if ( smeansofdeath != "MOD_GRENADE_SPLASH" && smeansofdeath != "MOD_GRENADE" && smeansofdeath != "MOD_EXPLOSIVE" && smeansofdeath != "MOD_PROJECTILE" && smeansofdeath != "MOD_PROJECTILE_SPLASH" && smeansofdeath != "MOD_BURNED" && smeansofdeath != "MOD_SUICIDE" )
+        {
+            return;
+        }
+    }
+
+    if ( isdefined( level.pers_upgrade_insta_kill ) && level.pers_upgrade_insta_kill )
+        self maps\mp\zombies\_zm_pers_upgrades_functions::pers_insta_kill_melee_swipe( smeansofdeath, eattacker );
+
+    if ( isdefined( self.overrideplayerdamage ) )
+        idamage = self [[ self.overrideplayerdamage ]]( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime );
+    else if ( isdefined( level.overrideplayerdamage ) )
+        idamage = self [[ level.overrideplayerdamage ]]( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime );
+    if ( isdefined( self.magic_bullet_shield ) && self.magic_bullet_shield )
+    {
+        maxhealth = self.maxhealth;
+        self.health += idamage;
+        self.maxhealth = maxhealth;
+    }
+
+    if ( isdefined( self.divetoprone ) && self.divetoprone == 1 )
+    {
+        if ( smeansofdeath == "MOD_GRENADE_SPLASH" )
+        {
+            dist = distance2d( vpoint, self.origin );
+
+            if ( dist > 32 )
+            {
+                dot_product = vectordot( anglestoforward( self.angles ), vdir );
+
+                if ( dot_product > 0 )
+                    idamage = int( idamage * 0.5 );
+            }
+        }
+    }
+    if ( isdefined( level.prevent_player_damage ) )
+    {
+        if ( self [[ level.prevent_player_damage ]]( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime ) )
+            return;
+    }
+
+    idflags |= level.idflags_no_knockback;
+
+    if ( idamage > 0 && shitloc == "riotshield" )
+        shitloc = "torso_upper";
+    self finishplayerdamagewrapper( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime, boneindex );
 }
 
 watch_for_down()
@@ -1039,7 +1127,7 @@ player_steal_points( attacker, event )
 game_module_player_damage_grief_callback( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime )
 {
 	old_revives = self.revives;
-	if ( isDefined( eattacker ) && isplayer( eattacker ) && eattacker != self && eattacker.team != self.team )
+	if ( eattacker != self && eattacker.team != self.team || level.grief_ffa )
 	{
 		if ( smeansofdeath == "MOD_MELEE" )
 		{
@@ -1078,11 +1166,13 @@ game_module_player_damage_grief_callback( einflictor, eattacker, idamage, idflag
 
 getfreespawnpoint_override( spawnpoints, player )
 {
+	print( "spawnpoints.size " + spawnpoints.size );
 	assign_spawnpoints_player_data( spawnpoints, player );
 	for ( j = 0; j < spawnpoints.size; j++ )
 	{
 		if ( spawnpoints[ j ].player_property == player.name )
 		{
+			print( "Found spawnpoint for " + player.name );
 			return spawnpoints[ j ];
 		}
 	}
@@ -1093,7 +1183,7 @@ assign_spawnpoints_player_data( spawnpoints, player )
 	remove_disconnected_players_spawnpoint_property( spawnpoints );
 	for ( i = 0; i < spawnpoints.size; i++ )
 	{
-		if ( spawnpoints[ i ].player_property == "" )
+		if ( !isDefined( spawnpoints[ i ].player_property ) )
 		{
 			spawnpoints[ i ].player_property = player.name;
 			break;
@@ -1126,7 +1216,7 @@ remove_disconnected_players_spawnpoint_property( spawnpoints )
 	{
 		if ( !spawnpoints[ i ].do_not_discard_player_property )
 		{
-			spawnpoints[ i ].player_property = "";
+			spawnpoints[ i ].player_property = undefined;
 		}
 	}
 }
@@ -1269,7 +1359,7 @@ callback_playermelee_override( eattacker, idamage, sweapon, vorigin, vdir, bonei
 {
     hit = 1;
 
-    if ( level.teambased && self.team == eattacker.team )
+    if ( !level.grief_ffa && level.teambased && self.team == eattacker.team )
     {
         if ( level.friendlyfire == 0 )
             hit = 0;
