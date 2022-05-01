@@ -19,6 +19,7 @@
 
 #include scripts\zm\promod_grief\_hud;
 #include scripts\zm\promod_grief\_round_system;
+#include scripts\zm\promod_grief\_gamerules;
 
 main()
 {
@@ -33,6 +34,7 @@ main()
 	}
 	replaceFunc( maps\mp\zombies\_zm_magicbox::treasure_chest_init, ::treasure_chest_init_override );
 	replaceFunc( maps\mp\zombies\_zm_game_module::wait_for_team_death_and_round_end, scripts\zm\promod_grief\_round_system::wait_for_team_death_and_round_end_override );
+	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_override ); // switch jug with speed
 	//replaceFunc( maps\mp\zombies\_zm::getfreespawnpoint, ::getfreespawnpoint_override );
 	precacheshellshock( "grief_stab_zm" );
 	precacheStatusIcon( "waypoint_revive" );
@@ -63,8 +65,6 @@ init()
 	level.meat_bounce_override = ::meat_bounce_override;
 	setDvar( "g_friendlyfireDist", 0 );
 	//promod custom overrides
-	level.grief_round_win_next_round_countdown = ::round_change_hud;
-	level.grief_round_intermission_countdown = ::intermission_hud;
 	level.grief_loadout_save = ::grief_loadout_save;
 	level thread on_player_connect();
 	if ( level.grief_ffa )
@@ -275,6 +275,11 @@ on_player_spawn()
 		{
 			self.score = level.grief_gamerules[ "round_restart_points" ];
 		}
+
+		if ( level.grief_gamerules[ "reduced_pistol_ammo" ] )
+		{
+			self scripts/zm/promod_grief/_gamerules::reduce_starting_ammo();
+		}
 	}
 }
 
@@ -415,186 +420,6 @@ is_weapon_shotgun( sweapon )
 			return 1;
 		default:
 			return 0;
-	}
-}
-
-init_gamerules()
-{
-	level.default_solo_laststandpistol = "m1911_zm";
-	level.is_forever_solo_game = undefined;
-	level.speed_change_round = undefined;
-	level.grief_gamerules = [];
-	level.grief_gamerules[ "scorelimit" ] = getDvarIntDefault( "grief_gamerule_scorelimit", 3 );
-	level.grief_gamerules[ "perk_restrictions" ] = getDvar( "grief_gamerule_perk_restrictions" );
-	level.grief_gamerules[ "mystery_box_enabled" ] = getDvarIntDefault( "grief_gamerule_mystery_box_enabled", 0 );
-	level.grief_gamerules[ "wall_weapon_restrictions" ] = getDvar( "grief_gamerule_wall_weapon_restrictions" );
-	level.grief_gamerules[ "next_round_time" ] = getDvarIntDefault( "grief_gamerule_next_round_timer", 5 );
-	level.grief_gamerules[ "intermission_time" ] = getDvarIntDefault( "grief_gamerule_intermission_time", 0 );
-	level.grief_gamerules[ "door_restrictions" ] = getDvar( "grief_gamerule_door_restrictions" );
-	level.grief_gamerules[ "round_restart_points" ] = getDvarIntDefault( "grief_gamerule_round_restart_points", 10000 );
-	//level.grief_gamerules[ "use_preset_teams" ] = getDvarIntDefault( "grief_gamerule_use_preset_teams", 0 );
-	level.grief_gamerules[ "disable_zombie_special_runspeeds" ] = getDvarIntDefault( "grief_gamerules_disable_zombie_special_runspeeds", 1 );
-	level.grief_gamerules[ "suicide_check" ] = getDvarFloatDefault( "grief_gamerule_suicide_check_wait", 5 );
-	level.grief_gamerules[ "player_health" ] = getDvarIntDefault( "grief_gamerule_player_health", 100 );
-	level.grief_gamerules[ "perk_limit" ] = getDvarIntDefault( "grief_gamerule_perk_limit", 4 );
-	level.grief_gamerules[ "powerup_restrictions" ] = getDvar( "grief_gamerule_powerup_restrictions" );
-	level.grief_gamerules[ "knife_lunge" ] = getDvarIntDefault( "grief_gamerule_knife_lunge", 1 );
-	level.grief_gamerules[ "magic" ] = getDvarIntDefault( "grief_gamerule_magic", 1 );
-	level.grief_gamerules[ "reduced_pistol_ammo" ] = getDvarIntDefault( "grief_gamerule_reduced_pistol_ammo", 1 );
-	level.grief_gamerules[ "buildables" ] = getDvarIntDefault( "grief_gamerule_buildables", 1 );
-	level.grief_gamerules[ "disable_doors" ] = getDvarIntDefault( "grief_gamerule_disable_doors", 1 );
-	level.grief_gamerules[ "zombie_round" ] = getDvarIntDefault( "grief_gamerule_zombie_round", 20 );
-	level.grief_gamerules[ "instructions" ] = getDvarIntDefault( "grief_gamerule_display_instructions", 0 );
-	level.grief_gamerules[ "grief_messages" ] = getDvarIntDefault( "grief_gamerule_display_grief_messages", 0 );
-}
-
-set_knife_lunge( arg )
-{
-	if ( arg == 1 )
-	{	
-		setDvar( "grief_gamerule_knife_lunge", arg );
-		foreach ( player in level.players )
-		{	
-			player setClientDvar( "aim_automelee_range", 120 );
-		}
-	}
-	else if ( arg == 0 )
-	{	
-		setDvar( "grief_gamerule_knife_lunge", arg );
-		foreach ( player in level.players )
-		{	
-			player setClientDvar( "aim_automelee_range", 0 );
-		}
-	}
-}
-
-round_change_hud()
-{   
-	level endon( "end_game" );
-	if ( isDefined( level.round_countdown_text ) )
-	{
-		level.round_countdown_text destroy();
-	}
-	if ( isDefined( level.round_countdown_timer ) )
-	{
-		level.round_countdown_timer destroy();
-	}
-	remaining = create_simple_hud();
-  	remaining.horzAlign = "center";
-  	remaining.vertAlign = "middle";
-   	remaining.alignX = "center";
-   	remaining.alignY = "middle";
-   	remaining.y = 20;
-   	remaining.x = 0;
-   	remaining.foreground = 1;
-   	remaining.fontscale = 2.0;
-   	remaining.alpha = 1;
-   	remaining.color = ( 0.98, 0.549, 0 );
-	remaining.hidewheninmenu = 1;
-	remaining maps/mp/gametypes_zm/_hud::fontpulseinit();
-
-   	countdown = create_simple_hud();
-   	countdown.horzAlign = "center"; 
-   	countdown.vertAlign = "middle";
-   	countdown.alignX = "center";
-   	countdown.alignY = "middle";
-   	countdown.y = -20;
-   	countdown.x = 0;
-   	countdown.foreground = 1;
-   	countdown.fontscale = 2.0;
-   	countdown.alpha = 1;
-   	countdown.color = ( 1.000, 1.000, 1.000 );
-	countdown.hidewheninmenu = 1;
-   	countdown setText( "Next Round Starts In" );
-	level.round_countdown_timer = remaining;
-	level.round_countdown_text = countdown;
-	timer = level.grief_gamerules[ "next_round_time" ];
-	while ( 1 )
-	{
-		level.round_countdown_timer setValue( timer ); 
-		wait 1;
-		timer--;
-		if ( timer <= 5 )
-		{
-			countdown_pulse( level.round_countdown_timer, timer );
-			break;
-		}
-	}
-	if ( isDefined( level.round_countdown_text ) )
-	{
-		level.round_countdown_text destroy();
-	}
-	if ( isDefined( level.round_countdown_timer ) )
-	{
-		level.round_countdown_timer destroy();
-	}
-}
-
-countdown_pulse( hud_elem, duration )
-{
-	level endon( "end_game" );
-	waittillframeend;
-	while ( duration > 0 && !level.gameended )
-	{
-		hud_elem thread maps/mp/gametypes_zm/_hud::fontpulse( level );
-		wait ( hud_elem.inframes * 0.05 );
-		hud_elem setvalue( duration );
-		duration--;
-		wait ( 1 - ( hud_elem.inframes * 0.05 ) );
-	}
-}
-
-intermission_hud()
-{   
-	level endon( "end_game" );
-	remaining = create_simple_hud();
-  	remaining.horzAlign = "center";
-  	remaining.vertAlign = "middle";
-   	remaining.alignX = "center";
-   	remaining.alignY = "middle";
-   	remaining.y = 20;
-   	remaining.x = 0;
-   	remaining.foreground = 1;
-   	remaining.fontscale = 2.0;
-   	remaining.alpha = 1;
-   	remaining.color = ( 0.98, 0.549, 0 );
-	remaining.hidewheninmenu = 1;
-	remaining maps/mp/gametypes_zm/_hud::fontpulseinit();
-
-   	countdown = create_simple_hud();
-   	countdown.horzAlign = "center"; 
-   	countdown.vertAlign = "middle";
-   	countdown.alignX = "center";
-   	countdown.alignY = "middle";
-   	countdown.y = -20;
-   	countdown.x = 0;
-   	countdown.foreground = 1;
-   	countdown.fontscale = 2.0;
-   	countdown.alpha = 1;
-   	countdown.color = ( 1.000, 1.000, 1.000 );
-	countdown.hidewheninmenu = 1;
-   	countdown setText( "Intermission" );
-	level.intermission_countdown = remaining;
-	level.intermission_text = countdown;
-	timer = level.grief_gamerules[ "intermission_time" ];
-	while ( 1 )
-	{
-		level.intermission_countdown setValue( timer ); 
-		wait 1;
-		timer--;
-		if ( timer <= 5 )
-		{
-			countdown_pulse( level.intermission_countdown, timer );
-			break;
-		}
-	}
-	if ( isDefined( level.intermission_countdown ) )
-	{
-		level.intermission_countdown destroy();
-	}
-	if ( isDefined( level.intermission_text ) )
-	{
-		level.intermission_text destroy();
 	}
 }
 
