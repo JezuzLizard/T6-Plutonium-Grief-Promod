@@ -23,6 +23,16 @@ struct_init()
 	level.location_zones[ 2 ] = "zone_dock_gondola";
 }
 
+enable_zones()
+{
+	zone_init( "zone_dock" );
+	enable_zone( "zone_dock" );
+	zone_init( "zone_dock_puzzle" );
+	enable_zone( "zone_dock_puzzle" );
+	zone_init( "zone_dock_gondola" );
+	enable_zone( "zone_dock_gondola" );
+}
+
 precache()
 {
 	
@@ -30,6 +40,7 @@ precache()
 
 main()
 {
+	enable_zones();
 	maps/mp/gametypes_zm/_zm_gametype::setup_standard_objects( "cellblock" );
 	// maps/mp/zombies/_zm_magicbox::treasure_chest_init( "start_chest" );
 	precacheshader( "zm_al_wth_zombie" );
