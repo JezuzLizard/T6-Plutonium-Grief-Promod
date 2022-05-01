@@ -489,11 +489,8 @@ respawn_players()
 
 	foreach ( player in players )
 	{
-		if ( !level.initial_spawn_players && player.sessionstate == "spectator" )
-		{
-			player [[ level.spawnplayer ]]();
-			player freeze_player_controls( 1 );
-		}
+		player [[ level.spawnplayer ]]();
+		player freeze_player_controls( 1 );
 	}
 }
 
