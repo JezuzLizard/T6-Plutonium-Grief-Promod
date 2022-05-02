@@ -7,7 +7,7 @@
 #include scripts\zm\promod_grief\_hud;
 
 
-wait_for_players()
+waiting_for_players()
 {
 	level endon( "end_game" );
 	flag_clear( "spawn_zombies" );
@@ -51,6 +51,12 @@ wait_for_players()
 
 wait_for_team_death_and_round_end_override()
 {
+	if ( level.grief_ffa ) 
+	{
+		level thread round_system_ffa();
+		return;
+	}
+
 	level endon( "game_module_ended" );
 	level endon( "end_game" );
 
@@ -62,11 +68,10 @@ wait_for_team_death_and_round_end_override()
 	level.grief_score["A"] = 0;
 	level.grief_score["B"] = 0;
 
-	if ( wait_for_players() )
+	if ( waiting_for_players() )
 		respawn_players();
 
-	if ( !level.grief_ffa )
-		scripts/zm/promod_grief/_hud::hud_init();
+	scripts/zm/promod_grief/_hud::hud_init();
 
 	round_start_wait();
 	flag_set( "grief_begin" );
@@ -134,6 +139,66 @@ wait_for_team_death_and_round_end_override()
 	}
 }
 
+round_system_ffa()
+{
+	level endon( "game_module_ended" );
+	level endon( "end_game" );
+
+	checking_for_round_end = 0;
+	checking_for_round_tie = 0;
+	level.isresetting_grief = 0;
+
+	if ( waiting_for_players() )
+		respawn_players();
+
+	HUDELEM_SERVER_ADD( "grief_countdown_timer", ::grief_countdown );
+
+	round_start_wait();
+	flag_set( "grief_begin" );
+
+	while ( 1 )
+	{
+		players_alive = 0;
+		players = getPlayers();
+		for ( i = 0; i < players.size; i++ )
+		{
+			if ( is_player_valid( players[ i ] ) )
+			{
+				alive_player = players[ i ];
+				players_alive++;
+			}
+		}
+
+		if ( !checking_for_round_tie )
+		{
+			if( players_alive == 0 )
+			{
+				level notify( "stop_round_end_check" );
+				level thread check_for_round_end();
+				checking_for_round_tie = 1;
+				checking_for_round_end = 1;
+			}
+		}
+
+		if ( !checking_for_round_end )
+		{
+			if ( players_alive == 1 )
+			{
+				level thread check_for_round_end( alive_player );
+				checking_for_round_end = 1;
+			}
+		}
+
+		if ( players_alive > 1 )
+		{
+			level notify( "stop_round_end_check" );
+			checking_for_round_end = 0;
+			checking_for_round_tie = 0;
+		}
+		wait 0.05;
+	}
+}
+
 check_for_round_end(winner)
 {
 	level endon( "stop_round_end_check" );
@@ -153,31 +218,47 @@ check_for_round_end(winner)
 
 round_end(winner)
 {
-	team = undefined;
-	if(isDefined(winner))
+	if(level.grief_ffa)
 	{
-		if(winner == "A")
+		if(isDefined(winner))
 		{
-			team = "axis";
+			winner.survived++;
+			if ( winner.survived == level.grief_gamerules[ "scorelimit" ] )
+			{
+				game_won(winner);
+				return;
+			}
 		}
-		else
+	}
+	else
+	{
+		team = undefined;
+		if(isDefined(winner))
 		{
-			team = "allies";
+			if(winner == "A")
+			{
+				team = "axis";
+			}
+			else
+			{
+				team = "allies";
+			}
+		}
+
+		if(isDefined(winner))
+		{
+			level.grief_score[winner]++;
+			level.server_hudelems[ "grief_score_" + winner ].hudelem SetValue( level.grief_score[ winner ] );
+			setteamscore(team, level.grief_score[winner]);
+
+			if(level.grief_score[winner] == level.grief_gamerules[ "scorelimit" ])
+			{
+				game_won(winner);
+				return;
+			}
 		}
 	}
 
-	if(isDefined(winner))
-	{
-		level.grief_score[winner]++;
-		level.server_hudelems[ "grief_score_" + winner ].hudelem SetValue( level.grief_score[ winner ] );
-		setteamscore(team, level.grief_score[winner]);
-
-		if(level.grief_score[winner] == level.grief_gamerules[ "scorelimit" ])
-		{
-			game_won(winner);
-			return;
-		}
-	}
 
 	players = get_players();
 	foreach(player in players)
@@ -187,7 +268,7 @@ round_end(winner)
 			// don't give perk
 			player notify("perk_abort_drinking");
 			// save weapons
-			// player [[level._game_module_player_laststand_callback]]();
+			player [[level._game_module_player_laststand_callback]]();
 		}
 	}
 
@@ -199,15 +280,32 @@ round_end(winner)
 
 	if(isDefined(winner))
 	{
-		foreach(player in players)
+		if(level.grief_ffa)
 		{
-			if(player.team == team)
+			foreach(player in players)
 			{
-				player thread show_grief_hud_msg( "You won the round" );
+				if(player.name == winner.name)
+				{
+					player thread show_grief_hud_msg( "You won the round" );
+				}
+				else
+				{
+					player thread show_grief_hud_msg( "You lost the round" );
+				}
 			}
-			else
+		}
+		else
+		{
+			foreach(player in players)
 			{
-				player thread show_grief_hud_msg( "You lost the round" );
+				if(player.team == team)
+				{
+					player thread show_grief_hud_msg( "You won the round" );
+				}
+				else
+				{
+					player thread show_grief_hud_msg( "You lost the round" );
+				}
 			}
 		}
 	}
@@ -227,25 +325,29 @@ round_end(winner)
 
 game_won(winner)
 {
+	level.grief_ffa_winner = winner.name;
 	level.gamemodulewinningteam = winner;
 	level.zombie_vars[ "spectators_respawn" ] = 0;
-	players = get_players();
-	i = 0;
-	while ( i < players.size )
+	if(!level.grief_ffa)
 	{
-		players[ i ] freezecontrols( 1 );
-		if ( players[ i ]._encounters_team == winner )
+		players = get_players();
+		i = 0;
+		while ( i < players.size )
 		{
-			players[ i ] thread maps/mp/zombies/_zm_audio_announcer::leaderdialogonplayer( "grief_won" );
+			players[ i ] freezecontrols( 1 );
+			if ( players[ i ]._encounters_team == winner )
+			{
+				players[ i ] thread maps/mp/zombies/_zm_audio_announcer::leaderdialogonplayer( "grief_won" );
+				i++;
+				continue;
+			}
+			players[ i ] thread maps/mp/zombies/_zm_audio_announcer::leaderdialogonplayer( "grief_lost" );
 			i++;
-			continue;
 		}
-		players[ i ] thread maps/mp/zombies/_zm_audio_announcer::leaderdialogonplayer( "grief_lost" );
-		i++;
+		maps/mp/gametypes_zm/_zm_gametype::track_encounters_win_stats( level.gamemodulewinningteam );
 	}
-	level notify( "game_module_ended", winner );
 	level._game_module_game_end_check = undefined;
-	maps/mp/gametypes_zm/_zm_gametype::track_encounters_win_stats( level.gamemodulewinningteam );
+	level notify( "game_module_ended", winner );
 	level notify( "end_game" );
 }
 
@@ -267,10 +369,6 @@ zombie_goto_round(target_round)
 			zombies[ i ] dodamage( zombies[ i ].health + 666, zombies[ i ].origin );
 		}
 	}
-
-	game["axis_spawnpoints_randomized"] = undefined;
-	game["allies_spawnpoints_randomized"] = undefined;
-	set_game_var("switchedsides", !get_game_var("switchedsides"));
 
 	respawn_players();
 
@@ -332,5 +430,72 @@ unfreeze_all_players_controls()
 	{
 		player freezeControls( 0 );
 		player notify( "controls_unfrozen");
+	}
+}
+
+custom_end_screen_override()
+{
+	players = get_players();
+	i = 0;
+	while ( i < players.size )
+	{
+		players[ i ].game_over_hud = newclienthudelem( players[ i ] );
+		players[ i ].game_over_hud.alignx = "center";
+		players[ i ].game_over_hud.aligny = "middle";
+		players[ i ].game_over_hud.horzalign = "center";
+		players[ i ].game_over_hud.vertalign = "middle";
+		players[ i ].game_over_hud.y -= 130;
+		players[ i ].game_over_hud.foreground = 1;
+		players[ i ].game_over_hud.fontscale = 3;
+		players[ i ].game_over_hud.alpha = 0;
+		players[ i ].game_over_hud.color = ( 1, 1, 1 );
+		players[ i ].game_over_hud.hidewheninmenu = 1;
+		players[ i ].game_over_hud settext( &"ZOMBIE_GAME_OVER" );
+		players[ i ].game_over_hud fadeovertime( 1 );
+		players[ i ].game_over_hud.alpha = 1;
+		if ( players[ i ] issplitscreen() )
+		{
+			players[ i ].game_over_hud.fontscale = 2;
+			players[ i ].game_over_hud.y += 40;
+		}
+		players[ i ].survived_hud = newclienthudelem( players[ i ] );
+		players[ i ].survived_hud.alignx = "center";
+		players[ i ].survived_hud.aligny = "middle";
+		players[ i ].survived_hud.horzalign = "center";
+		players[ i ].survived_hud.vertalign = "middle";
+		players[ i ].survived_hud.y -= 100;
+		players[ i ].survived_hud.foreground = 1;
+		players[ i ].survived_hud.fontscale = 2;
+		players[ i ].survived_hud.alpha = 0;
+		players[ i ].survived_hud.color = ( 1, 1, 1 );
+		players[ i ].survived_hud.hidewheninmenu = 1;
+		if ( players[ i ] issplitscreen() )
+		{
+			players[ i ].survived_hud.fontscale = 1.5;
+			players[ i ].survived_hud.y += 40;
+		}
+
+		if ( isDefined( level.host_ended_game ) && level.host_ended_game )
+		{
+			players[ i ].survived_hud settext( &"MP_HOST_ENDED_GAME" );
+		}
+		else if(level.grief_ffa)
+		{
+			players[ i ].survived_hud settext( level.grief_ffa_winner + " WINS!" );
+		}
+		else
+		{
+			if ( isDefined( level.gamemodulewinningteam ) && players[ i ]._encounters_team == level.gamemodulewinningteam )
+			{
+				players[ i ].survived_hud settext( "YOU WIN!" );
+			}
+			else
+			{
+				players[ i ].survived_hud settext( "YOU LOSE!" );
+			}
+		}
+		players[ i ].survived_hud fadeovertime( 1 );
+		players[ i ].survived_hud.alpha = 1;
+		i++;
 	}
 }

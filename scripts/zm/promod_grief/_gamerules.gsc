@@ -27,6 +27,8 @@ init_gamerules()
 	level.grief_gamerules[ "buildables" ] = getDvarIntDefault( "grief_gamerule_buildables", 1 );
 	level.grief_gamerules[ "disable_doors" ] = getDvarIntDefault( "grief_gamerule_disable_doors", 1 );
 
+    level.grief_ffa = getDvarIntDefault( "grief_gamerule_ffa", 0 );
+
     init_restrictions();
 }
 
@@ -110,7 +112,6 @@ perk_restrictions()
     {
         if ( is_perk_restricted( level.data_maps[ "perks" ][ "specialties" ][ i ] ) || is_perk_restricted( level.data_maps[ "perks" ][ "power_notifies" ][ i ] ) )
         {
-            iPrintLn("res");
             trigger = getent( "specialty_" + level.data_maps[ "perks" ][ "specialties" ][ i ], "script_noteworthy" );
             if ( isDefined( trigger ) && !is_true( trigger.is_restricted ) )
             {

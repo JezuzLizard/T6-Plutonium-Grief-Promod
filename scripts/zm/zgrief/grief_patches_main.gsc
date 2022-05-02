@@ -1,3 +1,6 @@
+#include maps\mp\_utility;
+#include common_scripts\utility;
+#include maps\mp\zombies\_zm_utility;
 #include maps\mp\gametypes_zm\zgrief;
 
 main()
@@ -30,6 +33,9 @@ zgrief_player_bled_out_msg_override()
 
 give_team_characters_transit_override()
 {
+
+	level.grief_ffa_team_model = random( array( "allies", "axis" ) );
+
     self detachall();
 	if ( !isdefined( self.characterindex ) )
 	{

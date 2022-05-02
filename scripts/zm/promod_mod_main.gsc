@@ -23,15 +23,9 @@
 
 main()
 {
-	level.grief_ffa = getDvarIntDefault( "grief_ffa", 0 );
 	if ( level.grief_ffa )
-	{
 		setGameTypeSetting( "teamCount", 1 );
-		if ( !isDefined( level.grief_ffa_team_model ) )
-		{
-			level.grief_ffa_team_model = random( array( "allies", "axis" ) );
-		}
-	}
+
 	replaceFunc( maps\mp\zombies\_zm_magicbox::treasure_chest_init, ::treasure_chest_init_override );
 	replaceFunc( maps\mp\zombies\_zm_game_module::wait_for_team_death_and_round_end, scripts\zm\promod_grief\_round_system::wait_for_team_death_and_round_end_override );
 	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_override ); // switch jug with speed
@@ -50,6 +44,7 @@ main()
 		precacheShader( "faction_guards" );
 		precacheShader( "faction_inmates" );
 	}
+
 	init_gamerules();
 }
 
@@ -63,6 +58,7 @@ init()
 	level.callbackplayerdamage = ::callback_playerdamage;
 	level.callbackplayermelee = ::callback_playermelee_override;
 	level.meat_bounce_override = ::meat_bounce_override;
+	level.custom_end_screen = ::custom_end_screen_override;
 	setDvar( "g_friendlyfireDist", 0 );
 	//promod custom overrides
 	level.grief_loadout_save = ::grief_loadout_save;
