@@ -12,6 +12,7 @@ init()
 {
 	if ( level.script == "zm_transit" && level.grief_ffa )
 	{
+		level.grief_ffa_team_model = cointoss();
 		level.givecustomcharacters = ::give_team_characters_transit_override;
 	}
 }
@@ -33,17 +34,11 @@ zgrief_player_bled_out_msg_override()
 
 give_team_characters_transit_override()
 {
-
-	level.grief_ffa_team_model = random( array( "allies", "axis" ) );
-
     self detachall();
-	if ( !isdefined( self.characterindex ) )
-	{
-		self.characterindex = 1;
 
-		if ( level.grief_ffa_team_model == "axis" )
-			self.characterindex = 0;
-	}
+	self.characterindex = 1;
+	if ( level.grief_ffa_team_model )
+		self.characterindex = 0;
 
 	switch ( self.characterindex )
 	{

@@ -318,3 +318,15 @@ show_grief_hud_msg_cleanup_end_game()
 		self destroy();
 	}
 }
+
+remove_round_number()
+{
+	level endon("end_game");
+
+	while(1)
+	{
+		level waittill("start_of_round");
+
+		setroundsplayed(0);
+	}
+}

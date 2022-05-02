@@ -27,7 +27,7 @@ init_gamerules()
 	level.grief_gamerules[ "buildables" ] = getDvarIntDefault( "grief_gamerule_buildables", 1 );
 	level.grief_gamerules[ "disable_doors" ] = getDvarIntDefault( "grief_gamerule_disable_doors", 1 );
 
-    level.grief_ffa = getDvarIntDefault( "grief_gamerule_ffa", 0 );
+    level.grief_ffa = getDvarIntDefault( "grief_ffa", 0 );
 
     init_restrictions();
 }

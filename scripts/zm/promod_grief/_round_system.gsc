@@ -6,49 +6,6 @@
 
 #include scripts\zm\promod_grief\_hud;
 
-
-waiting_for_players()
-{
-	level endon( "end_game" );
-	flag_clear( "spawn_zombies" );
-	waiting_for_players = false;
-
-	if ( level.grief_ffa )
-	{
-		players = getPlayers();
-		while ( players.size < 2 )
-		{
-			players = getPlayers();
-			for ( i = 0; i < players.size; i++ )
-			{
-				players[ i ] iPrintLn( "Waiting for 2 players" );
-				waiting_for_players = true;
-			}
-			wait 2;
-		}
-	}
-	else 
-	{
-		players_axis = getPlayers( "axis" );
-		players_allies = getPlayers( "allies" );
-		while ( ( players_axis.size < 1 ) || ( players_allies.size < 1 ) )
-		{
-			players_axis = getPlayers( "axis" );
-			players_allies = getPlayers( "allies" );
-			players = getPlayers();
-			for ( i = 0; i < players.size; i++ )
-			{
-				players[ i ] iPrintLn( "Waiting for 1 player on each team" );
-				waiting_for_players = true;
-
-			}
-			wait 2;
-		}
-	}
-
-	return waiting_for_players;
-}
-
 wait_for_team_death_and_round_end_override()
 {
 	if ( level.grief_ffa ) 
@@ -137,6 +94,30 @@ wait_for_team_death_and_round_end_override()
 
 		wait 0.05;
 	}
+}
+
+waiting_for_players()
+{
+	level endon( "end_game" );
+	flag_clear( "spawn_zombies" );
+	waiting_for_players = false;
+
+	if ( level.grief_ffa )
+	{
+		players = getPlayers();
+		while ( players.size < 2 )
+		{
+			players = getPlayers();
+			for ( i = 0; i < players.size; i++ )
+			{
+				players[ i ] iPrintLn( "Waiting for 2 players" );
+				waiting_for_players = true;
+			}
+			wait 2;
+		}
+	}
+
+	return waiting_for_players;
 }
 
 round_system_ffa()
