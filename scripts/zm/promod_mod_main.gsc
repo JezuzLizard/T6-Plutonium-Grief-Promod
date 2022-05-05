@@ -11,7 +11,7 @@
 #include scripts\zm\promod_grief\_scoreboard;
 #include scripts\zm\promod_grief\_weapons;
 #include scripts\zm\promod_grief\_zombies;
-//#include scripts\zm\promod_grief\_teams;
+#include scripts\zm\promod_grief\_teams;
 
 main()
 {
@@ -36,7 +36,7 @@ init()
 	level.meat_bounce_override = ::meat_bounce_override;
 	level.grief_loadout_save = ::grief_loadout_save;
 	level.custom_end_screen = ::custom_end_screen_override;
-	//level.autoassign = ::menuautoassign_override;
+	level.autoassign = ::menuautoassign_override;
 	level._supress_survived_screen = true;
 	setDvar( "g_friendlyfireDist", 0 );
 	setup_scoreboard();
@@ -92,7 +92,6 @@ on_player_connect()
 		}
 		player thread afk_kick();
 		player thread on_player_spawn();
-       	player set_team();
 		player.killsconfirmed = 0;
 		player.stabs = 0;
 		player.assists = 0;

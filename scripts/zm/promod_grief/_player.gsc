@@ -2,42 +2,6 @@
 #include common_scripts\utility;
 #include maps\mp\zombies\_zm_utility;
 
-set_team()
-{
-	if ( level.grief_ffa )
-	{
-		self.team = "allies";
-		self.sessionteam = "allies";
-		self.pers[ "team" ] = "allies";
-		return;
-	}
-	teamplayersallies = countplayers( "allies");
-	teamplayersaxis = countplayers( "axis");
-	if ( teamplayersallies > teamplayersaxis )
-	{
-		self.team = "axis";
-		self.sessionteam = "axis";
-		self.pers[ "team" ] = "axis";
-		self._encounters_team = "A";
-	}
-	else if ( teamplayersallies < teamplayersaxis )
-	{
-		self.team = "allies";
-		self.sessionteam = "allies";
-		self.pers[ "team" ] = "allies";
-		self._encounters_team = "B";
-	}
-	else
-	{
-		self.team = "allies";
-		self.sessionteam = "allies";
-		self.pers[ "team" ] = "allies";
-		self._encounters_team = "B";
-	}
-
-	self [[ level.givecustomcharacters ]]();
-}
-
 afk_kick()
 {   
 	level endon( "game_ended" );
