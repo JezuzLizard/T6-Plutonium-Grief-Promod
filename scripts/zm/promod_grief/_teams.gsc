@@ -1,6 +1,7 @@
 #include maps\mp\_utility;
 #include common_scripts\utility;
 #include maps\mp\zombies\_zm_utility;
+#include maps\mp\gametypes_zm\_globallogic_ui;
 
 //By overriding this function we intercept the very first time the game attempts to set a players team. 
 //Now the default team won't be allies and we don't need to call level.givecustomercharacters unnecessarily.
