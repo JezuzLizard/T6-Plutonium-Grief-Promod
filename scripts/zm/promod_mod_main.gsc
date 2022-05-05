@@ -11,13 +11,14 @@
 #include scripts\zm\promod_grief\_scoreboard;
 #include scripts\zm\promod_grief\_weapons;
 #include scripts\zm\promod_grief\_zombies;
+//#include scripts\zm\promod_grief\_teams;
 
 main()
 {
 	replaceFunc( maps\mp\zombies\_zm_magicbox::treasure_chest_init, ::treasure_chest_init_override );
 	replaceFunc( maps\mp\zombies\_zm_game_module::wait_for_team_death_and_round_end, scripts\zm\promod_grief\_round_system::wait_for_team_death_and_round_end_override );
 	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_override ); // switch jug with speed
-	//replaceFunc( maps\mp\zombies\_zm::getfreespawnpoint, ::getfreespawnpoint_override );
+	replaceFunc( maps\mp\zombies\_zm::getfreespawnpoint, ::getfreespawnpoint_override );
 	init_gamerules();
 	set_team_count();
 	precache();
@@ -35,6 +36,7 @@ init()
 	level.meat_bounce_override = ::meat_bounce_override;
 	level.grief_loadout_save = ::grief_loadout_save;
 	level.custom_end_screen = ::custom_end_screen_override;
+	//level.autoassign = ::menuautoassign_override;
 	level._supress_survived_screen = true;
 	setDvar( "g_friendlyfireDist", 0 );
 	setup_scoreboard();
@@ -98,7 +100,7 @@ on_player_connect()
 		{
 			player.survived = 0;
 		}
-    }
+	}
 }
 
 on_player_spawn()
