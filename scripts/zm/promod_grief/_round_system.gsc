@@ -110,8 +110,7 @@ waiting_for_players()
 	if ( level.grief_ffa )
 	{
 		respawn_players = true;
-		players = getPlayers();
-		while ( players.size < 2 )
+		while ( level.players.size < 2 )
 		{
 			for ( i = 0; i < level.players.size; i++ )
 			{
