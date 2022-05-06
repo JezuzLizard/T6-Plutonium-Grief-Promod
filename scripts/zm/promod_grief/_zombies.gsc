@@ -117,7 +117,7 @@ round_think_override( restart )
 			}
 		}
 	}
-	level.round_number = level.grief_gamerules[ "zombie_round" ];
+	level.round_number = level.grief_gamerules[ "zombie_round" ].current;
 	level.noroundnumber = true;
 	set_zombie_spawn_rate( level.round_number );
 	set_zombie_move_speed( level.round_number );

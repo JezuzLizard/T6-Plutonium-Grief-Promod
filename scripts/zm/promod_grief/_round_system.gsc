@@ -187,7 +187,7 @@ check_for_round_end(winner)
 
 	if(isDefined(winner))
 	{
-		wait level.grief_gamerules[ "suicide_check" ];
+		wait level.grief_gamerules[ "suicide_check" ].current;
 	}
 	else
 	{
@@ -204,7 +204,7 @@ round_end(winner)
 		if(isDefined(winner))
 		{
 			winner.survived++;
-			if ( winner.survived == level.grief_gamerules[ "scorelimit" ] )
+			if ( winner.survived >= level.grief_gamerules[ "scorelimit" ].current )
 			{
 				game_won(winner);
 				return;
@@ -232,7 +232,7 @@ round_end(winner)
 			level.server_hudelems[ "grief_score_" + winner ].hudelem SetValue( level.grief_score[ winner ] );
 			setteamscore(team, level.grief_score[winner]);
 
-			if(level.grief_score[winner] == level.grief_gamerules[ "scorelimit" ])
+			if(level.grief_score[winner] >= level.grief_gamerules[ "scorelimit" ].current)
 			{
 				game_won(winner);
 				return;
@@ -367,7 +367,7 @@ round_start_wait()
 	flag_clear("spawn_zombies");
 	freeze_all_players_controls();
 
-	round_start_countdown_hud(level.grief_gamerules[ "next_round_time" ]);
+	round_start_countdown_hud(level.grief_gamerules[ "next_round_time" ].current);
 
 	flag_set("spawn_zombies");
 	unfreeze_all_players_controls();

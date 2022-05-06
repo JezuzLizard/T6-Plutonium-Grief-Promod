@@ -15,11 +15,11 @@
 
 main()
 {
+	init_gamerules();
 	replaceFunc( maps\mp\zombies\_zm_magicbox::treasure_chest_init, ::treasure_chest_init_override );
 	replaceFunc( maps\mp\zombies\_zm_game_module::wait_for_team_death_and_round_end, scripts\zm\promod_grief\_round_system::wait_for_team_death_and_round_end_override );
 	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_override ); // switch jug with speed
 	replaceFunc( maps\mp\zombies\_zm::getfreespawnpoint, ::getfreespawnpoint_override );
-	init_gamerules();
 	set_team_count();
 	precache();
 }
@@ -75,7 +75,7 @@ on_player_connect()
     while ( true )
     {
     	level waittill( "connected", player );
-		if ( level.grief_gamerules[ "knife_lunge" ] )
+		if ( level.grief_gamerules[ "knife_lunge" ].current )
 		{
 			player setClientDvar( "aim_automelee_range", 120 ); //default
 		}else{
@@ -111,12 +111,12 @@ on_player_spawn()
 	{
 		self waittill( "spawned_player" );
 
-		if ( self.score < level.grief_gamerules[ "round_restart_points" ] )
+		if ( self.score < level.grief_gamerules[ "round_restart_points" ].current )
 		{
-			self.score = level.grief_gamerules[ "round_restart_points" ];
+			self.score = level.grief_gamerules[ "round_restart_points" ].current;
 		}
 
-		if ( level.grief_gamerules[ "reduced_pistol_ammo" ] )
+		if ( level.grief_gamerules[ "reduced_pistol_ammo" ].current )
 		{
 			self scripts/zm/promod_grief/_gamerules::reduce_starting_ammo();
 		}

@@ -139,7 +139,7 @@ hide_score_hud( state )
 {
 	level waittill("initial_blackscreen_passed");
 	wait 2;
-	if( !level.grief_gamerules[ "hide_score" ] )
+	if( !level.grief_gamerules[ "hide_score" ].current )
 	{
 		return;
 	}
@@ -153,7 +153,7 @@ hide_score_hud( state )
 hide_ammo_hud( state )
 {
 	level waittill("initial_blackscreen_passed");
-	if( !level.grief_gamerules[ "hide_ammo" ] )
+	if( !level.grief_gamerules[ "hide_ammo" ].current )
 	{
 		return;
 	}
@@ -191,7 +191,7 @@ round_start_countdown_hud_timer(time)
 
 show_grief_hud_msg( msg, msg_parm, offset, delay )
 {
-	if(!level.grief_gamerules[ "grief_messages" ])
+	if( !level.grief_gamerules[ "grief_messages" ].current )
 		return;
 
 	if(!isDefined(delay))

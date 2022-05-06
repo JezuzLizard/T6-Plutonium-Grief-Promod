@@ -58,7 +58,7 @@ builddynamicwallbuys() //checked matches cerberus output
 
 buildbuildables() //checked matches cerberus output
 {	
-	if( level.grief_gamerules[ "buildables" ] )
+	if( level.grief_gamerules[ "buildables" ].current )
 	{
 		buildbuildable( "springpad_zm" );
 		buildbuildable( "subwoofer_zm" );

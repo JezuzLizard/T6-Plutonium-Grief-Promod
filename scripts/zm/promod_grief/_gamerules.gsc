@@ -1,37 +1,158 @@
 #include maps\mp\_utility;
 #include common_scripts\utility;
 #include maps\mp\zombies\_zm_utility;
+#include maps\mp\zombies\_zm_magicbox;
+#include maps\mp\zombies\_zm_perks;
 
 init_gamerules()
 {
+	level.grief_ffa = getDvarIntDefault( "grief_ffa", 0 );
 	level.default_solo_laststandpistol = "m1911_zm";
 	level.is_forever_solo_game = undefined;
 	level.speed_change_round = undefined;
-	level.grief_gamerules = [];
-	level.grief_gamerules[ "scorelimit" ] = getDvarIntDefault( "grief_gamerule_scorelimit", 3 );
-	level.grief_gamerules[ "mystery_box_enabled" ] = getDvarIntDefault( "grief_gamerule_mystery_box_enabled", 0 );
-	level.grief_gamerules[ "magic" ] = getDvarIntDefault( "grief_gamerule_magic", 1 );
-    
-	level.grief_gamerules[ "zombie_round" ] = getDvarIntDefault( "grief_gamerule_zombie_round", 20 );
-	level.grief_gamerules[ "next_round_time" ] = getDvarIntDefault( "grief_gamerule_next_round_timer", 5 );
-	level.grief_gamerules[ "round_restart_points" ] = getDvarIntDefault( "grief_gamerule_round_restart_points", 10000 );
-	level.grief_gamerules[ "suicide_check" ] = getDvarFloatDefault( "grief_gamerule_suicide_check_wait", 5 );
-
-	level.grief_gamerules[ "instructions" ] = getDvarIntDefault( "grief_gamerule_display_instructions", 0 );
-	level.grief_gamerules[ "grief_messages" ] = getDvarIntDefault( "grief_gamerule_display_grief_messages", 0 );
-
-	level.grief_gamerules[ "knife_lunge" ] = getDvarIntDefault( "grief_gamerule_knife_lunge", 1 );
-	level.grief_gamerules[ "reduced_pistol_ammo" ] = getDvarIntDefault( "grief_gamerule_reduced_pistol_ammo", 1 );
-
-	level.grief_gamerules[ "player_health" ] = getDvarIntDefault( "grief_gamerule_player_health", 100 );
-	level.grief_gamerules[ "buildables" ] = getDvarIntDefault( "grief_gamerule_buildables", 1 );
-	level.grief_gamerules[ "disable_doors" ] = getDvarIntDefault( "grief_gamerule_disable_doors", 1 );
-
-    level.grief_ffa = getDvarIntDefault( "grief_ffa", 0 );
-
-    init_restrictions();
+	level.grief_gamerule_dvar_name = "grief_gamerule_";
+	initialize_gamerule( "scorelimit", 3 );
+	initialize_gamerule( "magic", 1, ::gamerule_adjust_magic );
+	initialize_gamerule( "zombie_round", 20 );
+	initialize_gamerule( "next_round_time", 5 );
+	initialize_gamerule( "round_restart_points", 10000 );
+	initialize_gamerule( "suicide_check", 5.0 );
+	initialize_gamerule( "display_instructions", 0 );
+	initialize_gamerule( "grief_messages", 0 );
+	initialize_gamerule( "knife_lunge", 1, ::gamerule_adjust_knife_lunge );
+	initialize_gamerule( "reduced_pistol_ammo", 1 );
+	initialize_gamerule( "player_health", 100, ::gamerule_adjust_player_health );
+	initialize_gamerule( "buildables", 0 );
+	initialize_gamerule( "disable_doors", 1 );
+	initialize_gamerule( "mystery_box_enabled", 0, ::gamerule_toggle_mysterybox );
+	init_restrictions();
 }
 
+initialize_gamerule( rulename, rulevalue, callback )
+{
+	if ( !isDefined( level.grief_gamerules ) )
+	{
+		level.grief_gamerules = [];
+	}
+	if ( !isDefined( level.g))
+	dvar_string = level.grief_gamerule_dvar_name + rulename;
+	original_value_string = dvar_string + "_resetvalue";
+	num_matches_string = dvar_string + "_matches_remaining";
+	switch ( typeOf( rulevalue ) )
+	{
+		case "int":
+			level.grief_gamerules[ rulename ] = spawnStruct();
+			level.grief_gamerules[ rulename ].current = getDvarIntDefault( dvar_string, rulevalue );
+			break;
+		case "float":
+			level.grief_gamerules[ rulename ] = spawnStruct();
+			level.grief_gamerules[ rulename ].current = getDvarFloatDefault( dvar_string, rulevalue );
+			break;
+		case "string":
+			level.grief_gamerules[ rulename ] = spawnStruct();
+			level.grief_gamerules[ rulename ].current = getDvarStringDefault( dvar_string, rulevalue );
+			break;
+	}
+	if ( isDefined( level.grief_gamerules[ rulename ] ) )
+	{
+		level.grief_gamerules[ rulename ].lastvalue_this_match = level.grief_gamerules[ rulename ].current;
+		if ( isDefined( callback ) )
+		{
+			level.grief_gamerules[ rulename ].callback = callback;
+		}
+		matches_remaining_value = getDvarInt( num_matches_string ) - 1;
+		if ( getDvar( original_value_string ) == "" )
+		{
+			setDvar( original_value_string, level.grief_gamerules[ rulename ].current );
+		}
+		if ( getDvar( num_matches_string ) == "" )
+		{
+			setDvar( num_matches_string, -1 );
+		}
+		else 
+		{
+			matches_remaining_value = getDvarInt( num_matches_string );
+			if ( matches_remaining_value > -1 )	
+			{
+				if ( matches_remaining_value > 0 )
+				{
+					matches_remaining_value = matches_remaining_value - 1;
+					setDvar( num_matches_string, matches_remaining_value );
+				}
+				else 
+				{
+					reset_gamerule( rulename );
+				}
+			}
+		}
+	}
+}
+
+set_gamerule_for_match( rulename, rulevalue )
+{
+	if ( !isDefined( level.grief_gamerules[ rulename ] ) )
+	{
+		print( "set_gamerule() " + rulename + " is not initialized" );
+		return;
+	}
+	dvar_string = level.grief_gamerule_dvar_name + rulename;
+	level.grief_gamerules[ rulename ].lastvalue_this_match = level.grief_gamerules[ rulename ].current;
+	level.grief_gamerules[ rulename ].current = rulevalue;
+	if ( isDefined( level.grief_gamerules[ rulename ].callback ) )
+	{
+		level [[ level.grief_gamerules[ rulename ].callback ]]();
+	}
+}
+
+reset_gamerule( rulename )
+{
+	if ( !isDefined( level.grief_gamerules[ rulename ] ) )
+	{
+		print( "reset_gamerule() " + rulename + " is not initialized" );
+		return;
+	}
+	dvar_string = level.grief_gamerule_dvar_name + rulename;
+	original_value_dvar = dvar_string + "_resetvalue";
+	num_matches_string = dvar_string + "_matchesremaining";
+	switch ( typeOf( level.grief_gamerules[ rulename ].current ) )
+	{
+		case "int":
+			original_value = getDvarInt( original_value_dvar );
+			break;
+		case "float":
+			original_value = getDvarFloat( original_value_dvar );
+			break;
+		case "string":
+			original_value = getDvar( original_value_dvar );
+			break;
+	}
+	if ( isDefined( original_value ) )
+	{
+		level.grief_gamerules[ rulename ].lastvalue_this_match = level.grief_gamerules[ rulename ].current;
+		level.grief_gamerules[ rulename ].current = original_value;
+		setDvar( dvar_string, original_value );
+		setDvar( num_matches_string, -1 );
+	}
+}
+
+set_gamerule_for_next_matches( rulename, rulevalue, number_of_matches )
+{
+	if ( !isDefined( level.grief_gamerules[ rulename ] ) )
+	{
+		print( "set_gamerule_for_next_matches() " + rulename + " is not initialized" );
+		return;		
+	}
+	if ( !isDefined( number_of_matches ) || ( number_of_matches < -1 ) )
+	{
+		number_of_matches = -1;
+	}
+	dvar_string = level.grief_gamerule_dvar_name + rulename;
+	num_matches_string = dvar_string + "_matchesremaining";
+	set_gamerule_for_match( rulename, rulevalue );
+	setDvar( dvar_string, rulevalue );
+	setDvar( num_matches_string, number_of_matches );
+}
+ 
 init_restrictions()
 {
 	if ( !isDefined( level.data_maps ) )
@@ -367,5 +488,125 @@ reduce_starting_ammo()
 	if ( self hasweapon( "m1911_zm" ) && ( self getammocount( "m1911_zm" ) > 16 ) )
 	{
 		self setweaponammostock( "m1911_zm", 8 );
+	}
+}
+
+getDvarStringDefault( dvarname, default_value )
+{
+	cur_dvar_value = getDvar( dvarname );
+	if ( cur_dvar_value != "" )
+	{
+		return cur_dvar_value;
+	}
+	else 
+	{
+		return default_value;
+	}
+}
+
+gamerule_adjust_magic()
+{
+	turn_on = is_true( level.grief_gamerules[ "magic" ].current );
+	was_on = is_true( level.grief_gamerules[ "magic" ].lastvalue_this_match );
+	if ( was_on )
+	{
+		if ( !turn_on )
+		{
+			if ( isDefined( level.chests ) )
+			{
+				foreach ( chest in level.chests )
+				{
+					chest hide_chest();
+					chest notify( "kill_chest_think" );
+				}
+			}
+
+			//Kill the threads because they don't endon "death" to prevent script errors.
+			if ( isdefined( level.zombiemode_using_doubletap_perk ) && level.zombiemode_using_doubletap_perk )
+				killThread( ::turn_doubletap_on );
+
+			if ( isdefined( level.zombiemode_using_marathon_perk ) && level.zombiemode_using_marathon_perk )
+				killThread( ::turn_marathon_on );
+
+			if ( isdefined( level.zombiemode_using_juggernaut_perk ) && level.zombiemode_using_juggernaut_perk )
+				killThread( ::turn_jugger_on );
+
+			if ( isdefined( level.zombiemode_using_revive_perk ) && level.zombiemode_using_revive_perk )
+				killThread( ::turn_revive_on );
+
+			if ( isdefined( level.zombiemode_using_sleightofhand_perk ) && level.zombiemode_using_sleightofhand_perk )
+				killThread( ::turn_sleight_on );
+
+			if ( isdefined( level.zombiemode_using_deadshot_perk ) && level.zombiemode_using_deadshot_perk )
+				killThread( ::turn_deadshot_on );
+
+			if ( isdefined( level.zombiemode_using_tombstone_perk ) && level.zombiemode_using_tombstone_perk )
+				killThread( ::turn_tombstone_on );
+
+			if ( isdefined( level.zombiemode_using_additionalprimaryweapon_perk ) && level.zombiemode_using_additionalprimaryweapon_perk )
+				killThread( ::turn_additionalprimaryweapon_on );
+
+			if ( isdefined( level.zombiemode_using_chugabud_perk ) && level.zombiemode_using_chugabud_perk )
+				killThread( ::turn_chugabud_on );
+
+			foreach ( perk in level.data_maps[ "perks" ][ "specialties" ] )
+			{
+				perk_str = "specialty_" + perk;
+				perk_machine_removal( perk_str );
+				if ( isDefined( level._custom_perks[ perk_str ] ) )
+				{
+					killThread( level._custom_perks[ perk_str ].perk_machine_thread );
+				}
+			}
+			flag_clear( "zombie_drop_powerups" );
+		}
+	}
+	else 
+	{
+
+	}
+}
+
+gamerule_adjust_knife_lunge()
+{
+	turn_on = is_true( level.grief_gamerules[ "knife_lunge" ].current );
+	if ( turn_on )
+	{
+		foreach ( player in level.players )
+		{
+			player setClientDvar( "aim_automelee_range", 120 );
+		}
+	}
+	else
+	{
+		foreach ( player in level.players )
+		{
+			player setClientDvar( "aim_automelee_range", 0 );
+		}
+	}
+}
+
+gamerule_adjust_player_health()
+{
+
+}
+
+gamerule_toggle_mysterybox()
+{
+	turn_on = is_true( level.grief_gamerules[ "mystery_box_enabled" ].current );
+	was_on = is_true( level.grief_gamerules[ "magic" ].lastvalue_this_match );
+	if ( was_on )
+	{
+		if ( !turn_on )
+		{
+			if ( isDefined( level.chests ) )
+			{
+				foreach ( chest in level.chests )
+				{
+					chest hide_chest();
+					chest notify( "kill_chest_think" );
+				}
+			}
+		}
 	}
 }

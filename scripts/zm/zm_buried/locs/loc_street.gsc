@@ -74,7 +74,7 @@ main() //checked matches cerberus output
 
 delete_door_and_debris_trigs()
 {	
-	if( level.grief_gamerules[ "disable_doors" ] )
+	if( level.grief_gamerules[ "disable_doors" ].current )
 	{
 		door_trigs_to_delete = array( "pf728_auto2520", "pf728_auto2513", "pf728_auto2496", "pf728_auto2500" ); //"pf728_auto2516" //power door
 		doors_trigs = getentarray( "zombie_door", "targetname" );

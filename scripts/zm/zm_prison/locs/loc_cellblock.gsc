@@ -289,7 +289,7 @@ magicbox_face_spawn()
 
 delete_door_trigs()
 {	
-	if ( level.grief_gamerules[ "disable_doors" ] )
+	if ( level.grief_gamerules[ "disable_doors" ].current )
 	{
 		doors = getentarray( "zombie_door", "targetname" );
 		foreach ( door in doors )

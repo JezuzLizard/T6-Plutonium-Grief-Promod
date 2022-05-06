@@ -41,7 +41,7 @@ treasure_chest_init_override( start_chest_name ) //checked changed to match cerb
 			level.chests[ i ].old_cost = 950;
 		}
 	}
-	if ( !level.enable_magic || !level.grief_gamerules[ "mystery_box_enabled" ] )
+	if ( !level.enable_magic || !level.grief_gamerules[ "mystery_box_enabled" ].current )
 	{
 		foreach( chest in level.chests )
 		{

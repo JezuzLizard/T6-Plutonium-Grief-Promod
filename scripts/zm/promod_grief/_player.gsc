@@ -185,14 +185,14 @@ instructions_on_all_players()
 
 instructions()
 {
-	if(!level.grief_gamerules[ "instructions" ])
+	if(!level.grief_gamerules[ "display_instructions" ].current)
 		return;
 
 	level endon( "end_game" );
 	self endon( "disconnect" );
 
 	level waittill( "initial_blackscreen_passed" );
-	rounds = level.grief_gamerules[ "scorelimit" ];
+	rounds = level.grief_gamerules[ "scorelimit" ].current;
 	self iPrintLn( "Welcome to Grief!" );
 	wait 3;
 	self iPrintLn( "Your goal is to win " + rounds + " rounds" );
