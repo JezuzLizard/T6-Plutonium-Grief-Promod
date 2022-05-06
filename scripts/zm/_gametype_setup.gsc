@@ -83,6 +83,7 @@ struct_class_init_override()
 			}
 		}
 	}
+	scripts\zm\promod_grief\_gamerules::override_perk_struct_locations();
 }
 
 add_struct( s_struct )

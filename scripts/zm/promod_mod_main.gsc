@@ -18,7 +18,6 @@ main()
 	init_gamerules();
 	replaceFunc( maps\mp\zombies\_zm_magicbox::treasure_chest_init, ::treasure_chest_init_override );
 	replaceFunc( maps\mp\zombies\_zm_game_module::wait_for_team_death_and_round_end, scripts\zm\promod_grief\_round_system::wait_for_team_death_and_round_end_override );
-	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_override ); // switch jug with speed
 	replaceFunc( maps\mp\zombies\_zm::getfreespawnpoint, ::getfreespawnpoint_override );
 	set_team_count();
 	precache();
