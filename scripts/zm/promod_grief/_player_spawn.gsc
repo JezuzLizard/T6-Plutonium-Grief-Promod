@@ -31,6 +31,21 @@ getFreeSpawnpoint_override( spawnpoints, player )
 			}
 		}
 	}
+	else
+	{
+		foreach ( spawnpoint in spawnpoints )
+		{
+			if ( isDefined( spawnpoint.player_name ) && spawnpoint.player_name == self.name )
+			{
+				return spawnpoint;
+			}
+			else if ( !isDefined( spawnpoint.player_name ) )
+			{
+				spawnpoint.player_name = self.name;
+				return spawnpoint;
+			}
+		}
+	}
 	//If we aren't using the script_int system or we are and we ran out of spawnpoints due to many players joining and leaving try to free up old spawnpoints.
 	foreach ( spawnpoint in spawnpoints )
 	{
