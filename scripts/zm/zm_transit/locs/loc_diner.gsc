@@ -7,6 +7,7 @@
 
 struct_init()
 {
+	level.spawnpoint_system_using_script_ints = true;
 	scripts/zm/_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, 176, 0 ), ( -3634, -7464, -58 ) );
 	scripts/zm/_gametype_setup::register_perk_struct( "specialty_rof", "zombie_vending_doubletap2", ( 0, -90, 0 ), ( -4170, -7610, -61 ) );
 	scripts/zm/_gametype_setup::register_perk_struct( "specialty_longersprint", "zombie_vending_marathon", ( 0, 4, 0 ), ( -4576, -6704, -61 ) );
@@ -14,12 +15,18 @@ struct_init()
 	scripts/zm/_gametype_setup::register_perk_struct( "specialty_weapupgrade", "p6_anim_zm_buildable_pap_on", ( 0, 175, 0 ), ( -6351, -7778, 227 ) );
 	scripts/zm/_gametype_setup::register_perk_struct( "specialty_quickrevive", "zombie_vending_quickrevive", ( 0, 137, 0 ), ( -5424, -7920, -64 ) );
 	scripts/zm/_gametype_setup::register_perk_struct( "specialty_fastreload", "zombie_vending_sleight", ( 0, 270, 0 ), ( -5470, -7859.5, 0 ) );
-	coordinates = array( ( -3991, -7317, -63 ), ( -4231, -7395, -60 ), ( -4127, -6757, -54 ), ( -4465, -7346, -58 ),
-						 ( -5770, -6600, -55 ), ( -6135, -6671, -56 ), ( -6182, -7120, -60 ), ( -5882, -7174, -61 ) );
-	angles = array( ( 0, 161, 0 ), ( 0, 120, 0 ), ( 0, 217, 0 ), ( 0, 173, 0 ), ( 0, -106, 0 ), ( 0, -46, 0 ), ( 0, 51, 0 ), ( 0, 99, 0 ) );
-	for ( i = 0; i < coordinates.size; i++ )
+
+	coordinates_1 = array( ( -4160, -7428, -63 ), ( -4240, -7428, -60 ), ( -4320, -7428, -54 ), ( -4400, -7428, -58 ) );
+	angles_1 = array( ( 0, 90, 0 ), ( 0, 90, 0 ), ( 0, 90, 0 ), ( 0, 90, 0 ) );
+	for ( i = 0; i < coordinates_1.size; i++ )
 	{
-		scripts/zm/_gametype_setup::register_map_initial_spawnpoint( coordinates[ i ], angles[ i ] );
+		scripts/zm/_gametype_setup::register_map_initial_spawnpoint( coordinates_1[ i ], angles_1[ i ], 1 );
+	}
+	coordinates_2 = array( ( -4160, -7228, -64 ), ( -4240, -7228, -60 ), ( -4320, -7228, -54 ), ( -4400, -7228, -58 ) );
+	angles_2 = array( ( 0, -90, 0 ), ( 0, -90, 0 ), ( 0, -90, 0 ), ( 0, -90, 0 ) );
+	for ( i = 0; i < coordinates_2.size; i++ )
+	{
+		scripts/zm/_gametype_setup::register_map_initial_spawnpoint( coordinates_2[ i ], angles_2[ i ], 2 );
 	}
 }
 

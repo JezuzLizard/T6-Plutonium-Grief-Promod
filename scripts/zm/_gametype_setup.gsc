@@ -155,7 +155,7 @@ register_perk_struct( perk_name, perk_model, perk_angles, perk_coordinates )
 	add_struct( perk_struct );
 }
 
-register_map_initial_spawnpoint( spawnpoint_coordinates, spawnpoint_angles ) //custom function
+register_map_initial_spawnpoint( spawnpoint_coordinates, spawnpoint_angles, script_int ) //custom function
 {
 	spawnpoint_struct = spawnStruct();
 	spawnpoint_struct.origin = spawnpoint_coordinates;
@@ -169,7 +169,11 @@ register_map_initial_spawnpoint( spawnpoint_coordinates, spawnpoint_angles ) //c
 	}
 	spawnpoint_struct.radius = 32;
 	spawnpoint_struct.script_noteworthy = "initial_spawn";
-	spawnpoint_struct.script_int = 2048;
+	if ( !isDefined( script_int ) )
+	{
+		script_int = 2048;
+	}
+	spawnpoint_struct.script_int = script_int;
 	spawnpoint_struct.script_string = getDvar( "g_gametype" ) + "_" + getDvar( "ui_zm_mapstartlocation" );
 	spawnpoint_struct.locked = 0;
 	player_respawn_point_size = level.struct_class_names[ "targetname" ][ "player_respawn_point" ].size;
