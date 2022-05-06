@@ -25,6 +25,7 @@ init_gamerules()
 	initialize_gamerule( "buildables", 0 );
 	initialize_gamerule( "disable_doors", 1 );
 	initialize_gamerule( "mystery_box_enabled", 0, ::gamerule_toggle_mysterybox );
+	initialize_gamerule( "auto_balance_teams", 0 );
 	init_restrictions();
 }
 

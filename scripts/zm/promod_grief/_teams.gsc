@@ -102,3 +102,44 @@ menuautoassign_override( comingfrommenu )
 	self beginclasschoice();
 	self setclientscriptmainmenu( game["menu_class"] );
 }
+
+auto_balance_teams()
+{
+	allies_players = getPlayers( "allies" );
+	axis_players = getPlayers( "axis" );
+	if ( allies_players.size == axis_players.size )
+	{
+		return;
+	}
+	while ( allies_players.size != axis_players.size && ( allies_players.size - 1 ) > axis_players.size )
+	{
+		random_allies_player = random( allies_players );
+		random_allies_player auto_balance_set_team( "axis" );
+		allies_players = getPlayers( "allies" );
+		axis_players = getPlayers( "axis" );
+	}
+	while ( allies_players.size != axis_players.size && ( axis_players.size - 1 ) > allies_players.size )
+	{
+		random_axis_player = random( axis_players );
+		random_axis_player auto_balance_set_team( "allies" );
+		allies_players = getPlayers( "allies" );
+		axis_players = getPlayers( "axis" );
+	}
+}
+
+auto_balance_set_team( team )
+{
+	if ( team == "allies" )
+	{
+		self._encounters_team = "B";
+	}
+	else 
+	{
+		self._encounters_team = "A";
+	}
+	self.pers[ "team" ] = team;
+	self.team = team;
+	self.sessionteam = team;
+	self.characterindex = undefined;
+	self [[ level.givecustomcharacters ]]();
+}

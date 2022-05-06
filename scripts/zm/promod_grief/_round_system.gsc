@@ -25,6 +25,11 @@ wait_for_team_death_and_round_end_override()
 	level.grief_score["A"] = 0;
 	level.grief_score["B"] = 0;
 
+	if ( level.grief_gamerules[ "auto_balance_teams" ].current )
+	{
+		scripts\zm\promod_grief\_teams::auto_balance_teams();
+	}
+
 	if ( waiting_for_players() )
 		respawn_players();
 
