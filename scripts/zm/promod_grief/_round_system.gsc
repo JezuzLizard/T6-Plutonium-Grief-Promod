@@ -100,23 +100,35 @@ waiting_for_players()
 {
 	level endon( "end_game" );
 	flag_clear( "spawn_zombies" );
-	waiting_for_players = false;
+	respawn_players = false;
 
 	if ( level.grief_ffa )
 	{
+		respawn_players = true;
 		players = getPlayers();
 		while ( players.size < 2 )
 		{
-			players = getPlayers();
-			for ( i = 0; i < players.size; i++ )
+			for ( i = 0; i < level.players.size; i++ )
 			{
-				players[ i ] iPrintLn( "Waiting for 2 players" );
-				waiting_for_players = true;
+				level.players[ i ] iPrintLn( "Waiting for 2 players" );
 			}
 			wait 2;
 		}
 	}
-
+	else 
+	{
+		allies_players = getPlayers( "allies" );
+		axis_players = getPlayers( "axis" );
+		while ( ( allies_players.size < 1 ) || ( axis_players.size < 1 ) )
+		{
+			allies_players = getPlayers( "allies" );
+			axis_players = getPlayers( "axis" );
+			for ( i = 0; i < level.players.size; i++ )
+			{
+				level.players[ i ] iPrintLn( "Waiting for 1 player on each team" );
+			}
+		}
+	}
 	return waiting_for_players;
 }
 
