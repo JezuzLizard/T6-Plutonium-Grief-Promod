@@ -69,7 +69,7 @@ watch_for_down()
 		flag_wait( "spawn_zombies" );
 		in_laststand = self maps/mp/zombies/_zm_laststand::player_is_in_laststand();
 		is_alive = isAlive( self );
-		if ( in_laststand || !is_alive )
+		if ( is_true( in_laststand ) || !is_true( is_alive ) )
 		{
 			if ( isDefined( self.last_griefed_by.attacker ) )
 			{
