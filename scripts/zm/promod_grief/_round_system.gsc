@@ -132,9 +132,10 @@ waiting_for_players()
 			{
 				level.players[ i ] iPrintLn( "Waiting for 1 player on each team" );
 			}
+			wait 2;
 		}
 	}
-	return waiting_for_players;
+	return respawn_players;
 }
 
 round_system_ffa()
