@@ -10,7 +10,24 @@
 
 struct_init()
 {
-	
+	if ( !level.grief_ffa )
+	{
+		level.spawnpoint_system_using_script_ints = true;
+	}
+	level.struct_class_names[ "targetname" ][ "player_respawn_point" ] = [];
+	level.struct_class_names[ "script_noteworthy" ][ "initial_spawn" ] = [];
+	coordinates_1 = array( ( 7990, -5608, 19 ), ( 7910, -5608, 11 ), ( 7830, -5608, 8 ), ( 7750, -5608, 3 ) );
+	angles_1 = array( ( 0, -90, 0 ), ( 0, -90, 0 ), ( 0, -90, 0 ), ( 0, -90, 0 ) );
+	for ( i = 0; i < coordinates_1.size; i++ )
+	{
+		scripts/zm/_gametype_setup::register_map_initial_spawnpoint( coordinates_1[ i ], angles_1[ i ], 1 );
+	}
+	coordinates_2 = array( ( 7990, -5808, 12 ), ( 7910, -5808, 9 ), ( 7830, -5808, 3 ), ( 7750, -5808, -1 ) );
+	angles_2 = array( ( 0, 90, 0 ), ( 0, 90, 0 ), ( 0, 90, 0 ), ( 0, 90, 0 ) );
+	for ( i = 0; i < coordinates_2.size; i++ )
+	{
+		scripts/zm/_gametype_setup::register_map_initial_spawnpoint( coordinates_2[ i ], angles_2[ i ], 2 );
+	}
 }
 
 precache()
