@@ -7,7 +7,10 @@
 
 struct_init()
 {
-	level.spawnpoint_system_using_script_ints = true;
+	if ( !level.grief_ffa )
+	{
+		level.spawnpoint_system_using_script_ints = true;
+	}
 	scripts/zm/_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, 176, 0 ), ( -3634, -7464, -58 ) );
 	scripts/zm/_gametype_setup::register_perk_struct( "specialty_rof", "zombie_vending_doubletap2", ( 0, -90, 0 ), ( -4170, -7610, -61 ) );
 	scripts/zm/_gametype_setup::register_perk_struct( "specialty_longersprint", "zombie_vending_marathon", ( 0, 4, 0 ), ( -4576, -6704, -61 ) );
