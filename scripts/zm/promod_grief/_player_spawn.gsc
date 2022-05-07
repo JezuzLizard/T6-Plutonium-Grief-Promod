@@ -8,8 +8,6 @@ getFreeSpawnpoint_override( spawnpoints, player )
 	{
 		return undefined;
 	}
-	//Randomize the spawnpoints so players don't spawn at the same one each game in order of connecting.
-	spawnpoints = array_randomize( spawnpoints );
 	//If we are using the script_int system to make the starting teams spawn facing each other. 
 	//We only spawn players if their team script_int matches the spawnpoint script_int. 
 	//Treyarch's normal spawnpoints do this to a degree.
