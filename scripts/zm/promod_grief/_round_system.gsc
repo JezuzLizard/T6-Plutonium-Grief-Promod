@@ -25,13 +25,12 @@ wait_for_team_death_and_round_end_override()
 	level.grief_score["A"] = 0;
 	level.grief_score["B"] = 0;
 
+	waiting_for_players();
+
 	if ( level.grief_gamerules[ "auto_balance_teams" ].current )
 	{
 		scripts\zm\promod_grief\_teams::auto_balance_teams();
 	}
-
-	if ( waiting_for_players() )
-		respawn_players();
 
 	scripts/zm/promod_grief/_hud::hud_init();
 
@@ -105,11 +104,8 @@ waiting_for_players()
 {
 	level endon( "end_game" );
 	flag_clear( "spawn_zombies" );
-	respawn_players = false;
-
 	if ( level.grief_ffa )
 	{
-		respawn_players = true;
 		while ( level.players.size < 2 )
 		{
 			for ( i = 0; i < level.players.size; i++ )
@@ -134,7 +130,7 @@ waiting_for_players()
 			wait 2;
 		}
 	}
-	return respawn_players;
+	level.zombie_vars[ "spectators_respawn" ] = 0;
 }
 
 round_system_ffa()
@@ -146,8 +142,7 @@ round_system_ffa()
 	checking_for_round_tie = 0;
 	level.isresetting_grief = 0;
 
-	if ( waiting_for_players() )
-		respawn_players();
+	waiting_for_players();
 
 	HUDELEM_SERVER_ADD( "grief_countdown_timer", ::grief_countdown );
 
@@ -319,6 +314,7 @@ round_end(winner)
 	zombie_goto_round( level.round_number );
 	level thread maps/mp/zombies/_zm_game_module::reset_grief();
 	level thread maps/mp/zombies/_zm::round_think( 1 );
+	level.zombie_vars[ "spectators_respawn" ] = 0;
 }
 
 game_won(winner)

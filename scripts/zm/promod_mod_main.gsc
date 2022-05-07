@@ -19,6 +19,7 @@ main()
 	replaceFunc( maps\mp\zombies\_zm_magicbox::treasure_chest_init, ::treasure_chest_init_override );
 	replaceFunc( maps\mp\zombies\_zm_game_module::wait_for_team_death_and_round_end, scripts\zm\promod_grief\_round_system::wait_for_team_death_and_round_end_override );
 	replaceFunc( maps\mp\zombies\_zm::getfreespawnpoint, ::getfreespawnpoint_override );
+	replacefunc( maps\mp\gametypes_zm\_zm_gametype::hide_gump_loading_for_hotjoiners, ::hide_gump_loading_for_hotjoiners_override );
 	set_team_count();
 	precache();
 }
@@ -26,6 +27,7 @@ main()
 init()
 {
 	level thread on_player_connect();
+	level.game_mode_spawn_player_logic = ::game_mode_spawn_player_logic_override;
 	level.round_spawn_func = ::round_spawning_override;
 	level.round_think_func = ::round_think_override;
 	level._game_module_player_damage_callback = ::game_module_player_damage_callback;

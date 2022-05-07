@@ -78,3 +78,40 @@ getFreeSpawnpoint_override( spawnpoints, player )
 	return spawnpoints[ 0 ];
 }
 
+hide_gump_loading_for_hotjoiners_override()
+{
+	self endon( "disconnect" );
+	self.rebuild_barrier_reward = 1;
+	self.is_hotjoining = 1;
+	if ( flag( "grief_begin" ) )
+	{
+		print( "hide_gump_loading_for_hotjoiners_override() flag grief_begin is true" );
+		num = self getsnapshotackindex();
+		while ( num == self getsnapshotackindex() )
+			wait 0.25;
+		wait 0.5;
+		self maps\mp\zombies\_zm::spawnspectator();
+	}
+	self.is_hotjoining = 0;
+	self.is_hotjoin = 1;
+
+	if ( is_true( level.intermission ) || is_true( level.host_ended_game ) )
+	{
+		setclientsysstate( "levelNotify", "zi", self );
+		self setclientthirdperson( 0 );
+		self resetfov();
+		self.health = 100;
+		self thread [[ level.custom_intermission ]]();
+	}
+}
+
+game_mode_spawn_player_logic_override()
+{
+	if ( flag( "grief_begin" ) && !level.zombie_vars[ "spectators_respawn" ]  )
+	{
+		print( "game_mode_spawn_player_logic_override() flag grief_begin and spectators_respawn is not true" );
+		self.is_hotjoin = 1;
+		return true;
+	}
+	return false;
+}
