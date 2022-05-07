@@ -12,14 +12,17 @@
 #include scripts\zm\promod_grief\_weapons;
 #include scripts\zm\promod_grief\_zombies;
 #include scripts\zm\promod_grief\_teams;
+#include scripts\zm\promod_grief\_stats;
 
 main()
 {
 	init_gamerules();
-	replaceFunc( maps\mp\zombies\_zm_magicbox::treasure_chest_init, ::treasure_chest_init_override );
+	replaceFunc( maps\mp\zombies\_zm_magicbox::treasure_chest_init, scripts\zm\promod_grief\_weapons::treasure_chest_init_override );
 	replaceFunc( maps\mp\zombies\_zm_game_module::wait_for_team_death_and_round_end, scripts\zm\promod_grief\_round_system::wait_for_team_death_and_round_end_override );
-	replaceFunc( maps\mp\zombies\_zm::getfreespawnpoint, ::getfreespawnpoint_override );
-	replacefunc( maps\mp\gametypes_zm\_zm_gametype::hide_gump_loading_for_hotjoiners, ::hide_gump_loading_for_hotjoiners_override );
+	replaceFunc( maps\mp\zombies\_zm::getfreespawnpoint, scripts\zm\promod_grief\_player_spawn::getfreespawnpoint_override );
+	replacefunc( maps\mp\gametypes_zm\_zm_gametype::hide_gump_loading_for_hotjoiners, scripts\zm\promod_grief\_player_spawn::hide_gump_loading_for_hotjoiners_override );
+	replaceFunc( maps\mp\zombies\_zm_stats::update_players_stats_at_match_end, scripts\zm\promod_grief\_stats::update_players_stats_at_match_end_override );
+	replaceFunc( maps\mp\gametypes_zm\_zm_gametype::track_encounters_win_stats, scripts\zm\promod_grief\_stats::track_encounters_win_stats_override );
 	set_team_count();
 	precache();
 }
@@ -27,7 +30,7 @@ main()
 init()
 {
 	level thread on_player_connect();
-	level.game_mode_spawn_player_logic = ::game_mode_spawn_player_logic_override;
+	level.game_mode_spawn_player_logic = scripts\zm\promod_grief\_player_spawn::game_mode_spawn_player_logic_override;
 	level.round_spawn_func = ::round_spawning_override;
 	level.round_think_func = ::round_think_override;
 	level._game_module_player_damage_callback = ::game_module_player_damage_callback;
