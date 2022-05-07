@@ -11,7 +11,7 @@ menuautoassign_override( comingfrommenu )
 	self closemenus();
 	if ( level.grief_ffa )
 	{
-		assignment = "allies";
+		assignment = level.grief_ffa_team;
 	}
 	else 
 	{
