@@ -6,10 +6,6 @@ afk_kick()
 {   
 	level endon( "game_ended" );
     self endon("disconnect");
-	if ( self.grief_is_admin )
-	{
-		return;
-	}
     time = 0;
     while( 1 )
     {   
