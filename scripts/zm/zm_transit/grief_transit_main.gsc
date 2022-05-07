@@ -14,10 +14,9 @@ main()
 		case "power":
 			foreach ( door in door_ents )
 			{
-				if ( door.script_noteworthy == "electric_door" )
+				if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "electric_door" )
 				{
 					door.script_noteworthy = "electric_buyable_door";
-					door.marked_for_deletion = 0;
 				}
 			}
 			break;
