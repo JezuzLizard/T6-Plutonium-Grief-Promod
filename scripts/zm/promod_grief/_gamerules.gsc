@@ -169,7 +169,7 @@ init_restrictions()
 	if ( level.grief_restrictions[ "powerups" ].enabled && array_validate( level.grief_restrictions[ "powerups" ].list ) )
 	{
 		powerup_restriction_keys = level.grief_restrictions[ "powerups" ].list;
-		for ( i = 0; i < .size; i++ )
+		for ( i = 0; i < powerup_restriction_keys.size; i++ )
 		{
 			if ( isInArray( level.zombie_include_powerups, powerup_restriction_keys[ i ] ) )
 			{

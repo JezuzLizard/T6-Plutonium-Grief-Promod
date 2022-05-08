@@ -58,7 +58,7 @@ add_struct( s_struct )
 			{
 				if ( isDefined( s_struct.script_noteworthy ) && s_struct.script_noteworthy == perk_restriction )
 				{
-					kill_perk_machine_thread( s_struct.script_noteworthy );
+					scripts\zm\promod_grief\_gamerules::kill_perk_machine_thread( s_struct.script_noteworthy );
 					return;
 				}
 			}

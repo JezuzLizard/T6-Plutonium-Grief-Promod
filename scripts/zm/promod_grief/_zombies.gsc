@@ -289,7 +289,7 @@ meat_bounce_override( pos, normal, ent ) //checked matches cerberus output
 	self delete();
 }
 
-init_zombie_run_cycle()
+init_zombie_run_cycle_override()
 {
 	// if ( isdefined( level.speed_change_round ) )
 	// {
