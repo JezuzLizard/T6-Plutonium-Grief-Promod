@@ -74,6 +74,9 @@ precache()
 	level.chests = [];
 	level.chests[ 0 ] = normalChests[ 2 ];
 	level.chests[ 1 ] = start_chest;
+
+	generatebuildabletarps();
+	show_powerswitch();
 }
 
 power_main()
@@ -221,4 +224,32 @@ is_player_killable( player, checkignoremeflag )
 		return 0;
 	}
 	return 1;
+}
+
+generatebuildabletarps()
+{
+	// power switch
+    tarp = spawn( "script_model", ( 12169, 8498, -752 ) );
+    tarp.angles = ( 0, 180, 0 );
+	tarp setModel( "p6_zm_buildable_bench_tarp" );
+
+	// trap
+	tarp = spawn( "script_model", ( 11325, 8170, -488 ) );
+    tarp.angles = ( 0, 0, 0 );
+	tarp setModel( "p6_zm_buildable_bench_tarp" );
+}
+
+show_powerswitch()
+{
+    body = spawn( "script_model", ( 12237.4, 8512, -749.9 ) );
+    body.angles = ( 0, 0, 0 );
+	body setModel( "p6_zm_buildable_pswitch_body" );
+
+    lever = spawn( "script_model", ( 12237.4, 8503, -703.65 ) );
+    lever.angles = ( 0, 0, 0 );
+	lever setModel( "p6_zm_buildable_pswitch_lever" );
+
+    hand = spawn( "script_model", ( 12237.7, 8503.1, -684.55 ) );
+    hand.angles = ( 0, 270, 0 );
+	hand setModel( "p6_zm_buildable_pswitch_hand" );
 }
