@@ -56,6 +56,8 @@ precache()
 	level.chests = [];
 	level.chests[ 0 ] = normalChests[ 3 ];
 	level.chests[ 1 ] = start_chest;
+
+	generatebuildabletarps();
 }
 
 diner_main()
@@ -96,12 +98,20 @@ init_wallbuys()
 
 init_barriers() //custom function
 {
-	scripts/zm/_gametype_setup::barrier( ( -3952, -6957, -67 ), "collision_player_wall_256x256x10", ( 0, 82, 0 ) );
-	scripts/zm/_gametype_setup::barrier( ( -4173, -6679, -60 ), "collision_player_wall_512x512x10", ( 0, 0, 0 ) );
-	scripts/zm/_gametype_setup::barrier( ( -5073, -6732, -59 ), "collision_player_wall_512x512x10", ( 0, 328, 0 ) );
-	scripts/zm/_gametype_setup::barrier( ( -6104, -6490, -38 ), "collision_player_wall_512x512x10", ( 0, 2, 0 ) );
-	scripts/zm/_gametype_setup::barrier( ( -5850, -6486, -38 ), "collision_player_wall_256x256x10", ( 0, 0, 0 ) );
-	scripts/zm/_gametype_setup::barrier( ( -5624, -6406, -40 ), "collision_player_wall_256x256x10", ( 0, 226, 0 ) );
-	scripts/zm/_gametype_setup::barrier( ( -6348, -6886, -55 ), "collision_player_wall_512x512x10", ( 0, 98, 0 ) );
+	// scripts/zm/_gametype_setup::barrier( ( -3952, -6957, -67 ), "collision_player_wall_256x256x10", ( 0, 82, 0 ) );
+	// scripts/zm/_gametype_setup::barrier( ( -4173, -6679, -60 ), "collision_player_wall_512x512x10", ( 0, 0, 0 ) );
+	// scripts/zm/_gametype_setup::barrier( ( -5073, -6732, -59 ), "collision_player_wall_512x512x10", ( 0, 328, 0 ) );
+	// scripts/zm/_gametype_setup::barrier( ( -6104, -6490, -38 ), "collision_player_wall_512x512x10", ( 0, 2, 0 ) );
+	// scripts/zm/_gametype_setup::barrier( ( -5850, -6486, -38 ), "collision_player_wall_256x256x10", ( 0, 0, 0 ) );
+	// scripts/zm/_gametype_setup::barrier( ( -5624, -6406, -40 ), "collision_player_wall_256x256x10", ( 0, 226, 0 ) );
+	// scripts/zm/_gametype_setup::barrier( ( -6348, -6886, -55 ), "collision_player_wall_512x512x10", ( 0, 98, 0 ) );
+	collision = spawn( "script_model", ( -5000, -6700, 0 ), 1 );
+	collision setmodel( "zm_collision_transit_diner_survival" );
 }
 
+generatebuildabletarps()
+{
+    tarp = spawn( "script_model", ( -4688, -7974, -64 ) );
+    tarp.angles = ( 0, 0, 0 );
+	tarp setModel( "p6_zm_buildable_bench_tarp" );
+}
