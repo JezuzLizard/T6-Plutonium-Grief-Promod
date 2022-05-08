@@ -27,6 +27,7 @@ init_gamerules()
 	initialize_gamerule( "mystery_box_enabled", 0, ::gamerule_toggle_mysterybox );
 	initialize_gamerule( "auto_balance_teams", 0 );
 	initialize_gamerule( "shock_on_pain", 1, ::gamerule_toggle_shock_on_pain );
+	initialize_gamerule( "grief_brutus_enabled", 1, ::gamerule_toggle_grief_brutus_logic );
 	init_restrictions();
 }
 
@@ -527,7 +528,7 @@ gamerule_adjust_player_health()
 gamerule_toggle_mysterybox()
 {
 	turn_on = is_true( level.grief_gamerules[ "mystery_box_enabled" ].current );
-	is_magic_on = is_true( level.grief_gamerules[ "magic" ].lastvalue_this_match );
+	is_magic_on = is_true( level.grief_gamerules[ "magic" ].current );
 	was_magic_on = is_true( level.grief_gamerules[ "magic" ].lastvalue_this_match );
 	was_mysterybox_on = is_true( level.grief_gamerules[ "mystery_box_enabled" ].lastvalue_this_match );
 	if ( was_magic_on && is_magic_on )
@@ -553,4 +554,17 @@ gamerule_toggle_shock_on_pain()
 {
 	turn_on = is_true( level.grief_gamerules[ "shock_on_pain" ].current );
 	level.shock_onpain = turn_on;
+}
+
+gamerule_toggle_grief_brutus_logic()
+{
+	is_brutus_on = is_true( level.grief_gamerules[ "grief_brutus_enabled" ].current );
+	if ( is_brutus_on )
+	{
+		level thread [[ level.custom_grief_brutus_logic ]]();
+	}
+	else 
+	{
+		level notify( "end_grief_brutus_logic" );
+	}
 }

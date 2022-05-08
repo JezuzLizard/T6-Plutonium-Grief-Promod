@@ -14,9 +14,10 @@ common_init()
 	flag_wait( "start_zombie_round_logic" );
 	level thread maps/mp/zm_alcatraz_traps::init_fan_trap_trigs();
 	level thread maps/mp/zm_alcatraz_traps::init_acid_trap_trigs();
-	if ( getDvarInt( "grief_brutus_enabled") == 1 )
+	level.custom_grief_brutus_logic = ::grief_brutus_logic;
+	if ( level.grief_gamerules[ "grief_brutus_enabled" ].current )
 	{
-		level thread grief_brutus_logic();
+		level thread [[ level.custom_grief_brutus_logic ]]();
 	}
 }
 
@@ -157,6 +158,8 @@ give_player_shiv()
 grief_brutus_logic()
 {
 	level endon( "end_game" );
+	level notify( "end_grief_brutus_logic" );
+	level endon( "end_grief_brutus_logic" );
 	while ( true )
 	{
 		flag_wait( "spawn_zombies" );
