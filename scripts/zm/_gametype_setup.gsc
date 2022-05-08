@@ -27,46 +27,7 @@ struct_class_init_override()
 	level.struct_class_names[ "script_unitrigger_type" ] = [];
 	foreach ( s_struct in level.struct )
 	{
-		if ( isDefined( s_struct.targetname ) )
-		{
-			if ( !isDefined( level.struct_class_names[ "targetname" ][ s_struct.targetname ] ) )
-			{
-				level.struct_class_names[ "targetname" ][ s_struct.targetname ] = [];
-			}
-			size = level.struct_class_names[ "targetname" ][ s_struct.targetname ].size;
-			level.struct_class_names[ "targetname" ][ s_struct.targetname ][ size ] = s_struct;
-		}
-		if ( isDefined( s_struct.target ) )
-		{
-			if ( !isDefined( level.struct_class_names[ "target" ][ s_struct.target ] ) )
-			{
-				level.struct_class_names[ "target" ][ s_struct.target ] = [];
-			}
-			size = level.struct_class_names[ "target" ][ s_struct.target ].size;
-			level.struct_class_names[ "target" ][ s_struct.target ][ size ] = s_struct;
-		}
-		if ( isDefined( s_struct.script_noteworthy ) )
-		{
-			if ( !isDefined( level.struct_class_names[ "script_noteworthy" ][ s_struct.script_noteworthy ] ) )
-			{
-				level.struct_class_names[ "script_noteworthy" ][ s_struct.script_noteworthy ] = [];
-			}
-			size = level.struct_class_names[ "script_noteworthy" ][ s_struct.script_noteworthy ].size;
-			level.struct_class_names[ "script_noteworthy" ][ s_struct.script_noteworthy ][ size ] = s_struct;
-		}
-		if ( isDefined( s_struct.script_linkname ) )
-		{
-			level.struct_class_names[ "script_linkname" ][ s_struct.script_linkname ][ 0 ] = s_struct;
-		}
-		if ( isDefined( s_struct.script_unitrigger_type ) )
-		{
-			if ( !isDefined( level.struct_class_names[ "script_unitrigger_type" ][ s_struct.script_unitrigger_type ] ) )
-			{
-				level.struct_class_names[ "script_unitrigger_type" ][ s_struct.script_unitrigger_type ] = [];
-			}
-			size = level.struct_class_names[ "script_unitrigger_type" ][ s_struct.script_unitrigger_type ].size;
-			level.struct_class_names[ "script_unitrigger_type" ][ s_struct.script_unitrigger_type ][ size ] = s_struct;
-		}
+		add_struct( s_struct );
 	}
 	gametype = getDvar( "g_gametype" );
 	location = getDvar( "ui_zm_mapstartlocation" );
@@ -86,10 +47,22 @@ struct_class_init_override()
 	scripts\zm\promod_grief\_gamerules::override_perk_struct_locations();
 }
 
+//Parse restrictions here for perks.
 add_struct( s_struct )
 {
 	if ( isDefined( s_struct.targetname ) )
 	{
+		if ( s_struct.targetname == "zm_perk_machine" && level.grief_restrictions[ "perks" ].enabled && array_validate( level.grief_restrictions[ "perks" ].list ) )
+		{
+			foreach ( perk_restriction in level.grief_restrictions[ "perks" ].list )
+			{
+				if ( isDefined( s_struct.script_noteworthy ) && s_struct.script_noteworthy == perk_restriction )
+				{
+					kill_perk_machine_thread( s_struct.script_noteworthy );
+					return;
+				}
+			}
+		}
 		if ( !isDefined( level.struct_class_names[ "targetname" ][ s_struct.targetname ] ) )
 		{
 			level.struct_class_names[ "targetname" ][ s_struct.targetname ] = [];

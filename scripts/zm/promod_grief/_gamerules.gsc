@@ -11,6 +11,7 @@ init_gamerules()
 	level.is_forever_solo_game = undefined;
 	level.speed_change_round = undefined;
 	level.grief_gamerule_dvar_name = "grief_gamerule_";
+	level.grief_restriction_dvar_name = "grief_restriction_";
 	initialize_gamerule( "scorelimit", 3 );
 	initialize_gamerule( "magic", 1, ::gamerule_adjust_magic );
 	initialize_gamerule( "zombie_round", 20 );
@@ -28,6 +29,8 @@ init_gamerules()
 	initialize_gamerule( "auto_balance_teams", 0 );
 	initialize_gamerule( "shock_on_pain", 1, ::gamerule_toggle_shock_on_pain );
 	initialize_gamerule( "grief_brutus_enabled", 1, ::gamerule_toggle_grief_brutus_logic );
+	initialize_gamerule( "powerups_disabled", 0, ::gamerule_toggle_powerups );
+	initialize_gamerule( "perks_disabled", 0 );
 	init_restrictions();
 }
 
@@ -157,169 +160,101 @@ set_gamerule_for_next_matches( rulename, rulevalue, number_of_matches )
  
 init_restrictions()
 {
-	if ( !isDefined( level.data_maps ) )
+	initialize_restriction( "powerups" );
+	initialize_restriction( "perks" );
+	if ( !isDefined( level.old_powerups_array ) )
 	{
-		level.data_maps = [];
+		level.old_powerups_array = level.zombie_include_powerups;
 	}
-	level.data_maps[ "perks" ] = [];
-	level.data_maps[ "perks" ][ "specialties" ] = [];
-	level.data_maps[ "perks" ][ "specialties" ][ 0 ] = "weapupgrade";
-	level.data_maps[ "perks" ][ "specialties" ][ 1 ] = "armorvest";
-	level.data_maps[ "perks" ][ "specialties" ][ 2 ] = "quickrevive";
-	level.data_maps[ "perks" ][ "specialties" ][ 3 ] = "fastreload";
-	level.data_maps[ "perks" ][ "specialties" ][ 4 ] = "rof";
-	level.data_maps[ "perks" ][ "specialties" ][ 5 ] = "longersprint";
-	level.data_maps[ "perks" ][ "specialties" ][ 6 ] = "deadshot";
-	level.data_maps[ "perks" ][ "specialties" ][ 7 ] = "additionalprimaryweapon";
-	level.data_maps[ "perks" ][ "specialties" ][ 8 ] = "scavenger";
-	level.data_maps[ "perks" ][ "specialties" ][ 9 ] = "finalstand";
-	level.data_maps[ "perks" ][ "specialties" ][ 10 ] = "grenadepulldeath";
-	level.data_maps[ "perks" ][ "specialties" ][ 11 ] = "flakjacket";
-	level.data_maps[ "perks" ][ "specialties" ][ 12 ] = "nomotionsensor";
-	level.data_maps[ "perks" ][ "power_notifies" ] = [];
-	level.data_maps[ "perks" ][ "power_notifies" ][ 0 ] = "Pack_A_Punch";
-	level.data_maps[ "perks" ][ "power_notifies" ][ 1 ] = "juggernog";
-	level.data_maps[ "perks" ][ "power_notifies" ][ 2 ] = "revive";
-	level.data_maps[ "perks" ][ "power_notifies" ][ 3 ] = "sleight";
-	level.data_maps[ "perks" ][ "power_notifies" ][ 4 ] = "doubletap";
-	level.data_maps[ "perks" ][ "power_notifies" ][ 5 ] = "marathon";
-	level.data_maps[ "perks" ][ "power_notifies" ][ 6 ] = "deadshot";
-	level.data_maps[ "perks" ][ "power_notifies" ][ 7 ] = "additionalprimaryweapon";
-	level.data_maps[ "perks" ][ "power_notifies" ][ 8 ] = "tombstone";
-	level.data_maps[ "perks" ][ "power_notifies" ][ 9 ] = "chugabud";
-	level.data_maps[ "perks" ][ "power_notifies" ][ 10 ] = "electric_cherry";
-	level.data_maps[ "perks" ][ "power_notifies" ][ 11 ] = "divetonuke";
-	level.data_maps[ "perks" ][ "power_notifies" ][ 12 ] = "specialty_nomotionsensor";
+	if ( level.grief_restrictions[ "powerups" ].enabled && array_validate( level.grief_restrictions[ "powerups" ].list ) )
+	{
+		powerup_restriction_keys = level.grief_restrictions[ "powerups" ].list;
+		for ( i = 0; i < .size; i++ )
+		{
+			if ( isInArray( level.zombie_include_powerups, powerup_restriction_keys[ i ] ) )
+			{
+				arrayRemoveKey( level.zombie_include_powerups, powerup_restriction_keys[ i ] );
+				i = 0;
+			}
+		}
+	}
+}
 
-	level.data_maps[ "powerups" ] = [];
-	level.data_maps[ "powerups" ][ "names" ] = [];
-	level.data_maps[ "powerups" ][ "names" ][ 0 ] = "nuke";
-	level.data_maps[ "powerups" ][ "names" ][ 1 ] = "insta_kill";
-	level.data_maps[ "powerups" ][ "names" ][ 2 ] = "full_ammo";
-	level.data_maps[ "powerups" ][ "names" ][ 3 ] = "double_points";
-	level.data_maps[ "powerups" ][ "names" ][ 4 ] = "meat_stink";
-	level.data_maps[ "powerups" ][ "names" ][ 5 ] = "fire_sale";
-	level.data_maps[ "powerups" ][ "names" ][ 6 ] = "zombie_blood";
-	level.data_maps[ "powerups" ][ "allowed" ] = [];
-	level.data_maps[ "powerups" ][ "allowed" ][ 0 ] = true;
-	level.data_maps[ "powerups" ][ "allowed" ][ 1 ] = true;
-	level.data_maps[ "powerups" ][ "allowed" ][ 2 ] = true;
-	level.data_maps[ "powerups" ][ "allowed" ][ 3 ] = true;
-	level.data_maps[ "powerups" ][ "allowed" ][ 4 ] = true;
-	level.data_maps[ "powerups" ][ "allowed" ][ 5 ] = true;
-	level.data_maps[ "powerups" ][ "allowed" ][ 6 ] = true;
+initialize_restriction( restriction_name )
+{
+	if ( !isDefined( level.grief_restrictions ) )
+	{
+		level.grief_restrictions = [];
+	}
+	dvar_string = level.grief_restriction_dvar_name + restriction_name;
+	restriction_dvar_value = getDvar( dvar_string );
+	level.grief_restrictions[ restriction_name ] = spawnStruct();
+	level.grief_restrictions[ restriction_name ].enabled = true;
+	level.grief_restrictions[ restriction_name ].list = [];
+	if ( restriction_dvar_value != "" )
+	{
+		level.grief_restrictions[ restriction_name ].list = strTok( restriction_dvar_value, " " );
+	}
+}
 
-	level.grief_restrictions = [];
-
-    // getDvarIntDefault
-	level.grief_restrictions[ "perks" ] = getDvar( "grief_restrictions_perks" );
-	level.grief_restrictions[ "powerups" ] = getDvar( "grief_restrictions_powerups" );
-
-    level thread restrictions();
+kill_perk_machine_thread( perk )
+{
+	switch ( perk )
+	{
+		case "specialty_weapupgrade":
+			if ( isdefined( level._custom_turn_packapunch_on ) )
+				killThread( level._custom_turn_packapunch_on );
+			else
+				killThread( ::turn_packapunch_on );
+			break;
+		case "specialty_armorvest":
+			if ( isdefined( level.zombiemode_using_juggernaut_perk ) && level.zombiemode_using_juggernaut_perk )
+				killThread( ::turn_jugger_on );
+			break;
+		case "specialty_quickrevive":
+			if ( isdefined( level.zombiemode_using_revive_perk ) && level.zombiemode_using_revive_perk )
+				killThread( ::turn_revive_on );
+			break;
+		case "specialty_fastreload":
+			if ( isdefined( level.zombiemode_using_sleightofhand_perk ) && level.zombiemode_using_sleightofhand_perk )
+				killThread( ::turn_sleight_on );
+			break;
+		case "specialty_rof":
+			if ( isdefined( level.zombiemode_using_doubletap_perk ) && level.zombiemode_using_doubletap_perk )
+				killThread( ::turn_doubletap_on );
+			break;
+		case "specialty_longersprint":
+			if ( isdefined( level.zombiemode_using_marathon_perk ) && level.zombiemode_using_marathon_perk )
+				killThread( ::turn_marathon_on );
+			break;
+		case "specialty_deadshot":
+			if ( isdefined( level.zombiemode_using_deadshot_perk ) && level.zombiemode_using_deadshot_perk )
+				killThread( ::turn_deadshot_on );
+			break;
+		case "specialty_additionalprimaryweapon":
+			if ( isdefined( level.zombiemode_using_additionalprimaryweapon_perk ) && level.zombiemode_using_additionalprimaryweapon_perk )
+				killThread( ::turn_additionalprimaryweapon_on );
+			break;
+		case "specialty_scavenger":
+			if ( isdefined( level.zombiemode_using_tombstone_perk ) && level.zombiemode_using_tombstone_perk )
+				killThread( ::turn_tombstone_on );
+			break;
+		case "specialty_finalstand":
+			if ( isdefined( level.zombiemode_using_chugabud_perk ) && level.zombiemode_using_chugabud_perk )
+				killThread( ::turn_chugabud_on );
+			break;
+		default:
+			if ( isDefined( level._custom_perks[ perk ] ) )
+			{
+				killThread( level._custom_perks[ perk ].perk_machine_thread );
+			}
+			break;
+	}
 }
 
 restrictions()
 {   
     level waittill( "initial_blackscreen_passed" );
-
-    perk_restrictions();
-	powerup_restrictions();
-}
-
-perk_restrictions()
-{
-    // if ( level.script != "zm_transit" )
-    //     return;
-
-    for ( i = 0; i < level.data_maps[ "perks" ][ "power_notifies" ].size; i++ )
-    {
-        if ( is_perk_restricted( level.data_maps[ "perks" ][ "specialties" ][ i ] ) || is_perk_restricted( level.data_maps[ "perks" ][ "power_notifies" ][ i ] ) )
-        {
-            trigger = getent( "specialty_" + level.data_maps[ "perks" ][ "specialties" ][ i ], "script_noteworthy" );
-            if ( isDefined( trigger ) && !is_true( trigger.is_restricted ) )
-            {
-                hide_restricted_perk( trigger );
-                trigger.is_restricted = true;
-            }
-        }
-        else 
-        {
-            trigger = getent( "specialty_" + level.data_maps[ "perks" ][ "specialties" ][ i ], "script_noteworthy" );
-            if ( isDefined( trigger ) )
-            {
-                level thread server_safe_notify_thread( level.data_maps[ "perks" ][ "power_notifies" ][ i ] + "_on", i );
-            }
-        }
-    }
-}
-
-is_perk_restricted( perk )
-{
-	if ( level.grief_restrictions[ "perks" ] == "" )
-	{
-		return false;
-	}
-	perk_restrictions = strTok( level.grief_restrictions[ "perks" ], " " );
-	foreach ( restriction in perk_restrictions )
-	{
-		if ( perk == restriction || restriction == "all" )
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-hide_restricted_perk( perk_trigger )
-{
-	perk_machine = getEnt( perk_trigger.target, "targetname" );
-	if ( !is_true( perk_machine.is_restricted ) )
-	{
-		perk_trigger trigger_off_proc();
-		perk_trigger.clip notSolid();
-		perk_machine = getEnt( perk_trigger.target, "targetname" );
-		perk_machine hide();
-		perk_machine.is_restricted = true;
-	}
-}
-
-show_restricted_perk( perk_trigger )
-{
-	perk_machine = getEnt( perk_trigger.target, "targetname" );
-	if ( is_true( perk_machine.is_restricted ) )
-	{
-		perk_trigger trigger_on_proc();
-		perk_trigger.clip solid();
-		perk_machine = getEnt( perk_trigger.target, "targetname" );
-		perk_machine show();
-		perk_machine.is_restricted = false;
-	}
-}
-
-server_safe_notify_thread( notify_name, index )
-{
-	wait( ( index * 0.05 ) + 0.05 );
-	level notify( notify_name );
-}
-
-powerup_restrictions()
-{	
-	if ( level.grief_restrictions[ "powerups" ] == "" )
-	{
-		return;
-	}
-	powerup_restrictions = strTok( level.grief_restrictions[ "powerups" ], " " );
-	for ( i = 0; i < level.data_maps[ "powerups" ][ "names" ].size; i++ )
-	{
-		for ( j = 0; j < powerup_restrictions.size; j++ )
-		{
-			if ( isSubStr( level.data_maps[ "powerups" ][ "names" ][ i ], powerup_restrictions[ j ] ) || level.grief_restrictions[ "powerups" ] == "all" )
-			{
-				level.data_maps[ "powerups" ][ "allowed" ][ i ] = false;
-				break;
-			}
-		}
-	}
 }
 
 override_perk_struct_locations()
@@ -395,26 +330,6 @@ cast_to_vector( vector_string )
 	return vector;
 }
 
-set_knife_lunge( arg )
-{
-	if ( arg == 1 )
-	{	
-		setDvar( "grief_gamerule_knife_lunge", arg );
-		foreach ( player in level.players )
-		{	
-			player setClientDvar( "aim_automelee_range", 120 );
-		}
-	}
-	else if ( arg == 0 )
-	{	
-		setDvar( "grief_gamerule_knife_lunge", arg );
-		foreach ( player in level.players )
-		{	
-			player setClientDvar( "aim_automelee_range", 0 );
-		}
-	}
-}
-
 reduce_starting_ammo()
 {	
 	wait 0.05;
@@ -456,41 +371,11 @@ gamerule_adjust_magic()
 			}
 
 			//Kill the threads because they don't endon "death" to prevent script errors.
-			if ( isdefined( level.zombiemode_using_doubletap_perk ) && level.zombiemode_using_doubletap_perk )
-				killThread( ::turn_doubletap_on );
-
-			if ( isdefined( level.zombiemode_using_marathon_perk ) && level.zombiemode_using_marathon_perk )
-				killThread( ::turn_marathon_on );
-
-			if ( isdefined( level.zombiemode_using_juggernaut_perk ) && level.zombiemode_using_juggernaut_perk )
-				killThread( ::turn_jugger_on );
-
-			if ( isdefined( level.zombiemode_using_revive_perk ) && level.zombiemode_using_revive_perk )
-				killThread( ::turn_revive_on );
-
-			if ( isdefined( level.zombiemode_using_sleightofhand_perk ) && level.zombiemode_using_sleightofhand_perk )
-				killThread( ::turn_sleight_on );
-
-			if ( isdefined( level.zombiemode_using_deadshot_perk ) && level.zombiemode_using_deadshot_perk )
-				killThread( ::turn_deadshot_on );
-
-			if ( isdefined( level.zombiemode_using_tombstone_perk ) && level.zombiemode_using_tombstone_perk )
-				killThread( ::turn_tombstone_on );
-
-			if ( isdefined( level.zombiemode_using_additionalprimaryweapon_perk ) && level.zombiemode_using_additionalprimaryweapon_perk )
-				killThread( ::turn_additionalprimaryweapon_on );
-
-			if ( isdefined( level.zombiemode_using_chugabud_perk ) && level.zombiemode_using_chugabud_perk )
-				killThread( ::turn_chugabud_on );
-
 			foreach ( perk in level.data_maps[ "perks" ][ "specialties" ] )
 			{
 				perk_str = "specialty_" + perk;
+				kill_perk_machine_thread( perk_str );
 				perk_machine_removal( perk_str );
-				if ( isDefined( level._custom_perks[ perk_str ] ) )
-				{
-					killThread( level._custom_perks[ perk_str ].perk_machine_thread );
-				}
 			}
 			flag_clear( "zombie_drop_powerups" );
 		}
@@ -566,5 +451,19 @@ gamerule_toggle_grief_brutus_logic()
 	else 
 	{
 		level notify( "end_grief_brutus_logic" );
+	}
+}
+
+gamerule_toggle_powerups()
+{
+	will_powerups_be_disabled = is_true( level.grief_gamerules[ "powerups_disabled" ].current );
+	if ( will_powerups_be_disabled )
+	{
+		level.old_powerups_array = level.zombie_include_powerups;
+		level.zombie_include_powerups = [];
+	}
+	else 
+	{
+		level.zombie_include_powerups = level.old_powerups_array;
 	}
 }
