@@ -15,6 +15,10 @@
 
 struct_init()
 {
+	if ( !level.grief_ffa )
+	{
+		//level.spawnpoint_system_using_script_ints = true;
+	}
 	scripts/zm/_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, 86, 0 ), ( 1403, 9662, 1336 ) );
 	coordinates = array( ( 1422, 9597, 1336 ), ( 1432, 9745, 1336 ), ( 2154, 9062, 1336 ), ( 1969, 9950, 1336 ),
 							( 2150, 9496, 1336 ), ( 2144, 9931, 1336 ), ( 1665, 9053, 1336 ), ( 1661, 9211, 1336 ) );
@@ -44,6 +48,7 @@ main()
 	array_thread( level.zombie_spawners, ::add_spawn_function, ::remove_zombie_hats_for_grief );
 	maps/mp/zombies/_zm_ai_brutus::precache();
 	maps/mp/zombies/_zm_ai_brutus::init();
+	level._effect["butterflies"] = loadfx( "maps/zombie_alcatraz/fx_alcatraz_skull_elec" );
 	a_t_door_triggers = getentarray( "zombie_door", "targetname" );
 	triggers = a_t_door_triggers;
 	i = 0;
@@ -115,19 +120,6 @@ main()
 			}
 		}
 	}
-	t_temp = getent( "tower_trap_activate_trigger", "targetname" );
-	t_temp delete();
-	t_temp = getent( "tower_trap_range_trigger", "targetname" );
-	t_temp delete();
-	e_model = getent( "trap_control_docks", "targetname" );
-	e_model delete();
-	e_brush = getent( "tower_shockbox_door", "targetname" );
-	e_brush delete();
-	a_t_travel_triggers = getentarray( "travel_trigger", "script_noteworthy" );
-	foreach ( trigger in a_t_travel_triggers )
-	{
-		trigger delete();
-	}
 	a_e_gondola_lights = getentarray( "gondola_state_light", "targetname" );
 	foreach ( light in a_e_gondola_lights )
 	{
@@ -155,46 +147,22 @@ main()
 	}
 	m_gondola = getent( "zipline_gondola", "targetname" );
 	m_gondola delete();
-	t_ride_trigger = getent( "gondola_ride_trigger", "targetname" );
-	t_ride_trigger delete();
 	a_classic_clips = getentarray( "classic_clips", "targetname" );
 	foreach ( clip in a_classic_clips )
 	{
 		clip connectpaths();
 		clip delete();
 	}
-	a_afterlife_props = getentarray( "afterlife_show", "targetname" );
-	foreach ( m_prop in a_afterlife_props )
-	{
-		m_prop delete();
-	}
-	spork_portal = getent( "afterlife_show_spork", "targetname" );
-	spork_portal delete();
-	a_audio = getentarray( "at_headphones", "script_noteworthy" );
-	foreach ( model in a_audio )
-	{
-		model delete();
-	}
 	m_spoon_pickup = getent( "pickup_spoon", "targetname" );
 	m_spoon_pickup delete();
 	t_sq_bg = getent( "sq_bg_reward_pickup", "targetname" );
 	t_sq_bg delete();
-	t_crafting_table = getentarray( "open_craftable_trigger", "targetname" );
-	foreach ( trigger in t_crafting_table )
-	{
-		trigger delete();
-	}
 	t_warden_fence = getent( "warden_fence_damage", "targetname" );
 	t_warden_fence delete();
 	m_plane_about_to_crash = getent( "plane_about_to_crash", "targetname" );
 	m_plane_about_to_crash delete();
 	m_plane_craftable = getent( "plane_craftable", "targetname" );
 	m_plane_craftable delete();
-	for ( i = 1; i <= 5; i++ )
-	{
-		m_key_lock = getent( "masterkey_lock_" + i, "targetname" );
-		m_key_lock delete();
-	}
 	m_shower_door = getent( "shower_key_door", "targetname" );
 	m_shower_door delete();
 	m_nixie_door = getent( "nixie_door_left", "targetname" );
@@ -216,35 +184,12 @@ main()
 	e_elevator_bottom_gate delete();
 	e_elevator_bottom_gate = getent( "elevator_bottom_gate_r", "targetname" );
 	e_elevator_bottom_gate delete();
-	m_docks_puzzle = getent( "cable_puzzle_gate_01", "targetname" );
-	m_docks_puzzle delete();
-	m_docks_puzzle = getent( "cable_puzzle_gate_02", "targetname" );
-	m_docks_puzzle delete();
 	m_infirmary_case = getent( "infirmary_case_door_left", "targetname" );
 	m_infirmary_case delete();
 	m_infirmary_case = getent( "infirmary_case_door_right", "targetname" );
 	m_infirmary_case delete();
 	fake_plane_part = getent( "fake_veh_t6_dlc_zombie_part_control", "targetname" );
 	fake_plane_part delete();
-	for ( i = 1; i <= 3; i++ )
-	{
-		m_generator = getent( "generator_panel_" + i, "targetname" );
-		m_generator delete();
-	}
-	a_m_generator_core = getentarray( "generator_core", "targetname" );
-	foreach ( generator in a_m_generator_core )
-	{
-		generator delete();
-	}
-	e_playerclip = getent( "electric_chair_playerclip", "targetname" );
-	e_playerclip delete();
-	for ( i = 1; i <= 4; i++ )
-	{
-		t_use = getent( "trigger_electric_chair_" + i, "targetname" );
-		t_use delete();
-		m_chair = getent( "electric_chair_" + i, "targetname" );
-		m_chair delete();
-	}
 	a_afterlife_interact = getentarray( "afterlife_interact", "targetname" );
 	foreach ( model in a_afterlife_interact )
 	{
@@ -252,6 +197,22 @@ main()
 		wait 0.1;
 	}
 	scripts/zm/zm_prison/locs/location_common::common_init();
+	level notify( "sleight_on" );
+	wait_network_frame();
+	level notify( "doubletap_on" );
+	wait_network_frame();
+	level notify( "juggernog_on" );
+	wait_network_frame();
+	level notify( "electric_cherry_on" );
+	wait_network_frame();
+	level notify( "deadshot_on" );
+	wait_network_frame();
+	level notify( "divetonuke_on" );
+	wait_network_frame();
+	level notify( "additionalprimaryweapon_on" );
+	wait_network_frame();
+	level notify( "Pack_A_Punch_on" );
+	wait_network_frame();
 }
 
 remove_zombie_hats_for_grief()
