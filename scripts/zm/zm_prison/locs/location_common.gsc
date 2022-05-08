@@ -78,6 +78,7 @@ common_init()
 	{
 		level thread [[ level.custom_grief_brutus_logic ]]();
 	}
+	level.global_brutus_powerup_prevention = true;
 }
 
 enemy_location_override( zombie, enemy )
