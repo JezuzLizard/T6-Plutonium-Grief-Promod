@@ -142,7 +142,7 @@ register_perk_struct( perk_name, perk_model, perk_angles, perk_coordinates )
 	perk_struct.angles = perk_angles;
 	perk_struct.origin = perk_coordinates;
 	perk_struct.targetname = "zm_perk_machine";
-	if ( name == "specialty_weapupgrade" )
+	if ( perk_name == "specialty_weapupgrade" )
 	{
 		flag_struct = spawnStruct();
 		flag_struct.targetname = "weapupgrade_flag_targ";
