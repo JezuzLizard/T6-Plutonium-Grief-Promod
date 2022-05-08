@@ -51,6 +51,7 @@ init()
 	level thread check_quickrevive_for_hotjoin();
 	level thread remove_round_number();
 	level.speed_change_round = undefined;
+	level.shock_onpain = level.grief_gamerules[ "shock_on_pain" ].current;
 	wait 15;
 	level thread instructions_on_all_players();
 }

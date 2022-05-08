@@ -26,6 +26,8 @@ init_gamerules()
 	initialize_gamerule( "disable_doors", 1 );
 	initialize_gamerule( "mystery_box_enabled", 0, ::gamerule_toggle_mysterybox );
 	initialize_gamerule( "auto_balance_teams", 0 );
+	initialize_gamerule( "shock_on_pain", 1, ::gamerule_toggle_shock_on_pain );
+	//level thread watch_gamerule_change();
 	init_restrictions();
 }
 
@@ -439,8 +441,9 @@ getDvarStringDefault( dvarname, default_value )
 gamerule_adjust_magic()
 {
 	turn_on = is_true( level.grief_gamerules[ "magic" ].current );
+	is_on = is_true( level.grief_gamerules[ "magic" ].current );
 	was_on = is_true( level.grief_gamerules[ "magic" ].lastvalue_this_match );
-	if ( was_on )
+	if ( was_on && is_on )
 	{
 		if ( !turn_on )
 		{
@@ -526,19 +529,30 @@ gamerule_adjust_player_health()
 gamerule_toggle_mysterybox()
 {
 	turn_on = is_true( level.grief_gamerules[ "mystery_box_enabled" ].current );
-	was_on = is_true( level.grief_gamerules[ "magic" ].lastvalue_this_match );
-	if ( was_on )
+	is_magic_on = is_true( level.grief_gamerules[ "magic" ].lastvalue_this_match );
+	was_magic_on = is_true( level.grief_gamerules[ "magic" ].lastvalue_this_match );
+	was_mysterybox_on = is_true( level.grief_gamerules[ "mystery_box_enabled" ].lastvalue_this_match );
+	if ( was_magic_on && is_magic_on )
 	{
-		if ( !turn_on )
+		if ( was_mysterybox_on )
 		{
-			if ( isDefined( level.chests ) )
+			if ( !turn_on )
 			{
-				foreach ( chest in level.chests )
+				if ( isDefined( level.chests ) )
 				{
-					chest hide_chest();
-					chest notify( "kill_chest_think" );
+					foreach ( chest in level.chests )
+					{
+						chest hide_chest();
+						chest notify( "kill_chest_think" );
+					}
 				}
 			}
 		}
 	}
+}
+
+gamerule_toggle_shock_on_pain()
+{
+	turn_on = is_true( level.grief_gamerules[ "shock_on_pain" ].current );
+	level.shock_onpain = turn_on;
 }
