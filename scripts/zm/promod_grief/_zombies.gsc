@@ -288,3 +288,42 @@ meat_bounce_override( pos, normal, ent ) //checked matches cerberus output
 	}
 	self delete();
 }
+
+init_zombie_run_cycle()
+{
+	// if ( isdefined( level.speed_change_round ) )
+	// {
+	// 	if ( level.round_number >= level.speed_change_round )
+	// 	{
+	// 		speed_percent = 0.2 + ( level.round_number - level.speed_change_round ) * 0.2;
+	// 		speed_percent = min( speed_percent, 1 );
+	// 		change_round_max = int( level.speed_change_max * speed_percent );
+	// 		change_left = change_round_max - level.speed_change_num;
+
+	// 		if ( change_left == 0 )
+	// 		{
+	// 			self set_zombie_run_cycle();
+	// 			return;
+	// 		}
+
+	// 		change_speed = randomint( 100 );
+
+	// 		if ( change_speed > 80 )
+	// 		{
+	// 			self change_zombie_run_cycle();
+	// 			return;
+	// 		}
+
+	// 		zombie_count = get_current_zombie_count();
+	// 		zombie_left = level.zombie_ai_limit - zombie_count;
+
+	// 		if ( zombie_left == change_left )
+	// 		{
+	// 			self change_zombie_run_cycle();
+	// 			return;
+	// 		}
+	// 	}
+	// }
+
+	self set_zombie_run_cycle();
+}

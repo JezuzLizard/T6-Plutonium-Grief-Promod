@@ -24,6 +24,7 @@ main()
 	replaceFunc( maps\mp\zombies\_zm_stats::update_players_stats_at_match_end, scripts\zm\promod_grief\_stats::update_players_stats_at_match_end_override );
 	replaceFunc( maps\mp\gametypes_zm\_zm_gametype::track_encounters_win_stats, scripts\zm\promod_grief\_stats::track_encounters_win_stats_override );
 	replaceFunc( maps\mp\zombies\_zm_weapons::show_all_weapon_buys, scripts\zm\promod_grief\_weapons::show_all_weapon_buys_override );
+	replaceFunc( maps\mp\zombies\_zm_utility::init_zombie_run_cycle, scripts\zm\promod_grief\_zombies::init_zombie_run_cycle_override );
 	set_team_count();
 	precache();
 }
