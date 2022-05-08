@@ -182,33 +182,39 @@ register_map_initial_spawnpoint( spawnpoint_coordinates, spawnpoint_angles, scri
 	level.struct_class_names[ "script_noteworthy" ][ "initial_spawn" ][ player_initial_spawnpoint_size ] = spawnpoint_struct;
 }
 
-wallbuy( weapon_angles, weapon_coordinates, chalk_fx, weapon_name, weapon_model, target, targetname )
+wallbuy( weapon_name, target, targetname, origin, angles )
 {
-	tempmodel = spawn( "script_model", ( 0, 0, 0 ) );
-	precachemodel( weapon_model );
 	unitrigger_stub = spawnstruct();
-	unitrigger_stub.origin = weapon_coordinates;
-	unitrigger_stub.angles = weapon_angles;
-	tempmodel.origin = weapon_coordinates;
-	tempmodel.angles = weapon_angles;
-	mins = undefined;
-	maxs = undefined;
-	absmins = undefined;
-	absmaxs = undefined;
-	tempmodel setmodel( weapon_model );
-	tempmodel useweaponhidetags( weapon_name );
-	mins = tempmodel getmins();
-	maxs = tempmodel getmaxs();
-	absmins = tempmodel getabsmins();
-	absmaxs = tempmodel getabsmaxs();
+	unitrigger_stub.origin = origin;
+	unitrigger_stub.angles = angles;
+
+	model_name = undefined;
+	if ( weapon_name == "claymore_zm" )
+	{
+		model_name = "t6_wpn_claymore_world"; // getWeaponModel for claymore is wrong model
+	}
+
+	wallmodel = spawn_weapon_model( weapon_name, model_name, origin, angles );
+	wallmodel.targetname = target;
+	wallmodel useweaponhidetags( weapon_name );
+	wallmodel hide();
+
+	absmins = wallmodel getabsmins();
+	absmaxs = wallmodel getabsmaxs();
 	bounds = absmaxs - absmins;
-	unitrigger_stub.script_length = bounds[ 0 ] * 0.25;
+
+	unitrigger_stub.script_length = 64;
 	unitrigger_stub.script_width = bounds[ 1 ];
 	unitrigger_stub.script_height = bounds[ 2 ];
-	unitrigger_stub.origin -= anglesToRight( unitrigger_stub.angles ) * ( unitrigger_stub.script_length * 0.4 );
 	unitrigger_stub.target = target;
 	unitrigger_stub.targetname = targetname;
 	unitrigger_stub.cursor_hint = "HINT_NOICON";
+
+	// move model foreward so it always shows in front of chalk
+	move_amount = anglesToRight( wallmodel.angles ) * -0.3;
+	wallmodel.origin += move_amount;
+	unitrigger_stub.origin += move_amount;
+
 	if ( unitrigger_stub.targetname == "weapon_upgrade" )
 	{
 		unitrigger_stub.cost = get_weapon_cost( weapon_name );
@@ -228,32 +234,66 @@ wallbuy( weapon_angles, weapon_coordinates, chalk_fx, weapon_name, weapon_model,
 			unitrigger_stub.hint_string = &"ZOMBIE_WEAPONCOSTONLY";
 		}
 	}
+
 	unitrigger_stub.weapon_upgrade = weapon_name;
 	unitrigger_stub.script_unitrigger_type = "unitrigger_box_use";
 	unitrigger_stub.require_look_at = 1;
 	unitrigger_stub.require_look_from = 0;
 	unitrigger_stub.zombie_weapon_upgrade = weapon_name;
 	maps/mp/zombies/_zm_unitrigger::unitrigger_force_per_player_triggers( unitrigger_stub, 1 );
+
 	if ( is_melee_weapon( weapon_name ) )
 	{
-		if ( weapon_name == "tazer_knuckles_zm" && isDefined( level.taser_trig_adjustment ) )
+		melee_weapon = undefined;
+		foreach(melee_weapon in level._melee_weapons)
 		{
-			unitrigger_stub.origin += level.taser_trig_adjustment;
+			if(melee_weapon.weapon_name == weapon_name)
+			{
+				break;
+			}
 		}
+
+		if(isDefined(melee_weapon))
+		{
+			unitrigger_stub.cost = melee_weapon.cost;
+			unitrigger_stub.hint_string = melee_weapon.hint_string;
+			unitrigger_stub.weapon_name = melee_weapon.weapon_name;
+			unitrigger_stub.flourish_weapon_name = melee_weapon.flourish_weapon_name;
+			unitrigger_stub.ballistic_weapon_name = melee_weapon.ballistic_weapon_name;
+			unitrigger_stub.ballistic_upgraded_weapon_name = melee_weapon.ballistic_upgraded_weapon_name;
+			unitrigger_stub.vo_dialog_id = melee_weapon.vo_dialog_id;
+			unitrigger_stub.flourish_fn = melee_weapon.flourish_fn;
+
+			if(is_true(level.disable_melee_wallbuy_icons))
+			{
+				unitrigger_stub.cursor_hint = "HINT_NOICON";
+				unitrigger_stub.cursor_hint_weapon = undefined;
+			}
+			else
+			{
+				unitrigger_stub.cursor_hint = "HINT_WEAPON";
+				unitrigger_stub.cursor_hint_weapon = melee_weapon.weapon_name;
+			}
+		}
+
+		if(weapon_name == "tazer_knuckles_zm")
+		{
+			unitrigger_stub.origin += anglesToForward(angles) * -7;
+			unitrigger_stub.origin += anglesToRight(angles) * -2;
+		}
+
+		wallmodel.origin += anglesToForward(angles) * -8; // _zm_melee_weapon::melee_weapon_show moves this back
+
 		maps/mp/zombies/_zm_unitrigger::register_static_unitrigger( unitrigger_stub, ::melee_weapon_think );
-	}
-	else if ( weapon_name == "claymore_zm" )
-	{
-		unitrigger_stub.prompt_and_visibility_func = ::claymore_unitrigger_update_prompt;
-		maps/mp/zombies/_zm_unitrigger::register_static_unitrigger( unitrigger_stub, ::buy_claymores );
 	}
 	else
 	{
 		unitrigger_stub.prompt_and_visibility_func = ::wall_weapon_update_prompt;
 		maps/mp/zombies/_zm_unitrigger::register_static_unitrigger( unitrigger_stub, ::weapon_spawn_think );
 	}
-	tempmodel delete();
-	thread playchalkfx( chalk_fx, weapon_coordinates, weapon_angles );
+
+	chalk_fx = weapon_name + "_fx";
+	level thread playchalkfx( chalk_fx, origin, angles );
 }
 
 playchalkfx( effect, origin, angles ) //custom function

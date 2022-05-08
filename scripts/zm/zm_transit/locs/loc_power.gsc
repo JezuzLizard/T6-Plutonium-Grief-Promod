@@ -91,12 +91,11 @@ power_main()
 
 init_wallbuys()
 {
-	//wallbuy( ( 0, 90, 0), ( 10559, 8226, -504 ), "m14_zm_fx", "m14_zm", "t6_wpn_ar_m14_world", "m14", "weapon_upgrade" );
-	scripts/zm/_gametype_setup::wallbuy( ( 0, -180, 0 ), ( 10620, 8135, -490 ), "mp5k_zm_fx", "mp5k_zm", "t6_wpn_smg_mp5_world", "mp5", "weapon_upgrade" );
-	//wallbuy( ( 0, 170, 0 ), ( 11769, 7662, -701 ), "rottweil72_zm_fx", "rottweil72_zm", "t6_wpn_shotty_olympia_world", "olympia", "weapon_upgrade" );
-	scripts/zm/_gametype_setup::wallbuy( ( 0, 0, 0 ), ( 10859, 8146, -353 ), "m16_zm_fx", "m16_zm", "t6_wpn_ar_m16a2_world", "m16", "weapon_upgrade" );
-	scripts/zm/_gametype_setup::wallbuy( ( 0, 90, 0 ), ( 11452, 8692, -521 ), "mp5k_zm_fx", "mp5k_zm", "t6_wpn_smg_mp5_world", "mp5", "weapon_upgrade" );
-	//wallbuy( ( 0, 180, 0 ), ( -4280, -7486, -5 ), "bowie_knife_zm_fx", "bowie_knife_zm", "world_knife_bowie", "bowie_knife", "bowie_upgrade" );
+	scripts/zm/_gametype_setup::wallbuy( "m14_zm", "m14", "weapon_upgrade", ( 10559, 8220, -495 ), ( 0, 90, 0) );
+	scripts/zm/_gametype_setup::wallbuy( "rottweil72_zm", "olympia", "weapon_upgrade", ( 10678, 8135, -476 ), ( 0, 180, 0 ) );
+	scripts/zm/_gametype_setup::wallbuy( "870mcs_zm", "870mcs", "weapon_upgrade", ( 11778, 7664, -697 ), ( 0, 170, 0 ) );
+	scripts/zm/_gametype_setup::wallbuy( "mp5k_zm", "mp5", "weapon_upgrade", ( 11452, 8692, -521 ), ( 0, 90, 0 ) );
+	scripts/zm/_gametype_setup::wallbuy( "bowie_knife_zm", "bowie_knife", "bowie_upgrade", ( 10835, 8145, -353 ), ( 0, 0, 0 ) );
 }
 
 init_barriers()
