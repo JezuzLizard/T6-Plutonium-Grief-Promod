@@ -27,7 +27,6 @@ init_gamerules()
 	initialize_gamerule( "mystery_box_enabled", 0, ::gamerule_toggle_mysterybox );
 	initialize_gamerule( "auto_balance_teams", 0 );
 	initialize_gamerule( "shock_on_pain", 1, ::gamerule_toggle_shock_on_pain );
-	//level thread watch_gamerule_change();
 	init_restrictions();
 }
 
@@ -98,7 +97,6 @@ set_gamerule_for_match( rulename, rulevalue )
 		print( "set_gamerule() " + rulename + " is not initialized" );
 		return;
 	}
-	dvar_string = level.grief_gamerule_dvar_name + rulename;
 	level.grief_gamerules[ rulename ].lastvalue_this_match = level.grief_gamerules[ rulename ].current;
 	level.grief_gamerules[ rulename ].current = rulevalue;
 	if ( isDefined( level.grief_gamerules[ rulename ].callback ) )
