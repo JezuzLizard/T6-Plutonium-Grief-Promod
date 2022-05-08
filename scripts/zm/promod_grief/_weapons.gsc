@@ -3,6 +3,7 @@
 #include maps\mp\zombies\_zm_utility;
 #include maps\mp\zombies\_zm_magicbox;
 #include maps\mp\zombies\_zm_unitrigger;
+#include maps\mp\zombies\_zm_weapons;
 
 set_default_pistol()
 {
@@ -62,4 +63,62 @@ treasure_chest_init_override( start_chest_name ) //checked changed to match cerb
 	}
 	init_starting_chest_location( start_chest_name );
 	array_thread( level.chests, ::treasure_chest_think );
+}
+
+show_all_weapon_buys_override( player, cost, ammo_cost, is_grenade )
+{
+	model = getent( self.target, "targetname" );
+
+	if ( isdefined( model ) )
+		model thread weapon_show( player );
+	else if ( isdefined( self.clientfieldname ) )
+		level setclientfield( self.clientfieldname, 1 );
+
+	self.first_time_triggered = 1;
+
+	if ( isdefined( self.stub ) )
+		self.stub.first_time_triggered = 1;
+
+	if ( !is_grenade )
+		self weapon_set_first_time_hint( cost, ammo_cost );
+
+	if ( !( isdefined( level.dont_link_common_wallbuys ) && level.dont_link_common_wallbuys ) && isdefined( level._spawned_wallbuys ) )
+	{
+		for ( i = 0; i < level._spawned_wallbuys.size; i++ )
+		{
+			wallbuy = level._spawned_wallbuys[i];
+
+			if ( isdefined( self.stub ) && isdefined( wallbuy.trigger_stub ) && isDefined( self.stub.clientfieldname ) && self.stub.clientfieldname == wallbuy.trigger_stub.clientfieldname )
+			{
+
+			}
+			else if ( self.zombie_weapon_upgrade == wallbuy.zombie_weapon_upgrade )
+			{
+				if ( isdefined( wallbuy.trigger_stub ) && isdefined( wallbuy.trigger_stub.clientfieldname ) )
+					level setclientfield( wallbuy.trigger_stub.clientfieldname, 1 );
+				else if ( isdefined( wallbuy.target ) )
+				{
+					model = getent( wallbuy.target, "targetname" );
+
+					if ( isdefined( model ) )
+						model thread weapon_show( player );
+				}
+
+				if ( isdefined( wallbuy.trigger_stub ) )
+				{
+					wallbuy.trigger_stub.first_time_triggered = 1;
+
+					if ( isdefined( wallbuy.trigger_stub.trigger ) )
+					{
+						wallbuy.trigger_stub.trigger.first_time_triggered = 1;
+
+						if ( !is_grenade )
+							wallbuy.trigger_stub.trigger weapon_set_first_time_hint( cost, ammo_cost );
+					}
+				}
+				else if ( !is_grenade )
+					wallbuy weapon_set_first_time_hint( cost, ammo_cost );
+			}
+		}
+	}
 }

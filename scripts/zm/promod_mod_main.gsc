@@ -23,6 +23,7 @@ main()
 	replacefunc( maps\mp\gametypes_zm\_zm_gametype::hide_gump_loading_for_hotjoiners, scripts\zm\promod_grief\_player_spawn::hide_gump_loading_for_hotjoiners_override );
 	replaceFunc( maps\mp\zombies\_zm_stats::update_players_stats_at_match_end, scripts\zm\promod_grief\_stats::update_players_stats_at_match_end_override );
 	replaceFunc( maps\mp\gametypes_zm\_zm_gametype::track_encounters_win_stats, scripts\zm\promod_grief\_stats::track_encounters_win_stats_override );
+	replaceFunc( maps\mp\zombies\_zm_weapons::show_all_weapon_buys, scripts\zm\promod_grief\_weapons::show_all_weapon_buys_override );
 	set_team_count();
 	precache();
 }
