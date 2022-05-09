@@ -34,6 +34,10 @@ init_gamerules()
 	initialize_gamerule( "bullet_shellshock_time", 0.25 );
 	initialize_gamerule( "melee_shellshock_time", 0.75 );
 	initialize_gamerule( "shellshock_cooldown", 0.75 );
+	if ( !level.grief_ffa )
+	{
+		setdvar( "ui_scorelimit", level.grief_gamerules[ "scorelimit" ].current );
+	}
 	init_restrictions();
 }
 
