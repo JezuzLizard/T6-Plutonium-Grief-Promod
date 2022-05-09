@@ -85,7 +85,6 @@ hide_gump_loading_for_hotjoiners_override()
 	self.is_hotjoining = 1;
 	if ( flag( "grief_begin" ) )
 	{
-		print( "hide_gump_loading_for_hotjoiners_override() flag grief_begin is true" );
 		num = self getsnapshotackindex();
 		while ( num == self getsnapshotackindex() )
 			wait 0.25;
@@ -109,7 +108,6 @@ game_mode_spawn_player_logic_override()
 {
 	if ( flag( "grief_begin" ) && !level.zombie_vars[ "spectators_respawn" ]  )
 	{
-		print( "game_mode_spawn_player_logic_override() flag grief_begin and spectators_respawn is not true" );
 		self.is_hotjoin = 1;
 		return true;
 	}
