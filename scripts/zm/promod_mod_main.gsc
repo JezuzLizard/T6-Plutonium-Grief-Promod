@@ -17,6 +17,8 @@
 main()
 {
 	init_gamerules();
+	level.grief_meat_stink_player = getFunction( "maps/mp/gametypes_zm/zgrief", "meat_stink_player" );
+	level.grief_meat_stink_on_ground = getFunction( "maps/mp/gametypes_zm/zgrief", "meat_stink_on_ground" );
 	replaceFunc( maps\mp\zombies\_zm_magicbox::treasure_chest_init, scripts\zm\promod_grief\_weapons::treasure_chest_init_override );
 	replaceFunc( maps\mp\zombies\_zm_game_module::wait_for_team_death_and_round_end, scripts\zm\promod_grief\_round_system::wait_for_team_death_and_round_end_override );
 	replaceFunc( maps\mp\zombies\_zm::getfreespawnpoint, scripts\zm\promod_grief\_player_spawn::getfreespawnpoint_override );
@@ -73,17 +75,27 @@ precache()
 {
 	precacheshellshock( "grief_stab_zm" );
 	precacheStatusIcon( "waypoint_revive" );
-	if ( getDvar( "g_gametype" ) == "zgrief" || getDvar( "mapname" ) == "zm_nuked" )
+	mapname = getDvar( "mapname" );
+	gametype = getDvar( "g_gametype" );
+	if ( gametype == "zgrief" || mapname == "zm_nuked" )
 	{
 		precacheshader( "faction_cdc" );
 		precacheshader( "faction_cia" );
 		precacheshader( "waypoint_revive_cdc_zm" );
 		precacheshader( "waypoint_revive_cia_zm" );
 	}
-	if ( getDvar( "mapname" ) == "zm_prison" )
+	if ( mapname == "zm_prison" )
 	{
 		precacheShader( "faction_guards" );
 		precacheShader( "faction_inmates" );
+	}
+	if ( mapname == "zm_highrise" || mapname == "zm_nuked" )
+	{
+		if ( !isDefined( level._effect ) )
+		{
+			level._effect = [];
+		}
+		level._effect["butterflies"] = loadfx( "maps/zombie/fx_zmb_impact_noharm" );
 	}
 }
 

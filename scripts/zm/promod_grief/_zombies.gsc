@@ -2,8 +2,6 @@
 #include common_scripts\utility;
 #include maps\mp\zombies\_zm_utility;
 #include maps\mp\zombies\_zm;
-#include maps\mp\gametypes_zm\zmeat;
-#include maps\mp\gametypes_zm\zgrief;
 
 //Function Overrides
 round_spawning_override() //checked changed to match cerberus output
@@ -231,7 +229,10 @@ meat_bounce_override( pos, normal, ent ) //checked matches cerberus output
 	{
 		if ( !ent maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
 		{
-			level thread meat_stink_player( ent );
+			if ( isDefined( level.grief_meat_stink_player ) )
+			{
+				level thread [[ level.grief_meat_stink_player ]]( ent );
+			}
 			if ( isdefined( self.owner ) )
 			{
 				maps/mp/_demo::bookmark( "zm_player_meat_stink", GetTime(), ent, self.owner, 0, self );
@@ -268,7 +269,10 @@ meat_bounce_override( pos, normal, ent ) //checked matches cerberus output
 		}
 		if ( isdefined( closest_player ) )
 		{
-			level thread meat_stink_player( closest_player );
+			if ( isDefined( level.grief_meat_stink_player ) )
+			{
+				level thread [[ level.grief_meat_stink_player ]]( closest_player );
+			}
 			if ( isdefined( self.owner ) )
 			{
 				maps/mp/_demo::bookmark( "zm_player_meat_stink", GetTime(), closest_player, self.owner, 0, self );
@@ -281,7 +285,10 @@ meat_bounce_override( pos, normal, ent ) //checked matches cerberus output
 			if ( valid_poi )
 			{
 				self hide();
-				level thread meat_stink_on_ground( self.origin );
+				if ( isDefined( level.grief_meat_stink_on_ground ) )
+				{
+					level thread [[ level.grief_meat_stink_on_ground ]]( self.origin );
+				}
 			}
 		}
 		playfx( level._effect[ "meat_impact" ], self.origin );
