@@ -79,14 +79,10 @@ perks_from_the_sky_override()
 	machines[ 4 ] = getent( machine_triggers[ 4 ].target, "targetname" );
 	move_perk( machines[ 4 ], top_height, 5, 0.001 );
 	machine_triggers[ 4 ] trigger_off();
-	while ( flag( "in_pregame" ) )
-	{
-		wait 0.05;
-	}
-	flag_wait( "initial_blackscreen_passed" );
+	flag_wait( "grief_begin" );
 	for( i = 0; i < 5; i++ )
 	{
-		if( !scripts/zm/grief/gametype_modules/_gamerules::is_perk_restricted( machine_triggers[ i ].script_noteworthy ) )
+		if( !scripts\zm\promod_grief\_gamerules::is_perk_restricted( machine_triggers[ i ].script_noteworthy ) )
 		{
 			wait randomintrange( 1, 4 );
 			bring_random_perk( machines, machine_triggers );

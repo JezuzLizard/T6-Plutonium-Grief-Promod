@@ -259,6 +259,19 @@ kill_perk_machine_thread( perk )
 	}
 }
 
+is_perk_restricted( perk )
+{
+	foreach ( perk_restriction in level.grief_restrictions[ "perks" ].list )
+	{
+		perk_restriction_str = "specialty_" + perk_restriction;
+		if ( perk_restriction_str == perk )
+		{
+			return true;
+		}
+		return false;
+	}
+}
+
 restrictions()
 {   
     level waittill( "initial_blackscreen_passed" );
