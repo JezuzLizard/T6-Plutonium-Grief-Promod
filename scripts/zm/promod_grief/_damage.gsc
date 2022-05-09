@@ -10,14 +10,13 @@ do_game_mode_shellshock( attacker, meansofdeath, weapon ) //checked matched cerb
 	self._being_shellshocked = 1;
 	if ( meansofdeath == "MOD_MELEE" )
 	{
-		self shellshock( "grief_stab_zm", 0.75 );
+		self shellshock( "grief_stab_zm", level.grief_gamerules[ "melee_shellshock_time" ].current );
 	}
 	else 
 	{
 		self shellshock( "grief_stab_zm", level.grief_gamerules[ "bullet_shellshock_time" ].current );
 	}
-
-	wait 0.75;
+	wait level.grief_gamerules[ "shellshock_cooldown" ].current;
 	self._being_shellshocked = 0;
 }
 

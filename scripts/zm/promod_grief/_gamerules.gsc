@@ -32,6 +32,8 @@ init_gamerules()
 	initialize_gamerule( "powerups_disabled", 0, ::gamerule_toggle_powerups );
 	initialize_gamerule( "perks_disabled", 0 );
 	initialize_gamerule( "bullet_shellshock_time", 0.25 );
+	initialize_gamerule( "melee_shellshock_time", 0.75 );
+	initialize_gamerule( "shellshock_cooldown", 0.75 );
 	init_restrictions();
 }
 
