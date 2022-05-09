@@ -20,7 +20,6 @@
 
 ### HUD
 
-- Show score on scoreboard
 - Add gamemode msg at the start of the game
 
 ### Bugs
