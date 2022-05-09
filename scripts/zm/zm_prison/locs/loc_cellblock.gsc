@@ -190,6 +190,36 @@ main()
 	m_infirmary_case delete();
 	fake_plane_part = getent( "fake_veh_t6_dlc_zombie_part_control", "targetname" );
 	fake_plane_part delete();
+	spork_portal = getent( "afterlife_show_spork", "targetname" );
+	spork_portal delete();
+	a_audio = getentarray( "at_headphones", "script_noteworthy" );
+	foreach ( model in a_audio )
+	{
+		model delete();
+	}
+	m_docks_puzzle = getent( "cable_puzzle_gate_01", "targetname" );
+	m_docks_puzzle delete();
+	m_docks_puzzle = getent( "cable_puzzle_gate_02", "targetname" );
+	m_docks_puzzle delete();
+		for ( i = 1; i <= 3; i++ )
+	{
+		m_generator = getent( "generator_panel_" + i, "targetname" );
+		m_generator delete();
+	}
+	a_m_generator_core = getentarray( "generator_core", "targetname" );
+	foreach ( generator in a_m_generator_core )
+	{
+		generator delete();
+	}
+	e_playerclip = getent( "electric_chair_playerclip", "targetname" );
+	e_playerclip delete();
+	for ( i = 1; i <= 4; i++ )
+	{
+		t_use = getent( "trigger_electric_chair_" + i, "targetname" );
+		t_use delete();
+		m_chair = getent( "electric_chair_" + i, "targetname" );
+		m_chair delete();
+	}
 	a_afterlife_interact = getentarray( "afterlife_interact", "targetname" );
 	foreach ( model in a_afterlife_interact )
 	{
