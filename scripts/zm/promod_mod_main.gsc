@@ -54,6 +54,17 @@ init()
 	level.speed_change_round = undefined;
 	level.speed_change_round = 999;
 	level.shock_onpain = level.grief_gamerules[ "shock_on_pain" ].current;
+	if ( level.grief_ffa )
+	{
+		if ( cointoss() )
+		{
+			level.grief_ffa_team = "allies";
+		}
+		else 
+		{
+			level.grief_ffa_team = "axis";
+		}
+	}
 	wait 15;
 	level thread instructions_on_all_players();
 }

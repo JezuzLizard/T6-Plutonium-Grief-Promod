@@ -12,14 +12,6 @@ init()
 {
 	if ( level.grief_ffa )
 	{
-		if ( cointoss() )
-		{
-			level.grief_ffa_team = "allies";
-		}
-		else 
-		{
-			level.grief_ffa_team = "axis";
-		}
 		switch ( level.script )
 		{
 			case "zm_transit":

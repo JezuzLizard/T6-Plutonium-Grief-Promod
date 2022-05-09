@@ -38,10 +38,21 @@ give_team_characters_override() //checked matches cerberus output
 	self set_player_is_female( 0 );
 	if ( !isDefined( self.characterindex ) )
 	{
-		self.characterindex = 1;
-		if ( self.team == "axis" )
+		if ( level.grief_ffa )
 		{
-			self.characterindex = 0;
+			self.characterindex = 1;
+			if ( level.grief_ffa_team == "axis" )
+			{
+				self.characterindex = 0;
+			}
+		}
+		else 
+		{
+			self.characterindex = 1;
+			if ( self.team == "axis" )
+			{
+				self.characterindex = 0;
+			}
 		}
 	}
 	switch( self.characterindex )
