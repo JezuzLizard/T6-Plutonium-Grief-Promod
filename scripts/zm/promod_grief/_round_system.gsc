@@ -199,7 +199,7 @@ check_for_round_end(winner)
 
 	if(isDefined(winner))
 	{
-		wait level.grief_gamerules[ "suicide_check" ].current;
+		wait level.grief_gamerules[ "suicide_check_time" ].current;
 	}
 	else
 	{

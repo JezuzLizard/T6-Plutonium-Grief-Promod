@@ -56,7 +56,8 @@ add_struct( s_struct )
 		{
 			foreach ( perk_restriction in level.grief_restrictions[ "perks" ].list )
 			{
-				if ( isDefined( s_struct.script_noteworthy ) && s_struct.script_noteworthy == perk_restriction )
+				perk_restriction_str = "specialty_" + perk_restriction;
+				if ( isDefined( s_struct.script_noteworthy ) && s_struct.script_noteworthy == perk_restriction_str )
 				{
 					scripts\zm\promod_grief\_gamerules::kill_perk_machine_thread( s_struct.script_noteworthy );
 					return;

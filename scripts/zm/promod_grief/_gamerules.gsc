@@ -17,7 +17,7 @@ init_gamerules()
 	initialize_gamerule( "zombie_round", 20 );
 	initialize_gamerule( "next_round_time", 5 );
 	initialize_gamerule( "round_restart_points", 10000 );
-	initialize_gamerule( "suicide_check", 5.0 );
+	initialize_gamerule( "suicide_check_time", 5.0 );
 	initialize_gamerule( "display_instructions", 0 );
 	initialize_gamerule( "grief_messages", 0 );
 	initialize_gamerule( "knife_lunge", 1, ::gamerule_adjust_knife_lunge );
@@ -31,6 +31,7 @@ init_gamerules()
 	initialize_gamerule( "grief_brutus_enabled", 1, ::gamerule_toggle_grief_brutus_logic );
 	initialize_gamerule( "powerups_disabled", 0, ::gamerule_toggle_powerups );
 	initialize_gamerule( "perks_disabled", 0 );
+	initialize_gamerule( "bullet_shellshock_time", 0.25 );
 	init_restrictions();
 }
 
