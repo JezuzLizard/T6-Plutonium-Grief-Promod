@@ -15,10 +15,6 @@
 
 struct_init()
 {
-	if ( !level.grief_ffa )
-	{
-		//level.spawnpoint_system_using_script_ints = true;
-	}
 	scripts/zm/_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, 86, 0 ), ( 1403, 9662, 1336 ) );
 	coordinates = array( ( 1422, 9597, 1336 ), ( 1432, 9745, 1336 ), ( 2154, 9062, 1336 ), ( 1969, 9950, 1336 ),
 							( 2150, 9496, 1336 ), ( 2144, 9931, 1336 ), ( 1665, 9053, 1336 ), ( 1661, 9211, 1336 ) );
@@ -42,6 +38,7 @@ precache()
 
 main()
 {
+	delete_door_trigs();
 	maps/mp/gametypes_zm/_zm_gametype::setup_standard_objects( "cellblock" );
 	maps/mp/zombies/_zm_magicbox::treasure_chest_init( "start_chest" );
 	precacheshader( "zm_al_wth_zombie" );
@@ -80,8 +77,6 @@ main()
 		}
 		i++;
 	}
-	delete_door_trigs();
-	first_room_hallway_barrier();
 	zbarriers = getzbarrierarray();
 	a_str_zones = [];
 	a_str_zones[ 0 ] = "zone_start";
@@ -280,17 +275,18 @@ magicbox_face_spawn()
 
 delete_door_trigs()
 {	
-	if ( level.grief_gamerules[ "disable_doors" ].current )
+	if ( !level.grief_gamerules[ "disable_doors" ].current )
+		return;
+
+	doors = getentarray( "zombie_door", "targetname" );
+	foreach ( door in doors )
 	{
-		doors = getentarray( "zombie_door", "targetname" );
-		foreach ( door in doors )
+		if ( door.target == "cellblock_start_door" )
 		{
-			if (  door.target == "pf3674_auto2581" || door.target == "cellblock_start_door" )
-			{
-				door delete();
-			}
+			door delete();
 		}
 	}
+	first_room_hallway_barrier();
 }
 
 first_room_hallway_barrier()
