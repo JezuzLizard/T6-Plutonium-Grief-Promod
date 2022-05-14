@@ -6,7 +6,7 @@ struct_init()
 	}
 	level.struct_class_names[ "targetname" ][ "player_respawn_point" ] = [];
 	level.struct_class_names[ "script_noteworthy" ][ "initial_spawn" ] = [];
-	coordinates_1 = array( ( 1960.39, 358.795, 2880.13 ), ( 1904.38, 262.504, 2880.13 ) ( 1861.64, 178.39, 2880.13 ), ( 1834.66, 101.629, 2880.13 ) );
+	coordinates_1 = array( ( 1960.39, 358.795, 2880.13 ), ( 1904.38, 262.504, 2880.13 ), ( 1861.64, 178.39, 2880.13 ), ( 1834.66, 101.629, 2880.13 ) );
 
 	angles_1 = array( ( 0, -30.3558, 0 ), ( 0, -32.1685, 0 ), ( 0, -32.1685, 0 ), ( 0, -31.9158, 0 ) );
 	for ( i = 0; i < coordinates_1.size; i++ )
