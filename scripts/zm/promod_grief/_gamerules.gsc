@@ -6,8 +6,6 @@
 
 init_gamerules()
 {
-	set_ffa_vars();
-
 	level.grief_gamerule_dvar_name = "grief_gamerule_";
 	level.grief_restriction_dvar_name = "grief_restriction_";
 
@@ -36,6 +34,8 @@ init_gamerules()
 
 	initialize_restriction( "perks" );
 	initialize_restriction( "powerups" );
+
+	set_ffa_vars();
 }
 
 initialize_gamerule( rulename, rulevalue, callback )

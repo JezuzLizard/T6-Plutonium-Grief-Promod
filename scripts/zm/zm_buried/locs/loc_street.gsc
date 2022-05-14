@@ -74,30 +74,30 @@ main() //checked matches cerberus output
 
 delete_door_and_debris_trigs()
 {	
-	if( level.grief_gamerules[ "disable_doors" ].current )
+	if( !level.grief_gamerules[ "disable_doors" ].current )
+		return;
+
+	door_trigs_to_delete = array( "pf728_auto2520", "pf728_auto2513", "pf728_auto2496", "pf728_auto2500" ); //"pf728_auto2516" //power door
+	doors_trigs = getentarray( "zombie_door", "targetname" );
+	foreach ( door_trig in doors_trigs )
 	{
-		door_trigs_to_delete = array( "pf728_auto2520", "pf728_auto2513", "pf728_auto2496", "pf728_auto2500" ); //"pf728_auto2516" //power door
-		doors_trigs = getentarray( "zombie_door", "targetname" );
-		foreach ( door_trig in doors_trigs )
+		for ( i = 0; i < door_trigs_to_delete.size; i++ )
 		{
-			for ( i = 0; i < door_trigs_to_delete.size; i++ )
+			if ( isDefined( door_trig.target ) && door_trig.target == door_trigs_to_delete[ i ] )
 			{
-				if ( door_trig.target == door_trigs_to_delete[ i ] )
-				{
-					door_trig delete();
-				}
+				door_trig delete();
 			}
 		}
-		debris_trigs_to_delete = array( "pf728_auto2529", "pf728_auto2528", "pf728_auto2531", "pf728_auto2530", "pf728_auto2532", "pf728_auto2534" );
-		debris_trigs = getentarray( "zombie_debris", "targetname" );
-		foreach ( debris_trig in debris_trigs )
+	}
+	debris_trigs_to_delete = array( "pf728_auto2529", "pf728_auto2528", "pf728_auto2531", "pf728_auto2530", "pf728_auto2532", "pf728_auto2534" );
+	debris_trigs = getentarray( "zombie_debris", "targetname" );
+	foreach ( debris_trig in debris_trigs )
+	{
+		for ( i = 0; i < debris_trigs_to_delete.size; i++ )
 		{
-			for ( i = 0; i < debris_trigs_to_delete.size; i++ )
+			if ( isDefined( debris_trig.target ) && debris_trig.target == debris_trigs_to_delete[ i ] )
 			{
-				if ( debris_trig.target == debris_trigs_to_delete[ i ] )
-				{
-					debris_trig delete();
-				}
+				debris_trig delete();
 			}
 		}
 	}

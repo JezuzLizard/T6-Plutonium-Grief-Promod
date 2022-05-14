@@ -24,9 +24,6 @@
 
 ### Bugs
 
-- Buired is not using custom spawn points
-- Perk and powerup restrictions no longer work
-
 ### Errors
 
 
