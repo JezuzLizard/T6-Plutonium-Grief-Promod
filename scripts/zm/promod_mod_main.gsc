@@ -56,6 +56,8 @@ init()
 	level.speed_change_round = undefined;
 	level.speed_change_round = 999;
 	level.shock_onpain = level.grief_gamerules[ "shock_on_pain" ].current;
+	gamerule_disable_powerups();
+	gamerule_remove_restricted_powerups();
 	if ( level.grief_ffa )
 	{
 		if ( cointoss() )

@@ -38,7 +38,8 @@ init_gamerules()
 	{
 		setdvar( "ui_scorelimit", level.grief_gamerules[ "scorelimit" ].current );
 	}
-	init_restrictions();
+	initialize_restriction( "perks" );
+	initialize_restriction( "powerups" );
 }
 
 initialize_gamerule( rulename, rulevalue, callback )
@@ -164,27 +165,26 @@ set_gamerule_for_next_matches( rulename, rulevalue, number_of_matches )
 	setDvar( dvar_string, rulevalue );
 	setDvar( num_matches_string, number_of_matches );
 }
- 
-init_restrictions()
+
+gamerule_remove_restricted_powerups()
 {
-	initialize_restriction( "powerups" );
-	initialize_restriction( "perks" );
-	if ( !isDefined( level.old_powerups_array ) )
-	{
-		level.old_powerups_array = level.zombie_include_powerups;
-	}
 	if ( level.grief_restrictions[ "powerups" ].enabled && array_validate( level.grief_restrictions[ "powerups" ].list ) )
 	{
-		powerup_restriction_keys = level.grief_restrictions[ "powerups" ].list;
-		for ( i = 0; i < powerup_restriction_keys.size; i++ )
+		foreach ( powerup in level.grief_restrictions[ "powerups" ].list )
 		{
-			if ( isInArray( level.zombie_include_powerups, powerup_restriction_keys[ i ] ) )
+			if ( isInArray( level.zombie_powerup_array, powerup ) )
 			{
-				arrayRemoveKey( level.zombie_include_powerups, powerup_restriction_keys[ i ] );
-				i = 0;
+				remove_powerup( powerup );
 			}
 		}
 	}
+}
+
+remove_powerup( powerup )
+{
+	arrayRemoveKey( level.zombie_include_powerups, powerup );
+	arrayRemoveKey( level.zombie_powerups, powerup );
+	arrayRemoveValue( level.zombie_powerup_array, powerup);
 }
 
 initialize_restriction( restriction_name )
@@ -480,5 +480,13 @@ gamerule_toggle_powerups()
 	else 
 	{
 		level.zombie_include_powerups = level.old_powerups_array;
+	}
+}
+
+gamerule_disable_powerups()
+{
+	if ( is_true( level.grief_gamerules[ "powerups_disabled" ].current ) )
+	{
+		level.zombie_include_powerups = [];
 	}
 }
