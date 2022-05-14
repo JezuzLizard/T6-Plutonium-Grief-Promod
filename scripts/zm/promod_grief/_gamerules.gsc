@@ -268,13 +268,8 @@ is_perk_restricted( perk )
 		{
 			return true;
 		}
-		return false;
 	}
-}
-
-restrictions()
-{   
-    level waittill( "initial_blackscreen_passed" );
+	return false;
 }
 
 override_perk_struct_locations()
