@@ -18,12 +18,6 @@ setup_scoreboard()
 	}
 }
 
-set_team_count()
-{
-// 	if ( level.grief_ffa )
-// 		//setGameTypeSetting( "teamCount", 1 );
-}
-
 change_status_icon( is_alive )
 {
 	if ( is_alive )

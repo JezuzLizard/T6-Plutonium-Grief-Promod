@@ -6,12 +6,11 @@
 
 init_gamerules()
 {
-	level.grief_ffa = getDvarIntDefault( "grief_ffa", 0 );
-	level.default_solo_laststandpistol = "m1911_zm";
-	level.is_forever_solo_game = undefined;
-	level.speed_change_round = undefined;
+	set_ffa_vars();
+
 	level.grief_gamerule_dvar_name = "grief_gamerule_";
 	level.grief_restriction_dvar_name = "grief_restriction_";
+
 	initialize_gamerule( "scorelimit", 3 );
 	initialize_gamerule( "magic", 1, ::gamerule_adjust_magic );
 	initialize_gamerule( "zombie_round", 20 );
@@ -34,10 +33,7 @@ init_gamerules()
 	initialize_gamerule( "bullet_shellshock_time", 0.25 );
 	initialize_gamerule( "melee_shellshock_time", 0.75 );
 	initialize_gamerule( "shellshock_cooldown", 0.75 );
-	if ( !level.grief_ffa )
-	{
-		setdvar( "ui_scorelimit", level.grief_gamerules[ "scorelimit" ].current );
-	}
+
 	initialize_restriction( "perks" );
 	initialize_restriction( "powerups" );
 }
@@ -488,5 +484,25 @@ gamerule_disable_powerups()
 	if ( is_true( level.grief_gamerules[ "powerups_disabled" ].current ) )
 	{
 		level.zombie_include_powerups = [];
+	}
+}
+
+set_ffa_vars()
+{
+	level.grief_ffa = getDvarIntDefault( "grief_ffa", 0 );
+	if ( level.grief_ffa )
+	{
+		if ( cointoss() )
+		{
+			level.grief_ffa_team = "allies";
+		}
+		else 
+		{
+			level.grief_ffa_team = "axis";
+		}
+	}
+	else
+	{
+		setdvar( "ui_scorelimit", level.grief_gamerules[ "scorelimit" ].current );
 	}
 }

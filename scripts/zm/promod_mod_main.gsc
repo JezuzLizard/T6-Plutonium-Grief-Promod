@@ -16,9 +16,9 @@
 
 main()
 {
-	init_gamerules();
 	level.grief_meat_stink_player = getFunction( "maps/mp/gametypes_zm/zgrief", "meat_stink_player" );
 	level.grief_meat_stink_on_ground = getFunction( "maps/mp/gametypes_zm/zgrief", "meat_stink_on_ground" );
+
 	replaceFunc( maps\mp\zombies\_zm_magicbox::treasure_chest_init, scripts\zm\promod_grief\_weapons::treasure_chest_init_override );
 	replaceFunc( maps\mp\zombies\_zm_game_module::wait_for_team_death_and_round_end, scripts\zm\promod_grief\_round_system::wait_for_team_death_and_round_end_override );
 	replaceFunc( maps\mp\zombies\_zm::getfreespawnpoint, scripts\zm\promod_grief\_player_spawn::getfreespawnpoint_override );
@@ -27,13 +27,13 @@ main()
 	replaceFunc( maps\mp\gametypes_zm\_zm_gametype::track_encounters_win_stats, scripts\zm\promod_grief\_stats::track_encounters_win_stats_override );
 	replaceFunc( maps\mp\zombies\_zm_weapons::show_all_weapon_buys, scripts\zm\promod_grief\_weapons::show_all_weapon_buys_override );
 	replaceFunc( maps\mp\zombies\_zm_utility::init_zombie_run_cycle, scripts\zm\promod_grief\_zombies::init_zombie_run_cycle_override );
-	set_team_count();
+	
+	init_gamerules();
 	precache();
 }
 
 init()
 {
-	level thread on_player_connect();
 	level.game_mode_spawn_player_logic = scripts\zm\promod_grief\_player_spawn::game_mode_spawn_player_logic_override;
 	level.round_spawn_func = ::round_spawning_override;
 	level.round_think_func = ::round_think_override;
@@ -45,31 +45,23 @@ init()
 	level.grief_loadout_save = ::grief_loadout_save;
 	level.custom_end_screen = ::custom_end_screen_override;
 	level.autoassign = ::menuautoassign_override;
-	level._supress_survived_screen = true;
+
 	setDvar( "g_friendlyfireDist", 0 );
-	setup_scoreboard();
+	level._supress_survived_screen = true;
+	level.speed_change_round = undefined;
+	level.is_forever_solo_game = undefined;
+	level.shock_onpain = level.grief_gamerules[ "shock_on_pain" ].current;
+
 	set_default_pistol();
+	setup_scoreboard();
+	gamerule_disable_powerups();
+	gamerule_remove_restricted_powerups();
+
+	level thread on_player_connect();
 	level thread monitor_players_connecting_status();
 	level thread remove_status_icons_on_end_game();
 	level thread check_quickrevive_for_hotjoin();
 	level thread remove_round_number();
-	level.speed_change_round = undefined;
-	level.speed_change_round = 999;
-	level.shock_onpain = level.grief_gamerules[ "shock_on_pain" ].current;
-	gamerule_disable_powerups();
-	gamerule_remove_restricted_powerups();
-	if ( level.grief_ffa )
-	{
-		if ( cointoss() )
-		{
-			level.grief_ffa_team = "allies";
-		}
-		else 
-		{
-			level.grief_ffa_team = "axis";
-		}
-	}
-	wait 15;
 	level thread instructions_on_all_players();
 }
 
@@ -108,10 +100,13 @@ on_player_connect()
     while ( true )
     {
     	level waittill( "connected", player );
+
 		if ( level.grief_gamerules[ "knife_lunge" ].current )
 		{
 			player setClientDvar( "aim_automelee_range", 120 ); //default
-		}else{
+		}
+		else
+		{
 			player setClientDvar( "aim_automelee_range", 0 );
 		}
 		if ( !isDefined( player.last_griefed_by ) )
@@ -123,8 +118,6 @@ on_player_connect()
 			player.last_griefed_by.time = 0;
 			player thread watch_for_down();
 		}
-		player thread afk_kick();
-		player thread on_player_spawn();
 		player.killsconfirmed = 0;
 		player.stabs = 0;
 		player.assists = 0;
@@ -132,6 +125,9 @@ on_player_connect()
 		{
 			player.survived = 0;
 		}
+
+		player thread afk_kick();
+		player thread on_player_spawn();
 	}
 }
 

@@ -168,6 +168,7 @@ track_players_intersection_tracker_override()
 instructions_on_all_players()
 {
 	level endon( "end_game" );
+	wait 15;
 	flag_wait( "initial_blackscreen_passed" );
 	players = getPlayers();
 	if ( isDefined( players ) && ( players.size > 0 ) )
