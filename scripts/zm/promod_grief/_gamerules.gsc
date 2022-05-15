@@ -13,6 +13,7 @@ init_gamerules()
 	initialize_gamerule( "magic", 1, ::gamerule_adjust_magic );
 	initialize_gamerule( "zombie_round", 20 );
 	initialize_gamerule( "next_round_time", 5 );
+	initialize_gamerule( "spawn_zombies_wait_time", 5 );
 	initialize_gamerule( "round_restart_points", 10000 );
 	initialize_gamerule( "suicide_check_time", 5.0 );
 	initialize_gamerule( "display_instructions", 0 );
