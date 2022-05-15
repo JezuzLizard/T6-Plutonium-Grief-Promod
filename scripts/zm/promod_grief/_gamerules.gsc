@@ -13,11 +13,13 @@ init_gamerules()
 	initialize_gamerule( "magic", 1, ::gamerule_adjust_magic );
 	initialize_gamerule( "zombie_round", 20 );
 	initialize_gamerule( "next_round_time", 5 );
+	initialize_gamerule( "spawn_zombies_wait_time", 5 );
 	initialize_gamerule( "round_restart_points", 10000 );
 	initialize_gamerule( "suicide_check_time", 5.0 );
 	initialize_gamerule( "display_instructions", 0 );
 	initialize_gamerule( "grief_messages", 0 );
 	initialize_gamerule( "knife_lunge", 1, ::gamerule_adjust_knife_lunge );
+	initialize_gamerule( "reduce_mp5_ammo", 1 );
 	initialize_gamerule( "reduced_pistol_ammo", 1 );
 	initialize_gamerule( "player_health", 100, ::gamerule_adjust_player_health );
 	initialize_gamerule( "buildables", 0 );

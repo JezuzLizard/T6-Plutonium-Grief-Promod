@@ -381,10 +381,12 @@ round_start_wait()
 	freeze_all_players_controls();
 
 	round_start_countdown_hud(level.grief_gamerules[ "next_round_time" ].current);
-
-	flag_set("spawn_zombies");
 	unfreeze_all_players_controls();
+
+	wait level.grief_gamerules[ "spawn_zombies_wait_time" ].current;
+	flag_set("spawn_zombies");
 }
+
 
 respawn_players() 
 {
