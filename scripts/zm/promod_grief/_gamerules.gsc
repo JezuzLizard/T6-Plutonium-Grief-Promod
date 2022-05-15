@@ -19,6 +19,7 @@ init_gamerules()
 	initialize_gamerule( "display_instructions", 0 );
 	initialize_gamerule( "grief_messages", 0 );
 	initialize_gamerule( "knife_lunge", 1, ::gamerule_adjust_knife_lunge );
+	initialize_gamerule( "reduce_mp5_ammo", 1 );
 	initialize_gamerule( "reduced_pistol_ammo", 1 );
 	initialize_gamerule( "player_health", 100, ::gamerule_adjust_player_health );
 	initialize_gamerule( "buildables", 0 );

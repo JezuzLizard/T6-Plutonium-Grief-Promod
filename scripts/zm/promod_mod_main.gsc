@@ -29,6 +29,7 @@ main()
 	replaceFunc( maps\mp\zombies\_zm_weapons::show_all_weapon_buys, scripts\zm\promod_grief\_weapons::show_all_weapon_buys_override );
 	replaceFunc( maps\mp\zombies\_zm_utility::init_zombie_run_cycle, scripts\zm\promod_grief\_zombies::init_zombie_run_cycle_override );
 	replaceFunc( maps\mp\zombies\_zm_zonemgr::manage_zones, scripts\zm\_gametype_setup::manage_zones_override );
+	replaceFunc( maps\mp\zombies\_zm_weapons::weapon_give, scripts\zm\promod_grief\_weapons::weapon_give );
 	
 	init_gamerules();
 	precache();
