@@ -47,6 +47,31 @@ struct_class_init_override()
 	scripts\zm\promod_grief\_gamerules::override_perk_struct_locations();
 }
 
+register_perk_struct( perk_name, perk_model, perk_angles, perk_coordinates )
+{
+	if ( perk_name == "specialty_scavenger" )
+	{
+		return;
+	}
+	perk_struct = spawnStruct();
+	perk_struct.script_noteworthy = perk_name;
+	perk_struct.model = perk_model;
+	perk_struct.angles = perk_angles;
+	perk_struct.origin = perk_coordinates;
+	perk_struct.targetname = "zm_perk_machine";
+	if ( perk_name == "specialty_weapupgrade" )
+	{
+		flag_struct = spawnStruct();
+		flag_struct.targetname = "weapupgrade_flag_targ";
+		flag_struct.model = "zombie_sign_please_wait";
+		flag_struct.angles = perk_angles + ( 0, 180, 180 );
+		flag_struct.origin = perk_coordinates + ( anglesToForward( perk_angles ) * 29 ) + ( anglesToRight( perk_angles ) * -13.5 ) + ( anglesToUp( perk_angles ) * 49.5 );
+		perk_struct.target = flag_struct.targetname;
+		add_struct( flag_struct );
+	}
+	add_struct( perk_struct );
+}
+
 //Parse restrictions here for perks.
 add_struct( s_struct )
 {
@@ -101,31 +126,6 @@ add_struct( s_struct )
 		size = level.struct_class_names[ "script_unitrigger_type" ][ s_struct.script_unitrigger_type ].size;
 		level.struct_class_names[ "script_unitrigger_type" ][ s_struct.script_unitrigger_type ][ size ] = s_struct;
 	}
-}
-
-register_perk_struct( perk_name, perk_model, perk_angles, perk_coordinates )
-{
-	if ( getDvar( "g_gametype" ) == "zgrief" && perk_name == "specialty_scavenger" )
-	{
-		return;
-	}
-	perk_struct = spawnStruct();
-	perk_struct.script_noteworthy = perk_name;
-	perk_struct.model = perk_model;
-	perk_struct.angles = perk_angles;
-	perk_struct.origin = perk_coordinates;
-	perk_struct.targetname = "zm_perk_machine";
-	if ( perk_name == "specialty_weapupgrade" )
-	{
-		flag_struct = spawnStruct();
-		flag_struct.targetname = "weapupgrade_flag_targ";
-		flag_struct.model = "zombie_sign_please_wait";
-		flag_struct.angles = perk_angles + ( 0, 180, 180 );
-		flag_struct.origin = perk_coordinates + ( anglesToForward( perk_angles ) * 29 ) + ( anglesToRight( perk_angles ) * -13.5 ) + ( anglesToUp( perk_angles ) * 49.5 );
-		perk_struct.target = flag_struct.targetname;
-		add_struct( flag_struct );
-	}
-	add_struct( perk_struct );
 }
 
 register_map_initial_spawnpoint( spawnpoint_coordinates, spawnpoint_angles, script_int ) //custom function
