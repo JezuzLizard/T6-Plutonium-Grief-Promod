@@ -40,8 +40,6 @@ main()
 {
 	spawn_barriers();
 	scripts/zm/_gametype_setup::wallbuy( "mp5k_zm", "mp5", "weapon_upgrade", (1455.64, 2026.42, 3105), ( 0, 270, 0 ) );
-	scripts/zm/_gametype_setup::wallbuy( "tazer_knuckles_zm", "tazer_knuckles", "tazer_upgrade", (1995.64, 2570.07, 3100), (0, 270, 0) );
-	maps/mp/zm_highrise_classic::main();
 }
 
 spawn_barriers()

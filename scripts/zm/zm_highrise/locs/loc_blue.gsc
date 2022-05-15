@@ -1,5 +1,7 @@
 struct_init()
 {
+	scripts/zm/_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, 330, 0 ), (1757, 92, 2876) );
+
 	if ( !level.grief_ffa )
 	{
 		level.spawnpoint_system_using_script_ints = true;
@@ -33,5 +35,5 @@ precache()
 
 main()
 {
-	maps/mp/zm_highrise_classic::main();
+	// maps/mp/zm_highrise_classic::main();
 }
