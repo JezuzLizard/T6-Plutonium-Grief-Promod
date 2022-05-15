@@ -49,7 +49,8 @@ initialize_gamerule( rulename, rulevalue, callback )
 	dvar_string = level.grief_gamerule_dvar_name + rulename;
 	original_value_string = dvar_string + "_resetvalue";
 	num_matches_string = dvar_string + "_matches_remaining";
-	switch ( typeOf( rulevalue ) )
+	type = typeOf( rulevalue );
+	switch ( type )
 	{
 		case "int":
 			level.grief_gamerules[ rulename ] = spawnStruct();
@@ -71,6 +72,7 @@ initialize_gamerule( rulename, rulevalue, callback )
 		{
 			level.grief_gamerules[ rulename ].callback = callback;
 		}
+		level.grief_gamerules[ rulename ].type = type;
 		matches_remaining_value = getDvarInt( num_matches_string ) - 1;
 		if ( getDvar( original_value_string ) == "" )
 		{
@@ -147,12 +149,7 @@ reset_gamerule( rulename )
 
 set_gamerule_for_next_matches( rulename, rulevalue, number_of_matches )
 {
-	if ( !isDefined( level.grief_gamerules[ rulename ] ) )
-	{
-		print( "set_gamerule_for_next_matches() " + rulename + " is not initialized" );
-		return;		
-	}
-	if ( !isDefined( number_of_matches ) || ( number_of_matches < -1 ) )
+	if ( number_of_matches < -1 )
 	{
 		number_of_matches = -1;
 	}
