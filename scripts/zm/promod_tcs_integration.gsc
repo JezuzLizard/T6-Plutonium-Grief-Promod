@@ -49,6 +49,36 @@ main()
 	if ( isDefined( level.tcs_add_client_command_func ) )
 	{
 	}
+	if ( isDefined( level.tcs_remove_server_command ) )
+	{
+		level [[ level.tcs_remove_server_command ]]( "giveinvisible" );
+		level [[ level.tcs_remove_server_command ]]( "givegod" );
+		level [[ level.tcs_remove_server_command ]]( "givenotarget" );
+		level [[ level.tcs_remove_server_command ]]( "givenoclip" );
+		level [[ level.tcs_remove_server_command ]]( "killactors" );
+		level [[ level.tcs_remove_server_command ]]( "giveperk" );
+		level [[ level.tcs_remove_server_command ]]( "givepermaperk" );
+		level [[ level.tcs_remove_server_command ]]( "givepoints" );		
+		level [[ level.tcs_remove_server_command ]]( "givepowerup" );
+		level [[ level.tcs_remove_server_command ]]( "giveweapon" );
+		level [[ level.tcs_remove_server_command ]]( "toggleperssystemforplayer" );	
+		level [[ level.tcs_remove_server_command ]]( "toggleoutofplayableareamonitor" );		
+	} 
+	if ( isDefined( level.tcs_remove_client_command ) )
+	{
+		level [[ level.tcs_remove_client_command ]]( "god" );
+		level [[ level.tcs_remove_client_command ]]( "notarget" );
+		level [[ level.tcs_remove_client_command ]]( "invisible" );
+		level [[ level.tcs_remove_client_command ]]( "bottomlessclip" );
+		level [[ level.tcs_remove_client_command ]]( "teleport" );
+		level [[ level.tcs_remove_client_command ]]( "perk" );
+		level [[ level.tcs_remove_client_command ]]( "permaperk" );		
+		level [[ level.tcs_remove_client_command ]]( "points" );
+		level [[ level.tcs_remove_client_command ]]( "powerup" );
+		level [[ level.tcs_remove_client_command ]]( "weapon" );
+		level [[ level.tcs_remove_client_command ]]( "toggleperssystem" );
+	}
+	level [[ level.tcs_check_cmd_collisions ]]();
 }
 
 CMD_RESETGAMERULE_f( arg_list )
