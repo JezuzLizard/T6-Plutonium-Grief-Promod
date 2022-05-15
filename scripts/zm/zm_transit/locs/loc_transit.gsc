@@ -36,7 +36,7 @@ transit_main() //checked changed to match cerberus output
 	depot_remove_lava_collision();
 
 	nodes = getnodearray( "classic_only_traversal", "targetname" );
-	if( getDvarIntDefault( "depot_remove_debris_over_lava", 0 ) )
+	if( level.grief_gamerules[ "depot_remove_debris_over_lava" ].current )
 	{
 		foreach ( node in nodes )
 			unlink_nodes( node, getnode( node.target, "targetname" ) );
@@ -49,7 +49,7 @@ transit_main() //checked changed to match cerberus output
 
 depot_remove_lava_collision( )
 {
-	if( !getDvarIntDefault( "depot_remove_debris_over_lava", 0 ) )
+	if( !level.grief_gamerules[ "depot_remove_debris_over_lava" ].current )
 	{
 		return;
 	}

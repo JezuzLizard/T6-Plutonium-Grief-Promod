@@ -6,6 +6,7 @@
 - Team change
 - Edit gameover screen
 - Add map selection
+- Add spawn delay at start of the round
 
 ### Gamerules
 
@@ -35,6 +36,7 @@
 ### Nuketown
 
 - Fix bleeding out icons
+- Loadouts doesn't save properly
 
 ### Mob
 
@@ -42,7 +44,7 @@
 
 ### Die Rise
 
-- Rooftop
+- Remove perks from elevators
 
 ### Origins
 
