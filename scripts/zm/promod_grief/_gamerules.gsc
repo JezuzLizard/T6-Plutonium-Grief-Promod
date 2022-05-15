@@ -45,7 +45,6 @@ initialize_gamerule( rulename, rulevalue, callback )
 	{
 		level.grief_gamerules = [];
 	}
-	if ( !isDefined( level.g))
 	dvar_string = level.grief_gamerule_dvar_name + rulename;
 	original_value_string = dvar_string + "_resetvalue";
 	num_matches_string = dvar_string + "_matches_remaining";

@@ -44,7 +44,7 @@ main()
 		// level [[ level.tcs_add_server_command_func ]]( "setteam", "setteam stm", "setteam <name|guid|clientnum> <teamname>", ::CMD_SETTEAM_f, level.CMD_POWER_ADMIN );
 		level [[ level.tcs_add_server_command_func ]]( "setgamerule", "setgamerule sgmrl", "setgamerule <gamerule> <value> [nummatches]", ::CMD_SETGAMERULE_f, level.CMD_POWER_ADMIN );
 		level [[ level.tcs_add_server_command_func ]]( "resetgamerule", "resetgamerule rsgmrl", "resetgamerule <gamerule>", ::CMD_RESETGAMERULE_f, level.CMD_POWER_ADMIN );
-		//level [[ level.tcs_add_server_command_func ]]( "listgamerules", "listgamerules lgmrls", "listgamerules [filter]", ::CMD_LISTGAMERULES_f, level.CMD_POWER_ADMIN );
+		level [[ level.tcs_add_server_command_func ]]( "listgamerules", "listgamerules lgmrls", "listgamerules", ::CMD_LISTGAMERULES_f, level.CMD_POWER_ADMIN );
 	}
 	if ( isDefined( level.tcs_add_client_command_func ) )
 	{
@@ -137,8 +137,20 @@ CMD_SETGAMERULE_f( arg_list )
 
 CMD_LISTGAMERULES_f( arg_list )
 {
-	result = [];
-	return result;
+	channel = self [[ level.tcs_com_get_feedback_channel ]]();
+	if ( channel != "con" )
+	{
+		channel = channel + "|iprint";
+	}
+	gamerules = getArrayKeys( level.grief_gamerules );
+	for ( i = 0; i < gamerules.size; i++ )
+	{
+		level [[ level.tcs_com_printf ]]( channel, "notitle", gamerules[ i ], self );
+	}
+	if ( !is_true( self.is_server ) )
+	{
+		level [[ level.tcs_com_printf ]]( channel, "cmdinfo", "Use shift + ` and scroll to the bottom to view the full list", self );
+	}
 }
 
 CMD_BANFROMTEAMCHANGE_f( arg_list )
