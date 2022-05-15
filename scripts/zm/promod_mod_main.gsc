@@ -46,6 +46,7 @@ init()
 	level.grief_loadout_save = ::grief_loadout_save;
 	level.custom_end_screen = ::custom_end_screen_override;
 	level.autoassign = ::menuautoassign_override;
+	level.check_for_valid_spawn_near_team_callback = undefined;
 	//level.allow_teamchange = ( getGametypeSetting( "allowInGameTeamChange" ) ? "1" : "0" );
 	setDvar( "g_friendlyfireDist", 0 );
 	level._supress_survived_screen = true;
