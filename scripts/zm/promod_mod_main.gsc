@@ -1,6 +1,7 @@
 #include maps\mp\_utility;
 #include common_scripts\utility;
 #include maps\mp\zombies\_zm_utility;
+#include maps\mp\zombies\_zm_zonemgr;
 
 #include scripts\zm\promod_grief\_hud;
 #include scripts\zm\promod_grief\_round_system;
@@ -27,7 +28,7 @@ main()
 	replaceFunc( maps\mp\gametypes_zm\_zm_gametype::track_encounters_win_stats, scripts\zm\promod_grief\_stats::track_encounters_win_stats_override );
 	replaceFunc( maps\mp\zombies\_zm_weapons::show_all_weapon_buys, scripts\zm\promod_grief\_weapons::show_all_weapon_buys_override );
 	replaceFunc( maps\mp\zombies\_zm_utility::init_zombie_run_cycle, scripts\zm\promod_grief\_zombies::init_zombie_run_cycle_override );
-	
+	replaceFunc( maps\mp\zombies\_zm_zonemgr::manage_zones, scripts\zm\_gametype_setup::manage_zones_override );
 	init_gamerules();
 	precache();
 }
@@ -45,7 +46,7 @@ init()
 	level.grief_loadout_save = ::grief_loadout_save;
 	level.custom_end_screen = ::custom_end_screen_override;
 	level.autoassign = ::menuautoassign_override;
-
+	//level.allow_teamchange = ( getGametypeSetting( "allowInGameTeamChange" ) ? "1" : "0" );
 	setDvar( "g_friendlyfireDist", 0 );
 	level._supress_survived_screen = true;
 	level.speed_change_round = undefined;
@@ -151,3 +152,4 @@ on_player_spawn()
 		}
 	}
 }
+

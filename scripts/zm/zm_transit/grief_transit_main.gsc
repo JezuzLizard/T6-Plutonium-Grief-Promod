@@ -34,6 +34,9 @@ main()
 				}
 			} 
 			break;
+		case "tunnel":
+			level.custom_location_zones = [];
+			level.custom_location_zones[ 0 ] = "zone_amb_tunnel";
 		default:
 			break;
 	}
