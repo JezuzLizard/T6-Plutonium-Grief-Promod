@@ -15,6 +15,11 @@
 main()
 {
 	replaceFunc( common_scripts/utility::struct_class_init, ::struct_class_init_override );
+	level.perk_machine_targetname = "zm_perk_machine";
+	if ( getDvar( "mapname" ) == "zm_highrise" )
+	{
+		level.perk_machine_targetname = "zm_perk_machine_override";
+	}
 }
 
 struct_class_init_override()
@@ -58,7 +63,7 @@ register_perk_struct( perk_name, perk_model, perk_angles, perk_coordinates )
 	perk_struct.model = perk_model;
 	perk_struct.angles = perk_angles;
 	perk_struct.origin = perk_coordinates;
-	perk_struct.targetname = "zm_perk_machine";
+	perk_struct.targetname = level.perk_machine_targetname;
 	if ( perk_name == "specialty_weapupgrade" )
 	{
 		flag_struct = spawnStruct();
@@ -77,7 +82,7 @@ add_struct( s_struct )
 {
 	if ( isDefined( s_struct.targetname ) )
 	{
-		if ( s_struct.targetname == "zm_perk_machine" && level.grief_restrictions[ "perks" ].enabled && array_validate( level.grief_restrictions[ "perks" ].list ) )
+		if ( s_struct.targetname == level.perk_machine_targetname && level.grief_restrictions[ "perks" ].enabled && array_validate( level.grief_restrictions[ "perks" ].list ) )
 		{
 			if ( isDefined( s_struct.script_noteworthy ) )
 			{
