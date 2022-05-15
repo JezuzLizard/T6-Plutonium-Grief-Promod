@@ -115,7 +115,7 @@ round_think_override( restart )
 			}
 		}
 	}
-	if ( !isDefined( level.grief_zombies_init ) )
+	if ( !isDefined( level.grief_zombies_init ) || ( level.grief_gamerules[ "zombie_round" ].current != level.grief_gamerules[ "zombie_round" ].lastvalue_this_match ) )
 	{
 		level.round_number = level.grief_gamerules[ "zombie_round" ].current;
 		level.noroundnumber = true;
@@ -216,6 +216,7 @@ round_think_override( restart )
 
 set_zombie_spawn_rate( round )
 {
+	level.zombie_vars["zombie_spawn_delay"] = 2;
 	for ( i = 0; i < round; i++ )
 	{
 		level.zombie_vars["zombie_spawn_delay"] *= 0.95;
