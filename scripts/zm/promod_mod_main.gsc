@@ -156,6 +156,8 @@ on_player_spawn()
 		{
 			self scripts/zm/promod_grief/_gamerules::reduce_starting_ammo();
 		}
+
+		self scripts/zm/promod_grief/_gamerules::set_visionset();
 	}
 }
 

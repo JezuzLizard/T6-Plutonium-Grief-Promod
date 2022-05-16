@@ -31,8 +31,9 @@ init_gamerules()
 	initialize_gamerule( "shock_on_pain", 1, ::gamerule_toggle_shock_on_pain );
 	initialize_gamerule( "grief_brutus_enabled", 1, ::gamerule_toggle_grief_brutus_logic );
 	initialize_gamerule( "powerups_disabled", 0, ::gamerule_toggle_powerups );
-	initialize_gamerule( "fog_disabled", 1, ::gamerule_toggle_fog );
 	initialize_gamerule( "perks_disabled", 0 );
+	initialize_gamerule( "fog_disabled", 1, ::gamerule_toggle_fog );
+	initialize_gamerule( "visionset_enabled", 1, ::gamerule_toggle_visionset );
 	initialize_gamerule( "bullet_shellshock_time", 0.25 );
 	initialize_gamerule( "melee_shellshock_time", 0.75 );
 	initialize_gamerule( "shellshock_cooldown", 0.75 );
@@ -498,6 +499,38 @@ gamerule_toggle_fog()
 	{
 		setDvar("r_fog", 1);
 	}
+}
+
+gamerule_toggle_visionset()
+{
+	if( level.grief_gamerules[ "visionset_enabled" ].current )
+	{
+		foreach(player in level.players)
+			player set_visionset();
+	}
+	else
+	{
+
+	}
+}
+
+set_visionset()
+{
+	if( !level.grief_gamerules[ "visionset_enabled" ].current )
+		return;
+
+	self useservervisionset(1);
+	self setvisionsetforplayer(GetDvar( "mapname" ), 1.0 );
+	self setclientdvar("r_dof_enable", 0);
+	self setclientdvar("r_lodBiasRigid", -1000);
+	self setclientdvar("r_lodBiasSkinned", -1000);
+	self setClientDvar("r_lodScaleRigid", 1);
+	self setClientDvar("r_lodScaleSkinned", 1);
+	self setclientdvar("sm_sunquality", 2);
+	self setclientdvar("r_enablePlayerShadow", 1);
+	self setclientdvar( "vc_fbm", "0 0 0 0" );
+	self setclientdvar( "vc_fsm", "1 1 1 1" );
+	self setclientdvar( "vc_fgm", "1 1 1 1" );
 }
 
 set_ffa_vars()
