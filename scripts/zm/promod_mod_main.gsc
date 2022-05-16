@@ -30,7 +30,8 @@ main()
 	replaceFunc( maps\mp\zombies\_zm_utility::init_zombie_run_cycle, scripts\zm\promod_grief\_zombies::init_zombie_run_cycle_override );
 	replaceFunc( maps\mp\zombies\_zm_zonemgr::manage_zones, scripts\zm\_gametype_setup::manage_zones_override );
 	replaceFunc( maps\mp\zombies\_zm_weapons::weapon_give, scripts\zm\promod_grief\_weapons::weapon_give );
-	
+	replaceFunc( maps\mp\zombies\_zm_laststand::suicide_trigger_think, scripts\zm\promod_grief\_player_spawn::suicide_trigger_think_override );
+
 	init_gamerules();
 	precache();
 }
@@ -49,6 +50,7 @@ init()
 	level.custom_end_screen = ::custom_end_screen_override;
 	level.autoassign = ::menuautoassign_override;
 	level.check_for_valid_spawn_near_team_callback = undefined;
+	level.playerSuicideAllowed = level.grief_gamerules[ "self_bleedout" ].current;
 	//level.allow_teamchange = ( getGametypeSetting( "allowInGameTeamChange" ) ? "1" : "0" );
 	setDvar( "g_friendlyfireDist", 0 );
 	level._supress_survived_screen = true;
