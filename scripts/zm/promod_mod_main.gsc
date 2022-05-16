@@ -34,6 +34,7 @@ main()
 
 	init_gamerules();
 	precache();
+	level thread emptyLobbyRestart();
 }
 
 init()
@@ -128,6 +129,7 @@ on_player_connect()
 		player.killsconfirmed = 0;
 		player.stabs = 0;
 		player.assists = 0;
+		player.stats_start_time = getTime();
 		if ( level.grief_ffa )
 		{
 			player.survived = 0;
@@ -161,3 +163,23 @@ on_player_spawn()
 	}
 }
 
+emptyLobbyRestart()
+{
+	while ( true)
+	{
+		players = getPlayers();
+		if ( players.size > 0 )
+		{
+			while ( true )
+			{
+				players = getPlayers();
+				if ( players.size < 1 )
+				{
+					map_restart( false );
+				}
+				wait 1;
+			}
+		}
+		wait 1;
+	}
+}

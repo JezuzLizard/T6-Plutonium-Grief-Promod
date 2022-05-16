@@ -73,6 +73,44 @@ update_players_stats_at_match_end_override( players )
 		distancethisround = int( player.pers["distance_traveled"] - player.pers["previous_distance_traveled"] );
 		player.pers["previous_distance_traveled"] = player.pers["distance_traveled"];
 		player incrementplayerstat( "distance_traveled", distancethisround );
+		if ( isDefined( player.player_fields ) )
+		{
+			if ( level.grief_ffa )
+			{
+				player.player_fields[ "stats" ][ "ffa_matches_completed" ]++;
+				if ( player == level.gamemodulewinningteam )
+				{
+					player.player_fields[ "stats" ][ "ffa_wins" ]++;
+					player.player_fields[ "stats" ][ "total_wins" ]++;
+				}
+				else 
+				{
+					player.player_fields[ "stats" ][ "ffa_losses" ]++;
+					player.player_fields[ "stats" ][ "total_losses" ]++;
+				}
+			}
+			else 
+			{
+				player.player_fields[ "stats" ][ "revives" ] += player.revives;
+				player.player_fields[ "stats" ][ "4v4_matches_completed" ]++;
+				if ( player._encounters_team == level.gamemodulewinningteam )
+				{
+					player.player_fields[ "stats" ][ "4v4_wins" ]++;
+					player.player_fields[ "stats" ][ "total_wins" ]++;
+				}
+				else 
+				{
+					player.player_fields[ "stats" ][ "4v4_losses" ]++;
+					player.player_fields[ "stats" ][ "total_losses" ]++;
+				}
+			}
+			player.player_fields[ "stats" ][ "confirms" ] += player.killsconfirmed;
+			player.player_fields[ "stats" ][ "downs" ] += player.downs;
+			player.player_fields[ "stats" ][ "stabs" ] += player.stabs;
+			player.player_fields[ "stats" ][ "total_matches_completed" ]++;	
+			player.player_fields[ "stats" ][ "seconds_played" ] += floor( ( getTime() - player.stats_start_time ) / 1000 ); 
+			player [[ level.tcs_add_pers_fs_func_to_queue ]]( "update" );
+		}
 	}
 }
 
