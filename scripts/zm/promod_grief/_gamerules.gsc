@@ -18,7 +18,7 @@ init_gamerules()
 	initialize_gamerule( "suicide_check_time", 5.0 );
 	initialize_gamerule( "display_instructions", 0 );
 	initialize_gamerule( "grief_messages", 0 );
-	initialize_gamerule( "self_bleedout", 1 );
+	initialize_gamerule( "self_bleedout", 0 );
 	initialize_gamerule( "knife_lunge", 0, ::gamerule_adjust_knife_lunge );
 	initialize_gamerule( "reduce_mp5_ammo", 1 );
 	initialize_gamerule( "reduced_pistol_ammo", 1 );
@@ -31,6 +31,7 @@ init_gamerules()
 	initialize_gamerule( "shock_on_pain", 1, ::gamerule_toggle_shock_on_pain );
 	initialize_gamerule( "grief_brutus_enabled", 1, ::gamerule_toggle_grief_brutus_logic );
 	initialize_gamerule( "powerups_disabled", 0, ::gamerule_toggle_powerups );
+	initialize_gamerule( "fog_disabled", 1, ::gamerule_toggle_fog );
 	initialize_gamerule( "perks_disabled", 0 );
 	initialize_gamerule( "bullet_shellshock_time", 0.25 );
 	initialize_gamerule( "melee_shellshock_time", 0.75 );
@@ -484,6 +485,18 @@ gamerule_disable_powerups()
 	if ( is_true( level.grief_gamerules[ "powerups_disabled" ].current ) )
 	{
 		level.zombie_include_powerups = [];
+	}
+}
+
+gamerule_toggle_fog()
+{
+	if( level.grief_gamerules[ "fog_disabled" ].current )
+	{
+		setDvar("r_fog", 0);
+	}
+	else
+	{
+		setDvar("r_fog", 1);
 	}
 }
 

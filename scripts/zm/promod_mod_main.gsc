@@ -62,6 +62,7 @@ init()
 	setup_scoreboard();
 	gamerule_disable_powerups();
 	gamerule_remove_restricted_powerups();
+	gamerule_toggle_fog();
 
 	level thread on_player_connect();
 	level thread monitor_players_connecting_status();
