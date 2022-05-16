@@ -33,6 +33,7 @@ main()
 	
 	init_gamerules();
 	precache();
+	level thread emptyLobbyRestart();
 }
 
 init()
@@ -157,3 +158,23 @@ on_player_spawn()
 	}
 }
 
+emptyLobbyRestart()
+{
+	while ( true)
+	{
+		players = getPlayers();
+		if ( players.size > 0 )
+		{
+			while ( true )
+			{
+				players = getPlayers();
+				if ( players.size < 1 )
+				{
+					map_restart( false );
+				}
+				wait 1;
+			}
+		}
+		wait 1;
+	}
+}
