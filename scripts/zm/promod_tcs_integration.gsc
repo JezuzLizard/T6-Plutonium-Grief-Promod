@@ -14,11 +14,22 @@ main()
 	if ( isDefined( level.tcs_register_generic_player_field ) )
 	{
 		stats = [];
-		stats[ "wins" ] = 0;
-		stats[ "losses" ] = 0;
+		stats[ "ffa_wins" ] = 0;
+		stats[ "4v4_wins" ] = 0;
+		stats[ "total_wins" ] = 0;
+		stats[ "ffa_losses" ] = 0;
+		stats[ "4v4_losses" ] = 0;
+		stats[ "total_losses" ] = 0;
 		stats[ "stabs" ] = 0;
 		stats[ "revives" ] = 0;
 		stats[ "confirms" ] = 0;
+		stats[ "downs" ] = 0;
+		stats[ "seconds_played" ] = 0;
+		stats[ "ffa_matches_completed" ] = 0;
+		stats[ "4v4_matches_completed" ] = 0;
+		stats[ "total_matches_completed" ] = 0;
+		stats[ "mmr" ] = 0;
+
 		level [[ level.tcs_register_generic_player_field ]]( "stats", stats );
 		penalties_array = [];
 		penalties_array[ "perm_banned" ] = false;
@@ -45,6 +56,7 @@ main()
 		level [[ level.tcs_add_server_command_func ]]( "setgamerule", "setgamerule sgmrl", "setgamerule <gamerule> <value> [nummatches]", ::CMD_SETGAMERULE_f, level.CMD_POWER_ADMIN );
 		level [[ level.tcs_add_server_command_func ]]( "resetgamerule", "resetgamerule rsgmrl", "resetgamerule <gamerule>", ::CMD_RESETGAMERULE_f, level.CMD_POWER_ADMIN );
 		level [[ level.tcs_add_server_command_func ]]( "listgamerules", "listgamerules lgmrls", "listgamerules", ::CMD_LISTGAMERULES_f, level.CMD_POWER_ADMIN );
+		level [[ level.tcs_add_server_command_func ]]( "stats", "stats", "stats [name|guid|clientnum]", ::CMD_STATS_f, level.CMD_POWER_NONE );
 	}
 	if ( isDefined( level.tcs_add_client_command_func ) )
 	{
@@ -170,7 +182,7 @@ CMD_LISTGAMERULES_f( arg_list )
 	channel = self [[ level.tcs_com_get_feedback_channel ]]();
 	if ( channel != "con" )
 	{
-		channel = channel + "|iprint";
+		channel = "iprint";
 	}
 	gamerules = getArrayKeys( level.grief_gamerules );
 	for ( i = 0; i < gamerules.size; i++ )
@@ -193,7 +205,95 @@ CMD_TEMPBANFROMTEAMCHANGE_f( arg_list )
 
 }
 
-CMD_SETTEAM_f( arg_list )
+CMD_STATS_f( arg_list )
 {
-	
+	channel = self [[ level.tcs_com_get_feedback_channel ]]();
+	if ( channel != "con" )
+	{
+		channel = "iprint";
+	}
+	target = self;
+	if ( array_validate( arg_list ) )
+	{
+		target = level [[ level.tcs_find_player_in_server ]]( arg_list[ 0 ] );
+		if ( isDefined( target ) )
+		{
+			stats = getArrayKeys( target.player_fields[ "stats" ] );
+			for ( i = 0; i < stats.size; i++ )
+			{
+				value = target.player_fields[ "stats" ][ stats[ i ] ];
+				if ( stats[ i ] == "seconds_played" )
+				{
+					value = target.player_fields[ "stats" ][ stats[ i ] ] / 3600;
+				}
+				message = stat_display_handler( stats[ i ] ) + ": " + value;
+				level [[ level.tcs_com_printf ]]( channel, "notitle", message, self );
+			}
+			if ( !is_true( self.is_server ) )
+			{
+				level [[ level.tcs_com_printf ]]( channel, "cmdinfo", "Use shift + ` and scroll to the bottom to view the full list", self );
+			}
+		}
+		else 
+		{
+			level [[ level.tcs_com_printf ]]( channel, "cmderror", "Could not find player", self );
+		}
+	}
+	else 
+	{
+		stats = getArrayKeys( self.player_fields[ "stats" ] );
+		for ( i = 0; i < stats.size; i++ )
+		{
+			value = target.player_fields[ "stats" ][ stats[ i ] ];
+			if ( stats[ i ] == "seconds_played" )
+			{
+				value = target.player_fields[ "stats" ][ stats[ i ] ] / 3600;
+			}
+			message = stat_display_handler( stats[ i ] ) + ": " + value;
+			level [[ level.tcs_com_printf ]]( channel, "notitle", message, self );
+		}
+		if ( !is_true( self.is_server ) )
+		{
+			level [[ level.tcs_com_printf ]]( channel, "cmdinfo", "Use shift + ` and scroll to the bottom to view the full list", self );
+		}
+	}
+}
+
+stat_display_handler( statname )
+{
+	switch ( statname )
+	{
+		case "ffa_wins":
+			return "FFA Wins";
+		case "ffa_losses":
+			return "FFA Losses";
+		case "ffa_matches_completed":
+			return "FFA Matches Completed";
+		case "4v4_wins":
+			return "4V4 Wins";
+		case "4v4_losses":
+			return "4V4 Losses";
+		case "4v4_matches_completed":
+			return "4V4 Matches Completed";
+		case "total_wins":
+			return "Total Wins";
+		case "total_losses":
+			return "Total Losses";
+		case "total_matches_completed":
+			return "Total Matches Completed";
+		case "seconds_played":
+			return "Hours Played";
+		case "stabs":
+			return "Stabs";
+		case "revives":
+			return "Revives";
+		case "downs":
+			return "Downs";
+		case "confirms":
+			return "Confirms";
+		case "mmr":
+			return "MMR";
+		default:
+			return statname;
+	}
 }

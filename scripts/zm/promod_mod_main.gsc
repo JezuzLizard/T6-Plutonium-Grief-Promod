@@ -125,6 +125,7 @@ on_player_connect()
 		player.killsconfirmed = 0;
 		player.stabs = 0;
 		player.assists = 0;
+		player.stats_start_time = getTime();
 		if ( level.grief_ffa )
 		{
 			player.survived = 0;
