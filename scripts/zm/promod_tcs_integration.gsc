@@ -187,7 +187,7 @@ CMD_LISTGAMERULES_f( arg_list )
 	gamerules = getArrayKeys( level.grief_gamerules );
 	for ( i = 0; i < gamerules.size; i++ )
 	{
-		level [[ level.tcs_com_printf ]]( channel, "notitle", gamerules[ i ], self );
+		level [[ level.tcs_com_printf ]]( channel, "notitle", "^3" + gamerules[ i ], self );
 	}
 	if ( !is_true( self.is_server ) )
 	{
@@ -249,7 +249,7 @@ CMD_STATS_f( arg_list )
 			{
 				value = target.player_fields[ "stats" ][ stats[ i ] ] / 3600;
 			}
-			message = stat_display_handler( stats[ i ] ) + ": " + value;
+			message = "^3" + stat_display_handler( stats[ i ] ) + ": " + value;
 			level [[ level.tcs_com_printf ]]( channel, "notitle", message, self );
 		}
 		if ( !is_true( self.is_server ) )
