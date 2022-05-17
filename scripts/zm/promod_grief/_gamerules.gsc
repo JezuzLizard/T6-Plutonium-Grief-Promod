@@ -35,6 +35,9 @@ init_gamerules()
 	initialize_gamerule( "grief_messages", 0 );
 	initialize_gamerule( "fog_disabled", 1, ::gamerule_toggle_fog );
 	initialize_gamerule( "visionset_enabled", 1, ::gamerule_toggle_visionset );
+	initialize_gamerule( "max_walkers", 0 );
+	initialize_gamerule( "max_zombies", 24 );
+
 	// initialize_gamerule( "perks_disabled", 0 );
 	// initialize_gamerule( "auto_balance_teams", 0 );
 
