@@ -1,128 +1,130 @@
 # T6-Plutonium-Grief-Promod
-A plutonium mod for the Grief gamemode in zombies.
+A plutonium mod for the Grief gamemode in zombies. Made for competitive players.
 
-This mod requires this plugin to run: https://github.com/fedddddd/t6-gsc-utils
+## Created by: JezuzLizard and 5and5
 
-### Created by: JezuzLizard and 5and5
-
-## Download
-[Download](https://www.mediafire.com/file/344hf0kvpal2exv/BO2-Pluto_Grief_Server.zip/file)
+[![Grief Promod Trailer](Grief_on_all_maps.png)](https://www.youtube.com/watch?v=vuwAIZxHpWM&ab_channel=Lanevader)
 
 ## Change Notes
 
 ### General 
-* Round scoring - Down all enemy players to score a point for your team, reach the roundlimit to win the match
-* Shellshock due to bullets reduced from 0.75 to 0.25 seconds
-* Zombies per round limited
-* Reduced pistol starting ammo
-* Removed quick revive, staminup and pack-a-punch on all maps
 
-### Teams
-* Server owner can set preset teams for tournament settings
+- Round scoring - Down all enemy players to score a point for your team, reach the roundlimit to win the match
+- Unlimited zombies
+- Points awarded for shooting or knifing enemy players
 
-### UI
-* Scoreboard tracks stabs, confirms, revives and downs
-* Kill feed displayed when hitting a player within 4 seconds of downing
-* HUD shows round wins, 3 wins equals a game win
+### Game modes
 
+- 4v4
+- Free for all
+
+### HUD
+- Scoreboard tracks stabs, confirms, revives and downs
+- Downed and bled out icons on scoreboard
+- Kill feed displayed when hitting a player within 4 seconds of downing
+- Custom HUD showing rounds won for each team
+- Round number removed
+
+### Game Rules
+
+- `scorelimit` Rounds to win a match (default 3)
+- `next_round_time` Seconds till next round starts (default 5)
+- `spawn_zombies_wait_time` Seconds till zombies start spawning after round timer (default 5)
+- `suicide_check_wait` Seconds players must survive to win a round (default 5)
+- `zombie_round` Strength of zombies (default 20)
+- `round_restart_points` Points given at the start a round (default 10000)
+- `mystery_box_enabled` Toggle is mystery box spawns (default 0)
+- `powerups_disabled` Toggle powerups (default 0)
+- `buildables` Toggle if buildables are allowed (default 1)
+- `player_health` Amount of health players start with (default 100)
+- `knife_lunge` Toggle knife lunge (default 0)
+- `reduce_mp5_ammo` Toggle if mp5 start without ammo (default 1)
+- `reduced_pistol_ammo` toggle if pistol starts with less ammo (default 1)
+- `bullet_shellshock_time` Amount of time bullets slow players (default 0.25)
+- `fog_disabled` Toggle fog (default 1)
+- `visionset_enabled` Toggle enhanced visuals (default 1)
+
+### Restrictions
+
+- `grief_restriction_perks` Restrict certain perks
+- `grief_restriction_powerups` Restrict certain powerups
+ 
 ## Maps
 
 ### Mob of the Dead
-* Moved initial spawn points to east cellblock
-* Added option for Jug
-* Disabled doors leading to spawn
-* Blocked off hallway to spawn
+- Moved initial spawn points to east cellblock
+- Added Jug
+- Disabled doors leading to spawn
+- Blocked off hallway to spawn
 
 ### Buried
-* Moved initial spawn points to Jug
-* Blocked off ways to get to the upper tunnels and courthouse area
-* Disabled candy shop and gerenal store doors
+- Moved initial spawn points closer to Jug
+- Blocked off ways to get to the upper tunnels
+- Disabled general store doors
 
 ### Trazit Farm
-* Switched Jug and Speed Cola
+- Switched Jug and Speed Cola
 
 ### Trazit Town
-* No changes made
+- No changes made
 
 ### Custom Maps
-* Trazit Depot
-* Trazit Power
-* Trazit Tunnel
-* Trazit Diner
-* MoTD Docks
-* MoTD Citadel
-* Die Rise Dragon location
-* Die Rise PDW location
+- Trazit Depot
+- Trazit Power
+- Trazit Tunnel
+- Trazit Diner
+- MoTD Docks
+- MoTD Citadel
+- Die Rise Dragon roof
+- Die Rise PDW location
+- Nuketown
 
-### Gamerules
+## Admin Command List
 ```
-shellshock_cooldown //Controls the the time before a shellshock will occur again
-melee_shellshock_time //Duration of melee shellshock attack
-bullet_shellshock_time //Duration of bullet shellshock attack
-perks_disabled //Disables perks
-powerups_disabled //Disables powerups
-grief_brutus_enabled //Enables brutus on MoTD
-shock_on_pain //Whether you get shellshocked on taking damage from fire and zombies
-auto_balance_teams //Auto balance the teams at the start of the match
-mystery_box_enabled //Enable the mystery box
-depot_remove_debris_over_lava //Remove the depot debris over the lava pit
-disable_doors //Disable certain doors on MoTD
-buildables //Disable buildables
-player_health //Sets the player's base health
-reduced_pistol_ammo //Reduced pistol ammo on spawn
-reduce_mp5_ammo //Reduce mp5 ammo on spawn
-knife_lunge //Whether you'll sometimes knife lunge
-grief_messages
-display_instructions
-suicide_check_time
-round_restart_points
-spawn_zombies_wait_time
-next_round_time
-zombie_round
-magic
-scorelimit
-```
-
-### Admin Command List
-```
-/togglehud
-/printorigin
-/printangles
-/cvar <cvarname> <newval>
 /cmdlist [pagenumber]
-/playerlist [pagenumber] [team]
-/stats [name|guid|clientnum]
-/listgamerules
-/resetgamerule <gamerule>
-/setgamerule <gamerule> <value> [nummatches]
-/unpause
-/pause [minutes]
-/respawnspectators
-/togglerespawn <name|guid|clientnum|self>
-/spectator <name|guid|clientnum|self>
-/toggleteamchanging
-/clantag <name|guid|clientnum> <newtag>
-/togglechat
-/unmute <name|guid|clientnum>
-/mute <name|guid|clientnum> [duration_in_minutes]
-/setrank <name|guid|clientnum|self> <rank>
-/tempban <name|guid|clientnum> <duration_in_minutes> [reason]
-/ban <name|guid|clientnum> [reason]
-/execonteam <team> <cmdname> [cmdargs] ...
-/execonallplayers <cmdname> [cmdargs] ...
-/setrotation <rotationdvar>
-/changemap <mapalias>
 /rotate
 /restart
 /randomnextmap
-/resetrotation
 /nextmap <mapalias>
+/changemap <mapalias>
+/setrotation <rotationdvar>
+/resetrotation
+/listgamerules
+/setgamerule <gamerule> <value> [nummatches]
+/resetgamerule <gamerule>
+/lock <password>
+/unlock
+/stats [name|guid|clientnum]
+/kick <name|guid|clientnum>
+/tempban <name|guid|clientnum> <duration_in_minutes> [reason]
+/ban <name|guid|clientnum> [reason]
+/togglechat
+/mute <name|guid|clientnum> [duration_in_minutes]
+/unmute <name|guid|clientnum>
+/toggleteamchanging
+/respawnspectators
+/togglerespawn <name|guid|clientnum|self>
+/spectator <name|guid|clientnum|self>
+/clantag <name|guid|clientnum> <newtag>
+/setrank <name|guid|clientnum|self> <rank>
+/execonteam <team> <cmdname> [cmdargs] ...
+/execonallplayers <cmdname> [cmdargs] ...
 /cvarall <cvarname> <newval>
 /dvar <dvarname> <newval>
-/unlock
-/lock <password>
-/kick <name|guid|clientnum>
+/unpause
+/pause [minutes]
+/togglehud
+/printorigin
+/printangles
+/playerlist [pagenumber] [team]
+/cvar <cvarname> <newval>
 /setcvar <name|guid|clientnum|self> <cvarname> <newval>
 ```
 
-Fully integrated with the Cut Survival Maps mod: https://github.com/JezuzLizard/Cut-Tranzit-Locations
+## Links
+
+- ***Requires*** [t6-gsc-utils](https://github.com/fedddddd/t6-gsc-utils)
+
+- Works with [T6-Command-System](https://github.com/JezuzLizard/T6-Command-System)
+
+- Uses code from [Bonus-Survival-Maps-for-BO2](https://github.com/JezuzLizard/Bonus-Survival-Maps-for-BO2) and [Cut-Tranzit-Locations](https://github.com/JezuzLizard/Cut-Tranzit-Locations)
