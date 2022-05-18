@@ -31,9 +31,37 @@ enable_zones()
 precache()
 {
 	maps/mp/zm_highrise_classic::precache();
+	preCacheModel("collision_player_wall_256x256x10");
+	preCacheModel("collision_player_wall_64x64x10");
 }
 
 main()
 {
-	// maps/mp/zm_highrise_classic::main();
+	spawn_barriers();
+	maps/mp/zm_highrise_classic::main();
+}
+
+spawn_barriers()
+{
+	building1topbarrier1 = Spawn("script_model", (2627, 1003, 2673));
+	building1topbarrier1 SetModel("collision_player_wall_256x256x10");
+	building1topbarrier1 RotateTo((0,0,0),.1);
+	elevatorbarrier1 = Spawn("script_model", (3033, 34, 2704) + (0,0,32));
+	elevatorbarrier1 SetModel("collision_player_wall_64x64x10");
+	elevatorbarrier1 RotateTo((0,60,0),.1);
+	elevatorbarrier2 = Spawn("script_model", (2437, -696, 2704) + (0,0,32));
+	elevatorbarrier2 SetModel("collision_player_wall_64x64x10");
+	elevatorbarrier2 RotateTo((0,-30,0),.1);
+	elevatorbarrier3 = Spawn("script_model", (2677, -631, 2704) + (0,0,32));
+	elevatorbarrier3 SetModel("collision_player_wall_64x64x10");
+	elevatorbarrier3 RotateTo((0,60,0),.1);
+	elevatorbarrier4 = Spawn("script_model", (1433, -570, 2704) + (0,0,32));
+	elevatorbarrier4 SetModel("collision_player_wall_64x64x10");
+	elevatorbarrier4 RotateTo((0,-30,0),.1);
+	elevatorbarrier5 = Spawn("script_model", (2435, -695, 2880) + (0,0,32));
+	elevatorbarrier5 SetModel("collision_player_wall_64x64x10");
+	elevatorbarrier5 RotateTo((0,150,0),.1); //good
+	elevatorbarrier6 = Spawn("script_model", (2672, -631, 2880) + (0,0,32));
+	elevatorbarrier6 SetModel("collision_player_wall_64x64x10");
+	elevatorbarrier6 RotateTo((0,60,0),.1); //good
 }

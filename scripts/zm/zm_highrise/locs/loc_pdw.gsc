@@ -1,10 +1,28 @@
+#include maps/mp/zm_highrise_utility;
+#include maps/mp/zombies/_zm_zonemgr;
+#include maps/mp/zombies/_zm_laststand;
+#include maps/mp/zombies/_zm_ai_leaper;
+#include maps/mp/zombies/_zm_magicbox;
+#include maps/mp/zm_highrise_elevators;
+#include maps/mp/zm_highrise_classic;
+#include maps/mp/zombies/_zm_buildables;
+#include maps/mp/zombies/_zm_game_module;
+#include maps/mp/gametypes_zm/_zm_gametype;
+#include maps/mp/zm_highrise_buildables;
+#include maps/mp/zombies/_zm_chugabud;
+#include maps/mp/gametypes_zm/_hud_util;
+#include maps/mp/gametypes_zm/_hud;
+#include maps/mp/zombies/_zm_utility;
+#include common_scripts/utility;
+#include maps/mp/_utility;
+
 struct_init()
 {
-	scripts/zm/_gametype_setup::register_perk_struct( "specialty_quickrevive", "zombie_vending_quickrevive", (-10, 180, 0 ), (1435, 1225, 3390) );
 	scripts/zm/_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, 270, 0 ), (1444.47, 2713.98, 3048.52) );
-	scripts/zm/_gametype_setup::register_perk_struct( "specialty_fastreload", "zombie_vending_sleight", ( 0, 135, 0 ), (1916.92, 1139.1, 3216.13) );
-	scripts/zm/_gametype_setup::register_perk_struct( "specialty_rof", "zombie_vending_doubletap2", ( 0, 270, 0 ), (2286.36, 2122.6, 3040.13) );
-	scripts/zm/_gametype_setup::register_perk_struct( "specialty_weapupgrade", "p6_anim_zm_buildable_pap_on", (0, 90, 0), (1195.34, 1281.47, 3392.13) );
+	// scripts/zm/_gametype_setup::register_perk_struct( "specialty_quickrevive", "zombie_vending_quickrevive", (-10, 180, 0 ), (1435, 1225, 3390) );
+	// scripts/zm/_gametype_setup::register_perk_struct( "specialty_fastreload", "zombie_vending_sleight", ( 0, 135, 0 ), (1916.92, 1139.1, 3216.13) );
+	// scripts/zm/_gametype_setup::register_perk_struct( "specialty_rof", "zombie_vending_doubletap2", ( 0, 270, 0 ), (2286.36, 2122.6, 3040.13) );
+	// scripts/zm/_gametype_setup::register_perk_struct( "specialty_weapupgrade", "p6_anim_zm_buildable_pap_on", (0, 90, 0), (1195.34, 1281.47, 3392.13) );
 
 	if ( !level.grief_ffa )
 	{
@@ -34,18 +52,19 @@ enable_zones()
 precache()
 {
 	maps/mp/zm_highrise_classic::precache();
+	preCacheModel("collision_player_wall_256x256x10");
+	preCacheModel("collision_player_wall_64x64x10");
 }
 
 main()
 {
 	spawn_barriers();
 	scripts/zm/_gametype_setup::wallbuy( "mp5k_zm", "mp5", "weapon_upgrade", (1455.64, 2026.42, 3105), ( 0, 270, 0 ) );
+	maps/mp/zm_highrise_classic::main();
 }
 
 spawn_barriers()
 {
-	preCacheModel("collision_player_wall_256x256x10");
-	preCacheModel("collision_player_wall_64x64x10");
 	collision2 = Spawn( "script_model", (1195.34, 1281.47, 3392.13) + (0,50,0) );
 	collision2 RotateTo((0,90,0), .1);
 	collision2 SetModel( "collision_player_wall_256x256x10" );
@@ -55,9 +74,6 @@ spawn_barriers()
 	building1topbarrier2 = Spawn("script_model", (2248.78, 1541.87, 3350));
 	building1topbarrier2 SetModel("collision_player_wall_256x256x10");
 	building1topbarrier2 RotateTo((0,90,0),.1);
-	elevatorbarrier1 = Spawn("script_model", (1651.49, 2168.44, 3392.01) + (0,0,32));
-	elevatorbarrier1 SetModel("collision_player_wall_64x64x10");
-	elevatorbarrier1 RotateTo((0,0,0),.1);
 	elevatorbarrier2 = Spawn("script_model", (1958.84, 1676.59, 3391.99) + (0,0,32));
 	elevatorbarrier2 SetModel("collision_player_wall_64x64x10");
 	elevatorbarrier2 RotateTo((0,0,0),.1);
@@ -67,10 +83,5 @@ spawn_barriers()
 	elevatorbarrier4 = Spawn("script_model", (1475.31, 1218.09, 3218.16) + (0,0,32));
 	elevatorbarrier4 SetModel("collision_player_wall_64x64x10");
 	elevatorbarrier4 RotateTo((0,90,0),.1);
-	elevatorbarrier5 = Spawn("script_model", (1647.22, 2171.76, 3215.57) + (0,0,32));
-	elevatorbarrier5 SetModel("collision_player_wall_64x64x10");
-	elevatorbarrier5 RotateTo((0,0,0),.1);
-	elevatorbarrier6 = Spawn("script_model", (1647.7, 2167.82, 3040.09) + (0,0,32));
-	elevatorbarrier6 SetModel("collision_player_wall_64x64x10");
-	elevatorbarrier6 RotateTo((0,0,0),.1);
 }
+
