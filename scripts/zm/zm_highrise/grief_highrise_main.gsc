@@ -28,10 +28,11 @@ init()
 	}
 	level.givecustomcharacters = ::give_personality_characters_highrise_override;
 
+    disable_elevator_perks();
+
     flag_wait( "initial_blackscreen_passed" );
     turn_on_power();
     close_elevators();
-    disable_elevator_perks();
 }
 
 give_personality_characters_highrise_override()
@@ -99,9 +100,19 @@ give_personality_characters_highrise_override()
     self thread set_exert_id();
 }
 
+disable_elevator_perks()
+{
+	perks = array( "vending_additionalprimaryweapon", "vending_revive", "vending_chugabud", "vending_jugg", "vending_doubletap", "vending_sleight" );
+    foreach ( perk in perks )
+    {
+        trigger = getent( perk, "target" );
+        if( isDefined(trigger) )
+		    trigger delete();
+	}
+}
+
 turn_on_power()
 {	
-	flag_wait( "initial_blackscreen_passed" );
 	trig = getEnt( "use_elec_switch", "targetname" );
 	powerSwitch = getEnt( "elec_switch", "targetname" );
 	powerSwitch notSolid();
@@ -118,21 +129,9 @@ turn_on_power()
 
 close_elevators()
 {
-	flag_wait( "initial_blackscreen_passed" );
 	foreach(elevator in level.elevators)
 	{
 		elevator.body.lock_doors = 1;
 		elevator.body maps/mp/zm_highrise_elevators::perkelevatordoor(0);
-	}
-}
-
-disable_elevator_perks()
-{
-	perks = array( "vending_additionalprimaryweapon", "vending_revive", "vending_chugabud", "vending_jugg", "vending_doubletap", "vending_sleight" );
-
-    foreach ( perk in perks )
-    {
-        trigger = getent( perk, "target" );
-		trigger delete();
 	}
 }
