@@ -27,6 +27,11 @@ init()
 		level.grief_character_index_teams[ "axis" ] = character_index_array[ randomint( character_index_array.size ) ];
 	}
 	level.givecustomcharacters = ::give_personality_characters_highrise_override;
+
+    flag_wait( "initial_blackscreen_passed" );
+    turn_on_power();
+    close_elevators();
+    disable_elevator_perks();
 }
 
 give_personality_characters_highrise_override()
@@ -92,4 +97,42 @@ give_personality_characters_highrise_override()
     self setsprintduration( 4 );
     self setsprintcooldown( 0 );
     self thread set_exert_id();
+}
+
+turn_on_power()
+{	
+	flag_wait( "initial_blackscreen_passed" );
+	trig = getEnt( "use_elec_switch", "targetname" );
+	powerSwitch = getEnt( "elec_switch", "targetname" );
+	powerSwitch notSolid();
+	trig setHintString( &"ZOMBIE_ELECTRIC_SWITCH" );
+	trig setVisibleToAll();
+	trig notify( "trigger", self );
+	trig setInvisibleToAll();
+	powerSwitch rotateRoll( -90, 0, 3 );
+	level thread maps/mp/zombies/_zm_perks::perk_unpause_all_perks();
+	powerSwitch waittill( "rotatedone" );
+	flag_set( "power_on" );
+	level setClientField( "zombie_power_on", 1 ); 
+}
+
+close_elevators()
+{
+	flag_wait( "initial_blackscreen_passed" );
+	foreach(elevator in level.elevators)
+	{
+		elevator.body.lock_doors = 1;
+		elevator.body maps/mp/zm_highrise_elevators::perkelevatordoor(0);
+	}
+}
+
+disable_elevator_perks()
+{
+	perks = array( "vending_additionalprimaryweapon", "vending_revive", "vending_chugabud", "vending_jugg", "vending_doubletap", "vending_sleight" );
+
+    foreach ( perk in perks )
+    {
+        trigger = getent( perk, "target" );
+		trigger delete();
+	}
 }
