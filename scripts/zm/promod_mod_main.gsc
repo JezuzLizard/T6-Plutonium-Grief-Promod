@@ -45,6 +45,7 @@ init()
 	level.round_think_func = ::round_think_override;
 	level._game_module_player_damage_callback = ::game_module_player_damage_callback;
 	level._game_module_player_damage_grief_callback = ::game_module_player_damage_grief_callback;
+	maps/mp/zombies/_zm::register_player_damage_callback( ::player_damage );
 	level.callbackplayerdamage = ::callback_playerdamage;
 	level.callbackplayermelee = ::callback_playermelee_override;
 	level.meat_bounce_override = ::meat_bounce_override;
@@ -52,7 +53,6 @@ init()
 	level.custom_end_screen = ::custom_end_screen_override;
 	level.autoassign = ::menuautoassign_override;
 	level.check_for_valid_spawn_near_team_callback = undefined;
-	level.playerSuicideAllowed = level.grief_gamerules[ "self_bleedout" ].current;
 	//level.allow_teamchange = ( getGametypeSetting( "allowInGameTeamChange" ) ? "1" : "0" );
 	setDvar( "g_friendlyfireDist", 0 );
 	level._supress_survived_screen = true;

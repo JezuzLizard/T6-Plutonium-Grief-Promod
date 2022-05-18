@@ -1,7 +1,6 @@
 #include maps\mp\_utility;
 #include common_scripts\utility;
 #include maps\mp\zombies\_zm_utility;
-#include maps\mp\zombies\_zm_laststand;
 
 getFreeSpawnpoint_override( spawnpoints, player )
 {
@@ -113,57 +112,4 @@ game_mode_spawn_player_logic_override()
 		return true;
 	}
 	return false;
-}
-
-suicide_trigger_think_override()
-{
-	self endon( "disconnect" );
-	self endon( "zombified" );
-	self endon( "stop_revive_trigger" );
-	self endon( "player_revived" );
-	self endon( "bled_out" );
-	self endon( "fake_death" );
-	level endon( "end_game" );
-	level endon( "stop_suicide_trigger" );
-
-	self thread maps\mp\zombies\_zm_laststand::clean_up_suicide_hud_on_end_game();
-	self thread maps\mp\zombies\_zm_laststand::clean_up_suicide_hud_on_bled_out();
-	while ( self usebuttonpressed() )
-	{
-		wait 1;
-	}
-	if ( !isDefined( self.suicideprompt ) )
-	{
-		return;
-	}
-	while ( 1 )
-	{
-		wait 0.1;
-		if ( !isDefined( self.suicideprompt ) )
-		{
-			continue;
-		}
-		self.suicideprompt settext( "" );
-		if ( !self maps\mp\zombies\_zm_laststand::is_suiciding() )
-		{
-			continue;
-		}
-		self.pre_suicide_weapon = self getcurrentweapon();
-		self giveweapon( level.suicide_weapon );
-		self switchtoweapon( level.suicide_weapon );
-		duration = self docowardswayanims();
-		suicide_success = maps\mp\zombies\_zm_laststand::suicide_do_suicide( duration );
-		self.laststand = undefined;
-		self takeweapon( level.suicide_weapon );
-		if ( suicide_success )
-		{
-			self notify( "player_suicide" );
-			wait_network_frame();
-			self maps\mp\zombies\_zm_stats::increment_client_stat( "suicides" );
-			self maps\mp\zombies\_zm_laststand::bleed_out();
-			return;
-		}
-		self switchtoweapon( self.pre_suicide_weapon );
-		self.pre_suicide_weapon = undefined;
-	}
 }
