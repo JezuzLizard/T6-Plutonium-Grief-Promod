@@ -29,7 +29,7 @@ main()
 	replaceFunc( maps\mp\zombies\_zm_utility::init_zombie_run_cycle, scripts\zm\promod_grief\_zombies::init_zombie_run_cycle_override );
 	replaceFunc( maps\mp\zombies\_zm_zonemgr::manage_zones, scripts\zm\_gametype_setup::manage_zones_override );
 	replaceFunc( maps\mp\zombies\_zm_weapons::weapon_give, scripts\zm\promod_grief\_weapons::weapon_give );
-
+	replaceFunc( maps\mp\gametypes_zm\_zm_gametype::menu_onmenuresponse, ::scripts\zm\promod_grief\_teams::menu_onmenuresponse_override );
 	init_gamerules();
 	precache();
 }
@@ -131,7 +131,6 @@ on_player_connect()
 		}
 		player.killsconfirmed = 0;
 		player.stabs = 0;
-		player.assists = 0;
 		player.stats_start_time = getTime();
 		if ( level.grief_ffa )
 		{

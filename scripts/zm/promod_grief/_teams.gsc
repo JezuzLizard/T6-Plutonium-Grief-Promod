@@ -168,7 +168,7 @@ auto_balance_set_team( team, count_grief_team_members )
 	self [[ level.givecustomcharacters ]]();
 }
 
-menu_onmenuresponse()
+menu_onmenuresponse_override()
 {
 	self endon( "disconnect" );
 	for (;;)
