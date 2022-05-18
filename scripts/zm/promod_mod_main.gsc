@@ -30,9 +30,6 @@ main()
 	replaceFunc( maps\mp\zombies\_zm_utility::init_zombie_run_cycle, scripts\zm\promod_grief\_zombies::init_zombie_run_cycle_override );
 	replaceFunc( maps\mp\zombies\_zm_zonemgr::manage_zones, scripts\zm\_gametype_setup::manage_zones_override );
 	replaceFunc( maps\mp\zombies\_zm_weapons::weapon_give, scripts\zm\promod_grief\_weapons::weapon_give );
-	replaceFunc( maps\mp\zombies\_zm_utility::init_zombie_run_cycle, scripts\zm\promod_grief\_zombies::init_zombie_run_cycle_override );
-	// replaceFunc( maps\mp\zombies\_zm_laststand::suicide_trigger_think, scripts\zm\promod_grief\_player_spawn::suicide_trigger_think_override );
-	// replaceFunc( maps\mp\zombies\_zm_laststand::playerlaststand, scripts\zm\promod_grief\_player_spawn::playerlaststand_override );
 
 	init_gamerules();
 	precache();
