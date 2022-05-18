@@ -62,17 +62,17 @@ A plutonium mod for the Grief gamemode in zombies. Made for competitive players.
 - Blocked off ways to get to the upper tunnels
 - Disabled general store doors
 
-### Trazit Farm
+### Tranzit Farm
 - Switched Jug and Speed Cola
 
-### Trazit Town
+### Tranzit Town
 - No changes made
 
 ### Custom Maps
-- Trazit Depot
-- Trazit Power
-- Trazit Tunnel
-- Trazit Diner
+- Tranzit Depot
+- Tranzit Power
+- Tranzit Tunnel
+- Tranzit Diner
 - MoTD Docks
 - MoTD Citadel
 - Die Rise Dragon roof
