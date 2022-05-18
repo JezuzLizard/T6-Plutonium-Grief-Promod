@@ -5,18 +5,17 @@
 
 - Team change
 - MVP/MMR system
-- Add map selection
-- walker and total zombie count gamerules
+- Add mapvote
 
 ### Gamerules
-
-- Fix self bleedout
 
 ### Command System
 
 ### HUD
 
 - Add gamemode msg at the start of the game (gamemode and credits)
+- Add waypoints for downed teammates for Origins and Die Rise
+- Show icons for scoreboard for Origins and Die Rise(use recolored revive waypoints maybe?)
 
 ### Bugs
 
@@ -34,11 +33,15 @@
 
 ### Mob
 
+- Add Spoon wallbuy use galvaknuckles chalk
+
 ### Die Rise
 
 - Remove perks from elevators
+- Add galvaknuckles
 
 ### Origins
 
+- Add nerfed fists wallbuy use galvaknuckles
 - Crazy Place
 - Trenches
