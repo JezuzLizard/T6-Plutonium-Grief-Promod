@@ -28,20 +28,19 @@ main()
 		stats[ "ffa_matches_completed" ] = 0;
 		stats[ "4v4_matches_completed" ] = 0;
 		stats[ "total_matches_completed" ] = 0;
-		stats[ "mmr" ] = 0;
 
 		level [[ level.tcs_register_generic_player_field ]]( "stats", stats );
-		penalties_array = [];
-		penalties_array[ "perm_banned" ] = false;
-		penalties_array[ "ban_reason" ] = "none";
-		penalties_array[ "temp_banned" ] = false;
-		penalties_array[ "temp_ban_time" ] = 0;
-		penalties_array[ "temp_ban_length" ] = 0;
-		penalties_array[ "perm_chat_muted" ] = false;
-		penalties_array[ "chat_muted" ] = false;
-		penalties_array[ "chat_muted_time" ] = 0;
-		penalties_array[ "chat_muted_length" ] = 0;
-		level [[ level.tcs_register_generic_player_field ]]( "penalties", penalties_array );
+		// penalties_array = [];
+		// penalties_array[ "perm_banned" ] = false;
+		// penalties_array[ "ban_reason" ] = "none";
+		// penalties_array[ "temp_banned" ] = false;
+		// penalties_array[ "temp_ban_time" ] = 0;
+		// penalties_array[ "temp_ban_length" ] = 0;
+		// penalties_array[ "perm_chat_muted" ] = false;
+		// penalties_array[ "chat_muted" ] = false;
+		// penalties_array[ "chat_muted_time" ] = 0;
+		// penalties_array[ "chat_muted_length" ] = 0;
+		// level [[ level.tcs_register_generic_player_field ]]( "penalties", penalties_array );
 		level [[ level.tcs_register_generic_player_field ]]( "assigned_team", "none" );
 	}
 	if ( isDefined( level.tcs_add_server_command_func ) )
