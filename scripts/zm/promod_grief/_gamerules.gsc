@@ -45,6 +45,11 @@ init_gamerules()
 	initialize_restriction( "powerups" );
 
 	set_ffa_vars();
+	level.allow_teamchange = getGametypeSetting( "allowInGameTeamChange" );
+	if ( level.grief_ffa ) 
+	{
+		level.allow_teamchange = 0;
+	}
 }
 
 initialize_gamerule( rulename, rulevalue, callback )

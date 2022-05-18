@@ -19,7 +19,6 @@ main()
 {
 	level.grief_meat_stink_player = getFunction( "maps/mp/gametypes_zm/zgrief", "meat_stink_player" );
 	level.grief_meat_stink_on_ground = getFunction( "maps/mp/gametypes_zm/zgrief", "meat_stink_on_ground" );
-
 	replaceFunc( maps\mp\zombies\_zm_magicbox::treasure_chest_init, scripts\zm\promod_grief\_weapons::treasure_chest_init_override );
 	replaceFunc( maps\mp\zombies\_zm_game_module::wait_for_team_death_and_round_end, scripts\zm\promod_grief\_round_system::wait_for_team_death_and_round_end_override );
 	replaceFunc( maps\mp\zombies\_zm::getfreespawnpoint, scripts\zm\promod_grief\_player_spawn::getfreespawnpoint_override );
@@ -56,7 +55,7 @@ init()
 	level.speed_change_round = undefined;
 	level.is_forever_solo_game = undefined;
 	level.shock_onpain = level.grief_gamerules[ "shock_on_pain" ].current;
-
+	level.grief_team_changes_max = 2;
 	set_default_pistol();
 	setup_scoreboard();
 	gamerule_disable_powerups();
@@ -103,11 +102,16 @@ precache()
 on_player_connect()
 {
 	level endon( "end_game" );
-
+	if ( !isDefined( level.grief_team_members ) )
+	{
+		level.grief_team_members = [];
+		level.grief_team_members[ "axis" ] = 0;
+		level.grief_team_members[ "allies" ] = 0;
+	}
     while ( true )
     {
     	level waittill( "connected", player );
-
+		player thread on_disconnect();
 		if ( level.grief_gamerules[ "knife_lunge" ].current )
 		{
 			player setClientDvar( "aim_automelee_range", 120 ); //default
@@ -133,7 +137,7 @@ on_player_connect()
 		{
 			player.survived = 0;
 		}
-
+		self.team_changes = 0;
 		player thread afk_kick();
 		player thread on_player_spawn();
 	}

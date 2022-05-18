@@ -2,12 +2,12 @@
 #include common_scripts\utility;
 #include maps\mp\zombies\_zm_utility;
 #include maps\mp\gametypes_zm\_globallogic_ui;
+#include scripts\zm\promod_tcs_integration;
 
 //By overriding this function we intercept the very first time the game attempts to set a players team. 
 //Now the default team won't be allies and we don't need to call level.givecustomercharacters unnecessarily.
 menuautoassign_override( comingfrommenu )
 {
-	teamkeys = getarraykeys( level.teams );
 	self closemenus();
 	if ( level.grief_ffa )
 	{
@@ -16,8 +16,8 @@ menuautoassign_override( comingfrommenu )
 	else 
 	{
 		//Allow forcing a specific player's team to axis or allies in teambased Grief.
-		//assignment = self get_assigned_team();
-		if ( isDefined( assignment ) )
+		assignment = self get_assigned_team();
+		if ( isDefined( assignment ) && assignment != "none" )
 		{
 			switch ( assignment )
 			{
@@ -28,6 +28,8 @@ menuautoassign_override( comingfrommenu )
 					self._encounters_team = "A";
 				default:
 					print( "menuautoassign_override() assignment " + assignment + " for player " + self.name + " is invalid\n Valid teams are allies and axis only" );
+					assignment = "allies";
+					self._encounters_team = "B";
 					break;
 			}
 		}
@@ -65,7 +67,7 @@ menuautoassign_override( comingfrommenu )
 	self updateobjectivetext();
 
 	self.sessionteam = assignment;
-
+	level.grief_team_members[ assignment ]++;
 	if ( !isalive( self ) )
 		self.statusicon = "hud_status_dead";
 
@@ -113,21 +115,21 @@ auto_balance_teams()
 	}
 	while ( allies_players.size != axis_players.size && ( allies_players.size - 1 ) > axis_players.size )
 	{
-		random_allies_player = random( allies_players );
-		random_allies_player auto_balance_set_team( "axis" );
+		random_allies_player = allies_players[ randomInt( allies_players.size ) ];
+		random_allies_player auto_balance_set_team( "axis", true );
 		allies_players = getPlayers( "allies" );
 		axis_players = getPlayers( "axis" );
 	}
 	while ( allies_players.size != axis_players.size && ( axis_players.size - 1 ) > allies_players.size )
 	{
-		random_axis_player = random( axis_players );
-		random_axis_player auto_balance_set_team( "allies" );
+		random_axis_player = axis_players[ randomInt( axis_players.size ) ];
+		random_axis_player auto_balance_set_team( "allies", true );
 		allies_players = getPlayers( "allies" );
 		axis_players = getPlayers( "axis" );
 	}
 }
 
-auto_balance_set_team( team )
+auto_balance_set_team( team, count_grief_team_members )
 {
 	if ( team == "allies" )
 	{
@@ -137,9 +139,143 @@ auto_balance_set_team( team )
 	{
 		self._encounters_team = "A";
 	}
+	if ( level.side_selection == 1 )
+	{
+		side_selection = 1;
+		if ( team == "axis" )
+		{
+			side_selection = 2;
+		}
+	}
+	else
+	{
+		side_selection = 2;
+		if ( team == "axis" )
+		{
+			side_selection = 1;
+		}
+	}
+	self.spawnpoint_desired_script_int = side_selection;
 	self.pers[ "team" ] = team;
 	self.team = team;
 	self.sessionteam = team;
 	self.characterindex = undefined;
+	if ( is_true( count_grief_team_members ) )
+	{
+		level.grief_team_members[ team ]++;
+		level.grief_team_members[ getotherteam( team ) ]--;
+	}
 	self [[ level.givecustomcharacters ]]();
+}
+
+menu_onmenuresponse()
+{
+	self endon( "disconnect" );
+	for (;;)
+	{
+		self waittill( "menuresponse", menu, response );
+
+		if ( response == "back" )
+		{
+			self closemenu();
+			self closeingamemenu();
+
+			continue;
+		}
+
+		if ( response == "changeteam" && level.allow_teamchange )
+		{
+			self closemenu();
+			self closeingamemenu();
+			if ( level.grief_team_members[ self.team ] <= 0 )
+			{
+				self iPrintLn( "You cannot switch teams as the last player on your team" );
+			}
+			else if ( level.grief_team_members[ getotherteam( self.team ) ] > 4 )
+			{
+				self iPrintLn( "You cannot switch teams because it would result in more than four players on a team" );
+			}
+			else if ( self.team_changes > level.grief_team_changes_max )
+			{
+				self iPrintLn( "You have swapped teams the maximum amount allowed already" );
+			}
+			else if ( !is_true( self.switching_teams_next_round ) )
+			{
+				self openmenu( game["menu_team"] );
+				self.can_switch_teams = true;
+			}
+			else 
+			{
+				self iPrintLn( "You are already switching teams next round" );
+			}
+			continue;
+		}
+
+		if ( is_true( self.can_switch_teams ) && menu == game["menu_team"] && level.allow_teamchange )
+		{
+			switch ( response )
+			{
+				case "allies":
+					self thread grief_team_change_logic( "allies" );
+					break;
+				case "axis":
+					self thread grief_team_change_logic( "axis" );
+					break;
+				case "autoassign":
+					self thread grief_team_change_logic( "autoassign" );
+					break;
+			}
+			self.can_switch_teams = false;
+		}
+	}
+}
+
+grief_team_change_logic( assignment )
+{
+	level endon( "end_game" );
+	self endon( "disconnect" );
+	self closemenus();
+	if ( self.team == assignment )
+	{
+		self iPrintLn( "You cannot switch to a team you are already on" );
+		return; 
+	}
+	if ( assignment == "autoassign" )
+	{
+		assignment = getotherteam( self.team );
+	}
+	level.grief_team_members[ assignment ]++;
+	level.grief_team_members[ self.team ]--;
+	self.switching_teams_next_round = true;
+	self thread on_disconnect( assignment );
+	level waittill( "end_round_think" );
+	auto_balance_set_team( assignment );
+	self.team_changes++;
+	self.switching_teams_next_round = false;
+}
+
+getotherencountersteam( encounters_team )
+{
+	if ( encounters_team == "A" )
+	{
+		return "B";
+	}
+	else if ( encounters_team == "B" )
+	{
+		return "A";
+	}
+	else 
+	{
+		return "B";
+	}
+}
+
+on_disconnect( assignment )
+{
+	level endon( "end_game" );
+	self notify( "restart_disconnect" );
+	self endon( "restart_disconnect" );
+	team = assignment;
+	self waittill( "disconnect" );
+	level.grief_team_members[ team ]--;
 }

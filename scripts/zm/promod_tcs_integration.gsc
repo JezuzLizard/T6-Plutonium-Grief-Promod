@@ -34,10 +34,6 @@ main()
 		penalties_array = [];
 		penalties_array[ "perm_banned" ] = false;
 		penalties_array[ "ban_reason" ] = "none";
-		penalties_array[ "perm_team_changing_ban" ] = false;
-		penalties_array[ "temp_team_changing_ban" ] = false;
-		penalties_array[ "temp_team_changing_ban_time" ] = 0;
-		penalties_array[ "temp_team_changing_ban_length" ] = 0;
 		penalties_array[ "temp_banned" ] = false;
 		penalties_array[ "temp_ban_time" ] = 0;
 		penalties_array[ "temp_ban_length" ] = 0;
@@ -50,9 +46,6 @@ main()
 	}
 	if ( isDefined( level.tcs_add_server_command_func ) )
 	{
-		// level [[ level.tcs_add_server_command_func ]]( "banfromteamchange", "banfromteamchange banftc", "banfromteamchange <name|guid|clientnum>", ::CMD_BANFROMTEAMCHANGE_f, level.CMD_POWER_MODERATOR );
-		// level [[ level.tcs_add_server_command_func ]]( "tempbanfromteamchange", "tempbanfromteamchange tbanftc", "tempbanfromteamchange <name|guid|clientnum> <duration_in_minutes>", ::CMD_TEMPBANFROMTEAMCHANGE_f, level.CMD_POWER_MODERATOR );
-		// level [[ level.tcs_add_server_command_func ]]( "setteam", "setteam stm", "setteam <name|guid|clientnum> <teamname>", ::CMD_SETTEAM_f, level.CMD_POWER_ADMIN );
 		level [[ level.tcs_add_server_command_func ]]( "setgamerule", "setgamerule sgmrl", "setgamerule <gamerule> <value> [nummatches]", ::CMD_SETGAMERULE_f, level.CMD_POWER_ADMIN );
 		level [[ level.tcs_add_server_command_func ]]( "resetgamerule", "resetgamerule rsgmrl", "resetgamerule <gamerule>", ::CMD_RESETGAMERULE_f, level.CMD_POWER_ADMIN );
 		level [[ level.tcs_add_server_command_func ]]( "listgamerules", "listgamerules lgmrls", "listgamerules", ::CMD_LISTGAMERULES_f, level.CMD_POWER_ADMIN );
@@ -195,16 +188,6 @@ CMD_LISTGAMERULES_f( arg_list )
 	}
 }
 
-CMD_BANFROMTEAMCHANGE_f( arg_list )
-{
-
-}
-
-CMD_TEMPBANFROMTEAMCHANGE_f( arg_list )
-{
-
-}
-
 CMD_STATS_f( arg_list )
 {
 	channel = self [[ level.tcs_com_get_feedback_channel ]]();
@@ -295,5 +278,17 @@ stat_display_handler( statname )
 			return "MMR";
 		default:
 			return statname;
+	}
+}
+
+get_assigned_team()
+{
+	if ( isDefined( self.player_fields ) && isDefined( self.player_fields[ "assigned_team" ] ) )
+	{
+		return self.player_fields[ "assigned_team" ];
+	}
+	else 
+	{
+		return "none";
 	}
 }
