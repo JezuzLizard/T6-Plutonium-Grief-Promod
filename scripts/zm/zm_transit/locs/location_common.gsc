@@ -2,7 +2,7 @@
 #include maps/mp/zombies/_zm_utility;
 #include common_scripts/utility;
 #include scripts/zm/promod/utility/_grief_util;
-#include scripts/zm/promod/_gametype_setup;
+#include scripts/zm/_gametype_setup;
 
 common_init()
 {
@@ -11,7 +11,7 @@ common_init()
 	flag_wait( "initial_blackscreen_passed" );
 	flag_wait( "start_zombie_round_logic" );
 	level.power_local_doors_globally = true;
-	scripts/zm/grief/gametype_modules/_gamerules::set_power_state( level.grief_gamerules[ "power_state" ] );
+	maps\mp\zombies\_zm_game_module::turn_power_on_and_open_doors();
 }
 
 enemy_location_override( zombie, enemy )

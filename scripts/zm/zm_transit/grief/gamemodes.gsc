@@ -20,6 +20,7 @@
 #include scripts/zm/zm_transit/locs/loc_town;
 #include scripts/zm/zm_transit/locs/loc_transit;
 #include scripts/zm/zm_transit/locs/loc_tunnel;
+#include scripts/zm/_gametype_setup;
 
 init_override()
 {
@@ -38,11 +39,11 @@ init_override()
 	add_map_location_gamemode( "zgrief", "farm", scripts/zm/zm_transit/locs/loc_farm::precache, scripts/zm/zm_transit/locs/loc_farm::farm_main );
 	add_map_location_gamemode( "zgrief", "town", scripts/zm/zm_transit/locs/loc_town::precache, scripts/zm/zm_transit/locs/loc_town::town_main );
 
-	scripts/zm/grief/gametype_modules/_gametype_setup::add_struct_location_gamemode_func( "zgrief", "diner", scripts/zm/zm_transit/locs/loc_diner::struct_init );
-	scripts/zm/grief/gametype_modules/_gametype_setup::add_struct_location_gamemode_func( "zgrief", "tunnel", scripts/zm/zm_transit/locs/loc_tunnel::struct_init );
-	scripts/zm/grief/gametype_modules/_gametype_setup::add_struct_location_gamemode_func( "zgrief", "power", scripts/zm/zm_transit/locs/loc_power::struct_init );
-	scripts/zm/grief/gametype_modules/_gametype_setup::add_struct_location_gamemode_func( "zgrief", "cornfield", scripts/zm/zm_transit/locs/loc_cornfield::struct_init );
-	scripts/zm/grief/gametype_modules/_gametype_setup::add_struct_location_gamemode_func( "zgrief", "transit", scripts/zm/zm_transit/locs/loc_transit::struct_init );
-	scripts/zm/grief/gametype_modules/_gametype_setup::add_struct_location_gamemode_func( "zgrief", "farm", scripts/zm/zm_transit/locs/loc_farm::struct_init );
-	scripts/zm/grief/gametype_modules/_gametype_setup::add_struct_location_gamemode_func( "zgrief", "town", scripts/zm/zm_transit/locs/loc_town::struct_init );
+	scripts/zm/_gametype_setup::add_struct_location_gamemode_func( "zgrief", "diner", scripts/zm/zm_transit/locs/loc_diner::struct_init );
+	scripts/zm/_gametype_setup::add_struct_location_gamemode_func( "zgrief", "tunnel", scripts/zm/zm_transit/locs/loc_tunnel::struct_init );
+	scripts/zm/_gametype_setup::add_struct_location_gamemode_func( "zgrief", "power", scripts/zm/zm_transit/locs/loc_power::struct_init );
+	scripts/zm/_gametype_setup::add_struct_location_gamemode_func( "zgrief", "cornfield", scripts/zm/zm_transit/locs/loc_cornfield::struct_init );
+	scripts/zm/_gametype_setup::add_struct_location_gamemode_func( "zgrief", "transit", scripts/zm/zm_transit/locs/loc_transit::struct_init );
+	scripts/zm/_gametype_setup::add_struct_location_gamemode_func( "zgrief", "farm", scripts/zm/zm_transit/locs/loc_farm::struct_init );
+	scripts/zm/_gametype_setup::add_struct_location_gamemode_func( "zgrief", "town", scripts/zm/zm_transit/locs/loc_town::struct_init );
 }

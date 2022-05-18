@@ -22,15 +22,15 @@ init_override()
 	{
 		case "docks":
 			add_map_location_gamemode( "zgrief", "cellblock", scripts/zm/zm_prison/locs/loc_docks::precache, scripts/zm/zm_prison/locs/loc_docks::main );
-			scripts/zm/grief/gametype_modules/_gametype_setup::add_struct_location_gamemode_func( "zgrief", "cellblock", scripts/zm/zm_prison/locs/loc_docks::struct_init );
+			scripts/zm/_gametype_setup::add_struct_location_gamemode_func( "zgrief", "cellblock", scripts/zm/zm_prison/locs/loc_docks::struct_init );
 			break;
 		case "citadel":
 			add_map_location_gamemode( "zgrief", "cellblock", scripts/zm/zm_prison/locs/loc_citadel::precache, scripts/zm/zm_prison/locs/loc_citadel::main );
-			scripts/zm/grief/gametype_modules/_gametype_setup::add_struct_location_gamemode_func( "zgrief", "cellblock", scripts/zm/zm_prison/locs/loc_citadel::struct_init );
+			scripts/zm/_gametype_setup::add_struct_location_gamemode_func( "zgrief", "cellblock", scripts/zm/zm_prison/locs/loc_citadel::struct_init );
 			break;
 		case "cellblock":
 			add_map_location_gamemode( "zgrief", "cellblock", scripts/zm/zm_prison/locs/loc_cellblock::precache, scripts/zm/zm_prison/locs/loc_cellblock::main );
-			scripts/zm/grief/gametype_modules/_gametype_setup::add_struct_location_gamemode_func( "zgrief", "cellblock", scripts/zm/zm_prison/locs/loc_cellblock::struct_init );
+			scripts/zm/_gametype_setup::add_struct_location_gamemode_func( "zgrief", "cellblock", scripts/zm/zm_prison/locs/loc_cellblock::struct_init );
 			break;
 		default:
 			break;

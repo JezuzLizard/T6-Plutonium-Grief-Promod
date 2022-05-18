@@ -30,7 +30,7 @@ struct_init()
 	} 
 	for ( i = 0; i < coordinates.size; i++ )
 	{
-		scripts/zm/grief/gametype_modules/_gametype_setup::register_map_initial_spawnpoint( coordinates[ i ], angles[ i ] );
+		scripts/zm/_gametype_setup::register_map_initial_spawnpoint( coordinates[ i ], angles[ i ] );
 	}
 }
 
@@ -61,28 +61,29 @@ precache() //checked matches cerberus output
 main() //checked matches cerberus output
 {
 	disable_tunnels();
-	spawn_mp5_wallbuy();
-	delete_door_and_debris_trigs();
+	// disable_buried_tunnel_zone();
+	// remove_buried_spawns();
+	// spawn_barriers();
 	maps/mp/gametypes_zm/_zm_gametype::setup_standard_objects( "street" );
+	delete_door_and_debris_trigs();
 	maps/mp/zombies/_zm_magicbox::treasure_chest_init( "start_chest" );
 	spawnmapcollision( "zm_collision_buried_street_grief" );
+	spawn_mp5_wallbuy();
 	common_init();
 }
 
 delete_door_and_debris_trigs()
 {	
-	if( !level.grief_gamerules[ "disable_doors_buried" ] )
-	{
+	if( !level.grief_gamerules[ "disable_doors" ].current )
 		return;
-	}
-	spawn_barriers();
-	door_trigs_to_delete = array( "pf728_auto2520", "pf728_auto2513", "pf728_auto2496" ); //"pf728_auto2516", "pf728_auto2500" //power doors
+
+	door_trigs_to_delete = array( "pf728_auto2520", "pf728_auto2513", "pf728_auto2496", "pf728_auto2500" ); //"pf728_auto2516" //power door
 	doors_trigs = getentarray( "zombie_door", "targetname" );
 	foreach ( door_trig in doors_trigs )
 	{
 		for ( i = 0; i < door_trigs_to_delete.size; i++ )
 		{
-			if ( door_trig.target == door_trigs_to_delete[ i ] )
+			if ( isDefined( door_trig.target ) && door_trig.target == door_trigs_to_delete[ i ] )
 			{
 				door_trig delete();
 			}
@@ -94,7 +95,7 @@ delete_door_and_debris_trigs()
 	{
 		for ( i = 0; i < debris_trigs_to_delete.size; i++ )
 		{
-			if ( debris_trig.target == debris_trigs_to_delete[ i ] )
+			if ( isDefined( debris_trig.target ) && debris_trig.target == debris_trigs_to_delete[ i ] )
 			{
 				debris_trig delete();
 			}
@@ -190,32 +191,6 @@ playchalkfx( effect, origin, angles ) //custom function
 		level waittill( "connected", player );
 		fx Delete();
 	}
-}
-
-spawn_barriers()
-{
-	//barn barrier
-	barrier_model = spawn( "script_model", ( -728, -557, 117 ), 1 );
-	barrier_model.angles = ( 19, 180, 0 );
-	barrier_model setmodel( "p6_zm_bu_sloth_blocker_medium" );
-	barrier_model disconnectpaths();
-	collision = spawn( "script_model", ( -728, -529, 117 ), 1 );
-	collision.angles = ( 19, 4, 0 );
-	collision setModel( "collision_player_64x64x128" );
-	//tunnel blockade
-	collision = spawn( "script_model", (-1495, -280, 40) );
-	collision.angles = ( 0, 90, 0 );
-	collision setmodel( "collision_clip_wall_128x128x10" );
-	couch = spawn( "script_model", (-1512, -262, 26.5) );
-	couch.angles = ( 0, 90, 0 );
-	couch setmodel( "p6_zm_bu_victorian_couch" );
-	//mule kick barrier
-	/*
-	barrier_model = spawn( "script_model", ( -578, 1006, 167 ), 1 );
-	barrier_model.angles = ( 9, 270, 0 );
-	barrier_model setmodel( "p6_zm_bu_sloth_blocker_medium" );
-	barrier_model disconnectpaths();
-	*/
 }
 
 disable_tunnels() //Jbleezy

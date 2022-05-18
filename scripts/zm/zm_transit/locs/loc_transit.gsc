@@ -7,15 +7,15 @@
 #include maps/mp/zombies/_zm_utility;
 #include common_scripts/utility;
 #include maps/mp/_utility;
-#include scripts/zm/promod/_gametype_setup;
+#include scripts/zm/_gametype_setup;
 
 struct_init()
 {
-	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, 180, 0 ), ( -6706, 5016, -56 ) );
-	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_quickrevive", "zombie_vending_revive", ( 0, 180, 0 ), ( -6122, 4110, -52 ) );
-	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_rof", "zombie_vending_doubletap2", ( 0, 180, 0 ), ( -6241, 5337, -56 ) );
-	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_fastreload", "zombie_vending_sleight", ( 0, 120, 0 ), ( -7489, 4217, -64 ) );
-	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_weapupgrade", "p6_anim_zm_buildable_pap", ( 0, 230, 0 ), ( -6834, 4553, -65 ) );
+	scripts/zm/_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, 180, 0 ), ( -6706, 5016, -56 ) );
+	scripts/zm/_gametype_setup::register_perk_struct( "specialty_quickrevive", "zombie_vending_revive", ( 0, 180, 0 ), ( -6122, 4110, -52 ) );
+	scripts/zm/_gametype_setup::register_perk_struct( "specialty_rof", "zombie_vending_doubletap2", ( 0, 180, 0 ), ( -6241, 5337, -56 ) );
+	scripts/zm/_gametype_setup::register_perk_struct( "specialty_fastreload", "zombie_vending_sleight", ( 0, 120, 0 ), ( -7489, 4217, -64 ) );
+	scripts/zm/_gametype_setup::register_perk_struct( "specialty_weapupgrade", "p6_anim_zm_buildable_pap", ( 0, 230, 0 ), ( -6834, 4553, -65 ) );
 }
 
 precache() //checked matches cerberus output
@@ -34,8 +34,9 @@ transit_main() //checked changed to match cerberus output
 	collision setmodel( "zm_collision_transit_busdepot_survival" );
 	scripts/zm/zm_transit/locs/location_common::common_init();
 	depot_remove_lava_collision();
+
 	nodes = getnodearray( "classic_only_traversal", "targetname" );
-	if( level.grief_gamerules[ "debris_over_lava_depot" ] )
+	if( level.grief_gamerules[ "depot_remove_debris_over_lava" ].current )
 	{
 		foreach ( node in nodes )
 			unlink_nodes( node, getnode( node.target, "targetname" ) );
@@ -43,11 +44,12 @@ transit_main() //checked changed to match cerberus output
 		foreach (node in nodes)
 			link_nodes( node, getnode( node.target, "targetname" ) );
 	}
+
 }
 
 depot_remove_lava_collision( )
 {
-	if( !level.grief_gamerules[ "debris_over_lava_depot" ] )
+	if( !level.grief_gamerules[ "depot_remove_debris_over_lava" ].current )
 	{
 		return;
 	}

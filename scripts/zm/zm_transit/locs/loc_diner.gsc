@@ -3,23 +3,33 @@
 #include common_scripts/utility;
 #include maps/mp/_utility;
 #include maps/mp/zombies/_zm;
-#include scripts/zm/promod/_gametype_setup;
+#include scripts/zm/_gametype_setup;
 
 struct_init()
 {
-	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, 176, 0 ), ( -3634, -7464, -58 ) );
-	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_rof", "zombie_vending_doubletap2", ( 0, -90, 0 ), ( -4170, -7610, -61 ) );
-	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_longersprint", "zombie_vending_marathon", ( 0, 4, 0 ), ( -4576, -6704, -61 ) );
-	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_scavenger", "zombie_vending_tombstone", ( 0, 90, 0 ), ( -6496, -7691, 0 ) );
-	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_weapupgrade", "p6_anim_zm_buildable_pap_on", ( 0, 175, 0 ), ( -6351, -7778, 227 ) );
-	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_quickrevive", "zombie_vending_quickrevive", ( 0, 137, 0 ), ( -5424, -7920, -64 ) );
-	scripts/zm/grief/gametype_modules/_gametype_setup::register_perk_struct( "specialty_fastreload", "zombie_vending_sleight", ( 0, 270, 0 ), ( -5470, -7859.5, 0 ) );
-	coordinates = array( ( -3991, -7317, -63 ), ( -4231, -7395, -60 ), ( -4127, -6757, -54 ), ( -4465, -7346, -58 ),
-						 ( -5770, -6600, -55 ), ( -6135, -6671, -56 ), ( -6182, -7120, -60 ), ( -5882, -7174, -61 ) );
-	angles = array( ( 0, 161, 0 ), ( 0, 120, 0 ), ( 0, 217, 0 ), ( 0, 173, 0 ), ( 0, -106, 0 ), ( 0, -46, 0 ), ( 0, 51, 0 ), ( 0, 99, 0 ) );
-	for ( i = 0; i < coordinates.size; i++ )
+	if ( !level.grief_ffa )
 	{
-		scripts/zm/grief/gametype_modules/_gametype_setup::register_map_initial_spawnpoint( coordinates[ i ], angles[ i ] );
+		level.spawnpoint_system_using_script_ints = true;
+	}
+	scripts/zm/_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, 176, 0 ), ( -3634, -7464, -58 ) );
+	scripts/zm/_gametype_setup::register_perk_struct( "specialty_rof", "zombie_vending_doubletap2", ( 0, -90, 0 ), ( -4170, -7610, -61 ) );
+	scripts/zm/_gametype_setup::register_perk_struct( "specialty_longersprint", "zombie_vending_marathon", ( 0, 4, 0 ), ( -4576, -6704, -61 ) );
+	scripts/zm/_gametype_setup::register_perk_struct( "specialty_scavenger", "zombie_vending_tombstone", ( 0, 90, 0 ), ( -6496, -7691, 0 ) );
+	scripts/zm/_gametype_setup::register_perk_struct( "specialty_weapupgrade", "p6_anim_zm_buildable_pap_on", ( 0, 175, 0 ), ( -6351, -7778, 227 ) );
+	scripts/zm/_gametype_setup::register_perk_struct( "specialty_quickrevive", "zombie_vending_quickrevive", ( 0, 137, 0 ), ( -5424, -7920, -64 ) );
+	scripts/zm/_gametype_setup::register_perk_struct( "specialty_fastreload", "zombie_vending_sleight", ( 0, 270, 0 ), ( -5470, -7859.5, 0 ) );
+
+	coordinates_1 = array( ( -4160, -7428, -63 ), ( -4240, -7428, -60 ), ( -4320, -7428, -54 ), ( -4400, -7428, -58 ) );
+	angles_1 = array( ( 0, 90, 0 ), ( 0, 90, 0 ), ( 0, 90, 0 ), ( 0, 90, 0 ) );
+	for ( i = 0; i < coordinates_1.size; i++ )
+	{
+		scripts/zm/_gametype_setup::register_map_initial_spawnpoint( coordinates_1[ i ], angles_1[ i ], 1 );
+	}
+	coordinates_2 = array( ( -4160, -7228, -64 ), ( -4240, -7228, -60 ), ( -4320, -7228, -54 ), ( -4400, -7228, -58 ) );
+	angles_2 = array( ( 0, -90, 0 ), ( 0, -90, 0 ), ( 0, -90, 0 ), ( 0, -90, 0 ) );
+	for ( i = 0; i < coordinates_2.size; i++ )
+	{
+		scripts/zm/_gametype_setup::register_map_initial_spawnpoint( coordinates_2[ i ], angles_2[ i ], 2 );
 	}
 }
 
@@ -46,6 +56,8 @@ precache()
 	level.chests = [];
 	level.chests[ 0 ] = normalChests[ 3 ];
 	level.chests[ 1 ] = start_chest;
+
+	generatebuildabletarps();
 }
 
 diner_main()
@@ -77,21 +89,29 @@ diner_hatch_access() //modified function
 
 init_wallbuys()
 {
-	scripts/zm/grief/gametype_modules/_gametype_setup::wallbuy( ( 0, 0, 0 ), ( -4280, -7486, -5 ), "m14_zm_fx", "m14_zm", "t6_wpn_ar_m14_world", "m14", "weapon_upgrade" );
-	scripts/zm/grief/gametype_modules/_gametype_setup::wallbuy( ( 0, 0, 0 ), ( -5085, -7807, -5 ), "rottweil72_zm_fx", "rottweil72_zm", "t6_wpn_shotty_olympia_world", "olympia", "weapon_upgrade" );
-	scripts/zm/grief/gametype_modules/_gametype_setup::wallbuy( ( 0, 180, 0 ), ( -3578, -7181, 0 ), "m16_zm_fx", "m16_zm", "t6_wpn_ar_m16a2_world", "m16", "weapon_upgrade" );
-	scripts/zm/grief/gametype_modules/_gametype_setup::wallbuy( ( 0, 1, 0 ), ( -5489, -7982.7, 62 ), "mp5k_zm_fx", "mp5k_zm", "t6_wpn_smg_mp5_world", "mp5", "weapon_upgrade" );
-	//wallbuy( ( 0, 270, 0 ), ( -6399.2, -7938.5, 207.25 ), "tazer_knuckles_zm_fx", "tazer_knuckles_zm", "t6_wpn_taser_knuckles_world", "tazer_knuckles", "tazer_upgrade" );
+	scripts/zm/_gametype_setup::wallbuy( "m14_zm", "m14", "weapon_upgrade", ( -5085, -7807, -5 ), ( 0, 0, 0 ) );
+	scripts/zm/_gametype_setup::wallbuy( "rottweil72_zm", "olympia", "weapon_upgrade", ( -4576, -7748, 18 ), ( 0, 90, 0 ) );
+	scripts/zm/_gametype_setup::wallbuy( "mp5k_zm", "mp5", "weapon_upgrade", ( -5489, -7982.7, 62 ), ( 0, 1, 0 ) );
+	scripts/zm/_gametype_setup::wallbuy( "m16_zm", "m16", "weapon_upgrade", ( -3578, -7181, 0 ), ( 0, 180, 0 ) );
+	scripts/zm/_gametype_setup::wallbuy( "tazer_knuckles_zm", "tazer_knuckles", "tazer_upgrade", ( -6265, -7941, 100 ), ( 0, 90, 0 ) );
 }
 
 init_barriers() //custom function
 {
-	scripts/zm/grief/gametype_modules/_gametype_setup::barrier( ( -3952, -6957, -67 ), "collision_player_wall_256x256x10", ( 0, 82, 0 ) );
-	scripts/zm/grief/gametype_modules/_gametype_setup::barrier( ( -4173, -6679, -60 ), "collision_player_wall_512x512x10", ( 0, 0, 0 ) );
-	scripts/zm/grief/gametype_modules/_gametype_setup::barrier( ( -5073, -6732, -59 ), "collision_player_wall_512x512x10", ( 0, 328, 0 ) );
-	scripts/zm/grief/gametype_modules/_gametype_setup::barrier( ( -6104, -6490, -38 ), "collision_player_wall_512x512x10", ( 0, 2, 0 ) );
-	scripts/zm/grief/gametype_modules/_gametype_setup::barrier( ( -5850, -6486, -38 ), "collision_player_wall_256x256x10", ( 0, 0, 0 ) );
-	scripts/zm/grief/gametype_modules/_gametype_setup::barrier( ( -5624, -6406, -40 ), "collision_player_wall_256x256x10", ( 0, 226, 0 ) );
-	scripts/zm/grief/gametype_modules/_gametype_setup::barrier( ( -6348, -6886, -55 ), "collision_player_wall_512x512x10", ( 0, 98, 0 ) );
+	// scripts/zm/_gametype_setup::barrier( ( -3952, -6957, -67 ), "collision_player_wall_256x256x10", ( 0, 82, 0 ) );
+	// scripts/zm/_gametype_setup::barrier( ( -4173, -6679, -60 ), "collision_player_wall_512x512x10", ( 0, 0, 0 ) );
+	// scripts/zm/_gametype_setup::barrier( ( -5073, -6732, -59 ), "collision_player_wall_512x512x10", ( 0, 328, 0 ) );
+	// scripts/zm/_gametype_setup::barrier( ( -6104, -6490, -38 ), "collision_player_wall_512x512x10", ( 0, 2, 0 ) );
+	// scripts/zm/_gametype_setup::barrier( ( -5850, -6486, -38 ), "collision_player_wall_256x256x10", ( 0, 0, 0 ) );
+	// scripts/zm/_gametype_setup::barrier( ( -5624, -6406, -40 ), "collision_player_wall_256x256x10", ( 0, 226, 0 ) );
+	// scripts/zm/_gametype_setup::barrier( ( -6348, -6886, -55 ), "collision_player_wall_512x512x10", ( 0, 98, 0 ) );
+	collision = spawn( "script_model", ( -5000, -6700, 0 ), 1 );
+	collision setmodel( "zm_collision_transit_diner_survival" );
 }
 
+generatebuildabletarps()
+{
+    tarp = spawn( "script_model", ( -4688, -7974, -64 ) );
+    tarp.angles = ( 0, 0, 0 );
+	tarp setModel( "p6_zm_buildable_bench_tarp" );
+}

@@ -1,7 +1,7 @@
 #include scripts/zm/promod/_utility;
 #include scripts/zm/zm_transit/grief/gamemodes;
 #include scripts/zm/zm_transit/locs/location_common;
-#include scripts/zm/grief/gametype_modules/_gametype_setup;
+#include scripts/zm/_gametype_setup;
 
 main()
 {
@@ -14,10 +14,9 @@ main()
 		case "power":
 			foreach ( door in door_ents )
 			{
-				if ( door.script_noteworthy == "electric_door" )
+				if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "electric_door" )
 				{
 					door.script_noteworthy = "electric_buyable_door";
-					door.marked_for_deletion = 0;
 				}
 			}
 			break;
@@ -35,6 +34,9 @@ main()
 				}
 			} 
 			break;
+		case "tunnel":
+			level.custom_location_zones = [];
+			level.custom_location_zones[ 0 ] = "zone_amb_tunnel";
 		default:
 			break;
 	}

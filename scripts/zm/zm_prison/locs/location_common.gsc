@@ -1,24 +1,54 @@
-#include maps/mp/_utility;
-#include maps/mp/zombies/_zm_utility;
-#include common_scripts/utility;
-#include maps/mp/zombies/_zm_weapons;
-#include maps/mp/zm_alcatraz_traps;
-#include maps/mp/zombies/_zm_score;
-#include scripts/zm/promod/_gametype_setup;
+#include maps\mp\_utility;
+#include maps\mp\zombies\_zm_utility;
+#include common_scripts\utility;
+#include maps\mp\zombies\_zm_weapons;
+#include maps\mp\zm_alcatraz_traps;
+#include scripts\zm\_gametype_setup;
+#include maps\mp\zombies\_zm_score;
 
 common_init()
 {
 	level.enemy_location_override_func = ::enemy_location_override;
-	level._effect[ "butterflies" ] = loadfx( "maps/zombie_alcatraz/fx_alcatraz_skull_elec" );
 	flag_wait( "initial_blackscreen_passed" );
 	flag_wait( "start_zombie_round_logic" );
-	scripts/zm/grief/gametype_modules/_gamerules::set_power_state( level.grief_gamerules[ "power_state" ] );
-	level thread maps/mp/zm_alcatraz_traps::init_fan_trap_trigs();
-	level thread maps/mp/zm_alcatraz_traps::init_acid_trap_trigs();
-	if ( getDvarInt( "grief_brutus_enabled") == 1 )
+	t_temp = getent( "tower_trap_activate_trigger", "targetname" );
+	t_temp delete();
+	t_temp = getent( "tower_trap_range_trigger", "targetname" );
+	t_temp delete();
+	e_model = getent( "trap_control_docks", "targetname" );
+	e_model delete();
+	e_brush = getent( "tower_shockbox_door", "targetname" );
+	e_brush delete();
+	a_afterlife_props = getentarray( "afterlife_show", "targetname" );
+	foreach ( m_prop in a_afterlife_props )
 	{
-		level thread grief_brutus_logic();
+		m_prop delete();
 	}
+	a_t_travel_triggers = getentarray( "travel_trigger", "script_noteworthy" );
+	foreach ( trigger in a_t_travel_triggers )
+	{
+		trigger delete();
+	}
+	t_ride_trigger = getent( "gondola_ride_trigger", "targetname" );
+	t_ride_trigger delete();
+	t_crafting_table = getentarray( "open_craftable_trigger", "targetname" );
+	foreach ( trigger in t_crafting_table )
+	{
+		trigger delete();
+	}
+	for ( i = 1; i <= 5; i++ )
+	{
+		m_key_lock = getent( "masterkey_lock_" + i, "targetname" );
+		m_key_lock delete();
+	}
+	level thread maps\mp\zm_alcatraz_traps::init_fan_trap_trigs();
+	level thread maps\mp\zm_alcatraz_traps::init_acid_trap_trigs();
+	level.custom_grief_brutus_logic = ::grief_brutus_logic;
+	if ( level.grief_gamerules[ "grief_brutus_enabled" ].current )
+	{
+		level thread [[ level.custom_grief_brutus_logic ]]();
+	}
+	level.global_brutus_powerup_prevention = true;
 }
 
 enemy_location_override( zombie, enemy )
@@ -37,7 +67,7 @@ enemy_location_override( zombie, enemy )
 zgrief_preinit()
 {
 	registerclientfield( "toplayer", "meat_stink", 1, 1, "int" );
-	level.givecustomloadout = maps/mp/zm_prison::givecustomloadout;
+	level.givecustomloadout = maps\mp\zm_prison::givecustomloadout;
 	zgrief_init();
 }
 
@@ -63,7 +93,7 @@ alcatraz_grief_laststand_weapon_save( einflictor, attacker, idamage, smeansofdea
 		primaryweapons = self getweaponslistprimaries();
 		for ( i = 0; i < primaryweapons.size; i++ )
 		{
-			if ( maps/mp/zombies/_zm_weapons::is_weapon_included( primaryweapons[ i ] ) || maps/mp/zombies/_zm_weapons::is_weapon_upgraded( primaryweapons[ i ] ) )
+			if ( maps\mp\zombies\_zm_weapons::is_weapon_included( primaryweapons[ i ] ) || maps\mp\zombies\_zm_weapons::is_weapon_upgraded( primaryweapons[ i ] ) )
 			{
 				primary_weapons_that_can_be_taken[ primary_weapons_that_can_be_taken.size ] = primaryweapons[ i ];
 			}
@@ -158,6 +188,8 @@ give_player_shiv()
 grief_brutus_logic()
 {
 	level endon( "end_game" );
+	level notify( "end_grief_brutus_logic" );
+	level endon( "end_grief_brutus_logic" );
 	while ( true )
 	{
 		flag_wait( "spawn_zombies" );
@@ -181,12 +213,12 @@ grief_brutus_logic()
 			level notify( "spawn_brutus", 1 );
 		}
 		level.music_round_override = 1;
-		level thread maps/mp/zombies/_zm_audio::change_zombie_music( "brutus_round_start" );
+		level thread maps\mp\zombies\_zm_audio::change_zombie_music( "brutus_round_start" );
 		level thread sndforcewait();
 	}
 }
 
-sndforcewait() //checked matches cerberus output
+sndforcewait()
 {
 	wait 10;
 	level.music_round_override = 0;
@@ -200,17 +232,6 @@ turn_afterlife_interact_on()
 	}
 	if ( self.script_string == "electric_cherry_on" || self.script_string == "sleight_on" || self.script_string == "wires_admin_door" )
 	{
-		if ( !isDefined( level.shockbox_anim ) )
-		{
-			level.shockbox_anim[ "on" ] = %fxanim_zom_al_shock_box_on_anim;
-			level.shockbox_anim[ "off" ] = %fxanim_zom_al_shock_box_off_anim;
-		}
-		if ( issubstr( self.model, "p6_zm_al_shock_box" ) )
-		{
-			self useanimtree( -1 );
-			self setmodel( "p6_zm_al_shock_box_on" );
-			self setanim( level.shockbox_anim[ "on" ] );
-		}
 	}
 	else
 	{
@@ -218,83 +239,8 @@ turn_afterlife_interact_on()
 	}
 }
 
-acid_trap_think() //checked changed to match cerberus output
+acid_trap_fx_override( notify_ent )
 {
-	triggers = getentarray( self.targetname, "targetname" );
-	self.is_available = 1;
-	self.has_been_used = 0;
-	self.cost = 1000;
-	self.in_use = 0;
-	self.zombie_dmg_trig = getent( self.target, "targetname" );
-	self.zombie_dmg_trig.in_use = 0;
-	light_name = self get_trap_light_name();
-	zapper_light_red( light_name );
-	self sethintstring( &"ZM_PRISON_ACID_TRAP_UNAVAILABLE" );
-	flag_wait_any( "activate_cafeteria", "activate_infirmary" );
-	zapper_light_green( light_name );
-	self hint_string( &"ZM_PRISON_ACID_TRAP", self.cost );
-	while ( 1 )
-	{
-		self waittill( "trigger", who );
-		if ( who in_revive_trigger() )
-		{
-			continue;
-		}
-		if ( !isDefined( self.is_available ) )
-		{
-			continue;
-		}
-		if ( is_player_valid( who ) )
-		{
-			if ( who.score >= self.cost )
-			{
-				if ( !self.zombie_dmg_trig.in_use )
-				{
-					if ( !self.has_been_used )
-					{
-						self.has_been_used = 1;
-						level thread maps/mp/zombies/_zm_audio::sndmusicstingerevent( "trap" );
-						who do_player_general_vox( "general", "discover_trap" );
-					}
-					else
-					{
-						who do_player_general_vox( "general", "start_trap" );
-					}
-					self.zombie_dmg_trig.in_use = 1;
-					self.zombie_dmg_trig.active = 1;
-					self playsound( "zmb_trap_activate" );
-					self thread acid_trap_move_switch( self );
-					self waittill( "switch_activated" );
-					who minus_to_player_score( self.cost );
-					level.trapped_track[ "acid" ] = 1;
-					level notify( "trap_activated" );
-					who maps/mp/zombies/_zm_stats::increment_client_stat( "prison_acid_trap_used", 0 );
-					array_thread( triggers, ::hint_string, &"ZOMBIE_TRAP_ACTIVE" );
-					self thread activate_acid_trap();
-					self.zombie_dmg_trig waittill( "acid_trap_fx_done" );
-					clientnotify( self.script_string + "off" );
-					if ( isDefined( self.fx_org ) )
-					{
-						self.fx_org delete();
-					}
-					if ( isDefined( self.zapper_fx_org ) )
-					{
-						self.zapper_fx_org delete();
-					}
-					if ( isDefined( self.zapper_fx_switch_org ) )
-					{
-						self.zapper_fx_switch_org delete();
-					}
-					self.zombie_dmg_trig notify( "acid_trap_finished" );
-					self.zombie_dmg_trig.active = 0;
-					array_thread( triggers, ::hint_string, &"ZOMBIE_TRAP_COOLDOWN" );
-					wait 10;
-					self playsound( "zmb_trap_available" );
-					self notify( "available" );
-					self.zombie_dmg_trig.in_use = 0;
-					array_thread( triggers, ::hint_string, &"ZM_PRISON_ACID_TRAP", self.cost );
-				}
-			}
-		}
-	}
+	wait 10;
+	notify_ent.zombie_dmg_trig notify( "acid_trap_fx_done" );
 }

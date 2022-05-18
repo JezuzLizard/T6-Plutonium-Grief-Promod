@@ -22,7 +22,6 @@ common_init()
 	//deleteslothbarricades();
 	flag_wait( "initial_blackscreen_passed" );
 	flag_wait( "start_zombie_round_logic" );
-	scripts/zm/grief/gametype_modules/_gamerules::set_power_state( level.grief_gamerules[ "power_state" ] );
 	wait 1;
 	builddynamicwallbuys();
 	buildbuildables();
@@ -59,7 +58,7 @@ builddynamicwallbuys() //checked matches cerberus output
 
 buildbuildables() //checked matches cerberus output
 {	
-	if( level.grief_gamerules[ "buildables" ] )
+	if( level.grief_gamerules[ "buildables" ].current )
 	{
 		buildbuildable( "springpad_zm" );
 		buildbuildable( "subwoofer_zm" );
