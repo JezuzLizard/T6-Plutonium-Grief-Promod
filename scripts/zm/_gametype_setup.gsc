@@ -459,3 +459,19 @@ manage_zones_override( initial_zone )
 		wait 1;
 	}
 }
+
+//zm_tomb only
+spawn_wunderfizz( origin. angles )
+{
+	newWunderfizz1 = spawn( "script_model", origin );
+	newWunderfizz1.angles = angles;
+	newWunderfizz1.targetname = "random_perk_machine";
+	newWunderfizz1 setmodel("p6_zm_vending_diesel_magic");
+	newWunderfizz1.script_string = "middle_bunker";
+	newWunderfizz1.is_locked = 0;
+	collision1 = spawn( "script_model", origin );
+	collision1 setmodel( "collision_clip_64x64x256" );
+	collision1.angles = angles;
+	collision1.targetname = "random_perk_machine_middle_bunker_collision";
+	collision1 ghost();
+}
