@@ -5,7 +5,7 @@
 
 - Team change
 - MVP/MMR system
-- Add mapvote
+- Add map selection
 
 ### Gamerules
 
@@ -14,8 +14,6 @@
 ### HUD
 
 - Add gamemode msg at the start of the game (gamemode and credits)
-- Add waypoints for downed teammates for Origins and Die Rise
-- Show icons for scoreboard for Origins and Die Rise(use recolored revive waypoints maybe?)
 
 ### Bugs
 
@@ -27,21 +25,17 @@
 
 ## Maps
 
-### Nuketown
-
 - Draw bleeding out icons
+
+### Nuketown
 
 ### Mob
 
-- Add Spoon wallbuy use galvaknuckles chalk
-
 ### Die Rise
 
-- Remove perks from elevators
-- Add galvaknuckles
+- Remove perks from elevators properly
 
 ### Origins
 
-- Add nerfed fists wallbuy use galvaknuckles
 - Crazy Place
 - Trenches
