@@ -1,3 +1,7 @@
+#include maps/mp/zombies/_zm_utility;
+#include maps/mp/_utility;
+#include common_scripts/utility;
+
 struct_init()
 {
 	scripts/zm/_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, 270, 0 ), ( 2644, 4496, -311 ) );
@@ -38,4 +42,26 @@ main()
 {
 	// scripts/zm/_gametype_setup::wallbuy( "mp5k_zm", "mp5", "weapon_upgrade", (1455.64, 2026.42, 3105), ( 0, 270, 0 ) );
 	maps\mp\zm_tomb_classic::main();
+	thread disable_doors_trenches()
+	thread deactivateTank();
+}
+
+disable_doors_trenches()
+{
+	flag_wait( "initial_blackscreen_passed" );
+	zm_doors = getentarray( "zombie_door", "targetname" );
+	for(i=0;i<zm_doors.size;i++)
+	{
+		if(zm_doors[i].origin == (-732, 2240, -64))
+			zm_doors[i].origin = (0,0,-10000);
+	}
+}
+
+deactivateTank()
+{
+	trig = getentarray( "trig_tank_station_call", "targetname" );
+	foreach(t in trig)
+	{
+		t disable_trigger();
+	}
 }
