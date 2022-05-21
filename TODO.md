@@ -6,11 +6,8 @@
 - Team change
 - MVP/MMR system
 - Add map selection
-- walker and total zombie count gamerules
 
 ### Gamerules
-
-- Fix self bleedout
 
 ### Command System
 
@@ -28,15 +25,15 @@
 
 ## Maps
 
-### Nuketown
-
 - Draw bleeding out icons
+
+### Nuketown
 
 ### Mob
 
 ### Die Rise
 
-- Remove perks from elevators
+- Remove perks from elevators properly
 
 ### Origins
 
