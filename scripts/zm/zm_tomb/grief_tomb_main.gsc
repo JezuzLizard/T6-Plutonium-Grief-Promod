@@ -11,7 +11,8 @@ main()
 	replaceFunc( maps\mp\zm_tomb_gamemodes::init, scripts\zm\zm_tomb\grief\gamemodes::init_override );
 	replacefunc( maps\mp\zm_tomb_dig::dig_spots_init, ::dig_spots_init );
 	replacefunc( maps\mp\zm_tomb_dig::generate_shovel_unitrigger, ::generate_shovel_unitrigger );
-
+	replacefunc( maps\mp\zm_tomb_vo::first_magic_box_seen_vo, ::first_magic_box_seen_vo );
+	
 	thread turn_on_power();
 
 	fake_location = getDvar( "scr_zm_location" );
@@ -57,6 +58,11 @@ generate_shovel_unitrigger( e_shovel ) //checked changed to match cerberus outpu
 }
 
 dig_spots_init()
+{
+	return;
+}
+
+first_magic_box_seen_vo()
 {
 	return;
 }
