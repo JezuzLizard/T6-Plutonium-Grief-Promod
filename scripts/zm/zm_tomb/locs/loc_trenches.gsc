@@ -1,10 +1,8 @@
 struct_init()
 {
-	// scripts/zm/_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, 270, 0 ), (1444.47, 2713.98, 3048.52) );
-	// scripts/zm/_gametype_setup::register_perk_struct( "specialty_quickrevive", "zombie_vending_quickrevive", (-10, 180, 0 ), (1435, 1225, 3390) );
-	// scripts/zm/_gametype_setup::register_perk_struct( "specialty_fastreload", "zombie_vending_sleight", ( 0, 135, 0 ), (1916.92, 1139.1, 3216.13) );
-	// scripts/zm/_gametype_setup::register_perk_struct( "specialty_rof", "zombie_vending_doubletap2", ( 0, 270, 0 ), (2286.36, 2122.6, 3040.13) );
-	// scripts/zm/_gametype_setup::register_perk_struct( "specialty_weapupgrade", "p6_anim_zm_buildable_pap_on", (0, 90, 0), (1195.34, 1281.47, 3392.13) );
+	scripts/zm/_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, 270, 0 ), ( 2644, 4496, -311 ) );
+	scripts/zm/_gametype_setup::register_perk_struct( "specialty_longersprint", "zombie_vending_marathon", ( 0, 178, 0 ), ( -250.068, 4296.36, -191.754 ) );
+	scripts/zm/_gametype_setup::register_perk_struct( "specialty_weapupgrade", "p6_anim_zm_buildable_pap_on", ( 0, 0, 0 ), ( -6223.94, -6694.36, 152.125 ) );
 
 	if ( !level.grief_ffa )
 	{

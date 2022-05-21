@@ -1,6 +1,10 @@
 struct_init()
 {
-	// scripts/zm/_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, 330, 0 ), (1757, 92, 2876) );
+	scripts/zm/_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, 194, 0 ), ( 9986, -8815.25, -451.75 ) );
+	scripts/zm/_gametype_setup::register_perk_struct( "specialty_fastreload", "zombie_vending_sleight", ( 0, 54.5, 0 ), ( 9519.64, -7785.12, -463.25 ) );
+	scripts/zm/_gametype_setup::register_perk_struct( "specialty_quickrevive", "zombie_vending_quickrevive", ( 0, 27, 0 ), ( 10728, -7107, -443.75 ) );
+	scripts/zm/_gametype_setup::register_perk_struct( "specialty_longersprint", "zombie_vending_marathon", ( 0, 178, 0 ), ( 10853.9, -8289.79, -447.75 ) );
+	scripts/zm/_gametype_setup::register_perk_struct( "specialty_weapupgrade", "p6_anim_zm_buildable_pap_on", ( 0, 274.026, 0 ), ( 10781.6, -7873.87, -463.875 ) );
 
 	if ( !level.grief_ffa )
 	{
@@ -25,7 +29,7 @@ struct_init()
 
 enable_zones()
 {
-	
+
 }
 
 precache()
@@ -37,5 +41,4 @@ main()
 {
 	// scripts/zm/_gametype_setup::wallbuy( "mp5k_zm", "mp5", "weapon_upgrade", (1455.64, 2026.42, 3105), ( 0, 270, 0 ) );
 	maps\mp\zm_tomb_classic::main();
-	enable_zones();
 }
