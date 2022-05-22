@@ -167,6 +167,7 @@ on_player_spawn()
 		}
 
 		self scripts\zm\promod_grief\_gamerules::set_visionset();
+		self thread give_upgraded_melee();
 	}
 }
 
