@@ -369,7 +369,6 @@ zombie_goto_round(target_round)
 	wait 0.05; // let all players fully respawn
 
 	level thread maps\mp\zombies\_zm::award_grenades_for_survivors();
-	level thread scripts\zm\promod_grief\_gamerules::gamerule_give_take_upgraded_melee();
 
 	level thread round_start_wait();
 }
