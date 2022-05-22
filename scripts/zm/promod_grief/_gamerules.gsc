@@ -39,17 +39,12 @@ init_gamerules()
 	initialize_gamerule( "max_zombies", 24 );
 	initialize_gamerule( "start_with_upgraded_melee", 0, ::gamerule_give_take_upgraded_melee );
 	// initialize_gamerule( "perks_disabled", 0 );
-	// initialize_gamerule( "auto_balance_teams", 0 );
+	initialize_gamerule( "auto_balance_teams", 0 );
 
 	initialize_restriction( "perks" );
 	initialize_restriction( "powerups" );
 
 	set_ffa_vars();
-	level.allow_teamchange = getGametypeSetting( "allowInGameTeamChange" );
-	if ( level.grief_ffa ) 
-	{
-		level.allow_teamchange = 0;
-	}
 }
 
 initialize_gamerule( rulename, rulevalue, callback )
@@ -567,7 +562,7 @@ set_ffa_vars()
 
 gamerule_give_take_upgraded_melee()
 {
-	give = level.grief_gamerules[ "start_with_galvaknuckles" ].current;
+	give = level.grief_gamerules[ "start_with_upgraded_melee" ].current;
 
 	if ( give )
 	{

@@ -174,7 +174,6 @@ menu_onmenuresponse_override()
 	for (;;)
 	{
 		self waittill( "menuresponse", menu, response );
-
 		if ( response == "back" )
 		{
 			self closemenu();
@@ -183,15 +182,16 @@ menu_onmenuresponse_override()
 			continue;
 		}
 
-		if ( response == "changeteam" && level.allow_teamchange )
+		if ( menu == game[ "menu_team" ] && level.allow_teamchange == "1" )
 		{
 			self closemenu();
 			self closeingamemenu();
-			if ( level.grief_team_members[ self.team ] <= 0 )
+			can_switch_teams = false;
+			if ( level.grief_team_members[ self.team ] <= 1 )
 			{
 				self iPrintLn( "You cannot switch teams as the last player on your team" );
 			}
-			else if ( level.grief_team_members[ getotherteam( self.team ) ] > 4 )
+			else if ( level.grief_team_members[ getotherteam( self.team ) ] >= 4 )
 			{
 				self iPrintLn( "You cannot switch teams because it would result in more than four players on a team" );
 			}
@@ -201,31 +201,27 @@ menu_onmenuresponse_override()
 			}
 			else if ( !is_true( self.switching_teams_next_round ) )
 			{
-				self openmenu( game["menu_team"] );
-				self.can_switch_teams = true;
+				can_switch_teams = true;
 			}
 			else 
 			{
 				self iPrintLn( "You are already switching teams next round" );
 			}
-			continue;
-		}
-
-		if ( is_true( self.can_switch_teams ) && menu == game["menu_team"] && level.allow_teamchange )
-		{
-			switch ( response )
+			if ( can_switch_teams )
 			{
-				case "allies":
-					self thread grief_team_change_logic( "allies" );
-					break;
-				case "axis":
-					self thread grief_team_change_logic( "axis" );
-					break;
-				case "autoassign":
-					self thread grief_team_change_logic( "autoassign" );
-					break;
+				switch ( response )
+				{
+					case "allies":
+						self thread grief_team_change_logic( "allies" );
+						break;
+					case "axis":
+						self thread grief_team_change_logic( "axis" );
+						break;
+					case "autoassign":
+						self thread grief_team_change_logic( "autoassign" );
+						break;
+				}
 			}
-			self.can_switch_teams = false;
 		}
 	}
 }

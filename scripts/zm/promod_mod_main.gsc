@@ -29,13 +29,18 @@ main()
 	replaceFunc( maps\mp\zombies\_zm_utility::init_zombie_run_cycle, scripts\zm\promod_grief\_zombies::init_zombie_run_cycle_override );
 	replaceFunc( maps\mp\zombies\_zm_zonemgr::manage_zones, scripts\zm\_gametype_setup::manage_zones_override );
 	replaceFunc( maps\mp\zombies\_zm_weapons::weapon_give, scripts\zm\promod_grief\_weapons::weapon_give );
-	replaceFunc( maps\mp\gametypes_zm\_zm_gametype::menu_onmenuresponse, ::scripts\zm\promod_grief\_teams::menu_onmenuresponse_override );
+	replaceFunc( maps\mp\gametypes_zm\_zm_gametype::menu_onmenuresponse, scripts\zm\promod_grief\_teams::menu_onmenuresponse_override );
 	init_gamerules();
 	precache();
 }
 
 init()
 {
+	level.allow_teamchange = getGametypeSetting( "allowInGameTeamChange" ) + "";
+	if ( level.grief_ffa ) 
+	{
+		level.allow_teamchange = "0";
+	}
 	level.game_mode_spawn_player_logic = scripts\zm\promod_grief\_player_spawn::game_mode_spawn_player_logic_override;
 	level.round_spawn_func = ::round_spawning_override;
 	level.round_think_func = ::round_think_override;
@@ -136,7 +141,7 @@ on_player_connect()
 		{
 			player.survived = 0;
 		}
-		self.team_changes = 0;
+		player.team_changes = 0;
 		player thread afk_kick();
 		player thread on_player_spawn();
 	}
