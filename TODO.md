@@ -3,7 +3,6 @@
 
 ## General
 
-- Team change
 - MVP/MMR system
 - Add map selection
 
@@ -33,9 +32,4 @@
 
 ### Die Rise
 
-- Remove perks from elevators properly
-
 ### Origins
-
-- Crazy Place
-- Trenches
