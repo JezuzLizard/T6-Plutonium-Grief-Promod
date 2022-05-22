@@ -68,6 +68,7 @@ grief_score_allies()
 grief_score_allies_icon()
 {
 	mapname = getDvar( "mapname" );
+	color = undefined;
 	if ( mapname == "zm_prison" )
 	{
 		icon = "faction_guards";
@@ -110,6 +111,7 @@ grief_score_axis()
 grief_score_axis_icon()
 {
 	mapname = getDvar( "mapname" );
+	color = undefined;
 	if ( mapname == "zm_prison" )
 	{
 		icon = "faction_inmates";
