@@ -37,7 +37,7 @@ init_gamerules()
 	initialize_gamerule( "visionset_enabled", 1, ::gamerule_toggle_visionset );
 	initialize_gamerule( "max_walkers", 0 );
 	initialize_gamerule( "max_zombies", 24 );
-
+	initialize_gamerule( "start_with_upgraded_melee", 0, ::gamerule_give_take_upgraded_melee );
 	// initialize_gamerule( "perks_disabled", 0 );
 	// initialize_gamerule( "auto_balance_teams", 0 );
 
@@ -154,6 +154,10 @@ reset_gamerule( rulename )
 	{
 		level.grief_gamerules[ rulename ].lastvalue_this_match = level.grief_gamerules[ rulename ].current;
 		level.grief_gamerules[ rulename ].current = original_value;
+		if ( isDefined( level.grief_gamerules[ rulename ].callback ) )
+		{
+			level [[ level.grief_gamerules[ rulename ].callback ]]();
+		}
 		setDvar( dvar_string, original_value );
 		setDvar( num_matches_string, -1 );
 	}
@@ -558,5 +562,88 @@ set_ffa_vars()
 	else
 	{
 		setdvar( "ui_scorelimit", level.grief_gamerules[ "scorelimit" ].current );
+	}
+}
+
+gamerule_give_take_upgraded_melee()
+{
+	give = level.grief_gamerules[ "start_with_galvaknuckles" ].current;
+
+	if ( give )
+	{
+		switch ( level.script )
+		{
+			case "zm_transit":
+			case "zm_nuked":
+			case "zm_buried":
+			case "zm_highrise":
+				weapon_name = "tazer_knuckles_zm";
+				break;
+			case "zm_tomb":
+				weapon_name = "one_inch_punch_zm";
+				break;
+			case "zm_prison":
+				weapon_name = "spoon_zm_alcatraz";
+				break;
+		}
+	}
+	else 
+	{
+		switch ( level.script )
+		{
+			case "zm_transit":
+			case "zm_nuked":
+			case "zm_buried":
+			case "zm_highrise":
+			case "zm_tomb":
+				weapon_name = "knife_zm";
+				break;
+			case "zm_prison":
+				weapon_name = "knife_zm_alcatraz";
+				break;
+		}
+	}
+	foreach ( player in level.players )
+	{
+		if ( is_player_valid( player ) && !player hasWeapon( weapon_name ) )
+		{
+			player maps\mp\zombies\_zm_weapons::weapon_give( weapon_name, false );
+			if ( weapon_name == "one_inch_punch_zm" )
+			{
+				if ( give )
+				{
+					player thread monitor_melee_swipe();
+				}
+				else 
+				{
+					self notify( "stop_monitor_melee_swipe" );
+				}
+			}
+		}
+	}
+}
+
+monitor_melee_swipe()
+{
+	self endon( "disconnect" );
+	self notify( "stop_monitor_melee_swipe" );
+	self endon( "stop_monitor_melee_swipe" );
+	while ( true )
+	{
+		while ( !self ismeleeing() )
+			wait 0.05;
+
+		if ( self getcurrentweapon() == level.riotshield_name )
+		{
+			wait 0.1;
+			continue;
+		}
+		self setclientfield( "oneinchpunch_impact", 1 );
+		wait_network_frame();
+		self setclientfield( "oneinchpunch_impact", 0 );
+		while ( self ismeleeing() )
+			wait 0.05;
+
+		wait 0.05;
 	}
 }

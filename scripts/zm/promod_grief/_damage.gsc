@@ -41,6 +41,10 @@ game_module_player_damage_grief_callback( einflictor, eattacker, idamage, idflag
 	{
 		if ( smeansofdeath == "MOD_MELEE" )
 		{
+			if ( sweapon == "one_inch_punch_zm" )
+			{
+				idamage = 1500;
+			}
 			//check if player is reviving before knockback
 			if ( self maps/mp/zombies/_zm_laststand::is_reviving_any() )
 			{
