@@ -1,18 +1,17 @@
-#include maps/mp/zm_nuked_standard;
-#include maps/mp/zm_nuked;
-#include maps/mp/gametypes_zm/_zm_gametype;
-#include maps/mp/zombies/_zm_game_module;
-#include maps/mp/zombies/_zm_utility;
-#include maps/mp/_utility;
-#include common_scripts/utility;
-#include maps/mp/zm_nuked;
+#include maps\mp\zm_nuked_standard;
+#include maps\mp\zm_nuked;
+#include maps\mp\gametypes_zm\_zm_gametype;
+#include maps\mp\zombies\_zm_game_module;
+#include maps\mp\zombies\_zm_utility;
+#include maps\mp\_utility;
+#include common_scripts\utility;
 
-#include scripts/zm/zm_nuked/locs/location_common;
+#include scripts\zm\zm_nuked\locs\location_common;
 
 init_override()
 {
 	add_map_gamemode( "zstandard", ::zstandard_preinit_override, undefined, undefined );
-	add_map_location_gamemode( "zstandard", "nuked", scripts/zm/zm_nuked/locs/location_common::precache, scripts/zm/zm_nuked/locs/location_common::main );
+	add_map_location_gamemode( "zstandard", "nuked", scripts\zm\zm_nuked\locs\location_common::precache, scripts\zm\zm_nuked\locs\location_common::main );
 }
 
 zstandard_preinit_override() //checked matches cerberus output

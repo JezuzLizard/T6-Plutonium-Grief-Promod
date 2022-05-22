@@ -1,25 +1,25 @@
-#include maps/mp/zombies/_zm_utility;
-#include common_scripts/utility;
-#include maps/mp/_utility;
-#include maps/mp/zombies/_zm;
-#include scripts/zm/_gametype_setup;
+#include maps\mp\zombies\_zm_utility;
+#include common_scripts\utility;
+#include maps\mp\_utility;
+#include maps\mp\zombies\_zm;
+#include scripts\zm\_gametype_setup;
 #include maps\mp\zombies\_zm_zonemgr;
 
 struct_init()
 {
-	scripts/zm/_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, 179, 0 ), ( 13936, -649, -189 ) );
-	scripts/zm/_gametype_setup::register_perk_struct( "specialty_rof", "zombie_vending_doubletap2", ( 0, -137, 0 ), ( 12052, -1943, -160 ) );
-	scripts/zm/_gametype_setup::register_perk_struct( "specialty_longersprint", "zombie_vending_marathon", ( 0, -35, 0 ), ( 9944, -725, -211 ) );
-	scripts/zm/_gametype_setup::register_perk_struct( "specialty_scavenger", "zombie_vending_tombstone", ( 0, 133, 0 ), ( 13551, -1384, -188 ) );
-	scripts/zm/_gametype_setup::register_perk_struct( "specialty_weapupgrade", "p6_anim_zm_buildable_pap_on", ( 0, 123, 0), ( 9960, -1288, -217 ) );
-	scripts/zm/_gametype_setup::register_perk_struct( "specialty_quickrevive", "zombie_vending_quickrevive", ( 0, -90, 0 ), ( 7831, -464, -203 ) );
-	scripts/zm/_gametype_setup::register_perk_struct( "specialty_fastreload", "zombie_vending_sleight", ( 0, -4, 0 ), ( 13255, 74, -195 ) );
+	scripts\zm\_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, 179, 0 ), ( 13936, -649, -189 ) );
+	scripts\zm\_gametype_setup::register_perk_struct( "specialty_rof", "zombie_vending_doubletap2", ( 0, -137, 0 ), ( 12052, -1943, -160 ) );
+	scripts\zm\_gametype_setup::register_perk_struct( "specialty_longersprint", "zombie_vending_marathon", ( 0, -35, 0 ), ( 9944, -725, -211 ) );
+	scripts\zm\_gametype_setup::register_perk_struct( "specialty_scavenger", "zombie_vending_tombstone", ( 0, 133, 0 ), ( 13551, -1384, -188 ) );
+	scripts\zm\_gametype_setup::register_perk_struct( "specialty_weapupgrade", "p6_anim_zm_buildable_pap_on", ( 0, 123, 0), ( 9960, -1288, -217 ) );
+	scripts\zm\_gametype_setup::register_perk_struct( "specialty_quickrevive", "zombie_vending_quickrevive", ( 0, -90, 0 ), ( 7831, -464, -203 ) );
+	scripts\zm\_gametype_setup::register_perk_struct( "specialty_fastreload", "zombie_vending_sleight", ( 0, -4, 0 ), ( 13255, 74, -195 ) );
 	coordinates = array( ( 7521, -545, -198 ), ( 7751, -522, -202 ), ( 7691, -395, -201 ), ( 7536, -432, -199 ), 
 							( 13745, -336, -188 ), ( 13758, -681, -188 ), ( 13816, -1088, -189 ), ( 13752, -1444, -182 ) );
 	angles = array( ( 0, 40, 0 ), ( 0, 145, 0 ), ( 0, -131, 0 ), ( 0, -24, 0 ), ( 0, -178, 0 ), ( 0, -179, 0 ), ( 0, -177, 0 ), ( 0, -177, 0 ) );
 	for ( i = 0; i < coordinates.size; i++ )
 	{
-		scripts/zm/_gametype_setup::register_map_initial_spawnpoint( coordinates[ i ], angles[ i ] );
+		scripts\zm\_gametype_setup::register_map_initial_spawnpoint( coordinates[ i ], angles[ i ] );
 	}
 }
 
@@ -89,8 +89,8 @@ cornfield_main()
 {
 	init_wallbuys();
 	init_barriers();
-	maps/mp/zombies/_zm_magicbox::treasure_chest_init( random( array( "start_chest", "farm_chest", "depot_chest" ) ) );
-	scripts/zm/zm_transit/locs/location_common::common_init();
+	maps\mp\zombies\_zm_magicbox::treasure_chest_init( random( array( "start_chest", "farm_chest", "depot_chest" ) ) );
+	scripts\zm\zm_transit\locs\location_common::common_init();
 	level thread increase_cornfield_zombie_speed();
 }
 
@@ -133,19 +133,19 @@ increase_cornfield_zombie_speed()
 
 init_wallbuys()
 {
-	scripts/zm/_gametype_setup::wallbuy( "m14_zm", "m14", "weapon_upgrade", ( -11166, -2844, 247 ), ( 0, -86, 0 ) );
-	scripts/zm/_gametype_setup::wallbuy( "rottweil72_zm", "olympia", "weapon_upgrade", ( 13663, -1166, -134 ), ( 0, -90, 0 ) );
-	scripts/zm/_gametype_setup::wallbuy( "m16_zm", "870mcs", "weapon_upgrade", ( 14092, -351, -133 ), ( 0, 90, 0 ) );
-	scripts/zm/_gametype_setup::wallbuy( "mp5k_zm", "mp5", "weapon_upgrade", ( 13542, -764, -133 ), ( 0, 90, 0 ) );
-	scripts/zm/_gametype_setup::wallbuy( "tazer_knuckles_zm", "tazer_knuckles", "tazer_upgrade", ( 13502, -12, -125 ), ( 0, 90, 0 ) );
+	scripts\zm\_gametype_setup::wallbuy( "m14_zm", "m14", "weapon_upgrade", ( -11166, -2844, 247 ), ( 0, -86, 0 ) );
+	scripts\zm\_gametype_setup::wallbuy( "rottweil72_zm", "olympia", "weapon_upgrade", ( 13663, -1166, -134 ), ( 0, -90, 0 ) );
+	scripts\zm\_gametype_setup::wallbuy( "m16_zm", "870mcs", "weapon_upgrade", ( 14092, -351, -133 ), ( 0, 90, 0 ) );
+	scripts\zm\_gametype_setup::wallbuy( "mp5k_zm", "mp5", "weapon_upgrade", ( 13542, -764, -133 ), ( 0, 90, 0 ) );
+	scripts\zm\_gametype_setup::wallbuy( "tazer_knuckles_zm", "tazer_knuckles", "tazer_upgrade", ( 13502, -12, -125 ), ( 0, 90, 0 ) );
 }
 
 init_barriers()
 {
-	scripts/zm/_gametype_setup::barrier( ( 10190, 135, -159 ), "veh_t6_civ_movingtrk_cab_dead", ( 0, 172, 0 ) );
-	scripts/zm/_gametype_setup::barrier( ( 10100, 100, -159 ), "collision_player_wall_512x512x10", ( 0, 172, 0 ) );
-	scripts/zm/_gametype_setup::barrier( ( 10100, -1800, -217 ), "veh_t6_civ_bus_zombie", ( 0, 126, 0 ), 1 );
-	scripts/zm/_gametype_setup::barrier( ( 10045, -1607, -181 ), "collision_player_wall_512x512x10", ( 0, 126, 0 ) );
+	scripts\zm\_gametype_setup::barrier( ( 10190, 135, -159 ), "veh_t6_civ_movingtrk_cab_dead", ( 0, 172, 0 ) );
+	scripts\zm\_gametype_setup::barrier( ( 10100, 100, -159 ), "collision_player_wall_512x512x10", ( 0, 172, 0 ) );
+	scripts\zm\_gametype_setup::barrier( ( 10100, -1800, -217 ), "veh_t6_civ_bus_zombie", ( 0, 126, 0 ), 1 );
+	scripts\zm\_gametype_setup::barrier( ( 10045, -1607, -181 ), "collision_player_wall_512x512x10", ( 0, 126, 0 ) );
 }
 
 cornfield_structs()

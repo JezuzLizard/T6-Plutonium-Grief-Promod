@@ -1,13 +1,13 @@
-#include maps/mp/_utility;
-#include common_scripts/utility;
-#include maps/mp/zombies/_zm_utility;
-#include maps/mp/zm_buried_gamemodes;
+#include maps\mp\_utility;
+#include common_scripts\utility;
+#include maps\mp\zombies\_zm_utility;
+#include maps\mp\zm_buried_gamemodes;
 
 common_init()
 {
 	level.buildables_built[ "pap" ] = 1;
 	level.equipment_team_pick_up = 1;
-	level thread maps/mp/zombies/_zm_buildables::think_buildables();
+	level thread maps\mp\zombies\_zm_buildables::think_buildables();
 	powerswitchstate( 1 );
 	level.enemy_location_override_func = ::enemy_location_override;
 	generatebuildabletarps();

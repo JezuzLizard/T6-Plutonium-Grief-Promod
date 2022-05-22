@@ -65,7 +65,7 @@ menuautoassign_override( comingfrommenu )
 	self.pers["weapon"] = undefined;
 	self.pers["savedmodel"] = undefined;
 	self updateobjectivetext();
-
+	self thread on_disconnect( assignment );
 	self.sessionteam = assignment;
 	level.grief_team_members[ assignment ]++;
 	if ( !isalive( self ) )
@@ -273,5 +273,12 @@ on_disconnect( assignment )
 	self endon( "restart_disconnect" );
 	team = assignment;
 	self waittill( "disconnect" );
+	decrement_grief_team_members( team );
+}
+
+decrement_grief_team_members( team )
+{
+	level endon( "end_game" );
+	self endon( "restart_disconnect" );
 	level.grief_team_members[ team ]--;
 }

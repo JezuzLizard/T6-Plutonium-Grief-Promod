@@ -46,7 +46,7 @@ game_module_player_damage_grief_callback( einflictor, eattacker, idamage, idflag
 				idamage = 1500;
 			}
 			//check if player is reviving before knockback
-			if ( self maps/mp/zombies/_zm_laststand::is_reviving_any() )
+			if ( self maps\mp\zombies\_zm_laststand::is_reviving_any() )
 			{
 				self.is_reviving_grief = 1;
 			}
@@ -54,7 +54,7 @@ game_module_player_damage_grief_callback( einflictor, eattacker, idamage, idflag
 		}
 		else if ( is_weapon_shotgun( sweapon ) )
 		{
-			if ( self maps/mp/zombies/_zm_laststand::is_reviving_any() )
+			if ( self maps\mp\zombies\_zm_laststand::is_reviving_any() )
 			{
 				self.is_reviving_grief = 1;
 			}
@@ -65,7 +65,7 @@ game_module_player_damage_grief_callback( einflictor, eattacker, idamage, idflag
 	{
 		if ( self.revives == old_revives )
 		{
-			if ( !self maps/mp/zombies/_zm_laststand::is_reviving_any() )
+			if ( !self maps\mp\zombies\_zm_laststand::is_reviving_any() )
 			{
 				knocked_off_revive = 1;
 			}
@@ -120,7 +120,7 @@ player_steal_points( attacker, event )
 	{
 		event = "impact";
 	}
-	if ( isDefined( attacker ) && isDefined( self ) && !self maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
+	if ( isDefined( attacker ) && isDefined( self ) && !self maps\mp\zombies\_zm_laststand::player_is_in_laststand() )
 	{
 		points_to_steal = 0;
 		switch( event )
@@ -165,7 +165,7 @@ player_steal_points( attacker, event )
 		{
 			return;
 		}
-		attacker maps/mp/zombies/_zm_score::add_to_player_score( points_to_steal );
+		attacker maps\mp\zombies\_zm_score::add_to_player_score( points_to_steal );
 		self minus_to_player_score( points_to_steal, true );
 	}
 }
@@ -253,19 +253,19 @@ game_module_player_damage_callback( einflictor, eattacker, idamage, idflags, sme
 	}
 	if ( level.grief_ffa )
 	{
-		if ( !self maps/mp/zombies/_zm_laststand::player_is_in_laststand() && !eattacker maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
+		if ( !self maps\mp\zombies\_zm_laststand::player_is_in_laststand() && !eattacker maps\mp\zombies\_zm_laststand::player_is_in_laststand() )
 		{
 			self player_steal_points( eattacker, smeansofdeath );
 		}
 	}
 	else if ( isDefined( eattacker._encounters_team ) && eattacker._encounters_team != self._encounters_team )
 	{
-		if ( !self maps/mp/zombies/_zm_laststand::player_is_in_laststand() && !eattacker maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
+		if ( !self maps\mp\zombies\_zm_laststand::player_is_in_laststand() && !eattacker maps\mp\zombies\_zm_laststand::player_is_in_laststand() )
 		{
 			self player_steal_points( eattacker, smeansofdeath );
 		}
 	}
-	if ( is_true( self._being_shellshocked ) || self maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
+	if ( is_true( self._being_shellshocked ) || self maps\mp\zombies\_zm_laststand::player_is_in_laststand() )
 	{
 		return;
 	}

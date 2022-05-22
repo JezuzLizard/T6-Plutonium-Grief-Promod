@@ -1,21 +1,21 @@
-#include maps/mp/gametypes_zm/zmeat;
-#include maps/mp/zm_alcatraz_traps;
-#include maps/mp/zombies/_zm_game_module;
-#include maps/mp/zombies/_zm_blockers;
-#include maps/mp/zombies/_zm_ai_brutus;
-#include maps/mp/gametypes_zm/_zm_gametype;
-#include maps/mp/zombies/_zm_magicbox;
-#include maps/mp/zombies/_zm_weapons;
-#include maps/mp/zm_prison;
-#include maps/mp/zombies/_zm_race_utility;
-#include maps/mp/zombies/_zm_utility;
-#include common_scripts/utility;
-#include maps/mp/_utility;
-#include scripts/zm/zm_prison/locs/location_common;
+#include maps\mp\gametypes_zm\zmeat;
+#include maps\mp\zm_alcatraz_traps;
+#include maps\mp\zombies\_zm_game_module;
+#include maps\mp\zombies\_zm_blockers;
+#include maps\mp\zombies\_zm_ai_brutus;
+#include maps\mp\gametypes_zm\_zm_gametype;
+#include maps\mp\zombies\_zm_magicbox;
+#include maps\mp\zombies\_zm_weapons;
+#include maps\mp\zm_prison;
+#include maps\mp\zombies\_zm_race_utility;
+#include maps\mp\zombies\_zm_utility;
+#include common_scripts\utility;
+#include maps\mp\_utility;
+#include scripts\zm\zm_prison\locs\location_common;
 
 struct_init()
 {
-	scripts/zm/_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, 86, 0 ), ( 1403, 9662, 1336 ) );
+	scripts\zm\_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, 86, 0 ), ( 1403, 9662, 1336 ) );
 	coordinates = array( ( 1422, 9597, 1336 ), ( 1432, 9745, 1336 ), ( 2154, 9062, 1336 ), ( 1969, 9950, 1336 ),
 							( 2150, 9496, 1336 ), ( 2144, 9931, 1336 ), ( 1665, 9053, 1336 ), ( 1661, 9211, 1336 ) );
 	angles = array( ( 0, 0, 0 ), ( 0, 0, 0 ), ( 0, 180, 0 ), ( 0, 0, 0 ),
@@ -24,7 +24,7 @@ struct_init()
 	level.struct_class_names[ "script_noteworthy" ][ "initial_spawn" ] = [];
 	for ( i = 0; i < coordinates.size; i++ )
 	{
-		scripts/zm/_gametype_setup::register_map_initial_spawnpoint( coordinates[ i ], angles[ i ] );
+		scripts\zm\_gametype_setup::register_map_initial_spawnpoint( coordinates[ i ], angles[ i ] );
 	}
 }
 
@@ -39,13 +39,13 @@ precache()
 main()
 {
 	delete_door_trigs();
-	maps/mp/gametypes_zm/_zm_gametype::setup_standard_objects( "cellblock" );
-	maps/mp/zombies/_zm_magicbox::treasure_chest_init( "start_chest" );
+	maps\mp\gametypes_zm\_zm_gametype::setup_standard_objects( "cellblock" );
+	maps\mp\zombies\_zm_magicbox::treasure_chest_init( "start_chest" );
 	precacheshader( "zm_al_wth_zombie" );
 	array_thread( level.zombie_spawners, ::add_spawn_function, ::remove_zombie_hats_for_grief );
-	maps/mp/zombies/_zm_ai_brutus::precache();
-	maps/mp/zombies/_zm_ai_brutus::init();
-	level._effect["butterflies"] = loadfx( "maps/zombie_alcatraz/fx_alcatraz_skull_elec" );
+	maps\mp\zombies\_zm_ai_brutus::precache();
+	maps\mp\zombies\_zm_ai_brutus::init();
+	level._effect["butterflies"] = loadfx( "maps\zombie_alcatraz\fx_alcatraz_skull_elec" );
 	a_t_door_triggers = getentarray( "zombie_door", "targetname" );
 	triggers = a_t_door_triggers;
 	i = 0;
@@ -221,7 +221,7 @@ main()
 		model turn_afterlife_interact_on();
 		wait 0.1;
 	}
-	scripts/zm/zm_prison/locs/location_common::common_init();
+	scripts\zm\zm_prison\locs\location_common::common_init();
 	level notify( "sleight_on" );
 	wait_network_frame();
 	level notify( "doubletap_on" );

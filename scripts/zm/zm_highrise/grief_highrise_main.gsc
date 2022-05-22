@@ -121,7 +121,7 @@ turn_on_power()
 	trig notify( "trigger", self );
 	trig setInvisibleToAll();
 	powerSwitch rotateRoll( -90, 0, 3 );
-	level thread maps/mp/zombies/_zm_perks::perk_unpause_all_perks();
+	level thread maps\mp\zombies\_zm_perks::perk_unpause_all_perks();
 	powerSwitch waittill( "rotatedone" );
 	flag_set( "power_on" );
 	level setClientField( "zombie_power_on", 1 ); 
@@ -132,6 +132,6 @@ close_elevators()
 	foreach(elevator in level.elevators)
 	{
 		elevator.body.lock_doors = 1;
-		elevator.body maps/mp/zm_highrise_elevators::perkelevatordoor(0);
+		elevator.body maps\mp\zm_highrise_elevators::perkelevatordoor(0);
 	}
 }

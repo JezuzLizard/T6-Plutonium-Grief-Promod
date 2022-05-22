@@ -118,7 +118,7 @@ turn_on_power()
 	foreach(zone in level.zone_capture.zones)
 	{
 		zone.n_current_progress = 100;
-		zone maps/mp/zm_tomb_capture_zones::handle_generator_capture();
+		zone maps\mp\zm_tomb_capture_zones::handle_generator_capture();
 		level setclientfield( zone.script_noteworthy, 100 / 100 );
 		level setclientfield( "state_" + zone.script_noteworthy, 2 );
 	}

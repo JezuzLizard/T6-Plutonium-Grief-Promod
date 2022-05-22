@@ -17,8 +17,8 @@
 
 main()
 {
-	level.grief_meat_stink_player = getFunction( "maps/mp/gametypes_zm/zgrief", "meat_stink_player" );
-	level.grief_meat_stink_on_ground = getFunction( "maps/mp/gametypes_zm/zgrief", "meat_stink_on_ground" );
+	level.grief_meat_stink_player = getFunction( "maps\mp\gametypes_zm\zgrief", "meat_stink_player" );
+	level.grief_meat_stink_on_ground = getFunction( "maps\mp\gametypes_zm\zgrief", "meat_stink_on_ground" );
 	replaceFunc( maps\mp\zombies\_zm_magicbox::treasure_chest_init, scripts\zm\promod_grief\_weapons::treasure_chest_init_override );
 	replaceFunc( maps\mp\zombies\_zm_game_module::wait_for_team_death_and_round_end, scripts\zm\promod_grief\_round_system::wait_for_team_death_and_round_end_override );
 	replaceFunc( maps\mp\zombies\_zm::getfreespawnpoint, scripts\zm\promod_grief\_player_spawn::getfreespawnpoint_override );
@@ -46,7 +46,7 @@ init()
 	level.round_think_func = ::round_think_override;
 	level._game_module_player_damage_callback = ::game_module_player_damage_callback;
 	level._game_module_player_damage_grief_callback = ::game_module_player_damage_grief_callback;
-	maps/mp/zombies/_zm::register_player_damage_callback( ::player_damage );
+	maps\mp\zombies\_zm::register_player_damage_callback( ::player_damage );
 	level.callbackplayerdamage = ::callback_playerdamage;
 	level.callbackplayermelee = ::callback_playermelee_override;
 	level.meat_bounce_override = ::meat_bounce_override;
@@ -100,7 +100,7 @@ precache()
 		{
 			level._effect = [];
 		}
-		level._effect["butterflies"] = loadfx( "maps/zombie/fx_zmb_impact_noharm" );
+		level._effect["butterflies"] = loadfx( "maps\zombie\fx_zmb_impact_noharm" );
 	}
 }
 
@@ -116,7 +116,6 @@ on_player_connect()
     while ( true )
     {
     	level waittill( "connected", player );
-		player thread on_disconnect();
 		if ( level.grief_gamerules[ "knife_lunge" ].current )
 		{
 			player setClientDvar( "aim_automelee_range", 120 ); //default
@@ -163,10 +162,10 @@ on_player_spawn()
 
 		if ( level.grief_gamerules[ "reduced_pistol_ammo" ].current )
 		{
-			self scripts/zm/promod_grief/_gamerules::reduce_starting_ammo();
+			self scripts\zm\promod_grief\_gamerules::reduce_starting_ammo();
 		}
 
-		self scripts/zm/promod_grief/_gamerules::set_visionset();
+		self scripts\zm\promod_grief\_gamerules::set_visionset();
 	}
 }
 

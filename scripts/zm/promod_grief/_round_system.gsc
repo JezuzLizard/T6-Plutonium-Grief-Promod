@@ -32,7 +32,7 @@ wait_for_team_death_and_round_end_override()
 		scripts\zm\promod_grief\_teams::auto_balance_teams();
 	}
 
-	scripts/zm/promod_grief/_hud::hud_init();
+	scripts\zm\promod_grief\_hud::hud_init();
 
 	round_start_wait();
 	flag_set( "grief_begin" );
@@ -306,14 +306,14 @@ round_end(winner)
 	{
 		foreach(player in players)
 		{
-			level thread maps/mp/zombies/_zm_audio_announcer::leaderdialog( "grief_restarted" );
+			level thread maps\mp\zombies\_zm_audio_announcer::leaderdialog( "grief_restarted" );
 			player thread show_grief_hud_msg( &"ZOMBIE_GRIEF_RESET" );
 		}
 	}
 
 	zombie_goto_round( level.round_number );
-	level thread maps/mp/zombies/_zm_game_module::reset_grief();
-	level thread maps/mp/zombies/_zm::round_think( 1 );
+	level thread maps\mp\zombies\_zm_game_module::reset_grief();
+	level thread maps\mp\zombies\_zm::round_think( 1 );
 	level.zombie_vars[ "spectators_respawn" ] = 0;
 }
 
@@ -331,14 +331,14 @@ game_won(winner)
 			players[ i ] freezecontrols( 1 );
 			if ( players[ i ]._encounters_team == winner )
 			{
-				players[ i ] thread maps/mp/zombies/_zm_audio_announcer::leaderdialogonplayer( "grief_won" );
+				players[ i ] thread maps\mp\zombies\_zm_audio_announcer::leaderdialogonplayer( "grief_won" );
 				i++;
 				continue;
 			}
-			players[ i ] thread maps/mp/zombies/_zm_audio_announcer::leaderdialogonplayer( "grief_lost" );
+			players[ i ] thread maps\mp\zombies\_zm_audio_announcer::leaderdialogonplayer( "grief_lost" );
 			i++;
 		}
-		maps/mp/gametypes_zm/_zm_gametype::track_encounters_win_stats( level.gamemodulewinningteam );
+		maps\mp\gametypes_zm\_zm_gametype::track_encounters_win_stats( level.gamemodulewinningteam );
 	}
 	level._game_module_game_end_check = undefined;
 	level notify( "game_module_ended", winner );
@@ -368,7 +368,7 @@ zombie_goto_round(target_round)
 
 	wait 0.05; // let all players fully respawn
 
-	level thread maps/mp/zombies/_zm::award_grenades_for_survivors();
+	level thread maps\mp\zombies\_zm::award_grenades_for_survivors();
 	level thread scripts\zm\promod_grief\_gamerules::gamerule_give_take_upgraded_melee();
 
 	level thread round_start_wait();

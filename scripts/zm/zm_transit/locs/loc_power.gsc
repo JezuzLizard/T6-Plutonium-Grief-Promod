@@ -1,20 +1,20 @@
-#include maps/mp/zombies/_zm_game_module;
-#include maps/mp/zombies/_zm_utility;
-#include common_scripts/utility;
-#include maps/mp/_utility;
-#include maps/mp/zombies/_zm;
-#include scripts/zm/_gametype_setup;
+#include maps\mp\zombies\_zm_game_module;
+#include maps\mp\zombies\_zm_utility;
+#include common_scripts\utility;
+#include maps\mp\_utility;
+#include maps\mp\zombies\_zm;
+#include scripts\zm\_gametype_setup;
 #include maps\mp\zombies\_zm_zonemgr;
 
 struct_init()
 {
-	scripts/zm/_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, -132, 0 ), ( 10746, 7282, -557 ) );
-	scripts/zm/_gametype_setup::register_perk_struct( "specialty_rof", "zombie_vending_doubletap2", ( 0, 180, 0 ), ( 11402, 8159, -487 ) );
-	scripts/zm/_gametype_setup::register_perk_struct( "specialty_longersprint", "zombie_vending_marathon", ( 0, -35, 0 ), ( 10856, 7879, -576 ) );
-	scripts/zm/_gametype_setup::register_perk_struct( "specialty_quickrevive", "zombie_vending_quickrevive", ( 0, 270, 0 ), ( 10946, 8308.77, -408 ) );
-	scripts/zm/_gametype_setup::register_perk_struct( "specialty_weapupgrade", "p6_anim_zm_buildable_pap_on", ( 0, 162, 0 ), ( 12625, 7434, -755 ) );
-	scripts/zm/_gametype_setup::register_perk_struct( "specialty_scavenger", "zombie_vending_tombstone", ( 0, -4, 0 ), ( 11156, 8120, -575 ) );
-	scripts/zm/_gametype_setup::register_perk_struct( "specialty_fastreload", "zombie_vending_sleight", ( 0, -1, 0 ), ( 11568, 7723, -755 ) );
+	scripts\zm\_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, -132, 0 ), ( 10746, 7282, -557 ) );
+	scripts\zm\_gametype_setup::register_perk_struct( "specialty_rof", "zombie_vending_doubletap2", ( 0, 180, 0 ), ( 11402, 8159, -487 ) );
+	scripts\zm\_gametype_setup::register_perk_struct( "specialty_longersprint", "zombie_vending_marathon", ( 0, -35, 0 ), ( 10856, 7879, -576 ) );
+	scripts\zm\_gametype_setup::register_perk_struct( "specialty_quickrevive", "zombie_vending_quickrevive", ( 0, 270, 0 ), ( 10946, 8308.77, -408 ) );
+	scripts\zm\_gametype_setup::register_perk_struct( "specialty_weapupgrade", "p6_anim_zm_buildable_pap_on", ( 0, 162, 0 ), ( 12625, 7434, -755 ) );
+	scripts\zm\_gametype_setup::register_perk_struct( "specialty_scavenger", "zombie_vending_tombstone", ( 0, -4, 0 ), ( 11156, 8120, -575 ) );
+	scripts\zm\_gametype_setup::register_perk_struct( "specialty_fastreload", "zombie_vending_sleight", ( 0, -1, 0 ), ( 11568, 7723, -755 ) );
 	level.trash_spawns = getDvarIntDefault( "grief_use_trash_spawns_power", 0 );
 	if ( !is_true( level.trash_spawns ) )
 	{
@@ -30,7 +30,7 @@ struct_init()
 	}
 	for ( i = 0; i < coordinates.size; i++ )
 	{
-		scripts/zm/_gametype_setup::register_map_initial_spawnpoint( coordinates[ i ], angles[ i ] );
+		scripts\zm\_gametype_setup::register_map_initial_spawnpoint( coordinates[ i ], angles[ i ] );
 	}
 	door_ents = getEntArray( "zombie_door", "targetname" );
 	foreach ( door in door_ents )
@@ -85,33 +85,33 @@ power_main()
 	level thread falling_death_init();
 	init_wallbuys();
 	init_barriers();
-	maps/mp/zombies/_zm_magicbox::treasure_chest_init( "pow_chest" );
-	scripts/zm/zm_transit/locs/location_common::common_init();
+	maps\mp\zombies\_zm_magicbox::treasure_chest_init( "pow_chest" );
+	scripts\zm\zm_transit\locs\location_common::common_init();
 }
 
 init_wallbuys()
 {
-	scripts/zm/_gametype_setup::wallbuy( "m14_zm", "m14", "weapon_upgrade", ( 10559, 8220, -495 ), ( 0, 90, 0) );
-	scripts/zm/_gametype_setup::wallbuy( "rottweil72_zm", "olympia", "weapon_upgrade", ( 10678, 8135, -476 ), ( 0, 180, 0 ) );
-	scripts/zm/_gametype_setup::wallbuy( "870mcs_zm", "870mcs", "weapon_upgrade", ( 11778, 7664, -697 ), ( 0, 170, 0 ) );
-	scripts/zm/_gametype_setup::wallbuy( "mp5k_zm", "mp5", "weapon_upgrade", ( 11452, 8692, -521 ), ( 0, 90, 0 ) );
-	scripts/zm/_gametype_setup::wallbuy( "bowie_knife_zm", "bowie_knife", "bowie_upgrade", ( 10835, 8145, -353 ), ( 0, 0, 0 ) );
+	scripts\zm\_gametype_setup::wallbuy( "m14_zm", "m14", "weapon_upgrade", ( 10559, 8220, -495 ), ( 0, 90, 0) );
+	scripts\zm\_gametype_setup::wallbuy( "rottweil72_zm", "olympia", "weapon_upgrade", ( 10678, 8135, -476 ), ( 0, 180, 0 ) );
+	scripts\zm\_gametype_setup::wallbuy( "870mcs_zm", "870mcs", "weapon_upgrade", ( 11778, 7664, -697 ), ( 0, 170, 0 ) );
+	scripts\zm\_gametype_setup::wallbuy( "mp5k_zm", "mp5", "weapon_upgrade", ( 11452, 8692, -521 ), ( 0, 90, 0 ) );
+	scripts\zm\_gametype_setup::wallbuy( "bowie_knife_zm", "bowie_knife", "bowie_upgrade", ( 10835, 8145, -353 ), ( 0, 0, 0 ) );
 }
 
 init_barriers()
 {
-	scripts/zm/_gametype_setup::barrier( ( 9965, 8133, -556 ), "veh_t6_civ_60s_coupe_dead", ( 15, 5, 0 ) );
-	scripts/zm/_gametype_setup::barrier( ( 9955, 8105, -575 ), "collision_player_wall_256x256x10", ( 0, 0, 0 ) );
-	scripts/zm/_gametype_setup::barrier( ( 10056, 8350, -584 ), "veh_t6_civ_bus_zombie", ( 0, 340, 0 ), 1 );
-	scripts/zm/_gametype_setup::barrier( ( 10267, 8194, -556 ), "collision_player_wall_256x256x10", ( 0, 340, 0 ) );
-	scripts/zm/_gametype_setup::barrier( ( 10409, 8220, -181 ), "collision_player_wall_512x512x10", ( 0, 250, 0 ) );
-	scripts/zm/_gametype_setup::barrier( ( 10409, 8220, -556 ), "collision_player_wall_128x128x10", ( 0, 250, 0 ) );
-	scripts/zm/_gametype_setup::barrier( ( 10281, 7257, -575 ), "veh_t6_civ_microbus_dead", ( 0, 13, 0 ) );
-	scripts/zm/_gametype_setup::barrier( ( 10268, 7294, -569 ), "collision_player_wall_256x256x10", ( 0, 13, 0 ) );
-	scripts/zm/_gametype_setup::barrier( ( 10100, 7238, -575 ), "veh_t6_civ_60s_coupe_dead", ( 0, 52, 0 ) );
-	scripts/zm/_gametype_setup::barrier( ( 10170, 7292, -505 ), "collision_player_wall_128x128x10", ( 0, 140, 0 ) );
-	scripts/zm/_gametype_setup::barrier( ( 10030, 7216, -569 ), "collision_player_wall_256x256x10", ( 0, 49, 0 ) );
-	scripts/zm/_gametype_setup::barrier( ( 10563, 8630, -344 ), "collision_player_wall_256x256x10", ( 0, 270, 0 ) );
+	scripts\zm\_gametype_setup::barrier( ( 9965, 8133, -556 ), "veh_t6_civ_60s_coupe_dead", ( 15, 5, 0 ) );
+	scripts\zm\_gametype_setup::barrier( ( 9955, 8105, -575 ), "collision_player_wall_256x256x10", ( 0, 0, 0 ) );
+	scripts\zm\_gametype_setup::barrier( ( 10056, 8350, -584 ), "veh_t6_civ_bus_zombie", ( 0, 340, 0 ), 1 );
+	scripts\zm\_gametype_setup::barrier( ( 10267, 8194, -556 ), "collision_player_wall_256x256x10", ( 0, 340, 0 ) );
+	scripts\zm\_gametype_setup::barrier( ( 10409, 8220, -181 ), "collision_player_wall_512x512x10", ( 0, 250, 0 ) );
+	scripts\zm\_gametype_setup::barrier( ( 10409, 8220, -556 ), "collision_player_wall_128x128x10", ( 0, 250, 0 ) );
+	scripts\zm\_gametype_setup::barrier( ( 10281, 7257, -575 ), "veh_t6_civ_microbus_dead", ( 0, 13, 0 ) );
+	scripts\zm\_gametype_setup::barrier( ( 10268, 7294, -569 ), "collision_player_wall_256x256x10", ( 0, 13, 0 ) );
+	scripts\zm\_gametype_setup::barrier( ( 10100, 7238, -575 ), "veh_t6_civ_60s_coupe_dead", ( 0, 52, 0 ) );
+	scripts\zm\_gametype_setup::barrier( ( 10170, 7292, -505 ), "collision_player_wall_128x128x10", ( 0, 140, 0 ) );
+	scripts\zm\_gametype_setup::barrier( ( 10030, 7216, -569 ), "collision_player_wall_256x256x10", ( 0, 49, 0 ) );
+	scripts\zm\_gametype_setup::barrier( ( 10563, 8630, -344 ), "collision_player_wall_256x256x10", ( 0, 270, 0 ) );
 }
 
 falling_death_init()
@@ -137,13 +137,13 @@ insta_kill_player()
 	{
 		return;
 	}
-	self maps/mp/zombies/_zm_buildables::player_return_piece_to_original_spawn();
+	self maps\mp\zombies\_zm_buildables::player_return_piece_to_original_spawn();
 	if ( is_player_killable( self ) )
 	{
 		self playsoundtoplayer( "falling_death", self );
 		self.insta_killed = 1;
 		in_last_stand = 0;
-		if ( self maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
+		if ( self maps\mp\zombies\_zm_laststand::player_is_in_laststand() )
 		{
 			in_last_stand = 1;
 		}
@@ -156,7 +156,7 @@ insta_kill_player()
 				spawn_points = getstructarray( points.target, "targetname" );
 				point = spawn_points[ 0 ];
 				self dodamage( self.health + 1000, ( 0, 0, 0 ) );
-				maps/mp/_visionset_mgr::vsmgr_activate( "overlay", "zm_transit_burn", self, 1, level.zm_transit_burn_max_duration );
+				maps\mp\_visionset_mgr::vsmgr_activate( "overlay", "zm_transit_burn", self, 1, level.zm_transit_burn_max_duration );
 				wait 0.5;
 				self freezecontrols( 1 );
 				wait 0.25;
@@ -170,7 +170,7 @@ insta_kill_player()
 				}
 				else
 				{
-					self thread maps/mp/zombies/_zm_laststand::auto_revive( self );
+					self thread maps\mp\zombies\_zm_laststand::auto_revive( self );
 					self.waiting_to_revive = 0;
 					self.solo_respawn = 0;
 					self.lives = 0;
@@ -181,13 +181,13 @@ insta_kill_player()
 			else
 			{
 				self dodamage( self.health + 1000, ( 0, 0, 0 ) );
-				maps/mp/_visionset_mgr::vsmgr_activate( "overlay", "zm_transit_burn", self, 2, level.zm_transit_burn_max_duration );
+				maps\mp\_visionset_mgr::vsmgr_activate( "overlay", "zm_transit_burn", self, 2, level.zm_transit_burn_max_duration );
 			}
 		}
 		else
 		{
 			self dodamage( self.health + 1000, ( 0, 0, 0 ) );
-			maps/mp/_visionset_mgr::vsmgr_activate( "overlay", "zm_transit_burn", self, 1, level.zm_transit_burn_max_duration );
+			maps\mp\_visionset_mgr::vsmgr_activate( "overlay", "zm_transit_burn", self, 1, level.zm_transit_burn_max_duration );
 			wait_network_frame();
 			self.bleedout_time = 0;
 		}

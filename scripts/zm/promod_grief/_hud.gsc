@@ -1,7 +1,7 @@
-#include maps/mp/gametypes_zm/_hud_util;
-#include common_scripts/utility;
-#include maps/mp/zombies/_zm_utility;
-#include maps/mp/_utility;
+#include maps\mp\gametypes_zm\_hud_util;
+#include common_scripts\utility;
+#include maps\mp\zombies\_zm_utility;
+#include maps\mp\_utility;
 
 
 hud_init()
@@ -122,7 +122,7 @@ grief_countdown()
 	level.countdown_hud.color = ( 1, 1, 0 );
 	level.countdown_hud.hidewheninmenu = true;
 	level.countdown_hud.alpha = 0;
-	level.countdown_hud maps/mp/gametypes_zm/_hud::fontpulseinit();
+	level.countdown_hud maps\mp\gametypes_zm\_hud::fontpulseinit();
 	level.countdown_hud thread round_start_countdown_hud_end_game_watcher();
 	return level.countdown_hud;
 }
@@ -180,7 +180,7 @@ round_start_countdown_hud_timer(time)
 	while(time > 0)
 	{
 		self setvalue(time);
-		self thread maps/mp/gametypes_zm/_hud::fontpulse(level);
+		self thread maps\mp\gametypes_zm\_hud::fontpulse(level);
 		wait 1;
 		time--;
 	}

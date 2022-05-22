@@ -127,7 +127,7 @@ weapon_give( weapon, is_upgrade, magic_box, nosound ) //checked changed to match
 {
 	primaryweapons = self getweaponslistprimaries();
 	current_weapon = self getcurrentweapon();
-	current_weapon = self maps/mp/zombies/_zm_weapons::switch_from_alt_weapon( current_weapon );
+	current_weapon = self maps\mp\zombies\_zm_weapons::switch_from_alt_weapon( current_weapon );
 	if ( !isDefined( is_upgrade ) )
 	{
 		is_upgrade = 0;
@@ -135,7 +135,7 @@ weapon_give( weapon, is_upgrade, magic_box, nosound ) //checked changed to match
 	weapon_limit = get_player_weapon_limit( self );
 	if ( is_equipment( weapon ) )
 	{
-		self maps/mp/zombies/_zm_equipment::equipment_give( weapon );
+		self maps\mp\zombies\_zm_equipment::equipment_give( weapon );
 	}
 	if ( weapon == "riotshield_zm" )
 	{
@@ -159,7 +159,7 @@ weapon_give( weapon, is_upgrade, magic_box, nosound ) //checked changed to match
 	}
 	if ( is_melee_weapon( weapon ) )
 	{
-		current_weapon = maps/mp/zombies/_zm_melee_weapon::change_melee_weapon( weapon, current_weapon );
+		current_weapon = maps\mp\zombies\_zm_melee_weapon::change_melee_weapon( weapon, current_weapon );
 	}
 	else if ( is_lethal_grenade( weapon ) )
 	{
@@ -193,7 +193,7 @@ weapon_give( weapon, is_upgrade, magic_box, nosound ) //checked changed to match
 	}
 	if ( !is_offhand_weapon( weapon ) )
 	{
-		self maps/mp/zombies/_zm_weapons::take_fallback_weapon();
+		self maps\mp\zombies\_zm_weapons::take_fallback_weapon();
 	}
 	if ( primaryweapons.size >= weapon_limit )
 	{
@@ -227,17 +227,17 @@ weapon_give( weapon, is_upgrade, magic_box, nosound ) //checked changed to match
 	}
 	if ( weapon == "cymbal_monkey_zm" )
 	{
-		self maps/mp/zombies/_zm_weap_cymbal_monkey::player_give_cymbal_monkey();
+		self maps\mp\zombies\_zm_weap_cymbal_monkey::player_give_cymbal_monkey();
 		self play_weapon_vo( weapon, magic_box );
 		return;
 	}
 	else if ( issubstr( weapon, "knife_ballistic_" ) )
 	{
-		weapon = self maps/mp/zombies/_zm_melee_weapon::give_ballistic_knife( weapon, issubstr( weapon, "upgraded" ) );
+		weapon = self maps\mp\zombies\_zm_melee_weapon::give_ballistic_knife( weapon, issubstr( weapon, "upgraded" ) );
 	}
 	else if ( weapon == "claymore_zm" )
 	{
-		self thread maps/mp/zombies/_zm_weap_claymore::claymore_setup();
+		self thread maps\mp\zombies\_zm_weap_claymore::claymore_setup();
 		self play_weapon_vo( weapon, magic_box );
 		return;
 	}

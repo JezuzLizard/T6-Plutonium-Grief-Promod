@@ -1,11 +1,11 @@
-#include scripts/zm/promod/_utility;
-#include scripts/zm/zm_transit/grief/gamemodes;
-#include scripts/zm/zm_transit/locs/location_common;
-#include scripts/zm/_gametype_setup;
+#include scripts\zm\promod\_utility;
+#include scripts\zm\zm_transit\grief\gamemodes;
+#include scripts\zm\zm_transit\locs\location_common;
+#include scripts\zm\_gametype_setup;
 
 main()
 {
-	replaceFunc( maps/mp/zm_transit_gamemodes::init, scripts/zm/zm_transit/grief/gamemodes::init_override );
+	replaceFunc( maps\mp\zm_transit_gamemodes::init, scripts\zm\zm_transit\grief\gamemodes::init_override );
 	location = getDvar( "ui_zm_mapstartlocation" );
 	ents = getEntArray();
 	door_ents = getEntArray( "zombie_door", "targetname" );

@@ -100,7 +100,7 @@ track_players_intersection_tracker_override()
 		i = 0;
 		while ( i < players.size )
 		{
-			if ( players[ i ] maps/mp/zombies/_zm_laststand::player_is_in_laststand() || players[ i ].sessionstate != "playing" )
+			if ( players[ i ] maps\mp\zombies\_zm_laststand::player_is_in_laststand() || players[ i ].sessionstate != "playing" )
 			{
 				i++;
 				continue;
@@ -108,7 +108,7 @@ track_players_intersection_tracker_override()
 			j = 0;
 			while ( j < players.size )
 			{
-				if ( j == i || players[ j ] maps/mp/zombies/_zm_laststand::player_is_in_laststand() || players[ j ].sessionstate != "playing" )
+				if ( j == i || players[ j ] maps\mp\zombies\_zm_laststand::player_is_in_laststand() || players[ j ].sessionstate != "playing" )
 				{
 					j++;
 					continue;
@@ -205,9 +205,9 @@ check_quickrevive_for_hotjoin() //checked changed to match cerberus output
 	flag_clear( "solo_game" );
 	level.using_solo_revive = false;
 	level.revive_machine_is_solo = false;
-	maps/mp/zombies/_zm::set_default_laststand_pistol( false );
+	maps\mp\zombies\_zm::set_default_laststand_pistol( false );
 	if ( isDefined( level.quick_revive_machine ) )
 	{
-		maps/mp/zombies/_zm::update_quick_revive( false );
+		maps\mp\zombies\_zm::update_quick_revive( false );
 	}
 }

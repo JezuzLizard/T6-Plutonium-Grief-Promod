@@ -68,7 +68,7 @@ main()
 	array_thread( level.zombie_spawners, ::add_spawn_function, ::remove_zombie_hats_for_grief );
 	maps\mp\zombies\_zm_ai_brutus::precache();
 	maps\mp\zombies\_zm_ai_brutus::init();
-	level._effect["butterflies"] = loadfx( "maps/zombie_alcatraz/fx_alcatraz_skull_elec" );
+	level._effect["butterflies"] = loadfx( "maps\zombie_alcatraz\fx_alcatraz_skull_elec" );
 	scripts\zm\_gametype_setup::wallbuy( "mp5k_zm", "mp5", "weapon_upgrade", ( 1557, 10166, 1199 ), ( 0, -90, 0 ) );
 	enable_zones();
 	scripts\zm\zm_prison\locs\location_common::common_init();

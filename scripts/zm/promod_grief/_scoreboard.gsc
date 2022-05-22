@@ -61,7 +61,7 @@ watch_for_down()
 	while ( true )
 	{
 		flag_wait( "spawn_zombies" );
-		in_laststand = self maps/mp/zombies/_zm_laststand::player_is_in_laststand();
+		in_laststand = self maps\mp\zombies\_zm_laststand::player_is_in_laststand();
 		is_alive = isAlive( self );
 		if ( is_true( in_laststand ) || !is_true( is_alive ) )
 		{

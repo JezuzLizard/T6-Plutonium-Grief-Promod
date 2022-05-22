@@ -10,7 +10,7 @@ main()
 	{
 		wait 0.05;
 	}
-	//Add/remove commands here.
+	//Add\remove commands here.
 	if ( isDefined( level.tcs_register_generic_player_field ) )
 	{
 		stats = [];

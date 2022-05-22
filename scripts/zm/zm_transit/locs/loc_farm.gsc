@@ -1,12 +1,12 @@
-#include maps/mp/gametypes_zm/zmeat;
-#include maps/mp/zombies/_zm_game_module;
-#include maps/mp/zombies/_zm_zonemgr;
-#include maps/mp/gametypes_zm/_zm_gametype;
-#include maps/mp/zombies/_zm_magicbox;
-#include maps/mp/zombies/_zm_utility;
-#include common_scripts/utility;
-#include maps/mp/_utility;
-#include scripts/zm/promod/utility/_grief_util;
+#include maps\mp\gametypes_zm\zmeat;
+#include maps\mp\zombies\_zm_game_module;
+#include maps\mp\zombies\_zm_zonemgr;
+#include maps\mp\gametypes_zm\_zm_gametype;
+#include maps\mp\zombies\_zm_magicbox;
+#include maps\mp\zombies\_zm_utility;
+#include common_scripts\utility;
+#include maps\mp\_utility;
+#include scripts\zm\promod\utility\_grief_util;
 
 struct_init()
 {
@@ -20,13 +20,13 @@ struct_init()
 	angles_1 = array( ( 0, -90, 0 ), ( 0, -90, 0 ), ( 0, -90, 0 ), ( 0, -90, 0 ) );
 	for ( i = 0; i < coordinates_1.size; i++ )
 	{
-		scripts/zm/_gametype_setup::register_map_initial_spawnpoint( coordinates_1[ i ], angles_1[ i ], 1 );
+		scripts\zm\_gametype_setup::register_map_initial_spawnpoint( coordinates_1[ i ], angles_1[ i ], 1 );
 	}
 	coordinates_2 = array( ( 7990, -5808, 12 ), ( 7910, -5808, 9 ), ( 7830, -5808, 3 ), ( 7750, -5808, -1 ) );
 	angles_2 = array( ( 0, 90, 0 ), ( 0, 90, 0 ), ( 0, 90, 0 ), ( 0, 90, 0 ) );
 	for ( i = 0; i < coordinates_2.size; i++ )
 	{
-		scripts/zm/_gametype_setup::register_map_initial_spawnpoint( coordinates_2[ i ], angles_2[ i ], 2 );
+		scripts\zm\_gametype_setup::register_map_initial_spawnpoint( coordinates_2[ i ], angles_2[ i ], 2 );
 	}
 }
 
@@ -40,13 +40,13 @@ precache()
 
 farm_main()
 {
-	maps/mp/gametypes_zm/_zm_gametype::setup_standard_objects( "farm" );
+	maps\mp\gametypes_zm\_zm_gametype::setup_standard_objects( "farm" );
 	init_standard_farm();
-	maps/mp/zombies/_zm_magicbox::treasure_chest_init( "farm_chest" );
+	maps\mp\zombies\_zm_magicbox::treasure_chest_init( "farm_chest" );
 	flag_wait( "initial_blackscreen_passed" );
-	level thread maps/mp/zombies/_zm_zonemgr::enable_zone( "zone_far_ext" );
-	level thread maps/mp/zombies/_zm_zonemgr::enable_zone( "zone_brn" );
-	scripts/zm/zm_transit/locs/location_common::common_init();
+	level thread maps\mp\zombies\_zm_zonemgr::enable_zone( "zone_far_ext" );
+	level thread maps\mp\zombies\_zm_zonemgr::enable_zone( "zone_brn" );
+	scripts\zm\zm_transit\locs\location_common::common_init();
 }
 
 init_standard_farm()

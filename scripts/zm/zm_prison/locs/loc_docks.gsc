@@ -87,7 +87,7 @@ main()
 	array_thread( level.zombie_spawners, ::add_spawn_function, ::remove_zombie_hats_for_grief );
 	maps\mp\zombies\_zm_ai_brutus::precache();
 	maps\mp\zombies\_zm_ai_brutus::init();
-	level._effect["butterflies"] = loadfx( "maps/zombie_alcatraz/fx_alcatraz_skull_elec" );
+	level._effect["butterflies"] = loadfx( "maps\zombie_alcatraz\fx_alcatraz_skull_elec" );
 	scripts\zm\zm_prison\locs\location_common::common_init();
 	delete_door_trigs();
 	wait_network_frame();

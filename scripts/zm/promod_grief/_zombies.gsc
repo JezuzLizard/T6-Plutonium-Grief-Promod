@@ -232,7 +232,7 @@ meat_bounce_override( pos, normal, ent ) //checked matches cerberus output
 {
 	if ( isdefined( ent ) && isplayer( ent ) )
 	{
-		if ( !ent maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
+		if ( !ent maps\mp\zombies\_zm_laststand::player_is_in_laststand() )
 		{
 			if ( isDefined( level.grief_meat_stink_player ) )
 			{
@@ -240,8 +240,8 @@ meat_bounce_override( pos, normal, ent ) //checked matches cerberus output
 			}
 			if ( isdefined( self.owner ) )
 			{
-				maps/mp/_demo::bookmark( "zm_player_meat_stink", GetTime(), ent, self.owner, 0, self );
-				self.owner maps/mp/zombies/_zm_stats::increment_client_stat( "contaminations_given" );
+				maps\mp\_demo::bookmark( "zm_player_meat_stink", GetTime(), ent, self.owner, 0, self );
+				self.owner maps\mp\zombies\_zm_stats::increment_client_stat( "contaminations_given" );
 			}
 		}
 	}
@@ -259,7 +259,7 @@ meat_bounce_override( pos, normal, ent ) //checked matches cerberus output
 				player_index++;
 				continue;
 			}
-			if ( player_to_check maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
+			if ( player_to_check maps\mp\zombies\_zm_laststand::player_is_in_laststand() )
 			{
 				player_index++;
 				continue;
@@ -280,8 +280,8 @@ meat_bounce_override( pos, normal, ent ) //checked matches cerberus output
 			}
 			if ( isdefined( self.owner ) )
 			{
-				maps/mp/_demo::bookmark( "zm_player_meat_stink", GetTime(), closest_player, self.owner, 0, self );
-				self.owner maps/mp/zombies/_zm_stats::increment_client_stat( "contaminations_given" );
+				maps\mp\_demo::bookmark( "zm_player_meat_stink", GetTime(), closest_player, self.owner, 0, self );
+				self.owner maps\mp\zombies\_zm_stats::increment_client_stat( "contaminations_given" );
 			}
 		}
 		else

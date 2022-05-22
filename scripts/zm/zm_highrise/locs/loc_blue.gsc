@@ -1,6 +1,6 @@
 struct_init()
 {
-	scripts/zm/_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, 330, 0 ), (1757, 92, 2876) );
+	scripts\zm\_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, 330, 0 ), (1757, 92, 2876) );
 
 	if ( !level.grief_ffa )
 	{
@@ -30,7 +30,7 @@ enable_zones()
 
 precache()
 {
-	maps/mp/zm_highrise_classic::precache();
+	maps\mp\zm_highrise_classic::precache();
 	preCacheModel("collision_player_wall_256x256x10");
 	preCacheModel("collision_player_wall_64x64x10");
 }
@@ -38,7 +38,7 @@ precache()
 main()
 {
 	spawn_barriers();
-	maps/mp/zm_highrise_classic::main();
+	maps\mp\zm_highrise_classic::main();
 }
 
 spawn_barriers()

@@ -1,10 +1,10 @@
-#include maps/mp/zombies/_zm_magicbox;
-#include maps/mp/zombies/_zm_game_module;
-#include maps/mp/gametypes_zm/_zm_gametype;
-#include maps/mp/zombies/_zm_utility;
-#include common_scripts/utility;
-#include maps/mp/_utility;
-#include maps/mp/zm_nuked_perks;
+#include maps\mp\zombies\_zm_magicbox;
+#include maps\mp\zombies\_zm_game_module;
+#include maps\mp\gametypes_zm\_zm_gametype;
+#include maps\mp\zombies\_zm_utility;
+#include common_scripts\utility;
+#include maps\mp\_utility;
+#include maps\mp\zm_nuked_perks;
 
 precache()
 {
@@ -12,9 +12,9 @@ precache()
 
 main()
 {
-	level._effect[ "butterflies" ] = loadfx( "maps/zombie/fx_zmb_impact_noharm" );
-	maps/mp/gametypes_zm/_zm_gametype::setup_standard_objects( "nuked" );
-	maps/mp/zombies/_zm_game_module::set_current_game_module( level.game_module_standard_index );
+	level._effect[ "butterflies" ] = loadfx( "maps\zombie\fx_zmb_impact_noharm" );
+	maps\mp\gametypes_zm\_zm_gametype::setup_standard_objects( "nuked" );
+	maps\mp\zombies\_zm_game_module::set_current_game_module( level.game_module_standard_index );
 	level.enemy_location_override_func = ::enemy_location_override;
 	flag_set( "power_on" );
 	nuked_treasure_chest_init();
@@ -46,7 +46,7 @@ nuked_treasure_chest_init()
 	level.chests[ level.chests.size ] = chest3;
 	level.chests[ level.chests.size ] = chest4;
 	level.chests[ level.chests.size ] = chest5;
-	maps/mp/zombies/_zm_magicbox::treasure_chest_init( "start_chest" );
+	maps\mp\zombies\_zm_magicbox::treasure_chest_init( "start_chest" );
 }
 
 perks_from_the_sky_override()

@@ -6,8 +6,8 @@
 #include maps\mp\_utility;
 #include common_scripts\utility;
 
-#include scripts/zm/zm_tomb/locs/loc_crazyplace;
-#include scripts/zm/zm_tomb/locs/loc_trenches;
+#include scripts\zm\zm_tomb\locs\loc_crazyplace;
+#include scripts\zm\zm_tomb\locs\loc_trenches;
 
 init_override()
 {
@@ -17,12 +17,12 @@ init_override()
 	switch ( fake_location )
 	{
 		case "crazyplace":
-			add_map_location_gamemode( "zclassic", "tomb", scripts/zm/zm_tomb/locs/loc_crazyplace::precache, scripts/zm/zm_tomb/locs/loc_crazyplace::main );
-			scripts/zm/_gametype_setup::add_struct_location_gamemode_func( "zclassic", "tomb", scripts/zm/zm_tomb/locs/loc_crazyplace::struct_init );
+			add_map_location_gamemode( "zclassic", "tomb", scripts\zm\zm_tomb\locs\loc_crazyplace::precache, scripts\zm\zm_tomb\locs\loc_crazyplace::main );
+			scripts\zm\_gametype_setup::add_struct_location_gamemode_func( "zclassic", "tomb", scripts\zm\zm_tomb\locs\loc_crazyplace::struct_init );
 			break;
 		case "trenches":
-			add_map_location_gamemode( "zclassic", "tomb", scripts/zm/zm_tomb/locs/loc_trenches::precache, scripts/zm/zm_tomb/locs/loc_trenches::main );
-			scripts/zm/_gametype_setup::add_struct_location_gamemode_func( "zclassic", "tomb", scripts/zm/zm_tomb/locs/loc_trenches::struct_init );
+			add_map_location_gamemode( "zclassic", "tomb", scripts\zm\zm_tomb\locs\loc_trenches::precache, scripts\zm\zm_tomb\locs\loc_trenches::main );
+			scripts\zm\_gametype_setup::add_struct_location_gamemode_func( "zclassic", "tomb", scripts\zm\zm_tomb\locs\loc_trenches::struct_init );
 			break;
 	}
 }

@@ -1,12 +1,12 @@
-#include maps/mp/zombies/_zm_utility;
-#include maps/mp/_utility;
-#include common_scripts/utility;
+#include maps\mp\zombies\_zm_utility;
+#include maps\mp\_utility;
+#include common_scripts\utility;
 
 struct_init()
 {
-	scripts/zm/_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, 270, 0 ), ( 2644, 4496, -311 ) );
-	scripts/zm/_gametype_setup::register_perk_struct( "specialty_longersprint", "zombie_vending_marathon", ( 0, 178, 0 ), ( -250.068, 4296.36, -191.754 ) );
-	scripts/zm/_gametype_setup::register_perk_struct( "specialty_weapupgrade", "p6_anim_zm_buildable_pap_on", ( 0, 0, 0 ), ( -6223.94, -6694.36, 152.125 ) );
+	scripts\zm\_gametype_setup::register_perk_struct( "specialty_armorvest", "zombie_vending_jugg", ( 0, 270, 0 ), ( 2644, 4496, -311 ) );
+	scripts\zm\_gametype_setup::register_perk_struct( "specialty_longersprint", "zombie_vending_marathon", ( 0, 178, 0 ), ( -250.068, 4296.36, -191.754 ) );
+	scripts\zm\_gametype_setup::register_perk_struct( "specialty_weapupgrade", "p6_anim_zm_buildable_pap_on", ( 0, 0, 0 ), ( -6223.94, -6694.36, 152.125 ) );
 
 	if ( !level.grief_ffa )
 	{
@@ -40,7 +40,7 @@ precache()
 
 main()
 {
-	// scripts/zm/_gametype_setup::wallbuy( "mp5k_zm", "mp5", "weapon_upgrade", (1455.64, 2026.42, 3105), ( 0, 270, 0 ) );
+	// scripts\zm\_gametype_setup::wallbuy( "mp5k_zm", "mp5", "weapon_upgrade", (1455.64, 2026.42, 3105), ( 0, 270, 0 ) );
 	maps\mp\zm_tomb_classic::main();
 	thread disable_doors_trenches()
 	thread deactivateTank();

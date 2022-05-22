@@ -1,21 +1,21 @@
-#include maps/mp/gametypes_zm/_zm_gametype;
-#include maps/mp/zombies/_zm_buildables;
-#include maps/mp/zombies/_zm_magicbox;
-#include maps/mp/zombies/_zm_equip_subwoofer;
-#include maps/mp/zombies/_zm_equip_springpad;
-#include maps/mp/zombies/_zm_equip_turbine;
-#include maps/mp/zm_buried_buildables;
-#include maps/mp/zm_buried_gamemodes;
-#include maps/mp/zombies/_zm_race_utility;
-#include maps/mp/zombies/_zm_utility;
-#include common_scripts/utility;
-#include maps/mp/_utility;
-#include maps/mp/zombies/_zm_weapons;
-#include maps/mp/zombies/_zm_unitrigger;
-#include maps/mp/zombies/_zm_weap_claymore;
-#include maps/mp/zombies/_zm_melee_weapon;
-#include maps/mp/zombies/_zm;
-#include scripts/zm/zm_buried/locs/location_common;
+#include maps\mp\gametypes_zm\_zm_gametype;
+#include maps\mp\zombies\_zm_buildables;
+#include maps\mp\zombies\_zm_magicbox;
+#include maps\mp\zombies\_zm_equip_subwoofer;
+#include maps\mp\zombies\_zm_equip_springpad;
+#include maps\mp\zombies\_zm_equip_turbine;
+#include maps\mp\zm_buried_buildables;
+#include maps\mp\zm_buried_gamemodes;
+#include maps\mp\zombies\_zm_race_utility;
+#include maps\mp\zombies\_zm_utility;
+#include common_scripts\utility;
+#include maps\mp\_utility;
+#include maps\mp\zombies\_zm_weapons;
+#include maps\mp\zombies\_zm_unitrigger;
+#include maps\mp\zombies\_zm_weap_claymore;
+#include maps\mp\zombies\_zm_melee_weapon;
+#include maps\mp\zombies\_zm;
+#include scripts\zm\zm_buried\locs\location_common;
 
 struct_init()
 {
@@ -30,7 +30,7 @@ struct_init()
 	} 
 	for ( i = 0; i < coordinates.size; i++ )
 	{
-		scripts/zm/_gametype_setup::register_map_initial_spawnpoint( coordinates[ i ], angles[ i ] );
+		scripts\zm\_gametype_setup::register_map_initial_spawnpoint( coordinates[ i ], angles[ i ] );
 	}
 }
 
@@ -43,12 +43,12 @@ precache() //checked matches cerberus output
 	precachemodel( "p6_zm_bu_buildable_bench_tarp" );
 	level.chalk_buildable_pieces_hide = 1;
 	griefbuildables = array( "chalk", "turbine", "springpad_zm", "subwoofer_zm" );
-	maps/mp/zm_buried_buildables::include_buildables( griefbuildables );
-	maps/mp/zm_buried_buildables::init_buildables( griefbuildables );
-	maps/mp/zombies/_zm_equip_turbine::init();
-	maps/mp/zombies/_zm_equip_turbine::init_animtree();
-	maps/mp/zombies/_zm_equip_springpad::init( &"ZM_BURIED_EQ_SP_PHS", &"ZM_BURIED_EQ_SP_HTS" );
-	maps/mp/zombies/_zm_equip_subwoofer::init( &"ZM_BURIED_EQ_SW_PHS", &"ZM_BURIED_EQ_SW_HTS" );
+	maps\mp\zm_buried_buildables::include_buildables( griefbuildables );
+	maps\mp\zm_buried_buildables::init_buildables( griefbuildables );
+	maps\mp\zombies\_zm_equip_turbine::init();
+	maps\mp\zombies\_zm_equip_turbine::init_animtree();
+	maps\mp\zombies\_zm_equip_springpad::init( &"ZM_BURIED_EQ_SP_PHS", &"ZM_BURIED_EQ_SP_HTS" );
+	maps\mp\zombies\_zm_equip_subwoofer::init( &"ZM_BURIED_EQ_SW_PHS", &"ZM_BURIED_EQ_SW_HTS" );
 	setdvar( "disableLookAtEntityLogic", 1 );
 	level.chests = [];
 	level.chests[ level.chests.size ] = getstruct( "start_chest", "script_noteworthy" );
@@ -64,9 +64,9 @@ main() //checked matches cerberus output
 	// disable_buried_tunnel_zone();
 	// remove_buried_spawns();
 	// spawn_barriers();
-	maps/mp/gametypes_zm/_zm_gametype::setup_standard_objects( "street" );
+	maps\mp\gametypes_zm\_zm_gametype::setup_standard_objects( "street" );
 	delete_door_and_debris_trigs();
-	maps/mp/zombies/_zm_magicbox::treasure_chest_init( "start_chest" );
+	maps\mp\zombies\_zm_magicbox::treasure_chest_init( "start_chest" );
 	spawnmapcollision( "zm_collision_buried_street_grief" );
 	spawn_mp5_wallbuy();
 	common_init();
@@ -159,24 +159,24 @@ wallbuy( weapon_angles, weapon_coordinates, chalk_fx, weapon_name, weapon_model,
 	unitrigger_stub.require_look_at = 1;
 	unitrigger_stub.require_look_from = 0;
 	unitrigger_stub.zombie_weapon_upgrade = weapon_name;
-	maps/mp/zombies/_zm_unitrigger::unitrigger_force_per_player_triggers( unitrigger_stub, 1 );
+	maps\mp\zombies\_zm_unitrigger::unitrigger_force_per_player_triggers( unitrigger_stub, 1 );
 	if ( is_melee_weapon( weapon_name ) )
 	{
 		if ( weapon_name == "tazer_knuckles_zm" && isDefined( level.taser_trig_adjustment ) )
 		{
 			unitrigger_stub.origin += level.taser_trig_adjustment;
 		}
-		maps/mp/zombies/_zm_unitrigger::register_static_unitrigger( unitrigger_stub, ::melee_weapon_think );
+		maps\mp\zombies\_zm_unitrigger::register_static_unitrigger( unitrigger_stub, ::melee_weapon_think );
 	}
 	else if ( weapon_name == "claymore_zm" )
 	{
 		unitrigger_stub.prompt_and_visibility_func = ::claymore_unitrigger_update_prompt;
-		maps/mp/zombies/_zm_unitrigger::register_static_unitrigger( unitrigger_stub, ::buy_claymores );
+		maps\mp\zombies\_zm_unitrigger::register_static_unitrigger( unitrigger_stub, ::buy_claymores );
 	}
 	else
 	{
 		unitrigger_stub.prompt_and_visibility_func = ::wall_weapon_update_prompt;
-		maps/mp/zombies/_zm_unitrigger::register_static_unitrigger( unitrigger_stub, ::weapon_spawn_think );
+		maps\mp\zombies\_zm_unitrigger::register_static_unitrigger( unitrigger_stub, ::weapon_spawn_think );
 	}
 	tempmodel delete();
 	thread playchalkfx( chalk_fx, weapon_coordinates, weapon_angles );

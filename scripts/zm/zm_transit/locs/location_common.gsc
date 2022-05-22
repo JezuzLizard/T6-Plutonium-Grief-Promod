@@ -1,8 +1,8 @@
-#include maps/mp/_utility;
-#include maps/mp/zombies/_zm_utility;
-#include common_scripts/utility;
-#include scripts/zm/promod/utility/_grief_util;
-#include scripts/zm/_gametype_setup;
+#include maps\mp\_utility;
+#include maps\mp\zombies\_zm_utility;
+#include common_scripts\utility;
+#include scripts\zm\promod\utility\_grief_util;
+#include scripts\zm\_gametype_setup;
 
 common_init()
 {
@@ -50,6 +50,11 @@ create_spawner_list( zkeys ) //modified function
 			{
 				if ( !is_true( zone.spawn_locations[ i ].checked ) )
 				{
+					if ( !isDefined( zone.spawn_locations[ i ] ) )
+					{
+						i++;
+						continue;
+					}
 					if ( zone.spawn_locations[ i ].origin == ( 8394, -2545, -205.16 ) )
 					{
 						zone.spawn_locations[ i ].is_enabled = false;
