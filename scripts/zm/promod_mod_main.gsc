@@ -80,6 +80,7 @@ precache()
 {
 	precacheshellshock( "grief_stab_zm" );
 	precacheStatusIcon( "waypoint_revive" );
+	precacheShader( "waypoint_revive" );
 	mapname = getDvar( "mapname" );
 	gametype = getDvar( "g_gametype" );
 	if ( gametype == "zgrief" || mapname == "zm_nuked" )

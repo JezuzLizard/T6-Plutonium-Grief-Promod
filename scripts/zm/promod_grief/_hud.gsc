@@ -67,10 +67,17 @@ grief_score_allies()
 
 grief_score_allies_icon()
 {
-	if ( getDvar( "mapname" ) == "zm_prison" )
+	mapname = getDvar( "mapname" );
+	if ( mapname == "zm_prison" )
 	{
 		icon = "faction_guards";
 	}
+	// else if ( mapname == "zm_tomb" || mapname == "zm_highrise" )
+	// {
+	// 	icon = "waypoint_revive";
+	// 	red = int( ( 205 / 255 ) * 1000 ) / 1000;
+	// 	color = ( red, 0, 0 );
+	// }
 	else 
 	{
 		icon = "faction_cdc";
@@ -80,6 +87,10 @@ grief_score_allies_icon()
 	team_shader2.y += -20;
 	team_shader2.hideWhenInMenu = 1;
 	team_shader2.alpha = 1;
+	if ( isDefined( color ) )
+	{
+		team_shader2.color = color;
+	}
 	return team_shader2;
 }
 
@@ -98,10 +109,17 @@ grief_score_axis()
 
 grief_score_axis_icon()
 {
-	if ( getDvar( "mapname" ) == "zm_prison" )
+	mapname = getDvar( "mapname" );
+	if ( mapname == "zm_prison" )
 	{
 		icon = "faction_inmates";
 	}
+	// else if ( mapname == "zm_tomb" || mapname == "zm_highrise" )
+	// {
+	// 	icon = "waypoint_revive";
+	// 	blue = int( ( 205 / 255 ) * 1000 ) / 1000;
+	// 	color = ( 0, 0, blue );
+	// }
 	else 
 	{
 		icon = "faction_cia";
@@ -111,6 +129,10 @@ grief_score_axis_icon()
 	team_shader1.y += -20;
 	team_shader1.hideWhenInMenu = 1;
 	team_shader1.alpha = 1;
+	if ( isDefined( color ) )
+	{
+		team_shader1.color = color;
+	}
 	return team_shader1;
 }
 
