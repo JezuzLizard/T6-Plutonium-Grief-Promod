@@ -240,6 +240,7 @@ grief_team_change_logic( assignment )
 	{
 		assignment = getotherteam( self.team );
 	}
+	self iPrintLn( "You will change teams next round" );
 	level.grief_team_members[ assignment ]++;
 	level.grief_team_members[ self.team ]--;
 	self.switching_teams_next_round = true;
