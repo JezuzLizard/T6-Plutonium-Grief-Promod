@@ -31,7 +31,7 @@ init_gamerules()
 	initialize_gamerule( "shellshock_cooldown", 0.75 );
 	initialize_gamerule( "depot_remove_debris_over_lava", 1 );
 	initialize_gamerule( "grief_brutus_enabled", 1, ::gamerule_toggle_grief_brutus_logic );
-	initialize_gamerule( "display_instructions", 0 );
+	initialize_gamerule( "display_instructions", 1 );
 	initialize_gamerule( "grief_messages", 0 );
 	initialize_gamerule( "fog_disabled", 1, ::gamerule_toggle_fog );
 	initialize_gamerule( "visionset_enabled", 1, ::gamerule_toggle_visionset );

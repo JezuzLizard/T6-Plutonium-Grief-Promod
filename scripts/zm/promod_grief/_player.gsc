@@ -198,6 +198,7 @@ instructions()
 	wait 3;
 	self iPrintLn( "Good luck!" );
 	wait 3;
+	self iPrintLn( "Made by JezuzLizard and 5and5" );
 }
 
 check_quickrevive_for_hotjoin() //checked changed to match cerberus output

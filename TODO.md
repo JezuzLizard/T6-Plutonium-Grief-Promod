@@ -12,13 +12,14 @@
 
 ### HUD
 
-- Add gamemode msg at the start of the game (gamemode and credits)
+- Move left shader and score
 
 ### Bugs
 
 ### Errors
 
-
+- nuketown perk wobble
+- die rise elevator perk related
 
 
 
@@ -32,4 +33,8 @@
 
 ### Die Rise
 
+- shaders for score
+
 ### Origins
+
+- shaders for score
