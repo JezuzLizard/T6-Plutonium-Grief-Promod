@@ -92,7 +92,7 @@ delete_door_trigs()
 	doors = getentarray( "zombie_door", "targetname" );
 	foreach ( door in doors )
 	{
-		if (  door.target == "pf3664_auto2507" || door.target == "pf3762_auto2526" || door.target == "pf3765_auto2463" )    //dt, staircase, to cell
+		if (  door.target == "pf3664_auto2507" || door.target == "pf3762_auto2526" || door.target == "pf3765_auto2463" )	//dt, staircase, to cell
 		{
 			door delete();
 		}

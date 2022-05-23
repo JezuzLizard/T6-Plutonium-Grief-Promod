@@ -5,29 +5,29 @@
 afk_kick()
 {   
 	level endon( "game_ended" );
-    self endon("disconnect");
-    time = 0;
-    while( 1 )
-    {   
+	self endon("disconnect");
+	time = 0;
+	while( 1 )
+	{   
 		if ( self.sessionstate == "spectator" || level.players.size <= 2 )
 		{	
 			wait 1;
 			continue;
 		}
-        if( self usebuttonpressed() || self jumpbuttonpressed() || self meleebuttonpressed() || self attackbuttonpressed() || self adsbuttonpressed() || self sprintbuttonpressed() )
-        {
-            time = 0;
-        }
-        if( time == 4800 ) //4mins
-        {
+		if( self usebuttonpressed() || self jumpbuttonpressed() || self meleebuttonpressed() || self attackbuttonpressed() || self adsbuttonpressed() || self sprintbuttonpressed() )
+		{
+			time = 0;
+		}
+		if( time == 4800 ) //4mins
+		{
 			logprint( "afk kick" );
 			print("afk kick");
-            kick( self getEntityNumber() );
-        }
+			kick( self getEntityNumber() );
+		}
 
-        wait 0.05;
-        time++;
-    }
+		wait 0.05;
+		time++;
+	}
 }
 
 monitor_players_connecting_status()

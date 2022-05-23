@@ -23,15 +23,15 @@ do_game_mode_shellshock( attacker, meansofdeath, weapon ) //checked matched cerb
 
 callback_playermelee_override( eattacker, idamage, sweapon, vorigin, vdir, boneindex, shieldhit )
 {
-    hit = 1;
+	hit = 1;
 
-    if ( !level.grief_ffa && level.teambased && self.team == eattacker.team )
-    {
-        if ( level.friendlyfire == 0 )
-            hit = 0;
-    }
+	if ( !level.grief_ffa && level.teambased && self.team == eattacker.team )
+	{
+		if ( level.friendlyfire == 0 )
+			hit = 0;
+	}
 
-    self finishmeleehit( eattacker, sweapon, vorigin, vdir, boneindex, shieldhit, hit );
+	self finishmeleehit( eattacker, sweapon, vorigin, vdir, boneindex, shieldhit, hit );
 }
 
 game_module_player_damage_grief_callback( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime )
@@ -172,60 +172,60 @@ player_steal_points( attacker, event )
 
 callback_playerdamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime, boneindex )
 {
-    if ( isdefined( eattacker ) && isplayer( eattacker ) && eattacker.sessionteam == self.sessionteam && !eattacker hasperk( "specialty_noname" ) && !( isdefined( self.is_zombie ) && self.is_zombie ) && !level.grief_ffa )
-    {
-        self process_friendly_fire_callbacks( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime, boneindex );
+	if ( isdefined( eattacker ) && isplayer( eattacker ) && eattacker.sessionteam == self.sessionteam && !eattacker hasperk( "specialty_noname" ) && !( isdefined( self.is_zombie ) && self.is_zombie ) && !level.grief_ffa )
+	{
+		self process_friendly_fire_callbacks( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime, boneindex );
 
-        if ( self != eattacker )
-        {
-            return;
-        }
-        else if ( smeansofdeath != "MOD_GRENADE_SPLASH" && smeansofdeath != "MOD_GRENADE" && smeansofdeath != "MOD_EXPLOSIVE" && smeansofdeath != "MOD_PROJECTILE" && smeansofdeath != "MOD_PROJECTILE_SPLASH" && smeansofdeath != "MOD_BURNED" && smeansofdeath != "MOD_SUICIDE" )
-        {
-            return;
-        }
-    }
+		if ( self != eattacker )
+		{
+			return;
+		}
+		else if ( smeansofdeath != "MOD_GRENADE_SPLASH" && smeansofdeath != "MOD_GRENADE" && smeansofdeath != "MOD_EXPLOSIVE" && smeansofdeath != "MOD_PROJECTILE" && smeansofdeath != "MOD_PROJECTILE_SPLASH" && smeansofdeath != "MOD_BURNED" && smeansofdeath != "MOD_SUICIDE" )
+		{
+			return;
+		}
+	}
 
-    if ( isdefined( level.pers_upgrade_insta_kill ) && level.pers_upgrade_insta_kill )
-        self maps\mp\zombies\_zm_pers_upgrades_functions::pers_insta_kill_melee_swipe( smeansofdeath, eattacker );
+	if ( isdefined( level.pers_upgrade_insta_kill ) && level.pers_upgrade_insta_kill )
+		self maps\mp\zombies\_zm_pers_upgrades_functions::pers_insta_kill_melee_swipe( smeansofdeath, eattacker );
 
-    if ( isdefined( self.overrideplayerdamage ) )
-        idamage = self [[ self.overrideplayerdamage ]]( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime );
-    else if ( isdefined( level.overrideplayerdamage ) )
-        idamage = self [[ level.overrideplayerdamage ]]( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime );
-    if ( isdefined( self.magic_bullet_shield ) && self.magic_bullet_shield )
-    {
-        maxhealth = self.maxhealth;
-        self.health += idamage;
-        self.maxhealth = maxhealth;
-    }
+	if ( isdefined( self.overrideplayerdamage ) )
+		idamage = self [[ self.overrideplayerdamage ]]( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime );
+	else if ( isdefined( level.overrideplayerdamage ) )
+		idamage = self [[ level.overrideplayerdamage ]]( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime );
+	if ( isdefined( self.magic_bullet_shield ) && self.magic_bullet_shield )
+	{
+		maxhealth = self.maxhealth;
+		self.health += idamage;
+		self.maxhealth = maxhealth;
+	}
 
-    if ( isdefined( self.divetoprone ) && self.divetoprone == 1 )
-    {
-        if ( smeansofdeath == "MOD_GRENADE_SPLASH" )
-        {
-            dist = distance2d( vpoint, self.origin );
+	if ( isdefined( self.divetoprone ) && self.divetoprone == 1 )
+	{
+		if ( smeansofdeath == "MOD_GRENADE_SPLASH" )
+		{
+			dist = distance2d( vpoint, self.origin );
 
-            if ( dist > 32 )
-            {
-                dot_product = vectordot( anglestoforward( self.angles ), vdir );
+			if ( dist > 32 )
+			{
+				dot_product = vectordot( anglestoforward( self.angles ), vdir );
 
-                if ( dot_product > 0 )
-                    idamage = int( idamage * 0.5 );
-            }
-        }
-    }
-    if ( isdefined( level.prevent_player_damage ) )
-    {
-        if ( self [[ level.prevent_player_damage ]]( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime ) )
-            return;
-    }
+				if ( dot_product > 0 )
+					idamage = int( idamage * 0.5 );
+			}
+		}
+	}
+	if ( isdefined( level.prevent_player_damage ) )
+	{
+		if ( self [[ level.prevent_player_damage ]]( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime ) )
+			return;
+	}
 
-    idflags |= level.idflags_no_knockback;
+	idflags |= level.idflags_no_knockback;
 
-    if ( idamage > 0 && shitloc == "riotshield" )
-        shitloc = "torso_upper";
-    self finishplayerdamagewrapper( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime, boneindex );
+	if ( idamage > 0 && shitloc == "riotshield" )
+		shitloc = "torso_upper";
+	self finishplayerdamagewrapper( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime, boneindex );
 }
 
 //Extended Grief Mechanics

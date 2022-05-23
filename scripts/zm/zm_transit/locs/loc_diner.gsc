@@ -110,7 +110,7 @@ init_barriers() //custom function
 
 generatebuildabletarps()
 {
-    tarp = spawn( "script_model", ( -4688, -7974, -64 ) );
-    tarp.angles = ( 0, 0, 0 );
+	tarp = spawn( "script_model", ( -4688, -7974, -64 ) );
+	tarp.angles = ( 0, 0, 0 );
 	tarp setModel( "p6_zm_buildable_bench_tarp" );
 }

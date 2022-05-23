@@ -116,7 +116,7 @@ update_players_stats_at_match_end_override( players )
 
 track_encounters_win_stats_override( matchwonteam )
 {
-    players = getPlayers();
+	players = getPlayers();
 	if ( level.grief_ffa )
 	{
 		for ( i = 0; i < players.size; i++ )

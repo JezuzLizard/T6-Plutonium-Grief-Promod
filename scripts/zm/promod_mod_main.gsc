@@ -30,6 +30,7 @@ main()
 	replaceFunc( maps\mp\zombies\_zm_zonemgr::manage_zones, scripts\zm\_gametype_setup::manage_zones_override );
 	replaceFunc( maps\mp\zombies\_zm_weapons::weapon_give, scripts\zm\promod_grief\_weapons::weapon_give );
 	replaceFunc( maps\mp\gametypes_zm\_zm_gametype::menu_onmenuresponse, scripts\zm\promod_grief\_teams::menu_onmenuresponse_override );
+	replaceFunc( maps\mp\zombies\_zm_pers_upgrades::is_pers_system_active, ::is_pers_system_active_override );
 	init_gamerules();
 	precache();
 }
@@ -114,9 +115,9 @@ on_player_connect()
 		level.grief_team_members[ "axis" ] = 0;
 		level.grief_team_members[ "allies" ] = 0;
 	}
-    while ( true )
-    {
-    	level waittill( "connected", player );
+	while ( true )
+	{
+		level waittill( "connected", player );
 		if ( level.grief_gamerules[ "knife_lunge" ].current )
 		{
 			player setClientDvar( "aim_automelee_range", 120 ); //default
@@ -190,4 +191,9 @@ emptyLobbyRestart()
 		}
 		wait 1;
 	}
+}
+
+is_pers_system_active_override()
+{
+	return false;
 }
