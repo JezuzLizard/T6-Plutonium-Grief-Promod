@@ -357,6 +357,10 @@ reduce_starting_ammo()
 	{
 		self setweaponammostock( "m1911_zm", 8 );
 	}
+	else if ( self hasweapon( "c96_zm" ) && ( self getammocount( "c96_zm" ) > 16 ) )
+	{
+		self setweaponammostock( "c96_zm", 8 );
+	}
 }
 
 getDvarStringDefault( dvarname, default_value )
