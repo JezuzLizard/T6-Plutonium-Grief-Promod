@@ -52,6 +52,8 @@ main()
 	}
 	if ( isDefined( level.tcs_add_client_command_func ) )
 	{
+		level [[ level.tcs_add_client_command_func ]]( "bleedout", "bleedout bleed", "bleedout", ::CMD_BLEEDOUT_f, level.CMD_POWER_NONE );
+
 	}
 	if ( isDefined( level.tcs_remove_server_command ) )
 	{
@@ -290,4 +292,21 @@ get_assigned_team()
 	{
 		return "none";
 	}
+}
+
+CMD_BLEEDOUT_f( arg_list )
+{
+	result = [];
+	if ( self player_is_in_laststand() )
+	{
+		result[ "filter" ] = "cmdinfo";
+		result[ "message" ] = "You are now bled out";
+		self.bleedout_time = 0;
+	}
+	else 
+	{
+		result[ "filter" ] = "cmderror";
+		result[ "message" ] = "You need to be in laststand to use this command";
+	}
+	return result;
 }

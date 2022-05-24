@@ -26,7 +26,7 @@ wait_for_team_death_and_round_end_override()
 	level.grief_score["B"] = 0;
 
 	waiting_for_players();
-
+	visionsetnaked( getdvar( "mapname" ), 3.0 );
 	if ( level.grief_gamerules[ "auto_balance_teams" ].current )
 	{
 		scripts\zm\promod_grief\_teams::auto_balance_teams();
@@ -146,6 +146,7 @@ round_system_ffa()
 
 	HUDELEM_SERVER_ADD( "grief_countdown_timer", ::grief_countdown );
 
+	visionsetnaked( getdvar( "mapname" ), 3.0 );
 	round_start_wait();
 	flag_set( "grief_begin" );
 
@@ -314,6 +315,7 @@ round_end(winner)
 	zombie_goto_round( level.round_number );
 	level thread maps\mp\zombies\_zm_game_module::reset_grief();
 	level thread maps\mp\zombies\_zm::round_think( 1 );
+	visionsetnaked( getdvar( "mapname" ), 3.0 );
 	level.zombie_vars[ "spectators_respawn" ] = 0;
 }
 

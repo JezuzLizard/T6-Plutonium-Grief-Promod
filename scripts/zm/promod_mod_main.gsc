@@ -145,6 +145,12 @@ on_player_connect()
 		player.team_changes = 0;
 		player thread afk_kick();
 		player thread on_player_spawn();
+		player setclientdvar("r_lodBiasRigid", -1000);
+		player setclientdvar("r_lodBiasSkinned", -1000);
+		player setClientDvar("r_lodScaleRigid", 1);
+		player setClientDvar("r_lodScaleSkinned", 1);
+		player setclientdvar("sm_sunquality", 2);
+		player setclientdvar("r_enablePlayerShadow", 1);
 	}
 }
 

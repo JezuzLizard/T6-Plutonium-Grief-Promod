@@ -21,7 +21,7 @@ init_gamerules()
 	initialize_gamerule( "buildables", 0 );
 	initialize_gamerule( "disable_doors", 1 );
 	initialize_gamerule( "shock_on_pain", 1, ::gamerule_toggle_shock_on_pain );
-	initialize_gamerule( "self_bleedout", 0 );
+	//initialize_gamerule( "self_bleedout", 0 );
 	initialize_gamerule( "player_health", 100, ::gamerule_adjust_player_health );
 	initialize_gamerule( "knife_lunge", 0, ::gamerule_adjust_knife_lunge );
 	initialize_gamerule( "reduce_mp5_ammo", 1 );
@@ -34,7 +34,7 @@ init_gamerules()
 	initialize_gamerule( "display_instructions", 1 );
 	initialize_gamerule( "grief_messages", 0 );
 	initialize_gamerule( "fog_disabled", 1, ::gamerule_toggle_fog );
-	initialize_gamerule( "visionset_enabled", 1, ::gamerule_toggle_visionset );
+	//initialize_gamerule( "visionset_enabled", 1, ::gamerule_toggle_visionset );
 	initialize_gamerule( "max_walkers", 0 );
 	initialize_gamerule( "max_zombies", 24 );
 	initialize_gamerule( "start_with_upgraded_melee", 0, ::gamerule_give_take_upgraded_melee );
@@ -533,12 +533,6 @@ set_visionset()
 	self useservervisionset(1);
 	self setvisionsetforplayer(GetDvar( "mapname" ), 1.0 );
 	self setclientdvar("r_dof_enable", 0);
-	self setclientdvar("r_lodBiasRigid", -1000);
-	self setclientdvar("r_lodBiasSkinned", -1000);
-	self setClientDvar("r_lodScaleRigid", 1);
-	self setClientDvar("r_lodScaleSkinned", 1);
-	self setclientdvar("sm_sunquality", 2);
-	self setclientdvar("r_enablePlayerShadow", 1);
 	self setclientdvar( "vc_fbm", "0 0 0 0" );
 	self setclientdvar( "vc_fsm", "1 1 1 1" );
 	self setclientdvar( "vc_fgm", "1 1 1 1" );
