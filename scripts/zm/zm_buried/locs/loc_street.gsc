@@ -61,9 +61,7 @@ precache() //checked matches cerberus output
 main() //checked matches cerberus output
 {
 	disable_tunnels();
-	// disable_buried_tunnel_zone();
-	// remove_buried_spawns();
-	// spawn_barriers();
+	spawn_barriers();
 	maps\mp\gametypes_zm\_zm_gametype::setup_standard_objects( "street" );
 	delete_door_and_debris_trigs();
 	maps\mp\zombies\_zm_magicbox::treasure_chest_init( "start_chest" );
@@ -292,4 +290,16 @@ disable_tunnels() //Jbleezy
 			spawn_location.is_enabled = false;
 		}
 	}
-} 
+}
+
+spawn_barriers()
+{
+	//barn barrier
+	barrier_model = spawn( "script_model", ( -728, -557, 117 ), 1 );
+	barrier_model.angles = ( 19, 180, 0 );
+	barrier_model setmodel( "p6_zm_bu_sloth_blocker_medium" );
+	barrier_model disconnectpaths();
+	collision = spawn( "script_model", ( -728, -529, 117 ), 1 );
+	collision.angles = ( 19, 4, 0 );
+	collision setModel( "collision_player_64x64x128" );
+}
