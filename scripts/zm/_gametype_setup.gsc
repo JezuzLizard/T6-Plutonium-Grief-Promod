@@ -15,6 +15,7 @@
 main()
 {
 	replaceFunc( common_scripts\utility::struct_class_init, ::struct_class_init_override );
+	replaceFunc( maps\mp\zombies\_load::parse_structs, ::parse_structs_override );
 	level.perk_machine_targetname = "zm_perk_machine";
 	if ( getDvar( "mapname" ) == "zm_highrise" )
 	{
@@ -51,6 +52,23 @@ struct_class_init_override()
 	}
 	scripts\zm\promod_grief\_gamerules::override_perk_struct_locations();
 }
+
+parse_structs_override()
+{
+	level_struct_array_free(); //Delete unused structs to free up variables
+}
+
+//	Frees up the level.struct array to reclaim some variables
+level_struct_array_free()
+{
+	//	Okay, we're done with this array, so kill it.
+	for ( i = level.struct.size; i >= 0; i-- )
+	{
+		level.struct[i] = undefined;
+	}
+	level.struct = undefined;
+}
+
 
 register_perk_struct( perk_name, perk_model, perk_angles, perk_coordinates )
 {
