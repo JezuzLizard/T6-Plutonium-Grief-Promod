@@ -18,10 +18,10 @@ afk_kick()
 		{
 			time = 0;
 		}
-		if( time == 4800 ) //4mins
+		if( time == 2400 ) //2mins
 		{
-			logprint( "afk kick" );
-			print("afk kick");
+			logprint( "afk kick " + self.name);
+			print("afk kick " + self.name);
 			kick( self getEntityNumber() );
 		}
 
