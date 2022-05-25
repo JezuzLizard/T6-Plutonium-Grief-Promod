@@ -14,6 +14,7 @@
 #include scripts\zm\promod_grief\_zombies;
 #include scripts\zm\promod_grief\_teams;
 #include scripts\zm\promod_grief\_stats;
+#include scripts\zm\promod_grief\_debug;
 
 main()
 {
@@ -67,6 +68,7 @@ init()
 	gamerule_disable_powerups();
 	gamerule_remove_restricted_powerups();
 	gamerule_toggle_fog();
+	debug();
 
 	level thread on_player_connect();
 	level thread monitor_players_connecting_status();
