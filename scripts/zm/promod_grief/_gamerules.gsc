@@ -39,6 +39,8 @@ init_gamerules()
 	initialize_gamerule( "max_zombies", 24 );
 	initialize_gamerule( "start_with_upgraded_melee", 0, ::gamerule_give_take_upgraded_melee );
 	initialize_gamerule( "auto_balance_teams", 1 );
+	initialize_gamerule( "map_vote", 1 );
+
 	// initialize_gamerule( "perks_disabled", 0 );
 
 	initialize_restriction( "perks" );
@@ -352,6 +354,9 @@ cast_to_vector( vector_string )
 
 reduce_starting_ammo()
 {	
+	if ( !level.grief_gamerules[ "reduced_pistol_ammo" ].current )
+		return;
+
 	wait 0.05;
 	if ( self hasweapon( "m1911_zm" ) && ( self getammocount( "m1911_zm" ) > 16 ) )
 	{
@@ -360,6 +365,14 @@ reduce_starting_ammo()
 	else if ( self hasweapon( "c96_zm" ) && ( self getammocount( "c96_zm" ) > 16 ) )
 	{
 		self setweaponammostock( "c96_zm", 8 );
+	}
+}
+
+give_starting_points()
+{
+	if ( self.score < level.grief_gamerules[ "round_restart_points" ].current )
+	{
+		self.score = level.grief_gamerules[ "round_restart_points" ].current;
 	}
 }
 
@@ -531,7 +544,7 @@ set_visionset()
 		return;
 
 	self useservervisionset(1);
-	self setvisionsetforplayer(GetDvar( "mapname" ), 1.0 );
+	self setvisionsetforplayer(GetDvar( "mapname" ), 3.0 );
 	self setclientdvar("r_dof_enable", 0);
 	self setclientdvar( "vc_fbm", "0 0 0 0" );
 	self setclientdvar( "vc_fsm", "1 1 1 1" );

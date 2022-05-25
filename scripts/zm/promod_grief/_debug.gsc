@@ -8,7 +8,9 @@ debug()
 		return;
 
     level thread spawn_bots(1);
-	level thread print_origin();
+	level waittill( "connected", player );
+	// player thread print_origin();
+	// player thread print_doors();
 }
 
 spawn_bots( num )
@@ -53,8 +55,8 @@ print_origin()
 {
 	while ( 1 )
 	{
-		print( "origin " + level.players[0].origin );
 		wait 2;
+		print( "origin " + self.origin );
 	}
 }
 
@@ -62,8 +64,8 @@ print_angles()
 {
 	while ( 1 )
 	{
-		print( "angles " + level.players[0].angles );
 		wait 2;
+		print( "angles " + self.angles );
 	}
 }
 
@@ -72,14 +74,14 @@ print_doors()
     zombie_doors = getEntArray( "zombie_door", "targetname" );
     while ( 1 )
     {
+		wait 2;
 		foreach ( door in zombie_doors )
 		{
-			if ( DistanceSquared( level.players[0].origin, door.origin ) < 128*128 )
+			if ( DistanceSquared( self.origin, door.origin ) < 128*128 )
 			{
 				print( door.target );
 			}
 		}
-		wait 2;
     }
 }
 
@@ -88,13 +90,13 @@ print_debris()
     zombie_debris = getentarray( "zombie_debris", "targetname" );
     while ( 1 )
     {
+		wait 2;
 		foreach ( debris in zombie_debris )
 		{
-			if ( DistanceSquared( level.players[0].origin, debris.origin ) < 128*128 )
+			if ( DistanceSquared( self.origin, debris.origin ) < 128*128 )
 			{
 				print( debris.target );
 			}
 		}
-		wait 2;
     }
 }

@@ -56,7 +56,6 @@ init()
 	level.custom_end_screen = ::custom_end_screen_override;
 	level.autoassign = ::menuautoassign_override;
 	level.check_for_valid_spawn_near_team_callback = undefined;
-	//level.allow_teamchange = ( getGametypeSetting( "allowInGameTeamChange" ) ? "1" : "0" );
 	setDvar( "g_friendlyfireDist", 0 );
 	level._supress_survived_screen = true;
 	level.speed_change_round = undefined;
@@ -68,8 +67,8 @@ init()
 	gamerule_disable_powerups();
 	gamerule_remove_restricted_powerups();
 	gamerule_toggle_fog();
-	debug();
 
+	level thread debug();
 	level thread on_player_connect();
 	level thread monitor_players_connecting_status();
 	level thread remove_status_icons_on_end_game();
@@ -165,18 +164,10 @@ on_player_spawn()
 	{
 		self waittill( "spawned_player" );
 
-		if ( self.score < level.grief_gamerules[ "round_restart_points" ].current )
-		{
-			self.score = level.grief_gamerules[ "round_restart_points" ].current;
-		}
-
-		if ( level.grief_gamerules[ "reduced_pistol_ammo" ].current )
-		{
-			self scripts\zm\promod_grief\_gamerules::reduce_starting_ammo();
-		}
-
+		self scripts\zm\promod_grief\_gamerules::give_starting_points();
 		self scripts\zm\promod_grief\_gamerules::set_visionset();
-		self thread give_upgraded_melee();
+		self thread scripts\zm\promod_grief\_gamerules::reduce_starting_ammo();
+		self thread scripts\zm\promod_grief\_gamerules::give_upgraded_melee();
 	}
 }
 

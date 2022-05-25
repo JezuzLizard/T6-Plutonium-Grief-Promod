@@ -4,7 +4,7 @@
 ## General
 
 - MVP/MMR system
-- Add map selection
+- Add map vote
 
 ### Gamerules
 
@@ -13,6 +13,7 @@
 ### HUD
 
 - Move left shader and score
+- bleedout bar
 
 ### Bugs
 
