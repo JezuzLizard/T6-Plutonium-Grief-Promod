@@ -297,7 +297,7 @@ get_assigned_team()
 CMD_BLEEDOUT_f( arg_list )
 {
 	result = [];
-	if ( self player_is_in_laststand() )
+	if ( self maps\mp\zombies\_zm_laststand::player_is_in_laststand() )
 	{
 		result[ "filter" ] = "cmdinfo";
 		result[ "message" ] = "You are now bled out";
