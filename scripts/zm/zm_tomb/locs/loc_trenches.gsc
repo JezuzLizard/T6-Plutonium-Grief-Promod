@@ -51,8 +51,8 @@ disable_doors_trenches()
 	flag_wait( "initial_blackscreen_passed" );
 	zm_doors = getentarray( "zombie_door", "targetname" );
 	for(i=0;i<zm_doors.size;i++)
-	{
-		if(zm_doors[i].origin == (-732, 2240, -64))
+	{	
+		if(zm_doors[i].target == "door_bunker_2" || zm_doors[i].target == "door_bunker_3a")
 			zm_doors[i].origin = (0,0,-10000);
 	}
 }
