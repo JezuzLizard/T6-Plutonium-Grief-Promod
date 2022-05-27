@@ -12,7 +12,7 @@ hud_init()
 	HUDELEM_SERVER_ADD( "grief_score_B_icon", ::grief_score_allies_icon );
 	HUDELEM_SERVER_ADD( "grief_countdown_timer", ::grief_countdown );
 	set_server_hud_alpha( getDvarIntDefault( "hud_scoreboard", 1 ) );
-	level.axis_revive_waypoint_color_b = round_to_decimal( 205/255 );
+	level.axis_revive_waypoint_color_b = round_to_decimal( 205/255, 4 );
 }
 
 HUDELEM_SERVER_ADD( name, hudelem_constructor )
