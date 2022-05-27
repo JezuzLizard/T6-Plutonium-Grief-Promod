@@ -32,6 +32,7 @@ main()
 	replaceFunc( maps\mp\zombies\_zm_weapons::weapon_give, scripts\zm\promod_grief\_weapons::weapon_give );
 	replaceFunc( maps\mp\gametypes_zm\_zm_gametype::menu_onmenuresponse, scripts\zm\promod_grief\_teams::menu_onmenuresponse_override );
 	replaceFunc( maps\mp\zombies\_zm_pers_upgrades::is_pers_system_active, ::is_pers_system_active_override );
+	replaceFunc( maps\mp\zombies\_zm_pers_upgrades_functions::pers_magic_box_teddy_bear, ::pers_magic_box_teddy_bear_override );
 	init_gamerules();
 	precache();
 }
@@ -75,7 +76,6 @@ init()
 	level thread remove_status_icons_on_end_game();
 	level thread check_quickrevive_for_hotjoin();
 	level thread remove_round_number();
-	level thread instructions_on_all_players();
 	level thread emptyLobbyRestart();
 }
 
@@ -203,4 +203,9 @@ emptyLobbyRestart()
 is_pers_system_active_override()
 {
 	return false;
+}
+
+pers_magic_box_teddy_bear_override()
+{
+	return;
 }
