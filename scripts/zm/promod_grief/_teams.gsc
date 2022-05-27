@@ -70,7 +70,7 @@ menuautoassign_override( comingfrommenu )
 	level.grief_team_members[ assignment ]++;
 	if ( !isalive( self ) )
 		self.statusicon = "hud_status_dead";
-
+	self thread watch_for_laststand_axis();
 	//This is for the spawnpoint.script_int code for the spawnpoints we create as well as vanilla spawnpoints.
 	//We can use this script_int to make it so where players on one team spawn facing the other team for example.
 	if ( !isdefined( level.side_selection ) )
@@ -247,6 +247,7 @@ grief_team_change_logic( assignment )
 	self thread on_disconnect( assignment );
 	level waittill( "end_round_think" );
 	auto_balance_set_team( assignment );
+	self thread watch_for_laststand_axis();
 	self.team_changes++;
 	self.switching_teams_next_round = false;
 }
