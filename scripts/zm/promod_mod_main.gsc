@@ -57,6 +57,7 @@ init()
 	level.autoassign = ::menuautoassign_override;
 	level.check_for_valid_spawn_near_team_callback = undefined;
 	setDvar( "g_friendlyfireDist", 0 );
+	setDvar("ui_scorelimit", 1);
 	level._supress_survived_screen = true;
 	level.speed_change_round = undefined;
 	level.is_forever_solo_game = undefined;

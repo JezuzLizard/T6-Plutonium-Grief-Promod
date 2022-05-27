@@ -565,10 +565,6 @@ set_ffa_vars()
 			level.grief_ffa_team = "axis";
 		}
 	}
-	else
-	{
-		setdvar( "ui_scorelimit", level.grief_gamerules[ "scorelimit" ].current );
-	}
 }
 
 get_melee_weapon()

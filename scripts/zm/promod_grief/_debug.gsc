@@ -7,7 +7,7 @@ debug()
     if( !getDvarIntDefault( "debug", 0 ) )
 		return;
 
-    // level thread spawn_bots(1);
+    level thread spawn_bots(1);
 	level waittill( "connected", player );
 	// player thread print_origin();
 	// player thread print_doors();
