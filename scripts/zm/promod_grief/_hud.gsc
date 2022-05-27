@@ -12,6 +12,7 @@ hud_init()
 	HUDELEM_SERVER_ADD( "grief_score_B_icon", ::grief_score_allies_icon );
 	HUDELEM_SERVER_ADD( "grief_countdown_timer", ::grief_countdown );
 	set_server_hud_alpha( getDvarIntDefault( "hud_scoreboard", 1 ) );
+	level.axis_revive_waypoint_color_b = round_to_decimal( 205/255 );
 }
 
 HUDELEM_SERVER_ADD( name, hudelem_constructor )
@@ -360,5 +361,139 @@ remove_round_number()
 		level waittill("start_of_round");
 
 		setroundsplayed(0);
+	}
+}
+
+watch_for_laststand_axis()
+{
+	self endon( "disconnect" );
+	self notify( "changed_teams" );
+	self endon( "changed_teams" );
+	mapname = getDvar( "mapname" );
+	switch ( mapname )
+	{
+		case "zm_tomb":
+		case "zm_highrise":
+		case "zm_nuked":
+			break;
+		default:
+			return;
+	} 
+	if ( self.team != "axis" )
+	{
+		return;
+	}
+	level endon( "end_game" );
+	while ( true )
+	{
+		self waittill( "entering_last_stand" );
+		self create_axis_revive_waypoint();
+	}
+}
+
+create_axis_revive_waypoint()
+{
+	self.revive_waypoint = newhudelem();
+	self.revive_waypoint.elemtype = "icon";
+	self.revive_waypoint.x = 0;
+	self.revive_waypoint.y = 0;
+	self.revive_waypoint.xoffset = 0;
+	self.revive_waypoint.yoffset = 0;
+	self.revive_waypoint.alpha = 1;
+	self.revive_waypoint.hidden = 0;
+	self.revive_waypoint.color = ( 0, 0, level.axis_revive_waypoint_color_b );
+	self.revive_waypoint.target_ent = offset_entity( self, ( 0, 0, 30 ), true );
+	self.revive_waypoint setShader( "waypoint_revive", 4, 4 );
+	self.revive_waypoint setWayPoint( false );
+	self.revive_waypoint setTargetEnt( self.revive_waypoint.target_ent );
+	self thread fade_to_purple( self.revive_waypoint );
+	self thread destroy_waypoint_on_disconnect();
+	self thread destroy_waypoint_on_revive_or_bled_out();
+	self thread destroy_waypoint_on_end_game();
+}
+
+round_to_decimal( number, places )
+{
+	return int( number * places ) / places;
+}
+
+offset_entity( ent, offset, link )
+{
+	if ( !isDefined( offset ) )
+	{
+		offset = ( 0, 0, 0 );
+	}
+	elem_ent = spawn( "script_origin", ent.origin + offset );
+	if ( is_true( link ) )
+	{
+		elem_ent linkTo( ent );
+	}
+	return elem_ent;
+}
+
+fade_to_purple( waypoint )
+{
+	self endon( "disconnect" );
+	self endon( "bled_out" );
+	self endon( "spawned_player" );
+	self endon( "player_revived" );
+	level endon( "end_game" );
+	color_r = 0;
+	while ( self maps\mp\zombies\_zm_laststand::player_is_in_laststand() )
+	{
+		wait 0.2;
+		color_r += 0.9;
+		waypoint.color = ( color_r, 0, level.axis_revive_waypoint_color_b );
+	}
+}
+
+destroy_waypoint_on_disconnect()
+{
+	self endon( "bled_out" );
+	self endon( "spawned_player" );
+	self endon( "player_revived" );
+	level endon( "end_game" );
+	waypoint = self.revive_waypoint;
+	link_to_entity = self.revive_waypoint.target_ent;
+	self waittill( "disconnect" );
+	if ( isDefined( link_to_entity ) )
+	{
+		link_to_entity delete();
+	}
+	if ( isDefined( waypoint ) )
+	{
+		waypoint destroy();
+	}
+}
+
+destroy_waypoint_on_revive_or_bled_out()
+{
+	self endon( "disconnect" );
+	level endon( "end_game" );
+	self waittill_any( "spawned_player", "bled_out", "player_revived" );
+	if ( isDefined( self.revive_waypoint.target_ent ) )
+	{
+		self.revive_waypoint.target_ent delete();
+	}
+	if ( isDefined( self.revive_waypoint ) )
+	{
+		self.revive_waypoint destroy();
+	}
+}
+
+destroy_waypoint_on_end_game()
+{
+	self endon( "disconnect" );
+	self endon( "bled_out" );
+	self endon( "spawned_player" );
+	self endon( "player_revived" );
+	level waittill( "end_game" );
+	if ( isDefined( self.revive_waypoint.target_ent ) )
+	{
+		self.revive_waypoint.target_ent delete();
+	}
+	if ( isDefined( self.revive_waypoint ) )
+	{
+		self.revive_waypoint destroy();
 	}
 }
