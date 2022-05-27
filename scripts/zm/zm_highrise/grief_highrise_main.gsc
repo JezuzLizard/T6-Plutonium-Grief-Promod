@@ -108,7 +108,7 @@ disable_elevator_perks()
 	{
 		trigger = getent( perk, "target" );
 		if( isDefined(trigger) )
-			trigger delete();
+			trigger disable_trigger();
 	}
 }
 

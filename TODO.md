@@ -23,7 +23,6 @@
 
 ### Errors
 
-- box related perma perk
 - nuketown perk wobble
 - die rise elevator perk related
 
