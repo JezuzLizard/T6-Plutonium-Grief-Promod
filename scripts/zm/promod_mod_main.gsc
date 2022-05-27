@@ -161,14 +161,21 @@ on_player_spawn()
 	level endon("end_game");
 	self endon( "disconnect" );
 
+	self.initial_spawn = true;
 	while(1)
 	{
 		self waittill( "spawned_player" );
 
+		if(self.initial_spawn)
+		{
+			self.initial_spawn = false;
+			self thread instructions_on_spawn();
+			self thread scripts\zm\promod_grief\_gamerules::give_upgraded_melee();
+		}
+
 		self scripts\zm\promod_grief\_gamerules::give_starting_points();
 		self scripts\zm\promod_grief\_gamerules::set_visionset();
 		self thread scripts\zm\promod_grief\_gamerules::reduce_starting_ammo();
-		self thread scripts\zm\promod_grief\_gamerules::give_upgraded_melee();
 	}
 }
 

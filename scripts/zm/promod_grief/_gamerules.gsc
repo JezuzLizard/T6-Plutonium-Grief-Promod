@@ -18,7 +18,7 @@ init_gamerules()
 	initialize_gamerule( "magic", 1, ::gamerule_adjust_magic );
 	initialize_gamerule( "mystery_box_enabled", 0, ::gamerule_toggle_mysterybox );
 	initialize_gamerule( "powerups_disabled", 0, ::gamerule_toggle_powerups );
-	initialize_gamerule( "buildables", 0 );
+	initialize_gamerule( "buildables", 1 );
 	initialize_gamerule( "disable_doors", 1 );
 	initialize_gamerule( "shock_on_pain", 1, ::gamerule_toggle_shock_on_pain );
 	//initialize_gamerule( "self_bleedout", 0 );
@@ -39,8 +39,6 @@ init_gamerules()
 	initialize_gamerule( "max_zombies", 24 );
 	initialize_gamerule( "start_with_upgraded_melee", 0, ::gamerule_give_take_upgraded_melee );
 	initialize_gamerule( "auto_balance_teams", 1 );
-	initialize_gamerule( "map_vote", 1 );
-
 	// initialize_gamerule( "perks_disabled", 0 );
 
 	initialize_restriction( "perks" );

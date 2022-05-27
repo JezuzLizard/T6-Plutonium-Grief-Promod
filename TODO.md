@@ -4,7 +4,6 @@
 ## General
 
 - MVP/MMR system
-- Add map vote
 
 ### Gamerules
 
@@ -15,10 +14,16 @@
 - Move left shader and score
 - bleedout bar
 
+### Gamemodes
+
+- TD
+- King of the hill
+
 ### Bugs
 
 ### Errors
 
+- box related perma perk
 - nuketown perk wobble
 - die rise elevator perk related
 

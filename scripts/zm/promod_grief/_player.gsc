@@ -165,40 +165,37 @@ track_players_intersection_tracker_override()
 	}
 }
 
-instructions_on_all_players()
-{
-	level endon( "end_game" );
-	wait 15;
-	flag_wait( "initial_blackscreen_passed" );
-	players = getPlayers();
-	if ( isDefined( players ) && ( players.size > 0 ) )
-	{
-		foreach ( player in players )
-		{
-			player thread instructions();
-		}
-	}
-}
-
-instructions()
+instructions_on_spawn()
 {
 	if(!level.grief_gamerules[ "display_instructions" ].current)
 		return;
 
 	level endon( "end_game" );
-	self endon( "disconnect" );
+	flag_wait( "initial_blackscreen_passed" );
 
-	level waittill( "initial_blackscreen_passed" );
 	rounds = level.grief_gamerules[ "scorelimit" ].current;
-	self iPrintLn( "Welcome to Grief!" );
-	wait 3;
-	self iPrintLn( "Your goal is to win " + rounds + " rounds" );
-	wait 3;
-	self iPrintLn( "Win a round by downing the entire other team" );
-	wait 3;
-	self iPrintLn( "Good luck!" );
-	wait 3;
-	self iPrintLn( "Made by JezuzLizard and 5and5" );
+	if( level.grief_ffa )
+	{
+		self iPrintLn( "Welcome to Grief!" );
+		wait 4;
+		self iPrintLn( "Your goal is to win " + rounds + " rounds" );
+		wait 4;
+		self iPrintLn( "Win a round by downing all other players" );
+		wait 4;
+		self iPrintLn( "Good luck!" );
+		wait 4;
+	}
+	else
+	{
+		self iPrintLn( "Welcome to Grief!" );
+		wait 4;
+		self iPrintLn( "Your goal is to win " + rounds + " rounds" );
+		wait 4;
+		self iPrintLn( "Win a round by downing the entire other team" );
+		wait 4;
+		self iPrintLn( "Good luck!" );
+		wait 4;
+	}
 }
 
 check_quickrevive_for_hotjoin() //checked changed to match cerberus output
