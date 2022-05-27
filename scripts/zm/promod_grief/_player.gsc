@@ -167,11 +167,11 @@ track_players_intersection_tracker_override()
 
 instructions_on_spawn()
 {
-	if(!level.grief_gamerules[ "display_instructions" ].current)
-		return;
-
 	level endon( "end_game" );
 	flag_wait( "initial_blackscreen_passed" );
+
+	if(!level.grief_gamerules[ "display_instructions" ].current)
+		return;
 
 	rounds = level.grief_gamerules[ "scorelimit" ].current;
 	if( level.grief_ffa )

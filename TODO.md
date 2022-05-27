@@ -23,7 +23,6 @@
 
 ### Errors
 
-- nuketown perk wobble
 - die rise elevator perk related
 
 

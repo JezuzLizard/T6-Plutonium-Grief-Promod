@@ -73,12 +73,16 @@ grief_score_allies_icon()
 	{
 		icon = "faction_guards";
 	}
-	// else if ( mapname == "zm_tomb" || mapname == "zm_highrise" )
-	// {
-	// 	icon = "waypoint_revive";
-	// 	red = int( ( 205 / 255 ) * 1000 ) / 1000;
-	// 	color = ( red, 0, 0 );
-	// }
+	else if ( mapname == "zm_highrise" )
+	{
+		icon = "faction_highrise";
+		// blue = int( ( 205 / 255 ) * 1000 ) / 1000;
+		// color = ( 0, 0, blue );
+	}
+	else if ( mapname == "zm_tomb" )
+	{
+		icon = "faction_tomb";
+	}
 	else 
 	{
 		icon = "faction_cdc";
@@ -116,12 +120,16 @@ grief_score_axis_icon()
 	{
 		icon = "faction_inmates";
 	}
-	// else if ( mapname == "zm_tomb" || mapname == "zm_highrise" )
-	// {
-	// 	icon = "waypoint_revive";
-	// 	blue = int( ( 205 / 255 ) * 1000 ) / 1000;
-	// 	color = ( 0, 0, blue );
-	// }
+	else if ( mapname == "zm_highrise" )
+	{
+		icon = "faction_highrise";
+		// blue = int( ( 205 / 255 ) * 1000 ) / 1000;
+		// color = ( 1, 1, 0.9 );
+	}
+	else if ( mapname == "zm_tomb" )
+	{
+		icon = "faction_tomb";
+	}
 	else 
 	{
 		icon = "faction_cia";

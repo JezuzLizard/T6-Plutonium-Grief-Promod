@@ -13,6 +13,7 @@ main()
 
 init()
 {
+	preCacheShader("faction_highrise");
 	if ( level.grief_ffa )
 	{
 		level.grief_ffa_team_character_index = randomint( 4 );
