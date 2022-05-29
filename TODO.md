@@ -11,8 +11,8 @@
 
 ### HUD
 
-- Move left shader and score
-- bleedout bar
+- colorize die rise and orgins shader
+- add colorized shader to bottom left
 
 ### Gamemodes
 

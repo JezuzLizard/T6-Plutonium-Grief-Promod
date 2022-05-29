@@ -369,6 +369,8 @@ watch_for_laststand_axis()
 	self endon( "disconnect" );
 	self notify( "changed_teams" );
 	self endon( "changed_teams" );
+	level endon( "end_game" );
+
 	mapname = getDvar( "mapname" );
 	switch ( mapname )
 	{
@@ -383,7 +385,6 @@ watch_for_laststand_axis()
 	{
 		return;
 	}
-	level endon( "end_game" );
 	while ( true )
 	{
 		self waittill( "entering_last_stand" );
@@ -393,19 +394,18 @@ watch_for_laststand_axis()
 
 create_axis_revive_waypoint()
 {
-	self.revive_waypoint = newhudelem();
+	self.revive_waypoint = newHudElem();
 	self.revive_waypoint.elemtype = "icon";
-	self.revive_waypoint.x = 0;
-	self.revive_waypoint.y = 0;
-	self.revive_waypoint.xoffset = 0;
-	self.revive_waypoint.yoffset = 0;
+	self.revive_waypoint.x = self.origin[0];
+	self.revive_waypoint.y = self.origin[1];
+	self.revive_waypoint.z = self.origin[2] + 30;
 	self.revive_waypoint.alpha = 1;
 	self.revive_waypoint.hidden = 0;
 	self.revive_waypoint.color = ( 0, 0, level.axis_revive_waypoint_color_b );
-	self.revive_waypoint.target_ent = offset_entity( self, ( 0, 0, 30 ), true );
-	self.revive_waypoint setShader( "waypoint_revive", 4, 4 );
-	self.revive_waypoint setWayPoint( false );
-	self.revive_waypoint setTargetEnt( self.revive_waypoint.target_ent );
+	self.revive_waypoint setWayPoint( false, "waypoint_revive" );
+	// self.revive_waypoint setShader( "waypoint_revive", 4, 4 );
+	// self.revive_waypoint.target_ent = offset_entity( self, ( 0, 0, 30 ), true );
+	// self.revive_waypoint setTargetEnt( self.revive_waypoint.target_ent );
 	self thread fade_to_purple( self.revive_waypoint );
 	self thread destroy_waypoint_on_disconnect();
 	self thread destroy_waypoint_on_revive_or_bled_out();
