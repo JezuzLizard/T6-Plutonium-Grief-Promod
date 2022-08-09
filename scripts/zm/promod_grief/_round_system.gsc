@@ -218,6 +218,7 @@ round_end(winner)
 			winner.survived++;
 			if ( winner.survived >= level.grief_gamerules[ "scorelimit" ].current )
 			{
+				scripts\zm\debug\_logging::event_log( "Match won by " + winner.name );
 				game_won(winner);
 				return;
 			}
@@ -246,6 +247,7 @@ round_end(winner)
 
 			if(level.grief_score[winner] >= level.grief_gamerules[ "scorelimit" ].current)
 			{
+				scripts\zm\debug\_logging::event_log( "Match won by " + winner );
 				game_won(winner);
 				return;
 			}
@@ -286,6 +288,7 @@ round_end(winner)
 					player thread show_grief_hud_msg( "You lost the round" );
 				}
 			}
+			scripts\zm\debug\_logging::event_log( "Round won by " + winner.name );
 		}
 		else
 		{
@@ -300,6 +303,7 @@ round_end(winner)
 					player thread show_grief_hud_msg( "You lost the round" );
 				}
 			}
+			scripts\zm\debug\_logging::event_log( "Round won by " + winner );
 		}
 	}
 	else
@@ -365,7 +369,6 @@ zombie_goto_round(target_round)
 	}
 
 	respawn_players();
-
 	wait 0.05; // let all players fully respawn
 
 	level thread maps\mp\zombies\_zm::award_grenades_for_survivors();

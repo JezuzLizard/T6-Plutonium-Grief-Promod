@@ -72,15 +72,18 @@ watch_for_down()
 				{
 					obituary( self, self.last_griefed_by.attacker, self.last_griefed_by.weapon, self.last_griefed_by.meansofdeath );
 					self.last_griefed_by.attacker.killsconfirmed++;
+					scripts\zm\debug\_logging::event_log( self.name + " was downed by " + self.last_griefed_by.attacker );
 				}
 				else 
 				{
 					obituary(self, self, "none", "MOD_SUICIDE");
+					scripts\zm\debug\_logging::event_log( self.name + " downed" );
 				}
 			}
 			else 
 			{
 				obituary(self, self, "none", "MOD_SUICIDE");
+				scripts\zm\debug\_logging::event_log( self.name + " downed" );
 			}
 			self thread change_status_icon( is_alive );
 			self waittill_either( "player_revived", "spawned_player" );

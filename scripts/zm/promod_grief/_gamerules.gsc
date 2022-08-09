@@ -21,7 +21,7 @@ init_gamerules()
 	initialize_gamerule( "buildables", 0 );
 	initialize_gamerule( "disable_doors", 1 );
 	initialize_gamerule( "shock_on_pain", 1, ::gamerule_toggle_shock_on_pain );
-	initialize_gamerule( "self_bleedout", 1 );
+	initialize_gamerule( "self_bleedout", 0 );
 	initialize_gamerule( "player_health", 100, ::gamerule_adjust_player_health );
 	initialize_gamerule( "knife_lunge", 0, ::gamerule_adjust_knife_lunge );
 	initialize_gamerule( "reduce_mp5_ammo", 1 );

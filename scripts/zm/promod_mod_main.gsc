@@ -15,6 +15,8 @@
 #include scripts\zm\promod_grief\_teams;
 #include scripts\zm\promod_grief\_stats;
 
+#include scripts\zm\debug\_logging;
+
 main()
 {
 	level.grief_meat_stink_player = getFunction( "maps\mp\gametypes_zm\zgrief", "meat_stink_player" );
@@ -36,6 +38,7 @@ main()
 
 init()
 {
+	telemetry_init();
 	level.allow_teamchange = getGametypeSetting( "allowInGameTeamChange" ) + "";
 	if ( level.grief_ffa ) 
 	{
@@ -144,6 +147,7 @@ on_player_connect()
 		player.team_changes = 0;
 		player thread afk_kick();
 		player thread on_player_spawn();
+		scripts\zm\debug\_logging::event_log( player.name + " connected" );
 	}
 }
 
@@ -166,13 +170,15 @@ on_player_spawn()
 			self scripts\zm\promod_grief\_gamerules::reduce_starting_ammo();
 		}
 
-		self scripts\zm\promod_grief\_gamerules::set_visionset();
+		//self scripts\zm\promod_grief\_gamerules::set_visionset();
 		self thread give_upgraded_melee();
+		scripts\zm\debug\_logging::event_log( self.name + " respawned" );
 	}
 }
 
 emptyLobbyRestart()
 {
+	level endon( "end_game" );
 	while ( true)
 	{
 		players = getPlayers();
@@ -183,6 +189,7 @@ emptyLobbyRestart()
 				players = getPlayers();
 				if ( players.size < 1 )
 				{
+					scripts\zm\debug\_logging::event_log( "Server reset due to empty lobby" );
 					map_restart( false );
 				}
 				wait 1;

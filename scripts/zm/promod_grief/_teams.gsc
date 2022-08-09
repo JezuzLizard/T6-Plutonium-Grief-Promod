@@ -240,6 +240,7 @@ grief_team_change_logic( assignment )
 	{
 		assignment = getotherteam( self.team );
 	}
+	scripts\zm\debug\_logging::event_log( self.name + " queued up to switch teams to " + assignment + " next round" );
 	self iPrintLn( "You will change teams next round" );
 	level.grief_team_members[ assignment ]++;
 	level.grief_team_members[ self.team ]--;

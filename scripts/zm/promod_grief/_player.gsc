@@ -20,8 +20,7 @@ afk_kick()
         }
         if( time == 4800 ) //4mins
         {
-			logprint( "afk kick" );
-			print("afk kick");
+			scripts\zm\debug\_logging::event_log( self.name + " was kicked for inactivity" );
             kick( self getEntityNumber() );
         }
 
