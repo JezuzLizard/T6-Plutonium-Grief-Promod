@@ -1,31 +1,31 @@
-#include maps/mp/gametypes_zm/_zm_gametype;
-#include maps/mp/zombies/_zm_buildables;
-#include maps/mp/zombies/_zm_magicbox;
-#include maps/mp/zombies/_zm_equip_subwoofer;
-#include maps/mp/zombies/_zm_equip_springpad;
-#include maps/mp/zombies/_zm_equip_turbine;
-#include maps/mp/zm_buried_buildables;
-#include maps/mp/zm_buried_gamemodes;
-#include maps/mp/zombies/_zm_race_utility;
-#include maps/mp/zombies/_zm_utility;
-#include common_scripts/utility;
-#include maps/mp/_utility;
+#include maps\mp\gametypes_zm\_zm_gametype;
+#include maps\mp\zombies\_zm_buildables;
+#include maps\mp\zombies\_zm_magicbox;
+#include maps\mp\zombies\_zm_equip_subwoofer;
+#include maps\mp\zombies\_zm_equip_springpad;
+#include maps\mp\zombies\_zm_equip_turbine;
+#include maps\mp\zm_buried_buildables;
+#include maps\mp\zm_buried_gamemodes;
+#include maps\mp\zombies\_zm_race_utility;
+#include maps\mp\zombies\_zm_utility;
+#include common_scripts\utility;
+#include maps\mp\_utility;
 
-precache() //checked matches cerberus output
+precache()
 {
 	precachemodel( "zm_collision_buried_street_grief" );
 	precachemodel( "p6_zm_bu_buildable_bench_tarp" );
 	level.chalk_buildable_pieces_hide = 1;
 	griefbuildables = array( "chalk", "turbine", "springpad_zm", "subwoofer_zm" );
-	maps/mp/zm_buried_buildables::include_buildables( griefbuildables );
-	maps/mp/zm_buried_buildables::init_buildables( griefbuildables );
-	maps/mp/zombies/_zm_equip_turbine::init();
-	maps/mp/zombies/_zm_equip_turbine::init_animtree();
-	maps/mp/zombies/_zm_equip_springpad::init( &"ZM_BURIED_EQ_SP_PHS", &"ZM_BURIED_EQ_SP_HTS" );
-	maps/mp/zombies/_zm_equip_subwoofer::init( &"ZM_BURIED_EQ_SW_PHS", &"ZM_BURIED_EQ_SW_HTS" );
+	maps\mp\zm_buried_buildables::include_buildables( griefbuildables );
+	maps\mp\zm_buried_buildables::init_buildables( griefbuildables );
+	maps\mp\zombies\_zm_equip_turbine::init();
+	maps\mp\zombies\_zm_equip_turbine::init_animtree();
+	maps\mp\zombies\_zm_equip_springpad::init( &"ZM_BURIED_EQ_SP_PHS", &"ZM_BURIED_EQ_SP_HTS" );
+	maps\mp\zombies\_zm_equip_subwoofer::init( &"ZM_BURIED_EQ_SW_PHS", &"ZM_BURIED_EQ_SW_HTS" );
 }
 
-street_treasure_chest_init() //checked matches cerberus output
+street_treasure_chest_init()
 {
 	start_chest = getstruct( "start_chest", "script_noteworthy" );
 	court_chest = getstruct( "courtroom_chest1", "script_noteworthy" );
@@ -39,17 +39,17 @@ street_treasure_chest_init() //checked matches cerberus output
 	level.chests[ level.chests.size ] = tunnel_chest;
 	level.chests[ level.chests.size ] = jail_chest;
 	level.chests[ level.chests.size ] = gun_chest;
-	maps/mp/zombies/_zm_magicbox::treasure_chest_init( "start_chest" );
+	maps\mp\zombies\_zm_magicbox::treasure_chest_init( "start_chest" );
 }
 
-main() //checked matches cerberus output
+main()
 {
 	disable_buried_tunnel_zone();
 	spawn_barriers();
 	level.buildables_built[ "pap" ] = 1;
 	level.equipment_team_pick_up = 1;
-	level thread maps/mp/zombies/_zm_buildables::think_buildables();
-	maps/mp/gametypes_zm/_zm_gametype::setup_standard_objects( "street" );
+	level thread maps\mp\zombies\_zm_buildables::think_buildables();
+	maps\mp\gametypes_zm\_zm_gametype::setup_standard_objects( "street" );
 	street_treasure_chest_init();
 	generatebuildabletarps();
 	deletebuildabletarp( "courthouse" );
@@ -79,7 +79,7 @@ main() //checked matches cerberus output
 	turnperkon( "Pack_A_Punch" );
 }
 
-enemy_location_override( zombie, enemy ) //checked matches cerberus output
+enemy_location_override( zombie, enemy )
 {
 	location = enemy.origin;
 	if ( isDefined( self.reroute ) && self.reroute )
@@ -92,7 +92,7 @@ enemy_location_override( zombie, enemy ) //checked matches cerberus output
 	return location;
 }
 
-builddynamicwallbuys() //checked matches cerberus output
+builddynamicwallbuys()
 {
 	builddynamicwallbuy( "bank", "beretta93r_zm" );
 	builddynamicwallbuy( "bar", "pdw57_zm" );
@@ -108,7 +108,7 @@ builddynamicwallbuys() //checked matches cerberus output
 	builddynamicwallbuy( "candyshop", "870mcs_zm" );
 }
 
-buildbuildables() //checked matches cerberus output
+buildbuildables()
 {
 	buildbuildable( "springpad_zm" );
 	buildbuildable( "subwoofer_zm" );
@@ -127,11 +127,11 @@ spawn_barriers()
 	collision setModel( "collision_player_64x64x128" );
 	//tunnel blockade
 	collision = spawn( "script_model", (-1495, -280, 40) );
-    collision.angles = ( 0, 90, 0 );
-    collision setmodel( "collision_clip_wall_128x128x10" );
-    couch = spawn( "script_model", (-1512, -262, 26.5) );
-    couch.angles = ( 0, 90, 0 );
-    couch setmodel( "p6_zm_bu_victorian_couch" );
+	collision.angles = ( 0, 90, 0 );
+	collision setmodel( "collision_clip_wall_128x128x10" );
+	couch = spawn( "script_model", (-1512, -262, 26.5) );
+	couch.angles = ( 0, 90, 0 );
+	couch setmodel( "p6_zm_bu_victorian_couch" );
 	//mule kick barrier
 	/*
 	barrier_model = spawn( "script_model", ( -578, 1006, 167 ), 1 );

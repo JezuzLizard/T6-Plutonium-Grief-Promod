@@ -1,30 +1,30 @@
-//checked includes changed to match cerberus output
-#include maps/mp/gametypes_zm/zmeat;
-#include maps/mp/zm_alcatraz_traps;
-#include maps/mp/zombies/_zm_game_module;
-#include maps/mp/zombies/_zm_blockers;
-#include maps/mp/zombies/_zm_ai_brutus;
-#include maps/mp/gametypes_zm/_zm_gametype;
-#include maps/mp/zombies/_zm_magicbox;
-#include maps/mp/zombies/_zm_weapons;
-#include maps/mp/zm_prison;
-#include maps/mp/zombies/_zm_race_utility;
-#include maps/mp/zombies/_zm_utility;
-#include common_scripts/utility;
-#include maps/mp/_utility;
 
-precache() //checked matches cerberus output
+#include maps\mp\gametypes_zm\zmeat;
+#include maps\mp\zm_alcatraz_traps;
+#include maps\mp\zombies\_zm_game_module;
+#include maps\mp\zombies\_zm_blockers;
+#include maps\mp\zombies\_zm_ai_brutus;
+#include maps\mp\gametypes_zm\_zm_gametype;
+#include maps\mp\zombies\_zm_magicbox;
+#include maps\mp\zombies\_zm_weapons;
+#include maps\mp\zm_prison;
+#include maps\mp\zombies\_zm_race_utility;
+#include maps\mp\zombies\_zm_utility;
+#include common_scripts\utility;
+#include maps\mp\_utility;
+
+precache()
 {
 }
 
-zgrief_preinit() //checked matches cerberus output
+zgrief_preinit()
 {
 	registerclientfield( "toplayer", "meat_stink", 1, 1, "int" );
-	level.givecustomloadout = maps/mp/zm_prison::givecustomloadout;
+	level.givecustomloadout = maps\mp\zm_prison::givecustomloadout;
 	zgrief_init();
 }
 
-zgrief_init() //checked matches cerberus output
+zgrief_init()
 {
 	encounter_init();
 	flag_wait( "start_zombie_round_logic" );
@@ -34,7 +34,7 @@ zgrief_init() //checked matches cerberus output
 	}
 }
 
-encounter_init() //checked matches cerberus output
+encounter_init()
 {
 	level._game_module_player_laststand_callback = ::alcatraz_grief_laststand_weapon_save;
 	level.precachecustomcharacters = ::precache_team_characters;
@@ -42,7 +42,7 @@ encounter_init() //checked matches cerberus output
 	level.gamemode_post_spawn_logic = ::give_player_shiv;
 }
 
-alcatraz_grief_laststand_weapon_save( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration ) //checked changed to match cerberus output
+alcatraz_grief_laststand_weapon_save( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration )
 {
 	if ( self hasperk( "specialty_additionalprimaryweapon" ) )
 	{
@@ -50,7 +50,7 @@ alcatraz_grief_laststand_weapon_save( einflictor, attacker, idamage, smeansofdea
 		primaryweapons = self getweaponslistprimaries();
 		for ( i = 0; i < primaryweapons.size; i++ )
 		{
-			if ( maps/mp/zombies/_zm_weapons::is_weapon_included( primaryweapons[ i ] ) || maps/mp/zombies/_zm_weapons::is_weapon_upgraded( primaryweapons[ i ] ) )
+			if ( maps\mp\zombies\_zm_weapons::is_weapon_included( primaryweapons[ i ] ) || maps\mp\zombies\_zm_weapons::is_weapon_upgraded( primaryweapons[ i ] ) )
 			{
 				primary_weapons_that_can_be_taken[ primary_weapons_that_can_be_taken.size ] = primaryweapons[ i ];
 			}
@@ -92,7 +92,7 @@ alcatraz_grief_laststand_weapon_save( einflictor, attacker, idamage, smeansofdea
 	}
 }
 
-precache_team_characters() //checked matches cerberus output
+precache_team_characters()
 {
 	precachemodel( "c_zom_player_grief_guard_fb" );
 	precachemodel( "c_zom_oleary_shortsleeve_viewhands" );
@@ -100,7 +100,7 @@ precache_team_characters() //checked matches cerberus output
 	precachemodel( "c_zom_grief_guard_viewhands" );
 }
 
-give_team_characters() //checked matches cerberus output
+give_team_characters()
 {
 	self detachall();
 	self set_player_is_female( 0 );
@@ -136,13 +136,13 @@ give_team_characters() //checked matches cerberus output
 	self setsprintcooldown( 0 );
 }
 
-give_player_shiv() //checked matches cerberus output
+give_player_shiv()
 {
 	self takeweapon( "knife_zm" );
 	self giveweapon( "knife_zm_alcatraz" );
 }
 
-grief_treasure_chest_init() //checked matches cerberus output
+grief_treasure_chest_init()
 {
 	chest1 = getstruct( "start_chest", "script_noteworthy" );
 	chest2 = getstruct( "cafe_chest", "script_noteworthy" );
@@ -150,19 +150,19 @@ grief_treasure_chest_init() //checked matches cerberus output
 	level.chests = [];
 	level.chests[ level.chests.size ] = chest1;
 	level.chests[ level.chests.size ] = chest2;
-	maps/mp/zombies/_zm_magicbox::treasure_chest_init( "start_chest" );
+	maps\mp\zombies\_zm_magicbox::treasure_chest_init( "start_chest" );
 }
 
-main() //checked partially changed to match cerberus output changed at own discretion see info.md
+main()
 {
-	maps/mp/gametypes_zm/_zm_gametype::setup_standard_objects( "cellblock" );
+	maps\mp\gametypes_zm\_zm_gametype::setup_standard_objects( "cellblock" );
 	grief_treasure_chest_init();
 	precacheshader( "zm_al_wth_zombie" );
 	array_thread( level.zombie_spawners, ::add_spawn_function, ::remove_zombie_hats_for_grief );
-	maps/mp/zombies/_zm_ai_brutus::precache();
-	maps/mp/zombies/_zm_ai_brutus::init();
+	maps\mp\zombies\_zm_ai_brutus::precache();
+	maps\mp\zombies\_zm_ai_brutus::init();
 	level.enemy_location_override_func = ::enemy_location_override;
-	level._effect[ "butterflies" ] = loadfx( "maps/zombie_alcatraz/fx_alcatraz_skull_elec" );
+	level._effect[ "butterflies" ] = loadfx( "maps\zombie_alcatraz\fx_alcatraz_skull_elec" );
 	a_t_door_triggers = getentarray( "zombie_door", "targetname" );
 	triggers = a_t_door_triggers;
 	i = 0;
@@ -203,7 +203,7 @@ main() //checked partially changed to match cerberus output changed at own discr
 	// 	{
 	// 		if ( t_door.script_flag == "activate_cellblock_east_west" || t_door.script_flag == "activate_cellblock_barber" )
 	// 		{
-	// 			t_door maps/mp/zombies/_zm_blockers::door_opened( self.zombie_cost );
+	// 			t_door maps\mp\zombies\_zm_blockers::door_opened( self.zombie_cost );
 	// 		}
 	// 	}
 	// }
@@ -382,10 +382,10 @@ main() //checked partially changed to match cerberus output changed at own discr
 		wait 0.1;
 	}
 	flag_wait( "initial_blackscreen_passed" );
-	maps/mp/zombies/_zm_game_module::turn_power_on_and_open_doors();
+	maps\mp\zombies\_zm_game_module::turn_power_on_and_open_doors();
 	flag_wait( "start_zombie_round_logic" );
-	level thread maps/mp/zm_alcatraz_traps::init_fan_trap_trigs();
-	level thread maps/mp/zm_alcatraz_traps::init_acid_trap_trigs();
+	level thread maps\mp\zm_alcatraz_traps::init_fan_trap_trigs();
+	level thread maps\mp\zm_alcatraz_traps::init_acid_trap_trigs();
 	wait 1;
 	level notify( "sleight_on" );
 	wait_network_frame();
@@ -403,19 +403,14 @@ main() //checked partially changed to match cerberus output changed at own discr
 	wait_network_frame();
 	level notify( "Pack_A_Punch_on" );
 	wait_network_frame();
-	/*
-/#
-	level thread maps/mp/gametypes_zm/zmeat::spawn_level_meat_manager();
-#/
-	*/
 }
 
-remove_zombie_hats_for_grief() //checked matches cerberus output
+remove_zombie_hats_for_grief()
 {
 	self detach( "c_zom_guard_hat" );
 }
 
-enemy_location_override( zombie, enemy ) //checked matches cerberus output
+enemy_location_override( zombie, enemy )
 {
 	location = enemy.origin;
 	if ( is_true( self.reroute ) )
@@ -428,7 +423,7 @@ enemy_location_override( zombie, enemy ) //checked matches cerberus output
 	return location;
 }
 
-magicbox_face_spawn() //checked matches cerberus output
+magicbox_face_spawn()
 {
 	self endon( "disconnect" );
 	if ( !is_gametype_active( "zgrief" ) )
@@ -456,6 +451,8 @@ magicbox_face_spawn() //checked matches cerberus output
 	}
 }
 
+#using_animtree("fxanim_props");
+
 turn_afterlife_interact_on()
 {
 	if ( self.script_string == "cell_1_powerup_activate" || self.script_string == "intro_powerup_activate" || self.script_string == "cell_2_powerup_activate" || self.script_string == "wires_shower_door" )
@@ -471,7 +468,7 @@ turn_afterlife_interact_on()
 		}
 		if ( issubstr( self.model, "p6_zm_al_shock_box" ) )
 		{
-			self useanimtree( -1 );
+			self useanimtree( #animtree );
 			self setmodel( "p6_zm_al_shock_box_on" );
 			self setanim( level.shockbox_anim[ "on" ] );
 		}
@@ -497,9 +494,9 @@ delete_starting_door_trigs()
 first_room_hallway_barrier()
 {
 	collision = spawn( "script_model", ( 2113, 9772, 1530 ) );
-    collision.angles = ( 0, 90, 0 );
-    collision setmodel( "collision_clip_wall_128x128x10" );
-    gate = spawn( "script_model", ( 2111, 9728, 1458 ) );
-    gate.angles = ( 0, 90, 0 );
-    gate setmodel( "p6_zm_al_cell_door_r_90x102x2" );
+	collision.angles = ( 0, 90, 0 );
+	collision setmodel( "collision_clip_wall_128x128x10" );
+	gate = spawn( "script_model", ( 2111, 9728, 1458 ) );
+	gate.angles = ( 0, 90, 0 );
+	gate setmodel( "p6_zm_al_cell_door_r_90x102x2" );
 }

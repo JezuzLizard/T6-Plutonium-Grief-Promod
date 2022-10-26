@@ -1,16 +1,16 @@
-#include maps/mp/zombies/_zm_game_module;
-#include maps/mp/zm_transit_utility;
-#include maps/mp/gametypes_zm/_zm_gametype;
-#include maps/mp/zombies/_zm_magicbox;
-#include maps/mp/zombies/_zm_race_utility;
-#include maps/mp/zombies/_zm_utility;
-#include common_scripts/utility;
-#include maps/mp/_utility;
-#include maps/mp/zombies/_zm_weapons;
-#include maps/mp/zombies/_zm_unitrigger;
-#include maps/mp/zombies/_zm_weap_claymore;
-#include maps/mp/zombies/_zm_melee_weapon;
-#include maps/mp/zombies/_zm;
+#include maps\mp\zombies\_zm_game_module;
+#include maps\mp\zm_transit_utility;
+#include maps\mp\gametypes_zm\_zm_gametype;
+#include maps\mp\zombies\_zm_magicbox;
+#include maps\mp\zombies\_zm_race_utility;
+#include maps\mp\zombies\_zm_utility;
+#include common_scripts\utility;
+#include maps\mp\_utility;
+#include maps\mp\zombies\_zm_weapons;
+#include maps\mp\zombies\_zm_unitrigger;
+#include maps\mp\zombies\_zm_weap_claymore;
+#include maps\mp\zombies\_zm_melee_weapon;
+#include maps\mp\zombies\_zm;
 
 treasure_chest_init()
 {
@@ -64,13 +64,13 @@ treasure_chest_init()
 			level.chests[ 1 ] = start_chest2;
 			randy = randomIntRange( 0, 3 );
 			if ( randy == 1 )
-            {
+			{
 				treasure_chest_init( "start_chest" );
-            }
+			}
 			else
-            {
+			{
 				treasure_chest_init( "farm_chest" );
-            }
+			}
 			break;
 		case "cornfield":
 			start_chest_zbarrier = getEnt( "start_chest_zbarrier", "script_noteworthy" );
@@ -138,17 +138,17 @@ treasure_chest_init()
 			level.chests[ 2 ] = start_chest3;
 			randy = randomIntRange( 0, 3 );
 			if ( randy == 1 )
-            {
+			{
 				treasure_chest_init( "start_chest" );
-            }
+			}
 			else if ( randy == 2 )
-            {
+			{
 				treasure_chest_init( "farm_chest" );
-            }
+			}
 			else
-            {
+			{
 				treasure_chest_init( "depot_chest" );
-            }
+			}
 			break;
 		case "power":
 			start_chest_zbarrier = getEnt( "depot_chest_zbarrier", "script_noteworthy" );
@@ -290,7 +290,7 @@ enemy_location_override( zombie, enemy )
 	return location;
 }
 
-diner_hatch_access() //modified function
+diner_hatch_access()
 {
 	diner_hatch = getent( "diner_hatch", "targetname" );
 	diner_hatch_col = getent( "diner_hatch_collision", "targetname" );
@@ -305,7 +305,7 @@ diner_hatch_access() //modified function
 	diner_hatch show();
 	diner_hatch_col delete();
 	diner_hatch_mantle.origin = diner_hatch_mantle.start_origin;
-	player maps/mp/zombies/_zm_buildables::track_placed_buildables( "dinerhatch" );
+	level.players[ 0 ] maps\mp\zombies\_zm_buildables::track_placed_buildables( "dinerhatch" );
 }
 
 _weapon_spawner( weapon_angles, weapon_coordinates, chalk_fx, weapon_name, weapon_model, target, targetname )
@@ -359,30 +359,30 @@ _weapon_spawner( weapon_angles, weapon_coordinates, chalk_fx, weapon_name, weapo
 	unitrigger_stub.require_look_at = 1;
 	unitrigger_stub.require_look_from = 0;
 	unitrigger_stub.zombie_weapon_upgrade = weapon_name;
-	maps/mp/zombies/_zm_unitrigger::unitrigger_force_per_player_triggers( unitrigger_stub, 1 );
+	maps\mp\zombies\_zm_unitrigger::unitrigger_force_per_player_triggers( unitrigger_stub, 1 );
 	if ( is_melee_weapon( weapon_name ) )
 	{
 		if ( weapon_name == "tazer_knuckles_zm" && isDefined( level.taser_trig_adjustment ) )
 		{
 			unitrigger_stub.origin += level.taser_trig_adjustment;
 		}
-		maps/mp/zombies/_zm_unitrigger::register_static_unitrigger( unitrigger_stub, ::melee_weapon_think );
+		maps\mp\zombies\_zm_unitrigger::register_static_unitrigger( unitrigger_stub, ::melee_weapon_think );
 	}
 	else if ( weapon_name == "claymore_zm" )
 	{
 		unitrigger_stub.prompt_and_visibility_func = ::claymore_unitrigger_update_prompt;
-		maps/mp/zombies/_zm_unitrigger::register_static_unitrigger( unitrigger_stub, ::buy_claymores );
+		maps\mp\zombies\_zm_unitrigger::register_static_unitrigger( unitrigger_stub, ::buy_claymores );
 	}
 	else
 	{
 		unitrigger_stub.prompt_and_visibility_func = ::wall_weapon_update_prompt;
-		maps/mp/zombies/_zm_unitrigger::register_static_unitrigger( unitrigger_stub, ::weapon_spawn_think );
+		maps\mp\zombies\_zm_unitrigger::register_static_unitrigger( unitrigger_stub, ::weapon_spawn_think );
 	}
 	tempmodel delete();
-    thread playchalkfx( chalk_fx, weapon_coordinates, weapon_angles );
+	thread playchalkfx( chalk_fx, weapon_coordinates, weapon_angles );
 }
 
-playchalkfx( effect, origin, angles ) //custom function
+playchalkfx( effect, origin, angles )
 {
 	while ( 1 )
 	{
@@ -431,7 +431,7 @@ increase_cornfield_zombie_speed()
 	}
 }
 
-_spawn_tranzit_barrier( barrier_coordinates, barrier_model, barrier_angles, not_solid ) //custom function
+_spawn_tranzit_barrier( barrier_coordinates, barrier_model, barrier_angles, not_solid )
 {
 	if ( !isDefined( level.survival_barriers ) )
 	{
@@ -449,7 +449,7 @@ _spawn_tranzit_barrier( barrier_coordinates, barrier_model, barrier_angles, not_
 	level.survival_barriers_index++;
 }
 
-init_barriers_for_cut_locations() //custom function
+init_barriers_for_cut_locations()
 {
 	switch ( getDvar( "ui_zm_mapstartlocation" ) )
 	{
@@ -492,7 +492,7 @@ init_barriers_for_cut_locations() //custom function
 	}
 }
 
-create_spawner_list( zkeys ) //modified function
+create_spawner_list( zkeys )
 {
 	level.zombie_spawn_locations = [];
 	level.inert_locations = [];
@@ -727,7 +727,7 @@ create_spawner_list( zkeys ) //modified function
 		}
 	}
 }
-turn_power_on_and_open_doors() //checked changed at own discretion
+turn_power_on_and_open_doors()
 {
 	level.local_doors_stay_open = 1;
 	level.power_local_doors_globally = 1;
@@ -750,7 +750,7 @@ turn_power_on_and_open_doors() //checked changed at own discretion
 	}
 }
 
-falling_death_init() //checked changed to match beta dump
+falling_death_init()
 {
 	trig = getent( "transit_falling_death", "targetname" );
 	if ( isDefined( trig ) )
@@ -766,19 +766,19 @@ falling_death_init() //checked changed to match beta dump
 	}
 }
 
-insta_kill_player() //checked changed to match beta dump
+insta_kill_player()
 {
 	self endon( "disconnect" );
 	if ( is_true( self.insta_killed ) )
 	{
 		return;
 	}
-	self maps/mp/zombies/_zm_buildables::player_return_piece_to_original_spawn();
+	self maps\mp\zombies\_zm_buildables::player_return_piece_to_original_spawn();
 	if ( is_player_killable( self ) )
 	{
 		self.insta_killed = 1;
 		in_last_stand = 0;
-		if ( self maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
+		if ( self maps\mp\zombies\_zm_laststand::player_is_in_laststand() )
 		{
 			in_last_stand = 1;
 		}
@@ -791,7 +791,7 @@ insta_kill_player() //checked changed to match beta dump
 				spawn_points = getstructarray( points.target, "targetname" );
 				point = spawn_points[ 0 ];
 				self dodamage( self.health + 1000, ( 0, 0, 0 ) );
-				maps/mp/_visionset_mgr::vsmgr_activate( "overlay", "zm_transit_burn", self, 1, level.zm_transit_burn_max_duration );
+				maps\mp\_visionset_mgr::vsmgr_activate( "overlay", "zm_transit_burn", self, 1, level.zm_transit_burn_max_duration );
 				wait 0.5;
 				self freezecontrols( 1 );
 				wait 0.25;
@@ -805,7 +805,7 @@ insta_kill_player() //checked changed to match beta dump
 				}
 				else
 				{
-					self thread maps/mp/zombies/_zm_laststand::auto_revive( self );
+					self thread maps\mp\zombies\_zm_laststand::auto_revive( self );
 					self.waiting_to_revive = 0;
 					self.solo_respawn = 0;
 					self.lives = 0;
@@ -816,13 +816,13 @@ insta_kill_player() //checked changed to match beta dump
 			else
 			{
 				self dodamage( self.health + 1000, ( 0, 0, 0 ) );
-				maps/mp/_visionset_mgr::vsmgr_activate( "overlay", "zm_transit_burn", self, 2, level.zm_transit_burn_max_duration );
+				maps\mp\_visionset_mgr::vsmgr_activate( "overlay", "zm_transit_burn", self, 2, level.zm_transit_burn_max_duration );
 			}
 		}
 		else
 		{
 			self dodamage( self.health + 1000, ( 0, 0, 0 ) );
-			maps/mp/_visionset_mgr::vsmgr_activate( "overlay", "zm_transit_burn", self, 1, level.zm_transit_burn_max_duration );
+			maps\mp\_visionset_mgr::vsmgr_activate( "overlay", "zm_transit_burn", self, 1, level.zm_transit_burn_max_duration );
 			wait_network_frame();
 			self.bleedout_time = 0;
 		}
@@ -831,7 +831,7 @@ insta_kill_player() //checked changed to match beta dump
 	}
 }
 
-is_player_killable( player, checkignoremeflag ) //checked matches cerberus output
+is_player_killable( player, checkignoremeflag )
 {
 	if ( !isDefined( player ) )
 	{

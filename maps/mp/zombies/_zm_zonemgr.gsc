@@ -1,11 +1,11 @@
 //checked include match cerberus output
-#include maps/mp/zombies/_zm_zonemgr;
-#include maps/mp/gametypes_zm/_zm_gametype;
-#include maps/mp/zombies/_zm_utility;
-#include maps/mp/_utility;
-#include common_scripts/utility;
+#include maps\mp\zombies\_zm_zonemgr;
+#include maps\mp\gametypes_zm\_zm_gametype;
+#include maps\mp\zombies\_zm_utility;
+#include maps\mp\_utility;
+#include common_scripts\utility;
 
-init() //checked matches cerberus output
+init()
 {
 	flag_init( "zones_initialized" );
 	level.zones = [];
@@ -17,7 +17,7 @@ init() //checked matches cerberus output
 	}
 }
 
-zone_is_enabled( zone_name ) //checked matches cerberus output
+zone_is_enabled( zone_name )
 {
 	if ( !isDefined( level.zones ) || !isDefined( level.zones[ zone_name ] ) || !level.zones[ zone_name ].is_enabled )
 	{
@@ -26,7 +26,7 @@ zone_is_enabled( zone_name ) //checked matches cerberus output
 	return 1;
 }
 
-get_player_zone() //checked changed to match cerberus output
+get_player_zone()
 {
 	player_zone = undefined;
 	keys = getarraykeys( level.zones );
@@ -41,7 +41,7 @@ get_player_zone() //checked changed to match cerberus output
 	return player_zone;
 }
 
-get_zone_from_position( v_pos, ignore_enabled_check ) //checked changed to match cerberus output
+get_zone_from_position( v_pos, ignore_enabled_check )
 {
 	zone = undefined;
 	scr_org = spawn( "script_origin", v_pos );
@@ -58,7 +58,7 @@ get_zone_from_position( v_pos, ignore_enabled_check ) //checked changed to match
 	return zone;
 }
 
-get_zone_magic_boxes( zone_name ) //checked matches cerberus output
+get_zone_magic_boxes( zone_name )
 {
 	if ( isDefined( zone_name ) && !zone_is_enabled( zone_name ) )
 	{
@@ -68,7 +68,7 @@ get_zone_magic_boxes( zone_name ) //checked matches cerberus output
 	return zone.magic_boxes;
 }
 
-get_zone_zbarriers( zone_name ) //checked matches cerberus output
+get_zone_zbarriers( zone_name )
 {
 	if ( isDefined( zone_name ) && !zone_is_enabled( zone_name ) )
 	{
@@ -78,7 +78,7 @@ get_zone_zbarriers( zone_name ) //checked matches cerberus output
 	return zone.zbarriers;
 }
 
-get_players_in_zone( zone_name, return_players ) //checked changed to match cerberus output
+get_players_in_zone( zone_name, return_players )
 {
 	if ( !zone_is_enabled( zone_name ) )
 	{
@@ -106,7 +106,7 @@ get_players_in_zone( zone_name, return_players ) //checked changed to match cerb
 	return num_in_zone;
 }
 
-player_in_zone( zone_name ) //checked changed to match cerberus output
+player_in_zone( zone_name )
 {
 	if ( !zone_is_enabled( zone_name ) )
 	{
@@ -127,7 +127,7 @@ player_in_zone( zone_name ) //checked changed to match cerberus output
 	return 0;
 }
 
-entity_in_zone( zone_name, ignore_enabled_check ) //checked changed to match cerberus output
+entity_in_zone( zone_name, ignore_enabled_check )
 {
 	if ( !zone_is_enabled( zone_name ) && !is_true( ignore_enabled_check ) )
 	{
@@ -144,7 +144,7 @@ entity_in_zone( zone_name, ignore_enabled_check ) //checked changed to match cer
 	return 0;
 }
 
-deactivate_initial_barrier_goals() //checked changed to match cerberus output
+deactivate_initial_barrier_goals()
 {
 	special_goals = getstructarray( "exterior_goal", "targetname" );
 	for ( i = 0; i < special_goals.size; i++ )
@@ -157,7 +157,7 @@ deactivate_initial_barrier_goals() //checked changed to match cerberus output
 	}
 }
 
-zone_init( zone_name ) //checked changed to match cerberus output
+zone_init( zone_name )
 {
 	if ( isDefined( level.zones[ zone_name ] ) )
 	{
@@ -170,7 +170,7 @@ zone_init( zone_name ) //checked changed to match cerberus output
 	zone.is_active = 0;
 	zone.adjacent_zones = [];
 	zone.is_spawning_allowed = 0;
-	spawn_points = maps/mp/gametypes_zm/_zm_gametype::get_player_spawns_for_gametype();
+	spawn_points = maps\mp\gametypes_zm\_zm_gametype::get_player_spawns_for_gametype();
 	for( i = 0; i < spawn_points.size; i++ )
 	{
 		if ( spawn_points[ i ].script_noteworthy == zone_name )
@@ -310,7 +310,7 @@ zone_init( zone_name ) //checked changed to match cerberus output
 	}
 }
 
-enable_zone( zone_name ) //checked changed to match cerberus output
+enable_zone( zone_name )
 {
 	if ( level.zones[ zone_name ].is_enabled )
 	{
@@ -319,7 +319,7 @@ enable_zone( zone_name ) //checked changed to match cerberus output
 	level.zones[ zone_name ].is_enabled = 1;
 	level.zones[zone_name].is_spawning_allowed = 1;
 	level notify( zone_name );
-	spawn_points = maps/mp/gametypes_zm/_zm_gametype::get_player_spawns_for_gametype();
+	spawn_points = maps\mp\gametypes_zm\_zm_gametype::get_player_spawns_for_gametype();
 	for( i = 0; i < spawn_points.size; i++ )
 	{
 		if ( spawn_points[ i ].script_noteworthy == zone_name )
@@ -335,7 +335,7 @@ enable_zone( zone_name ) //checked changed to match cerberus output
 	}
 }
 
-make_zone_adjacent( main_zone_name, adj_zone_name, flag_name ) //checked matches cerberus output
+make_zone_adjacent( main_zone_name, adj_zone_name, flag_name )
 {
 	main_zone = level.zones[ main_zone_name ];
 	if ( !isDefined( main_zone.adjacent_zones[ adj_zone_name ] ) )
@@ -362,7 +362,7 @@ make_zone_adjacent( main_zone_name, adj_zone_name, flag_name ) //checked matches
 	}
 }
 
-add_zone_flags( wait_flag, add_flags ) //checked changed to match cerberus output
+add_zone_flags( wait_flag, add_flags )
 {
 	if ( !isarray( add_flags ) )
 	{
@@ -383,7 +383,7 @@ add_zone_flags( wait_flag, add_flags ) //checked changed to match cerberus outpu
 	level.zone_flags[ wait_flag ] = add_flags;
 }
 
-add_adjacent_zone( zone_name_a, zone_name_b, flag_name, one_way ) //checked matches cerberus output
+add_adjacent_zone( zone_name_a, zone_name_b, flag_name, one_way )
 {
 	if ( !isDefined( one_way ) )
 	{
@@ -402,7 +402,7 @@ add_adjacent_zone( zone_name_a, zone_name_b, flag_name, one_way ) //checked matc
 	}
 }
 
-setup_zone_flag_waits() //checked changed to match cerberus output
+setup_zone_flag_waits()
 {
 	flags = [];
 	zkeys = getarraykeys( level.zones );
@@ -497,7 +497,7 @@ zone_flag_wait( flag_name )
 	}
 }
 
-door_close_disconnect( flag_name ) //checked matches cerberus output
+door_close_disconnect( flag_name )
 {
 	while ( flag( flag_name ) )
 	{
@@ -507,7 +507,7 @@ door_close_disconnect( flag_name ) //checked matches cerberus output
 	level thread zone_flag_wait( flag_name );
 }
 
-connect_zones( zone_name_a, zone_name_b, one_way ) //checked matches cerberus output
+connect_zones( zone_name_a, zone_name_b, one_way )
 {
 	if ( !isDefined( one_way ) )
 	{
@@ -532,7 +532,7 @@ connect_zones( zone_name_a, zone_name_b, one_way ) //checked matches cerberus ou
 	}
 }
 
-manage_zones( initial_zone ) //checked changed to match cerberus output
+manage_zones( initial_zone )
 {
 	map = getDvar( "mapname" );
 	location = getDvar( "ui_zm_mapstartlocation" ); 
@@ -556,7 +556,7 @@ manage_zones( initial_zone ) //checked changed to match cerberus output
 	}
 	deactivate_initial_barrier_goals();
 	zone_choke = 0;
-	spawn_points = maps/mp/gametypes_zm/_zm_gametype::get_player_spawns_for_gametype();
+	spawn_points = maps\mp\gametypes_zm\_zm_gametype::get_player_spawns_for_gametype();
 	for ( i = 0; i < spawn_points.size; i++ )
 	{
 		spawn_points[ i ].locked = 1;
@@ -674,7 +674,7 @@ manage_zones( initial_zone ) //checked changed to match cerberus output
 			}
 		}
 		[[ level.create_spawner_list_func ]]( zkeys );
-		level.active_zone_names = maps/mp/zombies/_zm_zonemgr::get_active_zone_names();
+		level.active_zone_names = maps\mp\zombies\_zm_zonemgr::get_active_zone_names();
 		wait 1;
 	}
 }
@@ -683,7 +683,7 @@ debug_show_spawn_locations() //checked dev call deleted
 {
 }
 
-create_spawner_list( zkeys ) //checked changed to match cerberus output
+create_spawner_list( zkeys )
 {
 	level.zombie_spawn_locations = [];
 	level.inert_locations = [];
@@ -783,7 +783,7 @@ create_spawner_list( zkeys ) //checked changed to match cerberus output
 }
 
 
-get_active_zone_names() //checked changed to match cerberus output
+get_active_zone_names()
 {
 	ret_list = [];
 	if ( !isDefined( level.zone_keys ) )
@@ -804,7 +804,7 @@ get_active_zone_names() //checked changed to match cerberus output
 	return ret_list;
 }
 
-is_player_in_zone( zone_name ) //checked changed to match cerberus output
+is_player_in_zone( zone_name )
 {
 	zone = level.zones[ zone_name ];
 	for ( i = 0; i < zone.volumes.size; i++ )

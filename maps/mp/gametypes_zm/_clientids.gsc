@@ -19,14 +19,8 @@ init()
 {
 	level thread monitor_players_connecting_status();
 	level thread emptyLobbyRestart();
-	level.basepath = getDvar( "fs_basepath" ) + "/" + getDvar( "fs_basegame" ) + "/" + "scriptdata" + "/";
-	initialize_no_permissions_required_commands();
-    setup_permissions();
-    level thread commands();
-	//level thread monitor_players_connection_status();
-	//level thread monitor_players_expected_and_connected();
-    if ( getDvar( "g_gametype" ) == "zgrief" )
-    {
+	if ( getDvar( "g_gametype" ) == "zgrief" )
+	{
 		init_gamerules();
 		level.round_spawn_func = ::round_spawning;
 		level._game_module_player_damage_callback = ::game_module_player_damage_callback;
@@ -39,7 +33,7 @@ init()
 		level.grief_loadout_save = ::grief_loadout_save;
 		grief_parse_perk_restrictions();
 		grief_parse_powerup_restrictions();
-        level thread on_player_connect();
+		level thread on_player_connect();
 		level thread draw_hud();
 		wait 15;
 		level thread instructions_on_all_players();
@@ -48,11 +42,7 @@ init()
 			flag_init( "grief_brutus_can_spawn", 1 );
 			level thread grief_brutus_logic();
 		}
-		if ( getDvarInt( "grief_tournament_mode" ) == 1 )
-		{
-			init_tournament_mode();
-		}
-    }
+	}
 }
 
 emptyLobbyRestart()
@@ -68,7 +58,7 @@ emptyLobbyRestart()
 				players = get_players();
 				if ( players.size < 1  )
 				{
-					cmdexecute( "map_restart" );
+					map_restart( false );
 				}
 				wait 1;
 			}
@@ -79,94 +69,20 @@ emptyLobbyRestart()
 
 monitor_players_connecting_status()
 {
-	level.num_players_connecting = 0;
 	while ( true )
 	{
 		level waittill( "connecting", player );
-		player parse_ban_list();
-		player set_clan_tag();
 		if ( !flag( "initial_players_connected" ) )
 		{
-			logline1 = "P: " + player.name + " is connecting during loadscreen" + "\n";
-			logprint( logline1 );
 			player thread kick_player_if_dont_spawn_in_time();
 		}
 	}
 }
 
-set_clan_tag()
-{
-	for ( i = 0; i < level.server_users[ "Admins" ].guids.size; i++ )
-	{
-		if ( self getGUID() == level.server_users[ "Admins" ].guids[ i ] )
-		{
-			self setClanTag( "Admin" );
-		}
-	}
-}
-
-parse_ban_list()
-{
-	ban_list = fopen( level.basepath + "bans.txt", "r+" );
-    buffer = "";
-	i = 0;
-    while ( 1 ) 
-    {
-        eof = feof( ban_list );
-        if ( eof )
-        {
-			if ( i == 1 )
-			{
-				fclose( ban_list ); 
-				return;
-			}
-            break;
-        }
-        buffer += fgetc( ban_list );
-		i++;
-	}
-	names_and_guids = strTok( buffer, ";" );
-	for ( i = 0; i < names_and_guids.size; i++ )
-	{
-		printF( names_and_guids[ i ] );
-	}
-	for ( i = 0; i < names_and_guids.size; i++ )
-	{
-		// printF( "parse_ban_list() names_and_guids[ " + i + " ] " + names_and_guids[ i ] );
-		guids = strTok( names_and_guids[ i ], ":" );
-		guid = int( guids[ 1 ] );
-		// printF( "parse_ban_list() guid " + guid );
-		// printF( "Player " + self.name + " guid " + self getGUID() );
-		if ( self getGUID() == guid )
-		{
-			kick( self getEntityNumber() );
-		}
-	}
-}
-
-ban_player( player_ban_name )
-{
-	foreach ( player in level.players )
-	{
-		if ( clean_player_name_of_clantag( player.name ) == player_ban_name )
-		{
-			player_to_be_banned = player;
-			break;
-		}
-	}
-	ban_list = fopen( level.basepath + "bans.txt", "a+" );
-	fprintf( ";" + clean_player_name_of_clantag( player_to_be_banned.name ) + ":" + player_to_be_banned getGUID(), ban_list );
-	fclose( ban_list );
-	say( clean_player_name_of_clantag( player_to_be_banned.name ) + " has been banned!" );
-	kick( player_to_be_banned getEntityNumber() );
-}
-
 kick_player_if_dont_spawn_in_time()
 {
 	self endon( "begin" );
-	wait 20;
-	logline1 = "Kicking player because they failed to notify begin in less than 20 seconds during the loadscreen" + "\n";
-	logprint( logline1 );
+	wait 30;
 	kick( self getEntityNumber() );
 }
 
@@ -200,33 +116,14 @@ instructions()
 	wait 3;
 }
 
-monitor_players_expected_and_connected()
-{
-	level endon( "end_game" );
-	i = 0;
-	while ( true )
-	{
-		logline1 = "getNumExpectedPlayers(): " + getnumexpectedplayers() + " getNumConnectedPlayers(): " + getnumconnectedplayers() + "\n";
-		logprint( logline1 );
-		wait 1;
-		i++;
-		if ( i == 30 )
-		{
-			break;
-		}
-	}
-}
-
 on_player_connect()
 {
 	level endon( "end_game" );
 
-    while ( true )
-    {
-    	level waittill( "connected", player );
+	while ( true )
+	{
+		level waittill( "connected", player );
 		player setClientDvar( "aim_automelee_range", 0 );
-		player thread on_player_spawned();
-		player thread afk_kick();
 		if ( !isDefined( player.last_griefed_by ) )
 		{
 			player.last_griefed_by = spawnStruct();
@@ -235,81 +132,11 @@ on_player_connect()
 			player.last_griefed_by.weapon = undefined;
 		}
 		player thread give_points_on_restart_and_round_change();
-       	player set_team();
+		player set_team();
 		player.killsconfirmed = 0;
 		player.stabs = 0;
 		player.assists = 0;
-    }
-}
-
-on_player_spawned()
-{	
-	level endon( "game_ended" );
-	self endon( "disconnect" );
-
-	self.initial_spawn = true;
-
-	while ( true )
-	{	
-		self waittill( "spawned_player" );
-
-		if(level.inital_spawn)
-		{
-			level.inital_spawn = false;
-			level thread post_all_players_spawned();
-		}
-		self.health = level.grief_gamerules[ "player_health" ];
-		self.maxHealth = self.health;
 	}
-}
-
-post_all_players_spawned()
-{	
-	flag_wait( "start_zombie_round_logic" );
-	wait 0.05;
-
-	unload_clip();
-}
-
-unload_clip()
-{
-	players = get_players();
-
-	for(i = 0; i < players.size; i++)
-	{	
-		weapon = players[ i ] getcurrentweapon();
-		if( weapon == "m1911_zm" )
-		{	
-			self itemweaponsetammo( 0, 8 );
-		}
-	}
-}
-
-afk_kick()
-{   
-    self endon("disconnect");
-
-    time = 0;
-    while( 1 )
-    {   
-		if ( self.sessionstate == "spectator" )
-		{	
-			wait 1;
-			continue;
-		}
-        if( self usebuttonpressed() || self jumpbuttonpressed() || self meleebuttonpressed() || self attackbuttonpressed() || self adsbuttonpressed() || self sprintbuttonpressed() )
-        {
-            time = 0;
-        }
-        if( time == 3600 )
-        {
-            say( clean_player_name_of_clantag( self.name ) + " has been kicked for inactivity!" );
-            kick( self getEntityNumber() );
-        }
-
-        wait 0.05;
-        time++;
-    }
 }
 
 give_points_on_restart_and_round_change()
@@ -325,149 +152,32 @@ give_points_on_restart_and_round_change()
 	}
 }
 
-
-
 set_team( swap_team )
 {
-	if ( is_true( swap_team ) )
-	{
-		if ( self.grief_desired_team == "A" )
-		{
-			self.team = "allies";
-			self.sessionteam = "allies";
-			self.pers[ "team" ] = "allies";
-			self._encounters_team = "B";
-		}
-		else 
-		{
-			self.team = "allies";
-			self.sessionteam = "allies";
-			self.pers[ "team" ] = "allies";
-			self._encounters_team = "B";
-		}
-		self [[ level.givecustomcharacters ]]();
-		return;
-	}
 	teamplayersallies = countplayers( "allies");
 	teamplayersaxis = countplayers( "axis");
-	if ( getDvarInt( "grief_gamerule_use_preset_teams" ) == 1 )
+	if ( teamplayersallies > teamplayersaxis && !level.isresetting_grief )
 	{
-	 	allies_team_members = getDvar( "grief_allies_team_player_names" );
-		team_keys = strTok( allies_team_members, "+" ); 
-		if ( teamplayersallies < 4 )
-		{
-			foreach ( key in team_keys )
-			{
-				logline1 = "Checking player: " + self.name + " comparing with: " + key + "\n";
-				logprint( logline1 );
-				if ( self.name == key )
-				{
-					self.team = "allies";
-					self.sessionteam = "allies";
-					self.pers[ "team" ] = "allies";
-					self._encounters_team = "B";
-					team_is_defined = 1;
-					logline1 = "trying to set player based on name: " + self.name + " to preset team: " + self.team + "\n";
-					logprint( logline1 );
-					break;
-				}
-			}
-		}
-		if ( !is_true( team_is_defined ) )
-		{
-			teamplayersaxis = countplayers( "axis");
-			if ( teamplayersaxis < 4 )
-			{
-				self.team = "axis";
-				self.sessionteam = "axis";
-				self.pers[ "team" ] = "axis";
-				self._encounters_team = "A"; 
-				team_is_defined = 1;
-				logline1 = "player didn't have name match: " + self.name + " to preset team: " + self.team + "\n";
-				logprint( logline1 );
-			}
-			else 
-			{
-				self.team = "allies";
-				self.sessionteam = "allies";
-				self.pers[ "team" ] = "allies";
-				self._encounters_team = "B";
-				team_is_defined = 1;
-				logline1 = "player team failsafe: " + self.name + " to preset team: " + self.team + "\n";
-				logprint( logline1 );
-			}
-		}
+		self.team = "axis";
+		self.sessionteam = "axis";
+		self.pers[ "team" ] = "axis";
+		self._encounters_team = "A";
 	}
-	else if ( getDvarInt( "grief_gamerule_use_mmr_teams" ) == 1 )
+	else if ( teamplayersallies < teamplayersaxis && !level.isresetting_grief)
 	{
-		self.mmr = self get_mmr();
-		total_mmr = get_total_mmr();
-		equal_mmr = total_mmr / 2;
-
+		self.team = "allies";
+		self.sessionteam = "allies";
+		self.pers[ "team" ] = "allies";
+		self._encounters_team = "B";
 	}
-	else 
+	else
 	{
-		teamplayersallies = countplayers( "allies");
-		teamplayersaxis = countplayers( "axis");
-		if ( teamplayersallies > teamplayersaxis && !level.isresetting_grief )
-		{
-			self.team = "axis";
-			self.sessionteam = "axis";
-			self.pers[ "team" ] = "axis";
-			self._encounters_team = "A";
-		}
-		else if ( teamplayersallies < teamplayersaxis && !level.isresetting_grief)
-		{
-			self.team = "allies";
-			self.sessionteam = "allies";
-			self.pers[ "team" ] = "allies";
-			self._encounters_team = "B";
-		}
-		else
-		{
-			self.team = "allies";
-			self.sessionteam = "allies";
-			self.pers[ "team" ] = "allies";
-			self._encounters_team = "B";
-		}
+		self.team = "allies";
+		self.sessionteam = "allies";
+		self.pers[ "team" ] = "allies";
+		self._encounters_team = "B";
 	}
 	self [[ level.givecustomcharacters ]]();
-}
-
-get_mmr()
-{
-	//total_kills = self get_stat( "kills" );
-	//kill_stat_scalar = 0.5;
-	total_stabs = self get_stat( "stabs" );
-	total_stabs_scalar = 5;
-	total_kills_confirmed = self get_stat( "kills_confirmed" );
-	total_kills_confirmed_scalar = 25;
-	total_revives = self get_stat( "revives" );
-	total_revives_scalar = 15;
-	total_assists = self get_stat( "assists" );
-	total_assists_scalar = 15;
-	total_wins = self get_stat( "wins" );
-	total_wins_scalar = 100;
-	total_games = self get_stat( "total_games" );
-	total_games_scalar = 50;
-	win_rate_percent = total_wins / total_games;
-	win_rate = int( ( win_rate_percent * 100 ) );
-	
-}
-
-get_total_mmr()
-{
-
-}
-
-get_stat( statname )
-{
-	statvalue = look_up_player_stat_table( statname, self.name, self getXUID() );
-}
-
-look_up_player_stat_table( statname, player_name, player_xuid )
-{
-
 }
 
 is_weapon_shotgun( sweapon )
@@ -488,56 +198,6 @@ is_weapon_shotgun( sweapon )
 		default:
 			return 0;
 	}
-}
-
-test_bots()
-{
-	add_bots();
-}
-
-add_bots()
-{
-	//Wait for the host!
-	players = get_players();
-	while ( players.size < 1 )
-	{
-		players = get_players();
-		wait 1;
-		if ( getDvarInt( "debugModBotsWaitForPlayers" ) == 0 )
-		{
-			break;
-		}
-	}
-	wait 5;
-	//Then spawn bots
-	botsToSpawn = getDvarIntDefault( "debugModBotsToSpawn", 7 );
-	for ( currentBots = 0; currentBots < botsToSpawn; currentBots++ )
-	{
-		wait 0.25;
-		zbot_spawn();
-	}
-	SetDvar("bot_AllowMovement", "1");
-	SetDvar("bot_PressAttackBtn", "1");
-	SetDvar("bot_PressMeleeBtn", "1");
-}
-
-zbot_spawn()
-{
-	bot = AddTestClient();			
-	bot.equipment_enabled = false;
-	bot [[ level.spawnplayer ]]();
-	return bot;
-}
-
-init_tournament_mode()
-{
-	team_size = getDvarIntDefault( "grief_tournament_team_size", 4 );
-	minplayers = team_size * 2;
-	setDvar( "zombies_minplayers", minplayers );
-}
-
-grief_track_stats()
-{
 }
 
 init_gamerules()
@@ -561,71 +221,6 @@ init_gamerules()
 	level.grief_gamerules[ "player_health" ] = getDvarIntDefault( "grief_gamerule_player_health", 100 );
 	level.grief_gamerules[ "perk_limit" ] = getDvarIntDefault( "grief_gamerule_perk_limit", 4 );
 	level.grief_gamerules[ "powerup_restrictions" ] = getDvar( "grief_gamerule_powerup_restrictions" );
-	 //location farm perkA specialty_armorvest perkB specialty_fastreload
-	//init_gamelengths();
-}
-/*
-init_gamelengths()
-{
-	if ( getDvar( "grief_game_length_override" ) != "" )
-	{
-		switch ( getDvar( "grief_game_length_override" ) )
-		{
-			case "short":
-				setup_grief_rule_for_game_length( "perk_restrictions", "specialty_quickrevive specialty_armorvest specialty_weapupgrade" );
-				setup_grief_rule_for_game_length( "zombies_per_round", 3 );
-				setup_grief_rule_for_game_length( "scorelimit", 3 );
-				setup_grief_rule_for_game_length( "mystery_box_enabled", 0 );
-				setup_grief_rule_for_game_length( "door_restrictions", "" );
-				setup_grief_rule_for_game_length( "start_round", 20 );
-				restart_points = level.round_number * 500;
-				setup_grief_rule_for_game_length( "restart_points", restart_points );
-				break;
-			case "medium":
-				setup_grief_rule_for_game_length( "perk_restrictions", "specialty_weapupgrade" );
-				setup_grief_rule_for_game_length( "zombies_per_round", 3 );
-				setup_grief_rule_for_game_length( "scorelimit", 3 );
-				setup_grief_rule_for_game_length( "mystery_box_enabled", 1 );
-				setup_grief_rule_for_game_length( "door_restrictions", "" );
-				setup_grief_rule_for_game_length( "start_round", 10 );
-				break;
-			case "long":
-				setup_grief_rule_for_game_length( "perk_restrictions", "" );
-				setup_grief_rule_for_game_length( "zombies_per_round", 3 );
-				setup_grief_rule_for_game_length( "scorelimit", 2 );
-				setup_grief_rule_for_game_length( "mystery_box_enabled", 1 );
-				setup_grief_rule_for_game_length( "door_restrictions", "" );
-				setup_grief_rule_for_game_length( "start_round", 1 );
-				break;
-			default:
-				logline1 = "Invalid game length" + "\n";
-				logprint( logline1 );
-				break;
-		}
-	}
-}
-*/
-setup_grief_rule_for_game_length( rule, value )
-{
-	level.grief_gamerules[ rule ] = value;
-}
-
-//doesn't work yet
-grief_restrict_wallbuy( weapon )
-{
-	if ( level.grief_gamerules[ "wall_weapon_restrictions" ] == "" )
-	{
-		return false;
-	}
-	weapon_keys = strTok( level.grief_gamerules[ "wall_weapon_restrictions" ], " " );
-	foreach ( key in weapon_keys )
-	{
-		if ( key == weapon )
-		{
-			return true;
-		}
-	}
-	return false;
 }
 
 grief_parse_perk_restrictions()
@@ -669,7 +264,6 @@ remove_powerup( powerup )
 //HUD Grouping
 draw_hud()
 {
-	level thread zombiesleft_hud();
 	level thread grief_score();
 	level thread grief_score_shaders();
 	level thread destroy_hud_on_game_end();
@@ -687,32 +281,32 @@ round_change_hud()
 		level.round_countdown_timer destroy();
 	}
 	remaining = create_simple_hud();
-  	remaining.horzAlign = "center";
-  	remaining.vertAlign = "middle";
-   	remaining.alignX = "center";
-   	remaining.alignY = "middle";
-   	remaining.y = 20;
-   	remaining.x = 0;
-   	remaining.foreground = 1;
-   	remaining.fontscale = 2.0;
-   	remaining.alpha = 1;
-   	remaining.color = ( 0.98, 0.549, 0 );
+	remaining.horzAlign = "center";
+	remaining.vertAlign = "middle";
+	remaining.alignX = "center";
+	remaining.alignY = "middle";
+	remaining.y = 20;
+	remaining.x = 0;
+	remaining.foreground = 1;
+	remaining.fontscale = 2.0;
+	remaining.alpha = 1;
+	remaining.color = ( 0.98, 0.549, 0 );
 	remaining.hidewheninmenu = 1;
-	remaining maps/mp/gametypes_zm/_hud::fontpulseinit();
+	remaining maps\mp\gametypes_zm\_hud::fontpulseinit();
 
-   	countdown = create_simple_hud();
-   	countdown.horzAlign = "center"; 
-   	countdown.vertAlign = "middle";
-   	countdown.alignX = "center";
-   	countdown.alignY = "middle";
-   	countdown.y = -20;
-   	countdown.x = 0;
-   	countdown.foreground = 1;
-   	countdown.fontscale = 2.0;
-   	countdown.alpha = 1;
-   	countdown.color = ( 1.000, 1.000, 1.000 );
+	countdown = create_simple_hud();
+	countdown.horzAlign = "center"; 
+	countdown.vertAlign = "middle";
+	countdown.alignX = "center";
+	countdown.alignY = "middle";
+	countdown.y = -20;
+	countdown.x = 0;
+	countdown.foreground = 1;
+	countdown.fontscale = 2.0;
+	countdown.alpha = 1;
+	countdown.color = ( 1.000, 1.000, 1.000 );
 	countdown.hidewheninmenu = 1;
-   	countdown setText( "Next Round Starts In" );
+	countdown setText( "Next Round Starts In" );
 	level.round_countdown_timer = remaining;
 	level.round_countdown_text = countdown;
 	timer = level.grief_gamerules[ "next_round_time" ];
@@ -743,7 +337,7 @@ countdown_pulse( hud_elem, duration )
 	waittillframeend;
 	while ( duration > 0 && !level.gameended )
 	{
-		hud_elem thread maps/mp/gametypes_zm/_hud::fontpulse( level );
+		hud_elem thread maps\mp\gametypes_zm\_hud::fontpulse( level );
 		wait ( hud_elem.inframes * 0.05 );
 		hud_elem setvalue( duration );
 		duration--;
@@ -755,32 +349,32 @@ intermission_hud()
 {   
 	level endon( "end_game" );
 	remaining = create_simple_hud();
-  	remaining.horzAlign = "center";
-  	remaining.vertAlign = "middle";
-   	remaining.alignX = "center";
-   	remaining.alignY = "middle";
-   	remaining.y = 20;
-   	remaining.x = 0;
-   	remaining.foreground = 1;
-   	remaining.fontscale = 2.0;
-   	remaining.alpha = 1;
-   	remaining.color = ( 0.98, 0.549, 0 );
+	remaining.horzAlign = "center";
+	remaining.vertAlign = "middle";
+	remaining.alignX = "center";
+	remaining.alignY = "middle";
+	remaining.y = 20;
+	remaining.x = 0;
+	remaining.foreground = 1;
+	remaining.fontscale = 2.0;
+	remaining.alpha = 1;
+	remaining.color = ( 0.98, 0.549, 0 );
 	remaining.hidewheninmenu = 1;
-	remaining maps/mp/gametypes_zm/_hud::fontpulseinit();
+	remaining maps\mp\gametypes_zm\_hud::fontpulseinit();
 
-   	countdown = create_simple_hud();
-   	countdown.horzAlign = "center"; 
-   	countdown.vertAlign = "middle";
-   	countdown.alignX = "center";
-   	countdown.alignY = "middle";
-   	countdown.y = -20;
-   	countdown.x = 0;
-   	countdown.foreground = 1;
-   	countdown.fontscale = 2.0;
-   	countdown.alpha = 1;
-   	countdown.color = ( 1.000, 1.000, 1.000 );
+	countdown = create_simple_hud();
+	countdown.horzAlign = "center"; 
+	countdown.vertAlign = "middle";
+	countdown.alignX = "center";
+	countdown.alignY = "middle";
+	countdown.y = -20;
+	countdown.x = 0;
+	countdown.foreground = 1;
+	countdown.fontscale = 2.0;
+	countdown.alpha = 1;
+	countdown.color = ( 1.000, 1.000, 1.000 );
 	countdown.hidewheninmenu = 1;
-   	countdown setText( "Intermission" );
+	countdown setText( "Intermission" );
 	level.intermission_countdown = remaining;
 	level.intermission_text = countdown;
 	timer = level.grief_gamerules[ "intermission_time" ];
@@ -803,32 +397,6 @@ intermission_hud()
 	{
 		level.intermission_text destroy();
 	}
-}
-
-zombiesleft_hud()
-{   
-	level endon( "end_game" );
-	flag_wait( "initial_blackscreen_passed" );
-
-	level.remaining_zombies_hud = create_simple_hud();
-	level.remaining_zombies_hud.alignx = "left";
-    level.remaining_zombies_hud.aligny = "top";
-    level.remaining_zombies_hud.horzalign = "user_left";
-    level.remaining_zombies_hud.vertalign = "user_top";
-    level.remaining_zombies_hud.x += 5;
-    level.remaining_zombies_hud.y += 2;
-    level.remaining_zombies_hud.fontscale = 1.5;
-    level.remaining_zombies_hud.color = ( 0.423, 0.004, 0 );
-	level.remaining_zombies_hud.alpha = 1;
-    level.remaining_zombies_hud.hidewheninmenu = 1;
-    level.remaining_zombies_hud.label = &"Zombies Left: "; 
-
-	while ( true )
-	{
-		remaining_zombies = get_current_zombie_count() + level.zombie_total;
-		level.remaining_zombies_hud setValue( remaining_zombies );
-		wait 0.05;
-	}		
 }
 
 destroy_hud_on_game_end()
@@ -877,20 +445,20 @@ grief_score()
 	flag_wait( "initial_blackscreen_passed" );
 	level.grief_score_hud = [];
 	level.grief_score_hud[ "A" ] = create_simple_hud();
-    level.grief_score_hud[ "A" ].x += 440;
-    level.grief_score_hud[ "A" ].y += 20;
-    level.grief_score_hud[ "A" ].fontscale = 2.5;
-    level.grief_score_hud[ "A" ].color = ( 0.423, 0.004, 0 );
+	level.grief_score_hud[ "A" ].x += 440;
+	level.grief_score_hud[ "A" ].y += 20;
+	level.grief_score_hud[ "A" ].fontscale = 2.5;
+	level.grief_score_hud[ "A" ].color = ( 0.423, 0.004, 0 );
 	level.grief_score_hud[ "A" ].alpha = 1;
-    level.grief_score_hud[ "A" ].hidewheninmenu = 1;
+	level.grief_score_hud[ "A" ].hidewheninmenu = 1;
 	level.grief_score_hud[ "A" ] setValue( 0 );
 	level.grief_score_hud[ "B" ] = create_simple_hud();
-    level.grief_score_hud[ "B" ].x += 240;
-    level.grief_score_hud[ "B" ].y += 20;
-    level.grief_score_hud[ "B" ].fontscale = 2.5;
-    level.grief_score_hud[ "B" ].color = ( 0.423, 0.004, 0 );
+	level.grief_score_hud[ "B" ].x += 240;
+	level.grief_score_hud[ "B" ].y += 20;
+	level.grief_score_hud[ "B" ].fontscale = 2.5;
+	level.grief_score_hud[ "B" ].color = ( 0.423, 0.004, 0 );
 	level.grief_score_hud[ "B" ].alpha = 1;
-    level.grief_score_hud[ "B" ].hidewheninmenu = 1;
+	level.grief_score_hud[ "B" ].hidewheninmenu = 1;
 	level.grief_score_hud[ "B" ] setValue( 0 );
 
 	while ( 1 )
@@ -975,7 +543,7 @@ grief_loadout_save( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir,
 }
 
 //Function Overrides
-round_spawning() //checked changed to match cerberus output
+round_spawning()
 {
 	level endon( "intermission" );
 	level endon( "end_of_round" );
@@ -1057,8 +625,6 @@ round_spawning() //checked changed to match cerberus output
 		}
 		if ( isDefined( ai ) )
 		{
-			level.zombie_total--;
-
 			ai thread round_spawn_failsafe();
 			count++;
 		}
@@ -1094,7 +660,7 @@ game_module_player_damage_callback( einflictor, eattacker, idamage, idflags, sme
 	{
 		self player_steal_points( eattacker, smeansofdeath );
 	}
-	if ( is_true( self._being_shellshocked ) || self maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
+	if ( is_true( self._being_shellshocked ) || self maps\mp\zombies\_zm_laststand::player_is_in_laststand() )
 	{
 		return;
 	}
@@ -1107,14 +673,14 @@ game_module_player_damage_callback( einflictor, eattacker, idamage, idflags, sme
 		{
 			if ( is_true( self.hasriotshieldequipped ) )
 			{
-				if ( self maps/mp/zombies/_zm::player_shield_facing_attacker( vdir, 0.2 ) && isDefined( self.player_shield_apply_damage ) )
+				if ( self maps\mp\zombies\_zm::player_shield_facing_attacker( vdir, 0.2 ) && isDefined( self.player_shield_apply_damage ) )
 				{
 					return;
 				}
 			}
 			else if ( !isdefined( self.riotshieldentity ) )
 			{
-				if ( !self maps/mp/zombies/_zm::player_shield_facing_attacker( vdir, -0.2 ) && isdefined( self.player_shield_apply_damage ) )
+				if ( !self maps\mp\zombies\_zm::player_shield_facing_attacker( vdir, -0.2 ) && isdefined( self.player_shield_apply_damage ) )
 				{
 					return;
 				}
@@ -1184,71 +750,6 @@ watch_for_down( attacker )
 	self.grief_already_checking_for_down = 0;
 }
 
-meat_bounce_override( pos, normal, ent ) //checked matches cerberus output
-{
-	if ( isdefined( ent ) && isplayer( ent ) )
-	{
-		if ( !ent maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
-		{
-			level thread meat_stink_player( ent );
-			if ( isdefined( self.owner ) )
-			{
-				ent player_steal_points( self.owner, "meat" );
-				maps/mp/_demo::bookmark( "zm_player_meat_stink", GetTime(), ent, self.owner, 0, self );
-				self.owner maps/mp/zombies/_zm_stats::increment_client_stat( "contaminations_given" );
-			}
-		}
-	}
-	else
-	{
-		players = getplayers();
-		closest_player = undefined;
-		closest_player_dist = 10000;
-		player_index = 0;
-		while ( player_index < players.size )
-		{
-			player_to_check = players[ player_index ];
-			if ( self.owner == player_to_check )
-			{
-				player_index++;
-				continue;
-			}
-			if ( player_to_check maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
-			{
-				player_index++;
-				continue;
-			}
-			distsq = distancesquared( pos, player_to_check.origin );
-			if ( distsq < closest_player_dist )
-			{
-				closest_player = player_to_check;
-				closest_player_dist = distsq;
-			}
-			player_index++;
-		}
-		if ( isdefined( closest_player ) )
-		{
-			level thread meat_stink_player( closest_player );
-			if ( isdefined( self.owner ) )
-			{
-				maps/mp/_demo::bookmark( "zm_player_meat_stink", GetTime(), closest_player, self.owner, 0, self );
-				self.owner maps/mp/zombies/_zm_stats::increment_client_stat( "contaminations_given" );
-			}
-		}
-		else
-		{
-			valid_poi = check_point_in_enabled_zone( pos, undefined, undefined );
-			if ( valid_poi )
-			{
-				self hide();
-				level thread meat_stink_on_ground( self.origin );
-			}
-		}
-		playfx( level._effect[ "meat_impact" ], self.origin );
-	}
-	self delete();
-}
-
 player_steal_points( attacker, event )
 {
 	if ( level.intermission )
@@ -1271,7 +772,7 @@ player_steal_points( attacker, event )
 	{
 		event = "impact";
 	}
-	if ( isDefined( attacker ) && isDefined( self ) && self maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
+	if ( isDefined( attacker ) && isDefined( self ) && self maps\mp\zombies\_zm_laststand::player_is_in_laststand() )
 	{
 		points_to_steal = 0;
 		switch( event )
@@ -1389,497 +890,6 @@ grief_brutus_logic()
 	}
 }
 
-clean_player_name_of_clantag( name )
-{
-	if ( isSubStr( name, "]" ) )
-	{
-		keys = strTok( name, "]" );
-		return keys[ 1 ];
-	}
-	return name;
-}
-
-commands()
-{
-	setDvar( "grief_original_rotation", getDvar( "sv_maprotation" ) );
-	while ( true )
-    {
-        level waittill( "say", player, message );
-        if ( !isSubStr( message, "!" ) )
-        {
-            continue;
-        }
-		args = strTok( message, ":" );
-        keys = strTok( args[ 0 ], "!" );
-        command = keys[ 0 ];
-		printF( command ); 
-        if ( player has_permissions_for_command( command, args ) )
-        {
-            switch ( command )
-            {
-				case "b":
-				case "ban":
-					if ( args[ 1 ] == clean_player_name_of_clantag( player.name ) )
-					{
-						continue;
-					}
-					ban_player( args[ 1 ] );
-					break;
-				// case "fr":
-				// case "restart":
-				// case "maprestart":
-				// 	cmdexecute( "map_restart" );
-				// 	break;
-				case "nm":
-				case "nextmap":
-                case "setnextmap":
-                    find_alias_and_set_map( toLower( args[ 1 ] ), player, 0 );
-                    break;
-				// case "mr":
-                // case "maprotate":
-                //     cmdexecute( "map_rotate" );
-                //     break;
-				case "m":
-				case "map":
-					find_alias_and_set_map( toLower( args[ 1 ] ), player, 1 );
-					break;
-				case "rr":
-				case "resetrotation":
-					setDvar( "sv_maprotationCurrent", getDvar( "grief_original_rotation" ) );
-					break;
-				// case "s":
-				// case "swap":
-				// case "switchteam":
-				// 	player1 = grief_set_buffer_team( clean_player_name_of_clantag( args[ 1 ] ) );
-				// 	if ( !isDefined( player1 ) )
-				// 	{
-				// 		continue;
-				// 	}
-				// 	player2 = grief_set_buffer_team( clean_player_name_of_clantag( args[ 1 ] ) );
-				// 	if ( !isDefined( player2 ) )
-				// 	{
-				// 		continue;
-				// 	}
-				// 	player1.grief_desired_team = player2.grief_og_team;
-				// 	player2.grief_desired_team = player1.grief_og_team;
-				// 	player1 set_team( 1 );
-				// 	player2 set_team( 1 );
-				// 	break;
-				case "k":
-				case "kick":
-					foreach ( player in level.players )
-					{
-						if ( clean_player_name_of_clantag( player.name ) == clean_player_name_of_clantag( args[ 1 ] ) )
-						{
-							say( clean_player_name_of_clantag( player.name ) + " has been kicked!" );
-							kick( player getEntityNumber() );
-						}
-					}
-					break;
-				case "mv":
-				case "mapvote":
-					if ( !is_true( level.mapvote_in_progress ) )
-					{
-						level thread mapvote_started();
-						level thread mapvote_count_votes();
-						level thread mapvote_end();
-						level.mapvote_in_progress = 1;
-						say( "Mapvote started!" );
-					}
-					level notify( "grief_mapvote", args[ 1 ], player );
-					break;
-				case "v":
-				case "vk":
-				case "votekick":
-					if ( !is_true( level.votekick_in_progress ) )
-					{
-						level thread vote_kick_started();
-						level thread vote_kick_watch_for_end();
-						level.votekick_in_progress = 1;
-						say( "Votekick started!" );
-					}
-					level notify( "grief_votekick", clean_player_name_of_clantag( args[ 1 ] ), player );
-					break;
-				// case "gts":
-				// 	setgametypeSetting( args[ 1 ], args[ 2 ] );
-				// 	break;
-				case "dvar":
-					setDvar( args[ 1 ], args[ 2 ] );
-					break;
-				default:
-					player tell( "No such command exists" );
-					break;
-            }
-        }
-    }
-}
-
-vote_kick_started()
-{
-	level endon( "end_game" );
-	level endon( "grief_votekick_ended" );
-	for ( i = 0; i < level.players.size; i++ )
-	{
-		level.players[ i ].kick_votes = 0;
-	}
-	while ( true )
-	{
-		level waittill( "grief_votekick", player_name, player );
-		if ( !isDefined( vote ) )
-		{
-			continue;
-		}
-		for( i = 0; i < level.players.size; i++ )
-		{
-			if( player_name == clean_player_name_of_clantag( level.players[ i ].name ) )
-			{
-				level.players[ i ].kick_votes++;
-			}
-		}
-	}
-}
-
-votekick_count_votes()
-{
-	level endon( "end_game" );
-	level endon( "grief_votekick_ended" );
-	start_time = getTime() / 1000;
-	while ( true )
-	{
-		for ( i = 0; i < level.players.size; i++ )
-		{
-			if ( level.players[ i ].kick_votes >= get_vote_kick_threshold() )
-			{
-				kick( level.players[ i ] getEntityNumber() );
-				say( level.players[ i ].name + " was kicked!" );
-				level notify( "grief_votekick_ended" );
-			}
-		}
-		if ( ( getTime() / 1000 ) > ( start_time + 60 ) )
-		{	
-			say( "Vote kick timed out!" );
-			level notify( "grief_votekick_ended" );
-		}
-		wait 0.05;
-	}
-}
-
-get_vote_kick_threshold()
-{
-	switch ( level.players.size )
-	{
-		case 1:
-		case 2:
-			return 99;
-		case 3:
-			return 2;
-		case 4:
-			return 3;
-		case 5:
-			return 4;
-		case 6:
-			return 4;
-		case 7:
-			return 5;
-		case 8:
-			return 5;
-	}
-}
-
-setup_permissions()
-{
-    level.server_users = [];
-    level.server_users[ "Admins" ] = spawnStruct();
-    level.server_users[ "Admins" ].names = [];
-    level.server_users[ "Admins" ].guids = [];
-	//level.server_users[ "Admins" ].guids_hex = [];
-    // level.server_users[ "Moderators" ] = spawnStruct();
-    // level.server_users[ "Moderators" ].names = [];
-    // level.server_users[ "Moderators" ].guids = [];
-    // level.server_users[ "TrustedUsers" ] = spawnStruct();
-    // level.server_users[ "TrustedUsers" ].names = [];
-    // level.server_users[ "TrustedUsers" ].guids = [];
-    path = level.basepath + "command_permissions.txt";
-    file = fopen(path, "r+");
-    buffer = [];
-    i = 0;
-    buffer = "";
-    while ( 1 ) 
-    {
-        eof = feof( file );
-        if ( eof )
-        {
-            break;
-        }
-        buffer += fgetc( file );
-    }
-    fclose( file );
-	rank_type = strTok( buffer, ":" );
-	names_and_guids = strTok( rank_type[ 1 ], "," );
-	rank = rank_type[ 0 ];
-	for ( j = 0; j < names_and_guids.size; j++ )
-	{
-		names_keys = strTok( names_and_guids[ j ], "<" );
-		level.server_users[ rank ].names[ j ] = names_keys[ 0 ];
-	}
-	for ( j = 0; j < names_and_guids.size; j++ )
-	{
-		guids_keys = strTok( names_and_guids[ j ], "<" );
-		level.server_users[ rank ].guids[ j ] = int( guids_keys[ 1 ] );
-		// hex = DecToHex2( guids_keys[ 1 ] );
-		// level.server_users[ rank ].guids_hex[ j ] = hex;
-	}
-}
-
-find_alias_and_set_map( mapname, player, map_rotate )
-{
-    switch ( mapname )
-    {
-		case "c":
-		case "cell":
-		case "block":
-        case "cellblock":
-            gamemode = "grief";
-            location = "cellblock";
-            mapname = "zm_prison";
-            break;
-		case "s":
-        case "street":
-		case "borough":
-            gamemode = "grief";
-            location = "street";
-            mapname = "zm_buried";
-            break;
-		case "f":
-        case "farm":
-            gamemode = "grief";
-            location = "farm";
-            mapname = "zm_transit";
-            break;
-		case "t":
-        case "town":
-            gamemode = "grief";
-            location = "town";
-            mapname = "zm_transit";
-            break;
-		case "b":
-		case "bus":
-        case "depot":
-            gamemode = "grief";
-            location = "transit";
-            mapname = "zm_transit";
-            break;
-		case "d":
-		case "din":
-		case "diner":
-            gamemode = "grief";
-            location = "diner";
-            mapname = "zm_transit";
-            break;
-		case "t":
-        case "tunnel":
-            gamemode = "grief";
-            location = "tunnel";
-            mapname = "zm_transit";
-            break;
-		case "p":
-		case "pow":
-        case "power":
-            gamemode = "grief";
-            location = "power";
-            mapname = "zm_transit";
-            break;
-        default:
-            player tell( "Invalid map" );
-            return;
-    }
-    setDvar( "sv_maprotation", "exec zm_" + gamemode + "_" + location + ".cfg" + " map " + mapname );
-	setDvar( "sv_maprotationCurrent", "exec zm_" + gamemode + "_" + location + ".cfg" + " map " + mapname );
-	if ( map_rotate )
-	{
-		cmdexecute( "map_rotate" );
-	}
-}
-
-give_player_points( points )
-{
-    self.score += points;
-    self.pers[ "score" ] = self.score;
-    self.score_total += points;
-}
-
-has_permissions_for_command( command, args )
-{
-	for ( i = 0; i < level.grief_no_permissions_required_commands; i++ )
-	{
-		if ( command == level.grief_no_permissions_required_commands[ i ] )
-		{
-			return 1;
-		}
-	}
-    for ( i = 0; i < level.server_users[ "Admins" ].names.size; i++ )
-    {
-        if ( self.name == level.server_users[ "Admins" ].names[ i ] )
-        {
-            return 1;
-        }
-    }
-    return 0;
-}
-
-initialize_no_permissions_required_commands()
-{
-	level.grief_no_permissions_required_commands = [];
-	level.grief_no_permissions_required_commands[ 0 ] = "mv";
-	level.grief_no_permissions_required_commands[ 1 ] = "mapvote";
-	level.grief_no_permissions_required_commands[ 2 ] = "v";
-	level.grief_no_permissions_required_commands[ 3 ] = "vk";
-	level.grief_no_permissions_required_commands[ 4 ] = "votekick";
-
-	level.mapvote_array = [];
-	level.mapvote_array[ 0 ] = spawnStruct();
-	level.mapvote_array[ 0 ].mapname = "cellblock";
-	level.mapvote_array[ 0 ].aliases = array( "c", "cell", "block", "cellblock", "mob" );
-	level.mapvote_array[ 0 ].votes = 0;
-	level.mapvote_array[ 1 ] = spawnStruct();
-	level.mapvote_array[ 1 ].mapname = "borough";
-	level.mapvote_array[ 1 ].aliases = array( "s", "street", "borough", "buried" );
-	level.mapvote_array[ 1 ].votes = 0;
-	level.mapvote_array[ 2 ] = spawnStruct();
-	level.mapvote_array[ 2 ].mapname = "farm";
-	level.mapvote_array[ 2 ].aliases = array( "f", "farm" );
-	level.mapvote_array[ 2 ].votes = 0;
-	level.mapvote_array[ 3 ] = spawnStruct();
-	level.mapvote_array[ 3 ].mapname = "town";
-	level.mapvote_array[ 3 ].aliases = array( "t", "town" );
-	level.mapvote_array[ 3 ].votes = 0;
-	level.mapvote_array[ 4 ] = spawnStruct();
-	level.mapvote_array[ 4 ].mapname = "depot";
-	level.mapvote_array[ 4 ].aliases = array( "b", "bus", "depot" );
-	level.mapvote_array[ 4 ].votes = 0;
-	level.mapvote_array[ 5 ] = spawnStruct();
-	level.mapvote_array[ 5 ].mapname = "diner";
-	level.mapvote_array[ 5 ].aliases = array( "d", "din", "diner" );
-	level.mapvote_array[ 5 ].votes = 0;
-	level.mapvote_array[ 6 ] = spawnStruct();
-	level.mapvote_array[ 6 ].mapname = "tunnel";
-	level.mapvote_array[ 6 ].aliases = array( "t", "tunnel" );
-	level.mapvote_array[ 6 ].votes = 0;
-	level.mapvote_array[ 7 ] = spawnStruct();
-	level.mapvote_array[ 7 ].mapname = "power";
-	level.mapvote_array[ 7 ].aliases = array( "p", "pow", "power" );
-	level.mapvote_array[ 7 ].votes = 0;
-}
-
-mapvote_started()
-{
-	level endon( "end_game" );
-	level endon( "grief_mapvote_ended" );
-	while ( true )
-	{
-		level waittill( "grief_mapvote", vote, player );
-		if ( !isDefined( vote ) )
-		{
-			continue;
-		}
-		if ( !isDefined( player.previous_votes ) )
-		{
-			player.previous_votes = [];
-		}
-		mapname = "NULL";
-		for ( i = 0; i < level.mapvote_array.size; i++ )
-		{
-			if ( mapname != "NULL" )
-			{
-				player.has_mapvoted_previously = 1;
-				break;
-			}
-			for ( j = 0; j < level.mapvote_array[ i ].aliases.size; j++ )
-			{
-				if ( level.mapvote_array[ i ].aliases[ j ] == vote )
-				{
-					mapname = level.mapvote_array[ i ].mapname;
-					player.previous_votes[ player.previous_votes.size ] = mapname;
-					if ( is_true( player.has_mapvoted_previously ) )
-					{
-						for ( k = 0; k < player.previous_votes.size; k++ )
-						{
-							if ( player.previous_votes[ k ] != mapname )
-							{
-								level.mapvote_array[ i ].votes++;
-								player tell( "You voted for " + mapname + " which has " + level.mapvote_array[ i ].votes + " votes" );
-								break;
-							}
-						}
-					}
-					else 
-					{
-						level.mapvote_array[ i ].votes++;
-						player tell( "You voted for " + mapname + " which has " + level.mapvote_array[ i ].votes + " votes" );
-						break;
-					}
-				}
-			}
-		}
-		if ( mapname == "NULL" )
-		{
-			player tell( "Invalid map" );
-		}
-	}
-}
-
-mapvote_count_votes()
-{
-	level endon( "end_game" );
-	level endon( "grief_mapvote_ended" );
-	start_time = getTime() / 1000;
-	current_time = start_time;
-	while ( true )
-	{
-		for ( i = 0; i < level.mapvote_array.size; i++ )
-		{
-			if ( level.mapvote_array[ i ].votes > ( level.players.size / 2 ) )
-			{
-				map = level.mapvote_array[ i ].mapname;
-				break;
-			}
-		}
-		if ( isDefined( map ) )
-		{
-			break;
-		}
-		if ( ( getTime() / 1000 ) > ( start_time + 60 ) )
-		{
-			level notify( "grief_mapvote_ended" );
-		}
-		wait 0.05;
-	}
-	level notify( "grief_mapvote_ended", map );
-}
-
-mapvote_end()
-{
-	level waittill( "grief_mapvote_ended", result );
-	if ( isDefined( result ) )
-	{
-		find_alias_and_set_map( toLower( result ), undefined, 0 );
-		say( "Nextmap set to " + result );
-	}
-	else 
-	{
-		say( "Mapvote timed out!" );
-	}
-	level.mapvote_in_progress = 0;
-	foreach ( player in level.players )
-	{
-		player.previous_votes = [];
-	}
-	for ( i = 0; i < level.mapvote_array.size; i++ )
-	{
-		level.mapvote_array[ i ].votes = 0;
-	}
-}
-
 dec2hex( dec ) //credit to fed for this function
 {
 	hex = "";
@@ -1897,29 +907,29 @@ DecToHex2( dec ) //credit to sorex for this function
 	value = dec;
 	hex = "";
 	while(value > 0){
-	    newVal = (int(int(value)%16));
-	    if(newVal > 9){
-	    	switch(newVal){
-	    		case 10:
-	    			hex = "A" + hex ;
-	    		break;
-	    		case 11:
-	    			hex = "B" + hex ;
-	    		break;
-	    		case 12:
-	    			hex = "C" + hex ;
-	    		break;
-	    		case 13:
-	    			hex = "D" + hex ;
-	    		break;
-	    		case 14:
-	    			hex = "E" + hex ;
-	    		break;
-	    		case 15:
-	    			hex = "F" + hex ;
-	    		break;
-	    	}
-	    }else
+		newVal = (int(int(value)%16));
+		if(newVal > 9){
+			switch(newVal){
+				case 10:
+					hex = "A" + hex ;
+				break;
+				case 11:
+					hex = "B" + hex ;
+				break;
+				case 12:
+					hex = "C" + hex ;
+				break;
+				case 13:
+					hex = "D" + hex ;
+				break;
+				case 14:
+					hex = "E" + hex ;
+				break;
+				case 15:
+					hex = "F" + hex ;
+				break;
+			}
+		}else
 			hex = newVal + hex ;
 		value = (int(int(value)/16));
 	}
